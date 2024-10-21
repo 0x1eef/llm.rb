@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 module LLM
-  require "net/http"
-  require "json"
-  require "llm/provider"
-  require "llm/message"
-  require "llm/completion"
-
   class OpenAI < Provider
     HOST = "api.openai.com"
     PATH = "/v1"
@@ -33,7 +27,16 @@ module LLM
       auth req
       res = request @http, req
 
-      Completion.new(res.body, :openai)
+      Response::Completion.new(res.body, self)
+    end
+
+    ##
+    # @param (see LLM::Provider#completion_messages)
+    # @return (see LLM::Provider#completion_messages)
+    def completion_messages(raw)
+      raw["choices"].map do
+        LLM::Message.new(*_1["message"].values_at("role", "content"))
+      end
     end
 
     private
