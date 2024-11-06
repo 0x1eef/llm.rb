@@ -45,6 +45,16 @@ module LLM
       Conversation.new(self, thread)
     end
 
+    ##
+    # Starts a lazy conversation
+    # @param prompt (see LLM::Provider#complete)
+    # @param role (see LLM::Provider#complete)
+    # @raise (see LLM::Provider#complete)
+    # @return [LLM::LazyResponse]
+    def chat!(prompt, role = :user, **params)
+      LazyConversation.new(self).chat(prompt, role, **params)
+    end
+
     private
 
     ##
