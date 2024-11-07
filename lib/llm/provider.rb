@@ -35,6 +35,7 @@ module LLM
     end
 
     ##
+    # Starts a new conversation
     # @param prompt (see LLM::Provider#complete)
     # @param role (see LLM::Provider#complete)
     # @raise (see LLM::Provider#complete)
@@ -74,6 +75,15 @@ module LLM
     #  (see LLM::Provider#complete)
     def response_parser
       raise NotImplementedError
+    end
+
+    ##
+    # Prepares a request before sending it
+    def preflight(req, body)
+      req.content_type = "application/json"
+      req.body = JSON.generate(body)
+      auth(req)
+      req
     end
   end
 end
