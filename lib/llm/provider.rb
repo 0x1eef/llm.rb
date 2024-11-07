@@ -78,6 +78,15 @@ module LLM
     end
 
     ##
+    # @param [Object] prompt
+    #  The prompt (can be any object)
+    # @return [Array, Hash]
+    #  Returns the prompt in a format that the LLM provider can understand
+    def transform_prompt(prompt)
+      prompt
+    end
+
+    ##
     # Prepares a request before sending it
     def preflight(req, body)
       req.content_type = "application/json"
