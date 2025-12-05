@@ -16,6 +16,9 @@ class LLM::OpenAI
     require_relative "response/enumerable"
     PollError = Class.new(LLM::Error)
 
+    INTERVAL = 0.01
+    private_constant :INTERVAL
+
     ##
     # @param [LLM::Provider] provider
     #  An OpenAI provider
@@ -54,7 +57,7 @@ class LLM::OpenAI
     # @param interval [Float] The interval between polling attempts (seconds)
     # @param (see LLM::OpenAI::VectorStores#create)
     # @return (see LLM::OpenAI::VectorStores#poll)
-    def create_and_poll(interval: 0.01, **rest)
+    def create_and_poll(interval: INTERVAL, **rest)
       poll(interval:, vector: create(**rest))
     end
 
@@ -155,7 +158,7 @@ class LLM::OpenAI
     # @param interval [Float] The interval between polling attempts (seconds)
     # @param (see LLM::OpenAI::VectorStores#add_file)
     # @return (see LLM::OpenAI::VectorStores#poll)
-    def add_file_and_poll(vector:, file:, interval: 0.01, **rest)
+    def add_file_and_poll(vector:, file:, interval: INTERVAL, **rest)
       poll(vector:, interval:, file: add_file(vector:, file:, **rest))
     end
     alias_method :create_file_and_poll, :add_file_and_poll
@@ -218,7 +221,7 @@ class LLM::OpenAI
     # @param [Float] interval The interval between polling attempts (seconds)
     # @raise [LLM::PollError] When the maximum number of iterations is reached
     # @return [LLM::Response]
-    def poll(vector:, file: nil, attempts: 0, max: 50, interval: 0.01)
+    def poll(vector:, file: nil, attempts: 0, max: 50, interval: INTERVAL)
       target = file || vector
       if attempts == max
         raise LLM::PollError, "'#{target.id}' has status '#{target.status}' after #{max} attempts"
