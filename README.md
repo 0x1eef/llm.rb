@@ -1,3 +1,7 @@
+> **Minimal footprint** <br>
+> Zero dependencies outside Ruby’s standard library.
+> Zero runtime dependencies.
+
 ## About
 
 llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
