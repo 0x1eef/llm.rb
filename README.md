@@ -1,5 +1,5 @@
 > **Minimal footprint** <br>
-> Zero dependencies outside Ruby’s standard library.
+> Zero dependencies outside Ruby’s standard library. <br>
 > Zero runtime dependencies.
 
 ## About
