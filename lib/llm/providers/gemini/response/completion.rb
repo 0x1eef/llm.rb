@@ -2,11 +2,44 @@
 
 module LLM::Gemini::Response
   module Completion
-    def model = body.modelVersion
-    def prompt_tokens = body.usageMetadata.promptTokenCount
-    def completion_tokens = body.usageMetadata.candidatesTokenCount
-    def total_tokens = body.usageMetadata.totalTokenCount
-    def choices = format_choices
+    include LLM::Completion
+
+    ##
+    # (see LLM::Completion#messages)
+    def messages
+      format_choices
+    end
+    alias_method :choices, :messages
+
+    ##
+    # (see LLM::Completion#input_tokens)
+    def input_tokens
+      body.usageMetadata.promptTokenCount || 0
+    end
+
+    ##
+    # (see LLM::Completion#output_tokens)
+    def output_tokens
+      body.usageMetadata.candidatesTokenCount || 0
+    end
+
+    ##
+    # (see LLM::Completion#total_tokens)
+    def total_tokens
+      body.usageMetadata.totalTokenCount || 0
+    end
+
+    ##
+    # (see LLM::Completion#usage)
+    def usage
+      super
+    end
+
+    ##
+    # (see LLM::Completion#model)
+    def model
+      body.modelVersion
+    end
 
     private
 

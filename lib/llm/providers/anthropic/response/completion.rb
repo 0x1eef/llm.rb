@@ -2,12 +2,44 @@
 
 module LLM::Anthropic::Response
   module Completion
-    def choices = format_choices
-    def role = body.role
-    def model = body.model
-    def prompt_tokens = body.usage["input_tokens"] || 0
-    def completion_tokens = body.usage["output_tokens"] || 0
-    def total_tokens = prompt_tokens + completion_tokens
+    include LLM::Completion
+
+    ##
+    # (see LLM::Completion#messages)
+    def messages
+      format_choices
+    end
+    alias_method :choices, :messages
+
+    ##
+    # (see LLM::Completion#input_tokens)
+    def input_tokens
+      body.usage["input_tokens"] || 0
+    end
+
+    ##
+    # (see LLM::Completion#output_tokens)
+    def output_tokens
+      body.usage["output_tokens"] || 0
+    end
+
+    ##
+    # (see LLM::Completion#total_tokens)
+    def total_tokens
+      input_tokens + output_tokens
+    end
+
+    ##
+    # (see LLM::Completion#usage)
+    def usage
+      super
+    end
+
+    ##
+    # (see LLM::Completion#model)
+    def model
+      body.model
+    end
 
     private
 
