@@ -140,15 +140,12 @@ module LLM
     ##
     # @note
     #  This method returns token usage for assistant messages,
-    #  and it returns an empty object for non-assistant messages
+    #  and it returns nil for non-assistant messages
     # Returns token usage statistics
-    # @return [LLM::Object]
+    # @return [LLM::Object, nil]
     def usage
-      @usage ||= if response
-        response.usage
-      else
-        LLM::Object.from_hash({})
-      end
+      return nil unless response
+      @usage ||= response.usage
     end
     alias_method :token_usage, :usage
 
