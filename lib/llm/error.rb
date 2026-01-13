@@ -46,4 +46,14 @@ module LLM
   ##
   # When given a prompt object that is not understood
   PromptError = Class.new(FormatError)
+
+  ##
+  # When given an invalid request
+  InvalidRequestError = Class.new(Error) do
+    attr_accessor :response
+  end
+
+  ##
+  # When the context window is exceeded
+  ContextWindowError = Class.new(InvalidRequestError)
 end

@@ -31,6 +31,7 @@ class LLM::OpenAI
       else
         error = body["error"] || {}
         case error["type"]
+        when "invalid_request_error" then handle_invalid_request(error)
         when "server_error" then raise LLM::ServerError.new { _1.response = res }, error["message"]
         else raise LLM::ResponseError.new { _1.response = res }, error["message"] || "Unexpected response"
         end
@@ -38,6 +39,15 @@ class LLM::OpenAI
     end
 
     private
+
+    def handle_invalid_request(error)
+      case error["code"]
+      when "context_length_exceeded"
+        raise LLM::ContextWindowError.new { _1.response = res }, error["message"]
+      else
+        raise LLM::InvalidRequestError.new { _1.response = res }, error["message"]
+      end
+    end
 
     def body
       @body ||= JSON.parse(res.body)
