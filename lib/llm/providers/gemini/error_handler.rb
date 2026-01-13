@@ -29,12 +29,12 @@ class LLM::Gemini
         if reason == "API_KEY_INVALID"
           raise LLM::UnauthorizedError.new { _1.response = res }, "Authentication error"
         else
-          raise LLM::ResponseError.new { _1.response = res }, "Unexpected response"
+          raise LLM::Error.new { _1.response = res }, "Unexpected response"
         end
       when Net::HTTPTooManyRequests
         raise LLM::RateLimitError.new { _1.response = res }, "Too many requests"
       else
-        raise LLM::ResponseError.new { _1.response = res }, "Unexpected response"
+        raise LLM::Error.new { _1.response = res }, "Unexpected response"
       end
     end
 

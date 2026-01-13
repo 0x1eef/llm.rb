@@ -4,40 +4,40 @@ module LLM
   ##
   # The superclass of all LLM errors
   class Error < RuntimeError
+    ##
+    # @return [Net::HTTPResponse, nil]
+    #  Returns the response associated with an error, or nil
+    attr_accessor :response
+
     def initialize(...)
       block_given? ? yield(self) : nil
       super
     end
-  end
-
-  ##
-  # The superclass of all HTTP protocol errors
-  class ResponseError < Error
-    ##
-    # @return [Net::HTTPResponse]
-    #  Returns the response associated with an error
-    attr_accessor :response
 
     def message
-      [super, response.body].join("\n")
+      if response
+        [super, response.body].join("\n")
+      else
+        super
+      end
     end
   end
 
   ##
   # HTTPUnauthorized
-  UnauthorizedError = Class.new(ResponseError)
+  UnauthorizedError = Class.new(Error)
 
   ##
   # HTTPTooManyRequests
-  RateLimitError = Class.new(ResponseError)
+  RateLimitError = Class.new(Error)
 
   ##
   # HTTPServerError
-  ServerError = Class.new(ResponseError)
+  ServerError = Class.new(Error)
 
   ##
   # When no images are found in a response
-  NoImageError = Class.new(ResponseError)
+  NoImageError = Class.new(Error)
 
   ##
   # When an given an input object that is not understood
@@ -49,9 +49,7 @@ module LLM
 
   ##
   # When given an invalid request
-  InvalidRequestError = Class.new(Error) do
-    attr_accessor :response
-  end
+  InvalidRequestError = Class.new(Error)
 
   ##
   # When the context window is exceeded

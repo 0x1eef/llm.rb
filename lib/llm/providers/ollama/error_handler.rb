@@ -29,7 +29,7 @@ class LLM::Ollama
       when Net::HTTPTooManyRequests
         raise LLM::RateLimitError.new { _1.response = res }, "Too many requests"
       else
-        raise LLM::ResponseError.new { _1.response = res }, "Unexpected response"
+        raise LLM::Error.new { _1.response = res }, "Unexpected response"
       end
     end
   end
