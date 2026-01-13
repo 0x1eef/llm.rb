@@ -61,8 +61,8 @@ RSpec.describe LLM::OpenAI::ErrorHandler do
 
     before { allow(response).to receive(:body).and_return(body) }
 
-    it "raises LLM::ResponseError" do
-      expect { handler.raise_error! }.to raise_error(LLM::ResponseError)
+    it "raises LLM::Error" do
+      expect { handler.raise_error! }.to raise_error(LLM::Error)
     end
   end
 end

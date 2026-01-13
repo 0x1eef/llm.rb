@@ -33,7 +33,7 @@ class LLM::OpenAI
         case error["type"]
         when "invalid_request_error" then handle_invalid_request(error)
         when "server_error" then raise LLM::ServerError.new { _1.response = res }, error["message"]
-        else raise LLM::ResponseError.new { _1.response = res }, error["message"] || "Unexpected response"
+        else raise LLM::Error.new { _1.response = res }, error["message"] || "Unexpected response"
         end
       end
     end
