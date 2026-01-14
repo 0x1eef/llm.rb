@@ -68,20 +68,6 @@ module LLM
     end
 
     ##
-    # Marks the message as read
-    # @return [void]
-    def read!
-      @read = true
-    end
-
-    ##
-    # Returns true when the message has been read
-    # @return [Boolean]
-    def read?
-      @read
-    end
-
-    ##
     # Returns true when the message is an assistant message
     # @return [Boolean]
     def assistant?
