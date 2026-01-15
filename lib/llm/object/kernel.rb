@@ -26,7 +26,7 @@ class LLM::Object
     alias_method :is_a?, :kind_of?
 
     def respond_to?(m, include_private = false)
-      @h.key?(m.to_sym) || self.class.instance_methods.include?(m) || super
+      @h.key?(m.to_sym) || self.class.method_defined?(m) || super
     end
 
     def respond_to_missing?(m, include_private = false)
