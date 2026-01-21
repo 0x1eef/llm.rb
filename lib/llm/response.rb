@@ -28,7 +28,7 @@ module LLM
     # @return [Hash, String]
     def body
       @body ||= case @res["content-type"]
-      when %r|\Aapplication/json\s*| then LLM::Object.from_hash(JSON.parse(@res.body))
+      when %r|\Aapplication/json\s*| then LLM::Object.from(JSON.parse(@res.body))
       else @res.body
       end
     end

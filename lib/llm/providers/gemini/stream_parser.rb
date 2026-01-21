@@ -13,7 +13,7 @@ class LLM::Gemini
     # @param [#<<] io An IO-like object
     # @return [LLM::Gemini::StreamParser]
     def initialize(io)
-      @body = LLM::Object.from_hash({candidates: []})
+      @body = LLM::Object.from({candidates: []})
       @io = io
     end
 
@@ -21,7 +21,7 @@ class LLM::Gemini
     # @param [Hash] chunk
     # @return [LLM::Gemini::StreamParser]
     def parse!(chunk)
-      tap { merge_chunk!(LLM::Object.from_hash(chunk)) }
+      tap { merge_chunk!(LLM::Object.from(chunk)) }
     end
 
     private
@@ -33,7 +33,7 @@ class LLM::Gemini
         elsif key.to_s == "usageMetadata" &&
             @body.usageMetadata.is_a?(LLM::Object) &&
             value.is_a?(LLM::Object)
-          @body.usageMetadata = LLM::Object.from_hash(@body.usageMetadata.to_h.merge(value.to_h))
+          @body.usageMetadata = LLM::Object.from(@body.usageMetadata.to_h.merge(value.to_h))
         else
           @body[key] = value
         end
@@ -43,7 +43,7 @@ class LLM::Gemini
     def merge_candidates!(deltas)
       deltas.each do |delta|
         index = delta.index
-        @body.candidates[index] ||= LLM::Object.from_hash({content: {parts: []}})
+        @body.candidates[index] ||= LLM::Object.from({content: {parts: []}})
         candidate = @body.candidates[index]
         delta.each do |key, value|
           if key.to_s == "content"
@@ -96,7 +96,7 @@ class LLM::Gemini
     def merge_function_call!(parts, delta)
       last_existing_part = parts.last
       if last_existing_part&.functionCall
-        last_existing_part.functionCall = LLM::Object.from_hash(
+        last_existing_part.functionCall = LLM::Object.from(
           last_existing_part.functionCall.to_h.merge(delta.functionCall.to_h)
         )
       else

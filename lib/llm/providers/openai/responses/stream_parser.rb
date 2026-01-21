@@ -36,13 +36,13 @@ class LLM::OpenAI
         @body.output ||= []
       when "response.output_item.added"
         output_index = chunk["output_index"]
-        item = LLM::Object.from_hash(chunk["item"])
+        item = LLM::Object.from(chunk["item"])
         @body.output[output_index] = item
         @body.output[output_index].content ||= []
       when "response.content_part.added"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
-        part = LLM::Object.from_hash(chunk["part"])
+        part = LLM::Object.from(chunk["part"])
         @body.output[output_index] ||= LLM::Object.new(content: [])
         @body.output[output_index].content ||= []
         @body.output[output_index].content[content_index] = part
@@ -61,12 +61,12 @@ class LLM::OpenAI
         end
       when "response.output_item.done"
         output_index = chunk["output_index"]
-        item = LLM::Object.from_hash(chunk["item"])
+        item = LLM::Object.from(chunk["item"])
         @body.output[output_index] = item
       when "response.content_part.done"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
-        part = LLM::Object.from_hash(chunk["part"])
+        part = LLM::Object.from(chunk["part"])
         @body.output[output_index] ||= LLM::Object.new(content: [])
         @body.output[output_index].content ||= []
         @body.output[output_index].content[content_index] = part

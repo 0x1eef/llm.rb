@@ -11,7 +11,7 @@ module LLM::Gemini::Response
     # Returns one or more search results
     # @return [Array<LLM::Object>]
     def search_results
-      LLM::Object.from_hash(
+      LLM::Object.from(
         candidates[0]
           .groundingMetadata
           .groundingChunks

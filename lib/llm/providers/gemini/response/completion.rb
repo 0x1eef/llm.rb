@@ -45,7 +45,7 @@ module LLM::Gemini::Response
 
     def format_choices
       candidates.map.with_index do |choice, index|
-        choice = LLM::Object.from_hash(choice)
+        choice = LLM::Object.from(choice)
         content = choice.content || LLM::Object.new
         role = content.role || "model"
         parts = content.parts || [{"text" => choice.finishReason}]

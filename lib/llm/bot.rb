@@ -119,7 +119,7 @@ module LLM
     # if there are no assistant messages
     # @return [LLM::Object]
     def usage
-      @messages.find(&:assistant?)&.usage || LLM::Object.from_hash({})
+      @messages.find(&:assistant?)&.usage || LLM::Object.from({})
     end
 
     ##
@@ -141,7 +141,7 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def image_url(url)
-      LLM::Object.from_hash(value: url, kind: :image_url)
+      LLM::Object.from(value: url, kind: :image_url)
     end
 
     ##
@@ -151,7 +151,7 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def local_file(path)
-      LLM::Object.from_hash(value: LLM.File(path), kind: :local_file)
+      LLM::Object.from(value: LLM.File(path), kind: :local_file)
     end
 
     ##
@@ -161,7 +161,7 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def remote_file(res)
-      LLM::Object.from_hash(value: res, kind: :remote_file)
+      LLM::Object.from(value: res, kind: :remote_file)
     end
 
     private
