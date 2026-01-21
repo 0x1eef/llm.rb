@@ -51,6 +51,8 @@ Layout/ArrayAlignment:
   Enabled: false
 Style/AndOr:
   Enabled: false
+Lint/AssignmentInCondition
+  Enabled: false
 Style/MissingRespondToMissing:
   Exclude:
     - lib/llm/object.rb
