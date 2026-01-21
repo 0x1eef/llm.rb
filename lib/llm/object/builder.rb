@@ -6,17 +6,17 @@ class LLM::Object
   module Builder
     ##
     # @example
-    #   obj = LLM::Object.from_hash(person: {name: 'John'})
+    #   obj = LLM::Object.from(person: {name: 'John'})
     #   obj.person.name  # => 'John'
     #   obj.person.class # => LLM::Object
     # @param [Hash, LLM::Object, Array] obj
     #   A Hash object
     # @return [LLM::Object]
     #   An LLM::Object object initialized by visiting `obj` with recursion
-    def from_hash(obj)
+    def from(obj)
       case obj
-      when self then from_hash(obj.to_h)
-      when Array then obj.map { |v| from_hash(v) }
+      when self then from(obj.to_h)
+      when Array then obj.map { |v| from(v) }
       else
         visited = {}
         obj.each { visited[_1] = visit(_2) }
@@ -28,8 +28,8 @@ class LLM::Object
 
     def visit(value)
       case value
-      when self then from_hash(value.to_h)
-      when Hash then from_hash(value)
+      when self then from(value.to_h)
+      when Hash then from(value)
       when Array then value.map { |v| visit(v) }
       else value
       end

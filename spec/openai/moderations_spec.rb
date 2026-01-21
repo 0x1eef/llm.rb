@@ -12,11 +12,11 @@ RSpec.describe "LLM::OpenAI::Moderations" do
     subject(:moderation) { response.moderations.first }
 
     it "has categories" do
-      expect(moderation.categories).to eq([:harassment])
+      expect(moderation.categories).to eq(%w[harassment])
     end
 
     it "has scores" do
-      expect(moderation.scores).to match(harassment: instance_of(Float))
+      expect(moderation.scores).to match("harassment" => instance_of(Float))
     end
   end
 end

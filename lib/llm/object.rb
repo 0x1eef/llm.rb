@@ -17,7 +17,7 @@ class LLM::Object < BasicObject
   # @param [Hash] h
   # @return [LLM::Object]
   def initialize(h = {})
-    @h = h.transform_keys(&:to_sym) || h
+    @h = h || {}
   end
 
   ##
@@ -33,7 +33,7 @@ class LLM::Object < BasicObject
   # @param [Symbol, #to_sym] k
   # @return [Object]
   def [](k)
-    @h[k.to_sym]
+    @h[key(k)]
   end
 
   ##
@@ -41,7 +41,7 @@ class LLM::Object < BasicObject
   # @param [Object] v
   # @return [void]
   def []=(k, v)
-    @h[k.to_sym] = v
+    @h[k.to_s] = v
   end
 
   ##
@@ -59,7 +59,7 @@ class LLM::Object < BasicObject
   ##
   # @return [Hash]
   def to_h
-    @h
+    @h.transform_keys(&:to_sym)
   end
   alias_method :to_hash, :to_h
 
@@ -79,9 +79,19 @@ class LLM::Object < BasicObject
 
   def method_missing(m, *args, &b)
     if m.to_s.end_with?("=")
-      @h[m[0..-2].to_sym] = args.first
-    elsif @h.key?(m)
-      @h[m]
+      self[m[0..-2]] = args.first
+    elsif k = key(m)
+      @h[k]
+    else
+      nil
+    end
+  end
+
+  def key(k)
+    if @h.key?(k.to_s)
+      k.to_s
+    elsif @h.key?(k.to_sym)
+      k.to_sym
     else
       nil
     end

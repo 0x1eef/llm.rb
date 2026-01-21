@@ -11,7 +11,7 @@ module LLM::OpenAI::Response
     # Returns one or more search results
     # @return [Array<LLM::Object>]
     def search_results
-      LLM::Object.from_hash(
+      LLM::Object.from(
         choices[0]
           .annotations
           .map { _1.slice(:title, :url) }

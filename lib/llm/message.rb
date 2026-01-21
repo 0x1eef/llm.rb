@@ -120,7 +120,7 @@ module LLM
     # Returns annotations associated with the message
     # @return [Array<LLM::Object>]
     def annotations
-      @annotations ||= LLM::Object.from_hash(extra["annotations"] || [])
+      @annotations ||= LLM::Object.from(extra["annotations"] || [])
     end
 
     ##
@@ -147,7 +147,7 @@ module LLM
     private
 
     def tool_calls
-      @tool_calls ||= LLM::Object.from_hash(@extra[:tool_calls] || [])
+      @tool_calls ||= LLM::Object.from(@extra[:tool_calls] || [])
     end
 
     def tools
