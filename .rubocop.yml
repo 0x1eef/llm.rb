@@ -51,7 +51,7 @@ Layout/ArrayAlignment:
   Enabled: false
 Style/AndOr:
   Enabled: false
-Lint/AssignmentInCondition
+Lint/AssignmentInCondition:
   Enabled: false
 Style/MissingRespondToMissing:
   Exclude:
