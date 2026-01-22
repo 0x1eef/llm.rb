@@ -6,6 +6,7 @@ module LLM
   # by the that module.
   module Contract
     ContractError = Class.new(LLM::Error)
+    require_relative "contract/completion"
 
     ##
     # @api private

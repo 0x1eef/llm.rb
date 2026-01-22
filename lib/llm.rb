@@ -5,7 +5,6 @@ module LLM
   require_relative "llm/error"
   require_relative "llm/contract"
   require_relative "llm/usage"
-  require_relative "llm/contract/completion"
   require_relative "llm/builder"
   require_relative "llm/schema"
   require_relative "llm/object"
