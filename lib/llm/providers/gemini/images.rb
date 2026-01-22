@@ -36,10 +36,6 @@ class LLM::Gemini
     # @param [Hash] params Other parameters (see Gemini docs)
     # @raise (see LLM::Provider#request)
     # @raise [LLM::NoImageError] when no images are returned
-    # @note
-    #  The prompt should make it clear you want to generate an image, or you
-    #  might unexpectedly receive a purely textual response. This is due to how
-    #  Gemini implements image generation under the hood.
     # @return [LLM::Response]
     def create(prompt:, model: "gemini-2.5-flash-image", **params)
       req  = Net::HTTP::Post.new("/v1beta/models/#{model}:generateContent?key=#{key}", headers)

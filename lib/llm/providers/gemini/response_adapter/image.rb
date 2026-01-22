@@ -6,9 +6,9 @@ module LLM::Gemini::ResponseAdapter
     # @return [Array<StringIO>]
     def images
       candidates.flat_map do |candidate|
-        parts = candidate&.dig(:content, :parts) || []
+        parts = candidate&.dig("content", "parts") || []
         parts.filter_map do
-          data = _1.dig(:inlineData, :data)
+          data = _1.dig("inlineData", "data")
           next unless data
           StringIO.new(data.unpack1("m0"))
         end
