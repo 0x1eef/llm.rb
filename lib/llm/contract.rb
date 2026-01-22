@@ -17,14 +17,14 @@ module LLM
   #       def foo = nil
   #       def bar = nil
   #     end
-  #    end
+  #   end
   #
   #   module LLM::OpenAI::ResponseAdapter
   #     module Completion
   #       def foo = nil
   #       def bar = nil
   #       include LLM::Contract::Completion
-  #      end
+  #     end
   #   end
   module Contract
     ContractError = Class.new(LLM::Error)
