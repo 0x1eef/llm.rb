@@ -1,9 +1,31 @@
 module LLM
   ##
-  # The {LLM::Contract LLM::Contract} module is included by contracts
-  # such as {LLM::Contract::Completion}, and ensures that any module
-  # including {LLM::Contract::Completion} implements all methods defined
-  # by the that module.
+  # The `LLM::Contract` module provides the ability for modules
+  # who are extended by it to implement contracts which must be
+  # implemented by other modules who include a given contract.
+  #
+  # @example
+  #   module LLM::Contract
+  #      # ..
+  #   end
+  #
+  #   module LLM::Contract
+  #     module Completion
+  #       extend LLM::Contract
+  #       # inheriting modules must implement these methods
+  #       # otherwise an error is raised on include
+  #       def foo = nil
+  #       def bar = nil
+  #     end
+  #    end
+  #
+  #   module LLM::OpenAI::ResponseAdapter
+  #     module Completion
+  #       def foo = nil
+  #       def bar = nil
+  #       include LLM::Contract::Completion
+  #      end
+  #   end
   module Contract
     ContractError = Class.new(LLM::Error)
     require_relative "contract/completion"
