@@ -6,14 +6,14 @@ class LLM::Anthropic
   class StreamParser
     ##
     # Returns the fully constructed response body
-    # @return [LLM::Object]
+    # @return [Hash]
     attr_reader :body
 
     ##
     # @param [#<<] io An IO-like object
     # @return [LLM::Anthropic::StreamParser]
     def initialize(io)
-      @body = LLM::Object.new(role: "assistant", content: [])
+      @body = {"role" => "assistant", "content" => []}
       @io = io
     end
 
@@ -33,10 +33,10 @@ class LLM::Anthropic
         @body["content"][chunk["index"]] = chunk["content_block"]
       elsif chunk["type"] == "content_block_delta"
         if chunk["delta"]["type"] == "text_delta"
-          @body.content[chunk["index"]]["text"] << chunk["delta"]["text"]
+          @body["content"][chunk["index"]]["text"] << chunk["delta"]["text"]
           @io << chunk["delta"]["text"] if @io.respond_to?(:<<)
         elsif chunk["delta"]["type"] == "input_json_delta"
-          content = @body.content[chunk["index"]]
+          content = @body["content"][chunk["index"]]
           if Hash === content["input"]
             content["input"] = chunk["delta"]["partial_json"]
           else
@@ -46,7 +46,7 @@ class LLM::Anthropic
       elsif chunk["type"] == "message_delta"
         merge_message!(chunk["delta"])
       elsif chunk["type"] == "content_block_stop"
-        content = @body.content[chunk["index"]]
+        content = @body["content"][chunk["index"]]
         if content["input"]
           content["input"] = JSON.parse(content["input"])
         end
