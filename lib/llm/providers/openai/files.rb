@@ -18,8 +18,6 @@ class LLM::OpenAI
   #   bot.chat ["Tell me about this PDF", file]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Files
-    require_relative "response/enumerable"
-    require_relative "response/file"
 
     ##
     # Returns a new Files object
@@ -45,7 +43,7 @@ class LLM::OpenAI
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/files?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Enumerable)
+      ResponseAdapter.adapt(res, type: :enumerable)
     end
 
     ##
@@ -65,7 +63,7 @@ class LLM::OpenAI
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::File)
+      ResponseAdapter.adapt(res, type: :file)
     end
 
     ##
@@ -84,7 +82,7 @@ class LLM::OpenAI
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/files/#{file_id}?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::File)
+      ResponseAdapter.adapt(res, type: :file)
     end
 
     ##

@@ -16,14 +16,13 @@ module LLM
   #   bot.chat ["Tell me about this image", File.open("/images/parrot.png", "rb")]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Ollama < Provider
-    require_relative "ollama/response/embedding"
-    require_relative "ollama/response/completion"
     require_relative "ollama/error_handler"
-    require_relative "ollama/format"
+    require_relative "ollama/request_adapter"
+    require_relative "ollama/response_adapter"
     require_relative "ollama/stream_parser"
     require_relative "ollama/models"
 
-    include Format
+    include RequestAdapter
 
     HOST = "localhost"
 
@@ -45,7 +44,7 @@ module LLM
       req      = Net::HTTP::Post.new("/v1/embeddings", headers)
       req.body = JSON.dump({input:}.merge!(params))
       res      = execute(request: req)
-      LLM::Response.new(res).extend(LLM::Ollama::Response::Embedding)
+      ResponseAdapter.adapt(res, type: :embedding)
     end
 
     ##
@@ -61,16 +60,15 @@ module LLM
     def complete(prompt, params = {})
       params = {role: :user, model: default_model, stream: true}.merge!(params)
       tools  = resolve_tools(params.delete(:tools))
-      params = [params, {format: params[:schema]}, format_tools(tools)].inject({}, &:merge!).compact
+      params = [params, {format: params[:schema]}, adapt_tools(tools)].inject({}, &:merge!).compact
       role, stream = params.delete(:role), params.delete(:stream)
       params[:stream] = true if stream.respond_to?(:<<) || stream == true
       req = Net::HTTP::Post.new("/api/chat", headers)
       messages = [*(params.delete(:messages) || []), LLM::Message.new(role, prompt)]
-      body = JSON.dump({messages: [format(messages)].flatten}.merge!(params))
+      body = JSON.dump({messages: [adapt(messages)].flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req, stream:)
-      LLM::Response.new(res)
-        .extend(LLM::Ollama::Response::Completion)
+      ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
     end
 

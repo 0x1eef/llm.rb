@@ -23,8 +23,6 @@ class LLM::Gemini
   #   bot.chat ["Tell me about this file", file]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Files
-    require_relative "response/file"
-    require_relative "response/files"
 
     ##
     # Returns a new Files object
@@ -50,7 +48,7 @@ class LLM::Gemini
       query = URI.encode_www_form(params.merge!(key: key))
       req = Net::HTTP::Get.new("/v1beta/files?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::Gemini::Response::Files)
+      ResponseAdapter.adapt(res, type: :files)
     end
 
     ##
@@ -72,7 +70,7 @@ class LLM::Gemini
       file.with_io do |io|
         set_body_stream(req, io)
         res = execute(request: req)
-        LLM::Response.new(res).extend(LLM::Gemini::Response::File)
+        ResponseAdapter.adapt(res, type: :file)
       end
     end
 
@@ -92,7 +90,7 @@ class LLM::Gemini
       query = URI.encode_www_form(params.merge!(key: key))
       req = Net::HTTP::Get.new("/v1beta/#{file_id}?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::Gemini::Response::File)
+      ResponseAdapter.adapt(res, type: :file)
     end
 
     ##

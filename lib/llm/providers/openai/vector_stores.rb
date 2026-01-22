@@ -13,7 +13,6 @@ class LLM::OpenAI
   #  chunks = llm.vector_stores.search(vector: store, query: "What is Ruby?")
   #  chunks.each { |chunk| puts chunk }
   class VectorStores
-    require_relative "response/enumerable"
     PollError = Class.new(LLM::Error)
 
     INTERVAL = 0.01
@@ -34,7 +33,7 @@ class LLM::OpenAI
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/vector_stores?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Enumerable)
+      ResponseAdapter.adapt(res, type: :enumerable)
     end
 
     ##
@@ -116,7 +115,7 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}/search", headers)
       req.body = JSON.dump(params.merge({query:}).compact)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Enumerable)
+      ResponseAdapter.adapt(res, type: :enumerable)
     end
 
     ##
@@ -131,7 +130,7 @@ class LLM::OpenAI
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/vector_stores/#{vector_id}/files?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Enumerable)
+      ResponseAdapter.adapt(res, type: :enumerable)
     end
 
     ##

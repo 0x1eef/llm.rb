@@ -27,7 +27,6 @@ class LLM::OpenAI
   #                           response_format: "b64_json"
   #   IO.copy_stream res.images[0], "rocket.png"
   class Images
-    require_relative "response/image"
     ##
     # Returns a new Images object
     # @param provider [LLM::Provider]
@@ -52,7 +51,7 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/images/generations", headers)
       req.body = JSON.dump({prompt:, n: 1, model:}.merge!(params))
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Image)
+      ResponseAdapter.adapt(res, type: :image)
     end
 
     ##
@@ -74,7 +73,7 @@ class LLM::OpenAI
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Image)
+      ResponseAdapter.adapt(res, type: :image)
     end
 
     ##
@@ -97,7 +96,7 @@ class LLM::OpenAI
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Image)
+      ResponseAdapter.adapt(res, type: :image)
     end
 
     private

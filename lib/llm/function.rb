@@ -149,7 +149,7 @@ class LLM::Function
 
   ##
   # @return [Hash]
-  def format(provider)
+  def adapt(provider)
     case provider.class.to_s
     when "LLM::Gemini"
       {name: @name, description: @description, parameters: @params}.compact
