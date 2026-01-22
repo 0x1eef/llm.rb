@@ -59,9 +59,14 @@ class LLM::Object < BasicObject
   ##
   # @return [Hash]
   def to_h
+    @h.dup
+  end
+
+  ##
+  # @return [Hash]
+  def to_hash
     @h.transform_keys(&:to_sym)
   end
-  alias_method :to_hash, :to_h
 
   ##
   # @return [Object, nil]
