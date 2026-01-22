@@ -36,11 +36,10 @@ module LLM
       meths = mod.instance_methods(false)
       if meths.empty?
         raise ContractError, "#{mod} does not implement any methods required by #{self}"
-      else
-        missing = instance_methods - meths
-        if missing.any?
-          raise ContractError, "#{mod} does not implement methods (#{missing.join(', ')}) required by #{self}"
-        end
+      end
+      missing = instance_methods - meths
+      if missing.any?
+        raise ContractError, "#{mod} does not implement methods (#{missing.join(', ')}) required by #{self}"
       end
     end
   end
