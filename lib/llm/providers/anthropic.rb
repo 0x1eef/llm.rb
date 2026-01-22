@@ -14,12 +14,12 @@ module LLM
   #   bot.chat ["Tell me about this photo", File.open("/images/dog.jpg", "rb")]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Anthropic < Provider
+    require_relative "anthropic/error_handler"
     require_relative "anthropic/request_adapter"
     require_relative "anthropic/response_adapter"
-    require_relative "anthropic/error_handler"
     require_relative "anthropic/stream_parser"
-    require_relative "anthropic/files"
     require_relative "anthropic/models"
+    require_relative "anthropic/files"
     include RequestAdapter
 
     HOST = "api.anthropic.com"
