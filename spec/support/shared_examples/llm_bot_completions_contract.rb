@@ -12,7 +12,7 @@ RSpec.shared_examples "LLM::Bot: completions contract" do |provider, options = {
     subject(:completion) { bot.chat("Hello, world!") }
 
     it "implements the completion interface" do
-      LLM::Completion.instance_methods(false).each do |m|
+      LLM::Contract::Completion.instance_methods(false).each do |m|
         expect(completion).to respond_to(m)
       end
     end

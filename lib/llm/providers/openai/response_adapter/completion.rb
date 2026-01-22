@@ -2,10 +2,8 @@
 
 module LLM::OpenAI::ResponseAdapter
   module Completion
-    include LLM::Completion
-
     ##
-    # (see LLM::Completion#messages)
+    # (see LLM::Contract::Completion#messages)
     def messages
       body.choices.map.with_index do |choice, index|
         choice = LLM::Object.from(choice)
@@ -22,31 +20,31 @@ module LLM::OpenAI::ResponseAdapter
     alias_method :choices, :messages
 
     ##
-    # (see LLM::Completion#input_tokens)
+    # (see LLM::Contract::Completion#input_tokens)
     def input_tokens
       body.usage["prompt_tokens"] || 0
     end
 
     ##
-    # (see LLM::Completion#output_tokens)
+    # (see LLM::Contract::Completion#output_tokens)
     def output_tokens
       body.usage["completion_tokens"] || 0
     end
 
     ##
-    # (see LLM::Completion#total_tokens)
+    # (see LLM::Contract::Completion#total_tokens)
     def total_tokens
       body.usage["total_tokens"] || 0
     end
 
     ##
-    # (see LLM::Completion#usage)
+    # (see LLM::Contract::Completion#usage)
     def usage
       super
     end
 
     ##
-    # (see LLM::Completion#model)
+    # (see LLM::Contract::Completion#model)
     def model
       body.model
     end
@@ -64,5 +62,7 @@ module LLM::OpenAI::ResponseAdapter
         LLM::Object.new(tool)
       end
     end
+
+    include LLM::Contract::Completion
   end
 end

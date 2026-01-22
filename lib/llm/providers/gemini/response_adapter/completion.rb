@@ -2,41 +2,39 @@
 
 module LLM::Gemini::ResponseAdapter
   module Completion
-    include LLM::Completion
-
     ##
-    # (see LLM::Completion#messages)
+    # (see LLM::Contract::Completion#messages)
     def messages
       adapt_choices
     end
     alias_method :choices, :messages
 
     ##
-    # (see LLM::Completion#input_tokens)
+    # (see LLM::Contract::Completion#input_tokens)
     def input_tokens
       body.usageMetadata.promptTokenCount || 0
     end
 
     ##
-    # (see LLM::Completion#output_tokens)
+    # (see LLM::Contract::Completion#output_tokens)
     def output_tokens
       body.usageMetadata.candidatesTokenCount || 0
     end
 
     ##
-    # (see LLM::Completion#total_tokens)
+    # (see LLM::Contract::Completion#total_tokens)
     def total_tokens
       body.usageMetadata.totalTokenCount || 0
     end
 
     ##
-    # (see LLM::Completion#usage)
+    # (see LLM::Contract::Completion#usage)
     def usage
       super
     end
 
     ##
-    # (see LLM::Completion#model)
+    # (see LLM::Contract::Completion#model)
     def model
       body.modelVersion
     end
@@ -64,5 +62,7 @@ module LLM::Gemini::ResponseAdapter
     end
 
     def candidates = body.candidates || []
+
+    include LLM::Contract::Completion
   end
 end

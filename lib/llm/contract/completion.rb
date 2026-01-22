@@ -3,7 +3,9 @@
 ##
 # Defines the interface all completion responses must implement
 # @abstract
-module LLM::Completion
+module LLM::Contract::Completion
+  extend LLM::Contract
+
   ##
   # @return [Array<LLM::Messsage>]
   #  Returns one or more messages

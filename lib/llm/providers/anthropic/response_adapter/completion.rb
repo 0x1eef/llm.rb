@@ -2,41 +2,39 @@
 
 module LLM::Anthropic::ResponseAdapter
   module Completion
-    include LLM::Completion
-
     ##
-    # (see LLM::Completion#messages)
+    # (see LLM::Contract::Completion#messages)
     def messages
       adapt_choices
     end
     alias_method :choices, :messages
 
     ##
-    # (see LLM::Completion#input_tokens)
+    # (see LLM::Contract::Completion#input_tokens)
     def input_tokens
       body.usage["input_tokens"] || 0
     end
 
     ##
-    # (see LLM::Completion#output_tokens)
+    # (see LLM::Contract::Completion#output_tokens)
     def output_tokens
       body.usage["output_tokens"] || 0
     end
 
     ##
-    # (see LLM::Completion#total_tokens)
+    # (see LLM::Contract::Completion#total_tokens)
     def total_tokens
       input_tokens + output_tokens
     end
 
     ##
-    # (see LLM::Completion#usage)
+    # (see LLM::Contract::Completion#usage)
     def usage
       super
     end
 
     ##
-    # (see LLM::Completion#model)
+    # (see LLM::Contract::Completion#model)
     def model
       body.model
     end
@@ -67,5 +65,7 @@ module LLM::Anthropic::ResponseAdapter
     def parts = body.content
     def texts = @texts ||= LLM::Object.from(parts.select { _1["type"] == "text" })
     def tools = @tools ||= LLM::Object.from(parts.select { _1["type"] == "tool_use" })
+
+    include LLM::Contract::Completion
   end
 end
