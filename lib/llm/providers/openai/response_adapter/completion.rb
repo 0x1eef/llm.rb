@@ -8,7 +8,6 @@ module LLM::OpenAI::ResponseAdapter
     # (see LLM::Completion#messages)
     def messages
       body.choices.map.with_index do |choice, index|
-        choice = LLM::Object.from(choice)
         message = choice.message
         extra = {
           index:, response: self,

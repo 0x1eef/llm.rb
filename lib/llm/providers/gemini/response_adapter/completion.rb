@@ -45,7 +45,6 @@ module LLM::Gemini::ResponseAdapter
 
     def adapt_choices
       candidates.map.with_index do |choice, index|
-        choice = LLM::Object.from(choice)
         content = choice.content || LLM::Object.new
         role = content.role || "model"
         parts = content.parts || [{"text" => choice.finishReason}]

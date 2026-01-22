@@ -65,7 +65,7 @@ module LLM::Anthropic::ResponseAdapter
     end
 
     def parts = body.content
-    def texts = @texts ||= LLM::Object.from(parts.select { _1["type"] == "text" })
-    def tools = @tools ||= LLM::Object.from(parts.select { _1["type"] == "tool_use" })
+    def texts = @texts ||= parts.select { _1["type"] == "text" }
+    def tools = @tools ||= parts.select { _1["type"] == "tool_use" }
   end
 end
