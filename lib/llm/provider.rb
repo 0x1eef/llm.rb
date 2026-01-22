@@ -7,6 +7,7 @@
 # @abstract
 class LLM::Provider
   require "net/http"
+  require "json"
   require_relative "client"
   include LLM::Client
 
@@ -297,7 +298,7 @@ class LLM::Provider
         # response was most likely not streamed or
         # parsing has failed. In that case, we fallback
         # on the original response body.
-        res.body = handler.body.empty? ? parser.body.dup : handler.body
+        res.body = LLM::Object.from(handler.body.empty? ? parser.body.dup : handler.body)
       ensure
         parser&.free
       end
@@ -315,8 +316,16 @@ class LLM::Provider
   # @return [Net::HTTPResponse]
   def handle_response(res)
     case res
-    when Net::HTTPOK then res
+    when Net::HTTPOK then res.body = parse_response(res)
     else error_handler.new(res).raise_error!
+    end
+    res
+  end
+
+  def parse_response(res)
+    case res["content-type"]
+    when %r|\Aapplication/json\s*| then LLM::Object.from(JSON.parse(res.body))
+    else res.body
     end
   end
 

@@ -6,13 +6,13 @@ class LLM::OpenAI
   class StreamParser
     ##
     # Returns the fully constructed response body
-    # @return [LLM::Object]
+    # @return [Hash]
     attr_reader :body
 
     ##
     # @return [LLM::OpenAI::Chunk]
     def initialize(io)
-      @body = LLM::Object.new
+      @body = {}
       @io = io
     end
 
@@ -38,8 +38,9 @@ class LLM::OpenAI
 
     def merge_choices!(choices)
       choices.each do |choice|
-        if @body.choices[choice["index"]]
-          target_message = @body["choices"][choice["index"]]["message"]
+        index = choice["index"]
+        if @body["choices"][index]
+          target_message = @body["choices"][index]["message"]
           delta = choice["delta"]
           delta.each do |key, value|
             if key == "content"
@@ -54,7 +55,7 @@ class LLM::OpenAI
           end
         else
           message_hash = {"role" => "assistant"}
-          @body["choices"][choice["index"]] = {"message" => message_hash}
+          @body["choices"][index] = {"message" => message_hash}
           choice["delta"].each do |key, value|
             if key == "content"
               @io << value if @io.respond_to?(:<<)

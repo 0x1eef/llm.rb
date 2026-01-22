@@ -25,12 +25,9 @@ module LLM
 
     ##
     # Returns the response body
-    # @return [Hash, String]
+    # @return [LLM::Object, String]
     def body
-      @body ||= case @res["content-type"]
-      when %r|\Aapplication/json\s*| then LLM::Object.from(JSON.parse(@res.body))
-      else @res.body
-      end
+      @res.body
     end
 
     ##
