@@ -58,7 +58,7 @@ module LLM::Gemini::ResponseAdapter
     def adapt_tool_calls(tools)
       (tools || []).map do |tool|
         function = {name: tool.name, arguments: tool.args}
-        LLM::Object.new(function)
+        function
       end
     end
 

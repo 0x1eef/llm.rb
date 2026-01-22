@@ -55,12 +55,7 @@ module LLM::Anthropic::ResponseAdapter
 
     def adapt_tool_calls(tools)
       (tools || []).filter_map do |tool|
-        tool = {
-          id: tool.id,
-          name: tool.name,
-          arguments: tool.input
-        }
-        LLM::Object.new(tool)
+        {id: tool.id, name: tool.name, arguments: tool.input}
       end
     end
 

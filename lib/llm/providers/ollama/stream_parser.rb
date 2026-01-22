@@ -6,7 +6,7 @@ class LLM::Ollama
   class StreamParser
     ##
     # Returns the fully constructed response body
-    # @return [LLM::Object]
+    # @return [Hash]
     attr_reader :body
 
     ##

@@ -38,11 +38,7 @@ module LLM::OpenAI::ResponseAdapter
     end
 
     def adapt_tool(tool)
-      LLM::Object.new(
-        id: tool.call_id,
-        name: tool.name,
-        arguments: JSON.parse(tool.arguments)
-      )
+      {id: tool.call_id, name: tool.name, arguments: JSON.parse(tool.arguments)}
     end
   end
 end

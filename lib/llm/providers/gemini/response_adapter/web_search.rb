@@ -11,10 +11,12 @@ module LLM::Gemini::ResponseAdapter
     # Returns one or more search results
     # @return [Array<LLM::Object>]
     def search_results
-      candidates[0]
-        .groundingMetadata
-        .groundingChunks
-        .map { {"url" => _1.web.uri, "title" => _1.web.title} }
+      LLM::Object.from(
+        candidates[0]
+          .groundingMetadata
+          .groundingChunks
+          .map { {"url" => _1.web.uri, "title" => _1.web.title} }
+      )
     end
   end
 end

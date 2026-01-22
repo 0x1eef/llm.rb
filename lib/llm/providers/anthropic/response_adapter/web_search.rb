@@ -11,9 +11,11 @@ module LLM::Anthropic::ResponseAdapter
     # Returns one or more search results
     # @return [Array<LLM::Object>]
     def search_results
-      content
-        .select { _1["type"] == "web_search_tool_result" }
-        .flat_map { |n| n.content.map { _1.slice(:title, :url) } }
+      LLM::Object.from(
+        content
+          .select { _1["type"] == "web_search_tool_result" }
+          .flat_map { |n| n.content.map { _1.slice(:title, :url) } }
+      )
     end
   end
 end

@@ -55,12 +55,7 @@ module LLM::OpenAI::ResponseAdapter
     def adapt_tool_calls(tools)
       (tools || []).filter_map do |tool|
         next unless tool.function
-        tool = {
-          id: tool.id,
-          name: tool.function.name,
-          arguments: JSON.parse(tool.function.arguments)
-        }
-        LLM::Object.new(tool)
+        {id: tool.id, name: tool.function.name, arguments: JSON.parse(tool.function.arguments)}
       end
     end
   end

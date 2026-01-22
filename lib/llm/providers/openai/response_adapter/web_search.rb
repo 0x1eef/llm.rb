@@ -11,9 +11,11 @@ module LLM::OpenAI::ResponseAdapter
     # Returns one or more search results
     # @return [Array<LLM::Object>]
     def search_results
-      choices[0]
-        .annotations
-        .map { _1.slice(:title, :url) }
+      LLM::Object.from(
+        choices[0]
+          .annotations
+          .map { _1.slice(:title, :url) }
+      )
     end
   end
 end
