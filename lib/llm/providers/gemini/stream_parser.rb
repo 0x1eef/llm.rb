@@ -6,14 +6,14 @@ class LLM::Gemini
   class StreamParser
     ##
     # Returns the fully constructed response body
-    # @return [LLM::Object]
+    # @return [Hash]
     attr_reader :body
 
     ##
     # @param [#<<] io An IO-like object
     # @return [LLM::Gemini::StreamParser]
     def initialize(io)
-      @body = LLM::Object.from({candidates: []})
+      @body = {"candidates" => []}
       @io = io
     end
 
@@ -21,35 +21,37 @@ class LLM::Gemini
     # @param [Hash] chunk
     # @return [LLM::Gemini::StreamParser]
     def parse!(chunk)
-      tap { merge_chunk!(LLM::Object.from(chunk)) }
+      tap { merge_chunk!(chunk) }
     end
 
     private
 
     def merge_chunk!(chunk)
       chunk.each do |key, value|
-        if key.to_s == "candidates"
+        k = key.to_s
+        if k == "candidates"
           merge_candidates!(value)
-        elsif key.to_s == "usageMetadata" &&
-            @body.usageMetadata.is_a?(LLM::Object) &&
-            value.is_a?(LLM::Object)
-          @body.usageMetadata = LLM::Object.from(@body.usageMetadata.to_h.merge(value.to_h))
+        elsif k == "usageMetadata" &&
+            @body["usageMetadata"].is_a?(Hash) &&
+            value.is_a?(Hash)
+          @body["usageMetadata"] = @body["usageMetadata"].merge(value)
         else
-          @body[key] = value
+          @body[k] = value
         end
       end
     end
 
     def merge_candidates!(deltas)
       deltas.each do |delta|
-        index = delta.index
-        @body.candidates[index] ||= LLM::Object.from({content: {parts: []}})
-        candidate = @body.candidates[index]
+        index = delta["index"]
+        @body["candidates"][index] ||= {"content" => {"parts" => []}}
+        candidate = @body["candidates"][index]
         delta.each do |key, value|
-          if key.to_s == "content"
-            merge_candidate_content!(candidate.content, value) if value
+          k = key.to_s
+          if k == "content"
+            merge_candidate_content!(candidate["content"], value) if value
           else
-            candidate[key] = value # Overwrite other fields
+            candidate[k] = value # Overwrite other fields
           end
         end
       end
@@ -57,26 +59,27 @@ class LLM::Gemini
 
     def merge_candidate_content!(content, delta)
       delta.each do |key, value|
-        if key.to_s == "parts"
-          content.parts ||= []
-          merge_content_parts!(content.parts, value) if value
+        k = key.to_s
+        if k == "parts"
+          content["parts"] ||= []
+          merge_content_parts!(content["parts"], value) if value
         else
-          content[key] = value
+          content[k] = value
         end
       end
     end
 
     def merge_content_parts!(parts, deltas)
       deltas.each do |delta|
-        if delta.text
+        if delta["text"]
           merge_text!(parts, delta)
-        elsif delta.functionCall
+        elsif delta["functionCall"]
           merge_function_call!(parts, delta)
-        elsif delta.inlineData
+        elsif delta["inlineData"]
           parts << delta
-        elsif delta.functionResponse
+        elsif delta["functionResponse"]
           parts << delta
-        elsif delta.fileData
+        elsif delta["fileData"]
           parts << delta
         end
       end
@@ -84,21 +87,23 @@ class LLM::Gemini
 
     def merge_text!(parts, delta)
       last_existing_part = parts.last
-      if last_existing_part&.text
-        last_existing_part.text << delta.text
-        @io << delta.text if @io.respond_to?(:<<)
+      text = delta["text"]
+      if last_existing_part.is_a?(Hash) && last_existing_part["text"]
+        last_existing_part["text"] ||= +""
+        last_existing_part["text"] << text
+        @io << text if @io.respond_to?(:<<)
       else
         parts << delta
-        @io << delta.text if @io.respond_to?(:<<)
+        @io << text if @io.respond_to?(:<<)
       end
     end
 
     def merge_function_call!(parts, delta)
       last_existing_part = parts.last
-      if last_existing_part&.functionCall
-        last_existing_part.functionCall = LLM::Object.from(
-          last_existing_part.functionCall.to_h.merge(delta.functionCall.to_h)
-        )
+      last_call = last_existing_part.is_a?(Hash) ? last_existing_part["functionCall"] : nil
+      delta_call = delta["functionCall"]
+      if last_call.is_a?(Hash) && delta_call.is_a?(Hash)
+        last_existing_part["functionCall"] = last_call.merge(delta_call)
       else
         parts << delta
       end
