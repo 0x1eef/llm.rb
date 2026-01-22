@@ -31,8 +31,6 @@ class LLM::OpenAI
   # @see https://platform.openai.com/docs/api-reference/moderations/create OpenAI docs
   # @see https://platform.openai.com/docs/models#moderation OpenAI moderation models
   class Moderations
-    require_relative "response/moderations"
-
     ##
     # Returns a new Moderations object
     # @param [LLM::Provider] provider
@@ -50,10 +48,10 @@ class LLM::OpenAI
     # @return [LLM::Response]
     def create(input:, model: "omni-moderation-latest", **params)
       req = Net::HTTP::Post.new("/v1/moderations", headers)
-      input = Format::ModerationFormat.new(input).format
+      input = RequestAdapter::Moderation.new(input).adapt
       req.body = JSON.dump({input:, model:}.merge!(params))
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Moderations)
+      ResponseAdapter.adapt(res, type: :moderations)
     end
 
     private

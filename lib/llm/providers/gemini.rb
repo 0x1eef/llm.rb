@@ -18,18 +18,16 @@ module LLM
   #   bot.chat ["Tell me about this photo", File.open("/images/horse.jpg", "rb")]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Gemini < Provider
-    require_relative "gemini/response/embedding"
-    require_relative "gemini/response/completion"
-    require_relative "gemini/response/web_search"
     require_relative "gemini/error_handler"
-    require_relative "gemini/format"
+    require_relative "gemini/request_adapter"
+    require_relative "gemini/response_adapter"
     require_relative "gemini/stream_parser"
     require_relative "gemini/models"
     require_relative "gemini/images"
     require_relative "gemini/files"
     require_relative "gemini/audio"
 
-    include Format
+    include RequestAdapter
 
     HOST = "generativelanguage.googleapis.com"
 
@@ -52,7 +50,7 @@ module LLM
       req = Net::HTTP::Post.new(path, headers)
       req.body = JSON.dump({content: {parts: [{text: input}]}})
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::Gemini::Response::Embedding)
+      ResponseAdapter.adapt(res, type: :embedding)
     end
 
     ##
@@ -68,18 +66,17 @@ module LLM
     def complete(prompt, params = {})
       params = {role: :user, model: default_model}.merge!(params)
       tools  = resolve_tools(params.delete(:tools))
-      params = [params, format_schema(params), format_tools(tools)].inject({}, &:merge!).compact
+      params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
       role, model, stream = [:role, :model, :stream].map { params.delete(_1) }
       action = stream ? "streamGenerateContent?key=#{@key}&alt=sse" : "generateContent?key=#{@key}"
       model.respond_to?(:id) ? model.id : model
       path = ["/v1beta/models/#{model}", action].join(":")
       req  = Net::HTTP::Post.new(path, headers)
       messages = [*(params.delete(:messages) || []), LLM::Message.new(role, prompt)]
-      body = JSON.dump({contents: format(messages)}.merge!(params))
+      body = JSON.dump({contents: adapt(messages)}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req, stream:)
-      LLM::Response.new(res)
-        .extend(LLM::Gemini::Response::Completion)
+      ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
     end
 
@@ -150,8 +147,7 @@ module LLM
     # @param query [String] The search query.
     # @return [LLM::Response] The response from the LLM provider.
     def web_search(query:)
-      complete(query, tools: [server_tools[:google_search]])
-        .extend(LLM::Gemini::Response::WebSearch)
+      ResponseAdapter.adapt(complete(query, tools: [server_tools[:google_search]]), type: :web_search)
     end
 
     private

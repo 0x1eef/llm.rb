@@ -14,14 +14,13 @@ module LLM
   #   bot.chat ["Tell me about this photo", File.open("/images/dog.jpg", "rb")]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Anthropic < Provider
-    require_relative "anthropic/response/completion"
-    require_relative "anthropic/response/web_search"
-    require_relative "anthropic/format"
+    require_relative "anthropic/request_adapter"
+    require_relative "anthropic/response_adapter"
     require_relative "anthropic/error_handler"
     require_relative "anthropic/stream_parser"
     require_relative "anthropic/files"
     require_relative "anthropic/models"
-    include Format
+    include RequestAdapter
 
     HOST = "api.anthropic.com"
 
@@ -44,16 +43,15 @@ module LLM
     def complete(prompt, params = {})
       params = {role: :user, model: default_model, max_tokens: 1024}.merge!(params)
       tools  = resolve_tools(params.delete(:tools))
-      params = [params, format_tools(tools)].inject({}, &:merge!).compact
+      params = [params, adapt_tools(tools)].inject({}, &:merge!).compact
       role, stream = params.delete(:role), params.delete(:stream)
       params[:stream] = true if stream.respond_to?(:<<) || stream == true
       req = Net::HTTP::Post.new("/v1/messages", headers)
       messages = [*(params.delete(:messages) || []), Message.new(role, prompt)]
-      body = JSON.dump({messages: [format(messages)].flatten}.merge!(params))
+      body = JSON.dump({messages: [adapt(messages)].flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req, stream:)
-      LLM::Response.new(res)
-        .extend(LLM::Anthropic::Response::Completion)
+      ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
     end
 
@@ -112,8 +110,7 @@ module LLM
     # @param query [String] The search query.
     # @return [LLM::Response] The response from the LLM provider.
     def web_search(query:)
-      complete(query, tools: [server_tools[:web_search]])
-        .extend(LLM::Anthropic::Response::WebSearch)
+      ResponseAdapter.adapt(complete(query, tools: [server_tools[:web_search]]), type: :web_search)
     end
 
     private

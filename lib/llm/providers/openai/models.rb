@@ -17,8 +17,6 @@ class LLM::OpenAI
   #     print "id: ", model.id, "\n"
   #   end
   class Models
-    require_relative "response/enumerable"
-
     ##
     # Returns a new Models object
     # @param provider [LLM::Provider]
@@ -43,7 +41,7 @@ class LLM::OpenAI
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/models?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Enumerable)
+      ResponseAdapter.adapt(res, type: :enumerable)
     end
 
     private

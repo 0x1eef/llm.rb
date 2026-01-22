@@ -14,9 +14,8 @@ class LLM::OpenAI
   #   res2 = llm.responses.create "5 + 5 = X ?", role: :user, previous_response_id: res1.id
   #   [res1, res2].each { llm.responses.delete(_1) }
   class Responses
-    require_relative "response/responds"
     require_relative "responses/stream_parser"
-    include Format
+    include RequestAdapter
 
     ##
     # Returns a new Responses object
@@ -38,16 +37,15 @@ class LLM::OpenAI
     def create(prompt, params = {})
       params = {role: :user, model: @provider.default_model}.merge!(params)
       tools  = resolve_tools(params.delete(:tools))
-      params = [params, format_schema(params), format_tools(tools)].inject({}, &:merge!).compact
+      params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
       role, stream = params.delete(:role), params.delete(:stream)
       params[:stream] = true if stream.respond_to?(:<<) || stream == true
       req = Net::HTTP::Post.new("/v1/responses", headers)
       messages = [*(params.delete(:input) || []), LLM::Message.new(role, prompt)]
-      body = JSON.dump({input: [format(messages, :response)].flatten}.merge!(params))
+      body = JSON.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req, stream:, stream_parser:)
-      LLM::Response.new(res)
-        .extend(LLM::OpenAI::Response::Responds)
+      ResponseAdapter.adapt(res, type: :responds)
         .extend(Module.new { define_method(:__tools__) { tools } })
     end
 
@@ -62,7 +60,7 @@ class LLM::OpenAI
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/responses/#{response_id}?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Responds)
+      ResponseAdapter.adapt(res, type: :responds)
     end
 
     ##
@@ -84,7 +82,7 @@ class LLM::OpenAI
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
 
-    def format_schema(params)
+    def adapt_schema(params)
       return {} unless params && params[:schema]
       schema = params.delete(:schema)
       schema = schema.to_h.merge(additionalProperties: false)

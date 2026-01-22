@@ -15,8 +15,7 @@ class LLM::Gemini
   #   res = llm.images.create prompt: "A dog on a rocket to the moon"
   #   IO.copy_stream res.images[0], "rocket.png"
   class Images
-    require_relative "response/image"
-    include Format
+    include RequestAdapter
 
     ##
     # Returns a new Images object
@@ -50,7 +49,7 @@ class LLM::Gemini
       }.merge!(params))
       req.body = body
       res = execute(request: req)
-      validate LLM::Response.new(res).extend(LLM::Gemini::Response::Image)
+      validate ResponseAdapter.adapt(res, type: :image)
     end
 
     ##
@@ -71,12 +70,12 @@ class LLM::Gemini
       req   = Net::HTTP::Post.new("/v1beta/models/#{model}:generateContent?key=#{key}", headers)
       image = LLM::Object.from(value: LLM.File(image), kind: :local_file)
       body  = JSON.dump({
-        contents: [{parts: [{text: edit_prompt}, {text: prompt}, format.format_content(image)]}],
+        contents: [{parts: [{text: edit_prompt}, {text: prompt}, adapter.adapt_content(image)]}],
         generationConfig: {responseModalities: ["TEXT", "IMAGE"]}
       }.merge!(params)).b
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req)
-      validate LLM::Response.new(res).extend(LLM::Gemini::Response::Image)
+      validate ResponseAdapter.adapt(res, type: :image)
     end
 
     ##
@@ -88,8 +87,8 @@ class LLM::Gemini
 
     private
 
-    def format
-      @format ||= CompletionFormat.new(nil)
+    def adapter
+      @adapter ||= Completion.new(nil)
     end
 
     def key

@@ -15,7 +15,6 @@ class LLM::Anthropic
   #   bot.chat ["Tell me about this PDF", file]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Files
-    require_relative "response/file"
     ##
     # Returns a new Files object
     # @param provider [LLM::Provider]
@@ -40,7 +39,7 @@ class LLM::Anthropic
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/files?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::Anthropic::Response::Enumerable)
+      ResponseAdapter.adapt(res, type: :enumerable)
     end
 
     ##
@@ -59,7 +58,7 @@ class LLM::Anthropic
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::Anthropic::Response::File)
+      ResponseAdapter.adapt(res, type: :file)
     end
 
     ##
@@ -78,7 +77,7 @@ class LLM::Anthropic
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/files/#{file_id}?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::Anthropic::Response::File)
+      ResponseAdapter.adapt(res, type: :file)
     end
 
     ##
@@ -97,7 +96,7 @@ class LLM::Anthropic
       file_id = file.respond_to?(:id) ? file.id : file
       req = Net::HTTP::Get.new("/v1/files/#{file_id}?#{query}", headers)
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::Anthropic::Response::File)
+      ResponseAdapter.adapt(res, type: :file)
     end
     alias_method :retrieve_metadata, :get_metadata
 

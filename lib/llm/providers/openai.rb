@@ -14,11 +14,9 @@ module LLM
   #   bot.chat ["Tell me about this photo", File.open("/images/capybara.jpg", "rb")]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class OpenAI < Provider
-    require_relative "openai/response/embedding"
-    require_relative "openai/response/completion"
-    require_relative "openai/response/web_search"
     require_relative "openai/error_handler"
-    require_relative "openai/format"
+    require_relative "openai/request_adapter"
+    require_relative "openai/response_adapter"
     require_relative "openai/stream_parser"
     require_relative "openai/models"
     require_relative "openai/responses"
@@ -28,7 +26,7 @@ module LLM
     require_relative "openai/moderations"
     require_relative "openai/vector_stores"
 
-    include Format
+    include RequestAdapter
 
     HOST = "api.openai.com"
 
@@ -50,7 +48,7 @@ module LLM
       req = Net::HTTP::Post.new("/v1/embeddings", headers)
       req.body = JSON.dump({input:, model:}.merge!(params))
       res = execute(request: req)
-      LLM::Response.new(res).extend(LLM::OpenAI::Response::Embedding)
+      ResponseAdapter.adapt(res, type: :embedding)
     end
 
     ##
@@ -66,17 +64,16 @@ module LLM
     def complete(prompt, params = {})
       params = {role: :user, model: default_model}.merge!(params)
       tools  = resolve_tools(params.delete(:tools))
-      params = [params, format_schema(params), format_tools(tools)].inject({}, &:merge!).compact
+      params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
       role, stream = params.delete(:role), params.delete(:stream)
       params[:stream] = true if stream.respond_to?(:<<) || stream == true
       params[:stream_options] = {include_usage: true}.merge!(params[:stream_options] || {}) if params[:stream]
       req = Net::HTTP::Post.new(completions_path, headers)
       messages = [*(params.delete(:messages) || []), Message.new(role, prompt)]
-      body = JSON.dump({messages: format(messages, :complete).flatten}.merge!(params))
+      body = JSON.dump({messages: adapt(messages, mode: :complete).flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req, stream:)
-      LLM::Response.new(res)
-        .extend(LLM::OpenAI::Response::Completion)
+      ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
     end
 
@@ -177,9 +174,10 @@ module LLM
     # @param query [String] The search query.
     # @return [LLM::Response] The response from the LLM provider.
     def web_search(query:)
-      responses
-        .create(query, store: false, tools: [server_tools[:web_search]])
-        .extend(LLM::OpenAI::Response::WebSearch)
+      ResponseAdapter.adapt(
+        responses.create(query, store: false, tools: [server_tools[:web_search]]),
+        type: :web_search
+      )
     end
 
     private

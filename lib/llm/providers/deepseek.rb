@@ -18,8 +18,8 @@ module LLM
   #   bot.chat ["Tell me about this photo", File.open("/images/cat.jpg", "rb")]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class DeepSeek < OpenAI
-    require_relative "deepseek/format"
-    include DeepSeek::Format
+    require_relative "deepseek/request_adapter"
+    include DeepSeek::RequestAdapter
 
     ##
     # @param (see LLM::Provider#initialize)
