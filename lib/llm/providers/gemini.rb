@@ -24,8 +24,8 @@ module LLM
     require_relative "gemini/stream_parser"
     require_relative "gemini/models"
     require_relative "gemini/images"
-    require_relative "gemini/files"
     require_relative "gemini/audio"
+    require_relative "gemini/files"
 
     include RequestAdapter
 
