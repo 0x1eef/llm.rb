@@ -33,7 +33,7 @@ RSpec.describe LLM::Contract do
 
     it "raises a ContractError" do
       expect { impl.include(contract) }
-        .to raise_error(LLM::Contract::ContractError, /bar/)
+        .to raise_error(described_class::ContractError, /bar/)
     end
   end
 end
