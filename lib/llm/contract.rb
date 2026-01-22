@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module LLM
   ##
   # The `LLM::Contract` module provides the ability for modules
@@ -39,7 +41,7 @@ module LLM
       end
       missing = instance_methods - meths
       if missing.any?
-        raise ContractError, "#{mod} does not implement methods (#{missing.join(', ')}) required by #{self}"
+        raise ContractError, "#{mod} does not implement methods (#{missing.join(", ")}) required by #{self}"
       end
     end
   end

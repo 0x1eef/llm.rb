@@ -5,6 +5,8 @@ module LLM::Contract
   # Defines the interface all completion responses must implement
   # @abstract
   module Completion
+    extend LLM::Contract
+
     ##
     # @return [Array<LLM::Messsage>]
     #  Returns one or more messages
