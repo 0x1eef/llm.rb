@@ -6,14 +6,14 @@ class LLM::OpenAI
   class Responses::StreamParser
     ##
     # Returns the fully constructed response body
-    # @return [LLM::Object]
+    # @return [Hash]
     attr_reader :body
 
     ##
     # @param [#<<] io An IO-like object
     # @return [LLM::OpenAI::Responses::StreamParser]
     def initialize(io)
-      @body = LLM::Object.new(output: []) # Initialize with an empty output array
+      @body = {"output" => []}
       @io = io
     end
 
@@ -33,43 +33,43 @@ class LLM::OpenAI
           next if k == "type"
           @body[k] = v
         end
-        @body.output ||= []
+        @body["output"] ||= []
       when "response.output_item.added"
         output_index = chunk["output_index"]
-        item = LLM::Object.from(chunk["item"])
-        @body.output[output_index] = item
-        @body.output[output_index].content ||= []
+        item = chunk["item"]
+        @body["output"][output_index] = item
+        @body["output"][output_index]["content"] ||= []
       when "response.content_part.added"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
-        part = LLM::Object.from(chunk["part"])
-        @body.output[output_index] ||= LLM::Object.new(content: [])
-        @body.output[output_index].content ||= []
-        @body.output[output_index].content[content_index] = part
+        part = chunk["part"]
+        @body["output"][output_index] ||= {"content" => []}
+        @body["output"][output_index]["content"] ||= []
+        @body["output"][output_index]["content"][content_index] = part
       when "response.output_text.delta"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
         delta_text = chunk["delta"]
-        output_item = @body.output[output_index]
-        if output_item&.content
-          content_part = output_item.content[content_index]
-          if content_part && content_part.type == "output_text"
-            content_part.text ||= ""
-            content_part.text << delta_text
+        output_item = @body["output"][output_index]
+        if output_item && output_item["content"]
+          content_part = output_item["content"][content_index]
+          if content_part && content_part["type"] == "output_text"
+            content_part["text"] ||= ""
+            content_part["text"] << delta_text
             @io << delta_text if @io.respond_to?(:<<)
           end
         end
       when "response.output_item.done"
         output_index = chunk["output_index"]
-        item = LLM::Object.from(chunk["item"])
-        @body.output[output_index] = item
+        item = chunk["item"]
+        @body["output"][output_index] = item
       when "response.content_part.done"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
-        part = LLM::Object.from(chunk["part"])
-        @body.output[output_index] ||= LLM::Object.new(content: [])
-        @body.output[output_index].content ||= []
-        @body.output[output_index].content[content_index] = part
+        part = chunk["part"]
+        @body["output"][output_index] ||= {"content" => []}
+        @body["output"][output_index]["content"] ||= []
+        @body["output"][output_index]["content"][content_index] = part
       end
     end
   end

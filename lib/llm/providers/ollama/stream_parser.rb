@@ -12,7 +12,7 @@ class LLM::Ollama
     ##
     # @return [LLM::OpenAI::Chunk]
     def initialize(io)
-      @body = LLM::Object.new
+      @body = {}
       @io = io
     end
 

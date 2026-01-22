@@ -38,7 +38,8 @@ module LLM::Ollama::Response
     private
 
     def format_choices
-      role, content, calls = body.message.to_h.values_at("role", "content", "tool_calls")
+      message = body.message
+      role, content, calls = message.role, message.content, message.tool_calls
       extra = {response: self, tool_calls: format_tool_calls(calls)}
       [LLM::Message.new(role, content, extra)]
     end
@@ -47,7 +48,7 @@ module LLM::Ollama::Response
       return [] unless tools
       tools.filter_map do |tool|
         next unless tool["function"]
-        LLM::Object.new(tool["function"])
+        tool["function"]
       end
     end
   end
