@@ -16,7 +16,7 @@ class LLM::Anthropic
     # @param [Symbol] type
     # @return [LLM::Response]
     def adapt(res, type:)
-      response = LLM::Response === res ? res : LLM::Response.new(res)
+      response = (LLM::Response === res) ? res : LLM::Response.new(res)
       response.extend(select(type))
     end
 

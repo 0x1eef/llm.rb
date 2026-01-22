@@ -21,7 +21,7 @@ class LLM::OpenAI
     # @param [Symbol] type
     # @return [LLM::Response]
     def adapt(res, type:)
-      response = LLM::Response === res ? res : LLM::Response.new(res)
+      response = (LLM::Response === res) ? res : LLM::Response.new(res)
       adapter = select(type)
       response.extend(adapter)
     end

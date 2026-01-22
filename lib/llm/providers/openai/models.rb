@@ -17,7 +17,6 @@ class LLM::OpenAI
   #     print "id: ", model.id, "\n"
   #   end
   class Models
-
     ##
     # Returns a new Models object
     # @param provider [LLM::Provider]

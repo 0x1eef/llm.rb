@@ -31,7 +31,6 @@ class LLM::OpenAI
   # @see https://platform.openai.com/docs/api-reference/moderations/create OpenAI docs
   # @see https://platform.openai.com/docs/models#moderation OpenAI moderation models
   class Moderations
-
     ##
     # Returns a new Moderations object
     # @param [LLM::Provider] provider

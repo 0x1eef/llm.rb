@@ -23,7 +23,6 @@ class LLM::Gemini
   #   bot.chat ["Tell me about this file", file]
   #   bot.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Files
-
     ##
     # Returns a new Files object
     # @param provider [LLM::Provider]
