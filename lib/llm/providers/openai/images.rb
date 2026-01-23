@@ -49,7 +49,7 @@ class LLM::OpenAI
     # @return [LLM::Response]
     def create(prompt:, model: "dall-e-3", **params)
       req = Net::HTTP::Post.new("/v1/images/generations", headers)
-      req.body = JSON.dump({prompt:, n: 1, model:}.merge!(params))
+      req.body = LLM.json.dump({prompt:, n: 1, model:}.merge!(params))
       res = execute(request: req)
       ResponseAdapter.adapt(res, type: :image)
     end

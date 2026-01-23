@@ -46,7 +46,7 @@ class LLM::OpenAI
     # @see https://platform.openai.com/docs/api-reference/vector_stores/create OpenAI docs
     def create(name:, file_ids: nil, **params)
       req = Net::HTTP::Post.new("/v1/vector_stores", headers)
-      req.body = JSON.dump(params.merge({name:, file_ids:}).compact)
+      req.body = LLM.json.dump(params.merge({name:, file_ids:}).compact)
       res = execute(request: req)
       LLM::Response.new(res)
     end
@@ -84,7 +84,7 @@ class LLM::OpenAI
     def modify(vector:, name: nil, **params)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}", headers)
-      req.body = JSON.dump(params.merge({name:}).compact)
+      req.body = LLM.json.dump(params.merge({name:}).compact)
       res = execute(request: req)
       LLM::Response.new(res)
     end
@@ -113,7 +113,7 @@ class LLM::OpenAI
     def search(vector:, query:, **params)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}/search", headers)
-      req.body = JSON.dump(params.merge({query:}).compact)
+      req.body = LLM.json.dump(params.merge({query:}).compact)
       res = execute(request: req)
       ResponseAdapter.adapt(res, type: :enumerable)
     end
@@ -146,7 +146,7 @@ class LLM::OpenAI
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       file_id = file.respond_to?(:id) ? file.id : file
       req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}/files", headers)
-      req.body = JSON.dump(params.merge({file_id:, attributes:}).compact)
+      req.body = LLM.json.dump(params.merge({file_id:, attributes:}).compact)
       res = execute(request: req)
       LLM::Response.new(res)
     end
@@ -175,7 +175,7 @@ class LLM::OpenAI
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       file_id = file.respond_to?(:id) ? file.id : file
       req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}/files/#{file_id}", headers)
-      req.body = JSON.dump(params.merge({attributes:}).compact)
+      req.body = LLM.json.dump(params.merge({attributes:}).compact)
       res = execute(request: req)
       LLM::Response.new(res)
     end

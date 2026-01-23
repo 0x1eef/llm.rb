@@ -54,7 +54,7 @@ module LLM::OpenAI::RequestAdapter
       if content.empty?
         nil
       elsif returns.any?
-        returns.map { {type: "function_call_output", call_id: _1.id, output: JSON.dump(_1.value)} }
+        returns.map { {type: "function_call_output", call_id: _1.id, output: LLM.json.dump(_1.value)} }
       else
         {role: message.role, content: content.flat_map { adapt_content(_1) }}
       end

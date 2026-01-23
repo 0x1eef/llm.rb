@@ -53,7 +53,7 @@ module LLM::OpenAI::ResponseAdapter
     def adapt_tool_calls(tools)
       (tools || []).filter_map do |tool|
         next unless tool.function
-        {id: tool.id, name: tool.function.name, arguments: JSON.parse(tool.function.arguments)}
+        {id: tool.id, name: tool.function.name, arguments: LLM.json.load(tool.function.arguments)}
       end
     end
 

@@ -48,7 +48,7 @@ module LLM
       params[:stream] = true if stream.respond_to?(:<<) || stream == true
       req = Net::HTTP::Post.new("/v1/messages", headers)
       messages = [*(params.delete(:messages) || []), Message.new(role, prompt)]
-      body = JSON.dump({messages: [adapt(messages)].flatten}.merge!(params))
+      body = LLM.json.dump({messages: [adapt(messages)].flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req, stream:)
       ResponseAdapter.adapt(res, type: :completion)

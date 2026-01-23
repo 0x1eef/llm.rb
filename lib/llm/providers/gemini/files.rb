@@ -127,7 +127,7 @@ class LLM::Gemini
       req["X-Goog-Upload-Command"] = "start"
       req["X-Goog-Upload-Header-Content-Length"] = file.bytesize
       req["X-Goog-Upload-Header-Content-Type"] = file.mime_type
-      req.body = JSON.dump(file: {display_name: File.basename(file.path)})
+      req.body = LLM.json.dump(file: {display_name: File.basename(file.path)})
       res = execute(request: req)
       res["x-goog-upload-url"]
     end

@@ -48,7 +48,7 @@ class LLM::Anthropic
       elsif chunk["type"] == "content_block_stop"
         content = @body["content"][chunk["index"]]
         if content["input"]
-          content["input"] = JSON.parse(content["input"])
+          content["input"] = LLM.json.load(content["input"])
         end
       end
     end

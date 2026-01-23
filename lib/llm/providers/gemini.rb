@@ -48,7 +48,7 @@ module LLM
       model = model.respond_to?(:id) ? model.id : model
       path = ["/v1beta/models/#{model}", "embedContent?key=#{@key}"].join(":")
       req = Net::HTTP::Post.new(path, headers)
-      req.body = JSON.dump({content: {parts: [{text: input}]}})
+      req.body = LLM.json.dump({content: {parts: [{text: input}]}})
       res = execute(request: req)
       ResponseAdapter.adapt(res, type: :embedding)
     end
@@ -73,7 +73,7 @@ module LLM
       path = ["/v1beta/models/#{model}", action].join(":")
       req  = Net::HTTP::Post.new(path, headers)
       messages = [*(params.delete(:messages) || []), LLM::Message.new(role, prompt)]
-      body = JSON.dump({contents: adapt(messages)}.merge!(params))
+      body = LLM.json.dump({contents: adapt(messages)}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req, stream:)
       ResponseAdapter.adapt(res, type: :completion)

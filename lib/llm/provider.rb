@@ -7,7 +7,6 @@
 # @abstract
 class LLM::Provider
   require "net/http"
-  require "json"
   require_relative "client"
   include LLM::Client
 
@@ -324,7 +323,7 @@ class LLM::Provider
 
   def parse_response(res)
     case res["content-type"]
-    when %r|\Aapplication/json\s*| then LLM::Object.from(JSON.parse(res.body))
+    when %r|\Aapplication/json\s*| then LLM::Object.from(LLM.json.load(res.body))
     else res.body
     end
   end

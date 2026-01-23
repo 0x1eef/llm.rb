@@ -42,7 +42,7 @@ class LLM::OpenAI
       params[:stream] = true if stream.respond_to?(:<<) || stream == true
       req = Net::HTTP::Post.new("/v1/responses", headers)
       messages = [*(params.delete(:input) || []), LLM::Message.new(role, prompt)]
-      body = JSON.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
+      body = LLM.json.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res = execute(request: req, stream:, stream_parser:)
       ResponseAdapter.adapt(res, type: :responds)

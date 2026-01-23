@@ -54,7 +54,7 @@ module LLM::Anthropic::RequestAdapter
       when LLM::Message
         adapt_content(content.content)
       when LLM::Function::Return
-        [{type: "tool_result", tool_use_id: content.id, content: [{type: :text, text: JSON.dump(content.value)}]}]
+        [{type: "tool_result", tool_use_id: content.id, content: [{type: :text, text: LLM.json.dump(content.value)}]}]
       else
         prompt_error!(content)
       end

@@ -33,7 +33,7 @@ module LLM::Ollama::RequestAdapter
       when LLM::Message
         adapt_content(content.content)
       when LLM::Function::Return
-        throw(:abort, {role: "tool", tool_call_id: content.id, content: JSON.dump(content.value)})
+        throw(:abort, {role: "tool", tool_call_id: content.id, content: LLM.json.dump(content.value)})
       when LLM::Object
         adapt_object(content)
       else
@@ -54,7 +54,7 @@ module LLM::Ollama::RequestAdapter
       if content.empty?
         nil
       elsif returns.any?
-        returns.map { {role: "tool", tool_call_id: _1.id, content: JSON.dump(_1.value)} }
+        returns.map { {role: "tool", tool_call_id: _1.id, content: LLM.json.dump(_1.value)} }
       else
         content.flat_map { {role: message.role}.merge(adapt_content(_1)) }
       end

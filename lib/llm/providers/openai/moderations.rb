@@ -49,7 +49,7 @@ class LLM::OpenAI
     def create(input:, model: "omni-moderation-latest", **params)
       req = Net::HTTP::Post.new("/v1/moderations", headers)
       input = RequestAdapter::Moderation.new(input).adapt
-      req.body = JSON.dump({input:, model:}.merge!(params))
+      req.body = LLM.json.dump({input:, model:}.merge!(params))
       res = execute(request: req)
       ResponseAdapter.adapt(res, type: :moderations)
     end

@@ -2,6 +2,7 @@
 
 module LLM
   require "stringio"
+  require_relative "llm/json_adapter"
   require_relative "llm/error"
   require_relative "llm/contract"
   require_relative "llm/usage"
@@ -29,6 +30,34 @@ module LLM
   @monitors = {require: Monitor.new, clients: Monitor.new, inherited: Monitor.new}
 
   module_function
+
+  ##
+  # Returns the JSON adapter used by the library
+  # @return [Class]
+  #  Returns a class that responds to +dump+ and +load+
+  def json
+    @json ||= JSONAdapter::JSON
+  end
+
+  ##
+  # Sets the JSON adapter used by the library
+  # @param [Class] adapter
+  #  A class that responds to +dump+ and +load+
+  # @return [void]
+  def json=(adapter)
+    @json = case adapter.to_s
+    when "JSON" then JSONAdapter::JSON
+    when "Oj" then JSONAdapter::Oj
+    else
+      is_class = Class === adapter
+      is_subclass = is_class && adapter.ancestors.include?(LLM::JSONAdapter)
+      if is_subclass
+        adapter
+      else
+        raise TypeError, "Adapter must be a subclass of LLM::JSONAdapter"
+      end
+    end
+  end
 
   ##
   # @param (see LLM::Provider#initialize)

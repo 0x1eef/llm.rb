@@ -33,7 +33,7 @@ class LLM::OpenAI
     # @return [LLM::Response]
     def create_speech(input:, voice: "alloy", model: "gpt-4o-mini-tts", response_format: "mp3", **params)
       req = Net::HTTP::Post.new("/v1/audio/speech", headers)
-      req.body = JSON.dump({input:, voice:, model:, response_format:}.merge!(params))
+      req.body = LLM.json.dump({input:, voice:, model:, response_format:}.merge!(params))
       io = StringIO.new("".b)
       res = execute(request: req) { _1.read_body { |chunk| io << chunk } }
       LLM::Response.new(res).tap { _1.define_singleton_method(:audio) { io } }

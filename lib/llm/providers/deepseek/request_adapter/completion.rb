@@ -35,7 +35,7 @@ module LLM::DeepSeek::RequestAdapter
       when LLM::Message
         adapt_content(content.content)
       when LLM::Function::Return
-        throw(:abort, {role: "tool", tool_call_id: content.id, content: JSON.dump(content.value)})
+        throw(:abort, {role: "tool", tool_call_id: content.id, content: LLM.json.dump(content.value)})
       when LLM::Object
         prompt_error!(content)
       else
@@ -56,7 +56,7 @@ module LLM::DeepSeek::RequestAdapter
       if content.empty?
         nil
       elsif returns.any?
-        returns.map { {role: "tool", tool_call_id: _1.id, content: JSON.dump(_1.value)} }
+        returns.map { {role: "tool", tool_call_id: _1.id, content: LLM.json.dump(_1.value)} }
       else
         {role: message.role, content: content.flat_map { adapt_content(_1) }}
       end

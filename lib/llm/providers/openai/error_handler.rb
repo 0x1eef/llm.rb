@@ -50,7 +50,7 @@ class LLM::OpenAI
     end
 
     def body
-      @body ||= JSON.parse(res.body)
+      @body ||= LLM.json.load(res.body)
     end
   end
 end

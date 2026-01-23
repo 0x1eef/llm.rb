@@ -39,7 +39,7 @@ class LLM::Gemini
     # @return [LLM::Response]
     def create(prompt:, model: "gemini-2.5-flash-image", **params)
       req  = Net::HTTP::Post.new("/v1beta/models/#{model}:generateContent?key=#{key}", headers)
-      body = JSON.dump({
+      body = LLM.json.dump({
         contents: [{parts: [{text: create_prompt}, {text: prompt}]}],
         generationConfig: {responseModalities: ["TEXT", "IMAGE"]}
       }.merge!(params))
@@ -65,7 +65,7 @@ class LLM::Gemini
     def edit(image:, prompt:, model: "gemini-2.5-flash-image", **params)
       req   = Net::HTTP::Post.new("/v1beta/models/#{model}:generateContent?key=#{key}", headers)
       image = LLM::Object.from(value: LLM.File(image), kind: :local_file)
-      body  = JSON.dump({
+      body  = LLM.json.dump({
         contents: [{parts: [{text: edit_prompt}, {text: prompt}, adapter.adapt_content(image)]}],
         generationConfig: {responseModalities: ["TEXT", "IMAGE"]}
       }.merge!(params)).b

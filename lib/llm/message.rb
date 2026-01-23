@@ -54,7 +54,7 @@ module LLM
     # Try to parse the content as JSON
     # @return [Hash]
     def content!
-      JSON.parse(content)
+      LLM.json.load(content)
     end
 
     ##
