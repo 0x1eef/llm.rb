@@ -7,9 +7,9 @@ module LLM::EventStream
     ##
     # @return [LLM::EventStream::Parser]
     def initialize
-      @buffer = StringIO.new
+      @buffer = +""
       @events = Hash.new { |h, k| h[k] = [] }
-      @offset = 0
+      @cursor = 0
       @visitors = []
     end
 
@@ -34,8 +34,7 @@ module LLM::EventStream
     # Append an event to the internal buffer
     # @return [void]
     def <<(event)
-      io = StringIO.new(event)
-      IO.copy_stream io, @buffer
+      @buffer << event
       each_line { parse!(_1) }
     end
 
@@ -43,15 +42,15 @@ module LLM::EventStream
     # Returns the internal buffer
     # @return [String]
     def body
-      @buffer.string
+      @buffer.dup
     end
 
     ##
     # Free the internal buffer
     # @return [void]
     def free
-      @buffer.truncate(0)
-      @buffer.rewind
+      @buffer.clear
+      @cursor = 0
     end
 
     private
@@ -76,13 +75,19 @@ module LLM::EventStream
     end
 
     def each_line
-      string.each_line.with_index do
-        next if _2 < @offset
-        yield(_1)
-        @offset += 1
+      while (newline = @buffer.index("\n", @cursor))
+        line = @buffer[@cursor..newline]
+        @cursor = newline + 1
+        yield(line)
       end
+      if @cursor < @buffer.length
+        line = @buffer[@cursor..]
+        @cursor = @buffer.length
+        yield(line)
+      end
+      return if @cursor.zero?
+      @buffer = @buffer[@cursor..] || +""
+      @cursor = 0
     end
-
-    def string = @buffer.string
   end
 end
