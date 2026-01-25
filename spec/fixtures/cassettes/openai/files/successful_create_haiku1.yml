@@ -4,15 +4,15 @@ http_interactions:
     method: post
     uri: https://api.openai.com/v1/files
     body:
-      encoding: ASCII-8BIT
-      string: "--BOUNDARY__f3f484c16ccd9e9774ead9a2639b3538\r\nContent-Disposition:
+      encoding: UTF-8
+      string: "--BOUNDARY__2545e6307f0740e93d1c8608eed2e4ce\r\nContent-Disposition:
         form-data; name=\"file\";filename=\"haiku1.txt\"\r\nContent-Type: text/plain\r\n\r\nWhispers
         through the trees,\nmoonlight dances on still waves --\nnight's breath softly
-        glows\n\r\n--BOUNDARY__f3f484c16ccd9e9774ead9a2639b3538\r\nContent-Disposition:
-        form-data; name=\"purpose\"\r\n\r\nassistants\r\n--BOUNDARY__f3f484c16ccd9e9774ead9a2639b3538--\r\n"
+        glows\n\r\n--BOUNDARY__2545e6307f0740e93d1c8608eed2e4ce\r\nContent-Disposition:
+        form-data; name=\"purpose\"\r\n\r\nassistants\r\n--BOUNDARY__2545e6307f0740e93d1c8608eed2e4ce--\r\n"
     headers:
       Content-Type:
-      - multipart/form-data; boundary=BOUNDARY__f3f484c16ccd9e9774ead9a2639b3538
+      - multipart/form-data; boundary=BOUNDARY__2545e6307f0740e93d1c8608eed2e4ce
       Authorization:
       - Bearer TOKEN
       Accept-Encoding:
@@ -29,7 +29,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 26 Nov 2025 18:25:31 GMT
+      - Sun, 25 Jan 2026 17:12:11 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -37,9 +37,9 @@ http_interactions:
       Connection:
       - keep-alive
       X-Request-Id:
-      - req_cb5f280e64cf49d0bb81ea1938cb45e4
+      - req_6bda298ea63940949c420359d34191a6
       Openai-Processing-Ms:
-      - '195'
+      - '189'
       Openai-Version:
       - '2020-10-01'
       Openai-Organization:
@@ -49,16 +49,16 @@ http_interactions:
       Access-Control-Allow-Origin:
       - "*"
       X-Envoy-Upstream-Service-Time:
-      - '202'
+      - '195'
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=8OtVRO74xTKw4rdjM8E2pTzRX4Wr.X6SLTPT.h08zEs-1764181531-1.0.1.1-0vcWC.2fkkSBdbWM0zlgdbdDXVN59Eskv5LfhI1qh.Dm7Hym_oElGjs5NNE8XFZbRkeqjYEOSQ1PtJJGebTXvX8Oz8sCLGAiod.vYWCOEX8;
-        path=/; expires=Wed, 26-Nov-25 18:55:31 GMT; domain=.api.openai.com; HttpOnly;
+      - __cf_bm=jd5m3fqdRVKuJKzxMcQsG1H3GDNXMef9Yy9tpd3dG4g-1769361131-1.0.1.1-sih9HdUxymSwpWE1eQRcZgHeAQIVX_09GGp2P8GgUo.MTKMQ5SLNPzFZ7oUq3hxGI065T6SKiSR5MoMS2fEZmqQaNjAjrzZqIap5n9oAi_A;
+        path=/; expires=Sun, 25-Jan-26 17:42:11 GMT; domain=.api.openai.com; HttpOnly;
         Secure; SameSite=None
-      - _cfuvid=erfTt26C4QXoG38xHy_YLKlwLU4eIVggZE3nTkm27Sg-1764181531072-0.0.1.1-604800000;
+      - _cfuvid=gRmiYkm8jJY71r7x4.QsIzB0oi_hnVTTJuzo8CudGDQ-1769361131296-0.0.1.1-604800000;
         path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
@@ -67,7 +67,7 @@ http_interactions:
       Server:
       - cloudflare
       Cf-Ray:
-      - 9a4b6dc3cd39a466-GRU
+      - 9c3964dc5bb857e6-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
@@ -75,19 +75,19 @@ http_interactions:
       string: |
         {
           "object": "file",
-          "id": "file-CEtidMAnhDiEz8EJkBurBe",
+          "id": "file-A7tursna2836UAJdbpBKx5",
           "purpose": "assistants",
           "filename": "haiku1.txt",
           "bytes": 91,
-          "created_at": 1764181530,
+          "created_at": 1769361131,
           "expires_at": null,
           "status": "processed",
           "status_details": null
         }
-  recorded_at: Wed, 26 Nov 2025 18:25:04 GMT
+  recorded_at: Sun, 25 Jan 2026 17:11:30 GMT
 - request:
     method: delete
-    uri: https://api.openai.com/v1/files/file-CEtidMAnhDiEz8EJkBurBe
+    uri: https://api.openai.com/v1/files/file-A7tursna2836UAJdbpBKx5
     body:
       encoding: US-ASCII
       string: ''
@@ -108,7 +108,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 26 Nov 2025 18:25:31 GMT
+      - Sun, 25 Jan 2026 17:12:12 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -116,9 +116,9 @@ http_interactions:
       Connection:
       - keep-alive
       X-Request-Id:
-      - req_cfaee21d23204fd5a5302036f7af8968
+      - req_6300ce9e2f514ca5958cab8760120bcb
       Openai-Processing-Ms:
-      - '473'
+      - '723'
       Openai-Version:
       - '2020-10-01'
       Openai-Organization:
@@ -128,16 +128,16 @@ http_interactions:
       Access-Control-Allow-Origin:
       - "*"
       X-Envoy-Upstream-Service-Time:
-      - '479'
+      - '727'
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=nD730B6qzoZThxgxPoHf6HNznfSRVgABHtzIqyETtTg-1764181531-1.0.1.1-bSdST8qqCM6K9DP7j0EL.Fk8fNnuGYQR4k8PrGuPeBbFQ.44tN2SpFcQiyq6JU1..QVofUyRVt9rn1ZGDflwJMm25E.ex6Nbys8Ckbzy7OY;
-        path=/; expires=Wed, 26-Nov-25 18:55:31 GMT; domain=.api.openai.com; HttpOnly;
+      - __cf_bm=vAE71Q8eeXYwqWX7KSLfLzWr0L41PPAO46aITAZIvH8-1769361132-1.0.1.1-rYyIcQYrfDJUqIQY5WotZoIQSoDKFB7WyD.ICcmrOu51G14lgOD3A_cCqeCeBSXW_f6brJpsib3Mv80uY.hmj20zsTZELUe_BmJf.mtaYIA;
+        path=/; expires=Sun, 25-Jan-26 17:42:12 GMT; domain=.api.openai.com; HttpOnly;
         Secure; SameSite=None
-      - _cfuvid=7pgCXyGF5A_lnCmYK_pKFCsG.azgNkC4rCT.BlLZ1LU-1764181531775-0.0.1.1-604800000;
+      - _cfuvid=q7lGy588pIBVYwTCnBodCwzAXZLSkVw2nbEWFqzmlXY-1769361132269-0.0.1.1-604800000;
         path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
@@ -146,7 +146,7 @@ http_interactions:
       Server:
       - cloudflare
       Cf-Ray:
-      - 9a4b6dc98cdc195d-GRU
+      - 9c3964df0fc5f211-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
@@ -155,7 +155,7 @@ http_interactions:
         {
           "object": "file",
           "deleted": true,
-          "id": "file-CEtidMAnhDiEz8EJkBurBe"
+          "id": "file-A7tursna2836UAJdbpBKx5"
         }
-  recorded_at: Wed, 26 Nov 2025 18:25:04 GMT
+  recorded_at: Sun, 25 Jan 2026 17:11:31 GMT
 recorded_with: VCR 6.3.1

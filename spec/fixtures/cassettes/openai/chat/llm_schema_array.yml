@@ -29,7 +29,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 26 Nov 2025 18:25:28 GMT
+      - Sun, 25 Jan 2026 17:12:10 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -41,13 +41,13 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '528'
+      - '412'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
       - '2020-10-01'
       X-Envoy-Upstream-Service-Time:
-      - '560'
+      - '429'
       X-Ratelimit-Limit-Requests:
       - '500'
       X-Ratelimit-Limit-Tokens:
@@ -61,16 +61,16 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 48ms
       X-Request-Id:
-      - req_682bef830c274ec2a5923a5036edcb54
+      - req_d806b490b4564a7f8b1c0179eea616bd
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=PoSzA8o8NFE3aKyf9vR_QqC5GQtd1SUefw50fQ0vdWs-1764181528-1.0.1.1-H1HOUFBW0dQc_CRZzUa9h9pUDbPWXVZY0Vou44.XNX04mbDnPL33LXMGsGJRIuJvsM5Nk4vJDYaucjAlbb8o4ByrWOoYYRs6v9xni2iLu4o;
-        path=/; expires=Wed, 26-Nov-25 18:55:28 GMT; domain=.api.openai.com; HttpOnly;
+      - __cf_bm=YRnG3WRMMDisv.l6WGt.7hEq1q.Q8a0.Lk8gqz.xJMc-1769361130-1.0.1.1-3mtpMExRQGEPutUFIU7.2NhQJ7B1u0Gemx00MJKoCq1T0mzxKEAV3Sz8gUxM440AcJyM6yVRJi3iEnISJ21Y1C1AtjEcCSmMSLA8q8PaRQ0;
+        path=/; expires=Sun, 25-Jan-26 17:42:10 GMT; domain=.api.openai.com; HttpOnly;
         Secure; SameSite=None
-      - _cfuvid=QI.Qut8OGq5ilADgAXAEhD5gBpF5zZRfsmTeb.w6Ufw-1764181528457-0.0.1.1-604800000;
+      - _cfuvid=HEfxP_PSEqNkGZHNDqTlqnTYZ_ho5QX7H6.OLqS4kJc-1769361130359-0.0.1.1-604800000;
         path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
@@ -79,16 +79,16 @@ http_interactions:
       Server:
       - cloudflare
       Cf-Ray:
-      - 9a4b6db35f0aa4ea-GRU
+      - 9c3964d52f4c1595-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |
         {
-          "id": "chatcmpl-CgEUh0jRu6wToSE3JmZlGhocABvAY",
+          "id": "chatcmpl-D1xwfRD4sLwGTuo5MPUHC5fLXKVVh",
           "object": "chat.completion",
-          "created": 1764181527,
+          "created": 1769361129,
           "model": "gpt-4.1-2025-04-14",
           "choices": [
             {
@@ -119,7 +119,7 @@ http_interactions:
             }
           },
           "service_tier": "default",
-          "system_fingerprint": "fp_433e8c8649"
+          "system_fingerprint": "fp_1a2c4a5ede"
         }
-  recorded_at: Wed, 26 Nov 2025 18:25:01 GMT
+  recorded_at: Sun, 25 Jan 2026 17:11:29 GMT
 recorded_with: VCR 6.3.1

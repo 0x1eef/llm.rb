@@ -48,7 +48,7 @@ class LLM::OpenAI
       if tools.nil? || tools.empty?
         {}
       else
-        {tools: tools.map { _1.respond_to?(:format) ? _1.adapt(self) : _1 }}
+        {tools: tools.map { _1.respond_to?(:adapt) ? _1.adapt(self) : _1 }}
       end
     end
   end
