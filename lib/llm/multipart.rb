@@ -5,6 +5,8 @@
 # @private
 class LLM::Multipart
   require "securerandom"
+  require_relative "multipart/enumerator_io"
+  CHUNK_SIZE = 16 * 1024
 
   ##
   # @return [String]
@@ -27,69 +29,36 @@ class LLM::Multipart
   end
 
   ##
-  # Returns the multipart request body
-  # @return [String]
+  # Returns the multipart request body as a stream
+  # @return [LLM::Multipart::EnumeratorIO]
   def body
-    io = StringIO.new("".b)
-    [*parts, StringIO.new("--#{@boundary}--\r\n".b)].each { IO.copy_stream(_1.tap(&:rewind), io) }
-    io.tap(&:rewind)
+    LLM::Multipart::EnumeratorIO.new(enum_for(:each_part))
   end
 
   private
 
   attr_reader :params
 
-  def file(locals, file)
-    locals = locals.merge(attributes(file))
-    build_file(locals) do |body|
-      IO.copy_stream(file.path, body)
-      body << "\r\n"
-    end
-  end
-
-  def form(locals, value)
-    locals = locals.merge(value:)
-    build_form(locals) do |body|
-      body << value.to_s
-      body << "\r\n"
-    end
-  end
-
-  def build_file(locals)
-    StringIO.new("".b).tap do |io|
-      io << "--#{locals[:boundary]}" \
-             "\r\n" \
-             "Content-Disposition: form-data; name=\"#{locals[:key]}\";" \
-             "filename=\"#{locals[:filename]}\"" \
-             "\r\n" \
-             "Content-Type: #{locals[:content_type]}" \
-             "\r\n\r\n"
-      yield(io)
-    end
-  end
-
-  def build_form(locals)
-    StringIO.new("".b).tap do |io|
-      io << "--#{locals[:boundary]}" \
-             "\r\n" \
-             "Content-Disposition: form-data; name=\"#{locals[:key]}\"" \
-             "\r\n\r\n"
-      yield(io)
-    end
-  end
-
-  ##
-  # Returns the multipart request body parts
-  # @return [Array<String>]
-  def parts
-    params.map do |key, value|
+  def each_part
+    params.each do |key, value|
       locals = {key: key.to_s.b, boundary: boundary.to_s.b}
       if value.respond_to?(:path)
-        file(locals, value)
+        locals = locals.merge(attributes(value))
+        yield file_header(locals)
+        File.open(value.path, "rb") do |io|
+          while (chunk = io.read(CHUNK_SIZE))
+            yield chunk
+          end
+        end
+        yield "\r\n".b
       else
-        form(locals, value)
+        locals = locals.merge(value:)
+        yield form_header(locals)
+        yield value.to_s.b
+        yield "\r\n".b
       end
     end
+    yield "--#{@boundary}--\r\n".b
   end
 
   def attributes(file)
@@ -97,5 +66,17 @@ class LLM::Multipart
       filename: File.basename(file.path).b,
       content_type: LLM::Mime[file].b
     }
+  end
+
+  def file_header(locals)
+    "--#{locals[:boundary]}\r\n" \
+      "Content-Disposition: form-data; name=\"#{locals[:key]}\";" \
+      "filename=\"#{locals[:filename]}\"\r\n" \
+      "Content-Type: #{locals[:content_type]}\r\n\r\n"
+  end
+
+  def form_header(locals)
+    "--#{locals[:boundary]}\r\n" \
+      "Content-Disposition: form-data; name=\"#{locals[:key]}\"\r\n\r\n"
   end
 end
