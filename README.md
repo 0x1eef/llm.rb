@@ -120,6 +120,7 @@ bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n"
 - 🗣️ Text-to-speech, transcription, and translation
 - 🖼️ Image generation, editing, and variation support
 - 📎 File uploads and prompt-aware file interaction
+- 📦 Streams multipart uploads and avoids buffering large files in memory
 - 💡 Multimodal prompts (text, documents, audio, images, videos, URLs, etc)
 
 #### Embeddings
