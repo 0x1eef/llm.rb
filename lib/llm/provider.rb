@@ -297,7 +297,7 @@ class LLM::Provider
         # response was most likely not streamed or
         # parsing has failed. In that case, we fallback
         # on the original response body.
-        res.body = LLM::Object.from(handler.body.empty? ? parser.body.dup : handler.body)
+        res.body = LLM::Object.from(handler.body.empty? ? parser.body : handler.body)
       ensure
         parser&.free
       end
