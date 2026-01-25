@@ -23,7 +23,7 @@ class LLM::Anthropic
     # @return [Hash]
     def adapt_tools(tools)
       return {} unless tools&.any?
-      {tools: tools.map { _1.respond_to?(:format) ? _1.adapt(self) : _1 }}
+      {tools: tools.map { _1.respond_to?(:adapt) ? _1.adapt(self) : _1 }}
     end
   end
 end
