@@ -22,6 +22,12 @@ module LLM::Gemini::ResponseAdapter
     end
 
     ##
+    # (see LLM::Contract::Completion#reasoning_tokens)
+    def reasoning_tokens
+      body.usageMetadata.thoughtsTokenCount || 0
+    end
+
+    ##
     # (see LLM::Contract::Completion#total_tokens)
     def total_tokens
       body.usageMetadata.totalTokenCount || 0

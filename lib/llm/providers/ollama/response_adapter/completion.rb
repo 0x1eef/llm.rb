@@ -22,6 +22,12 @@ module LLM::Ollama::ResponseAdapter
     end
 
     ##
+    # (see LLM::Contract::Completion#reasoning_tokens)
+    def reasoning_tokens
+      0
+    end
+
+    ##
     # (see LLM::Contract::Completion#total_tokens)
     def total_tokens
       input_tokens + output_tokens

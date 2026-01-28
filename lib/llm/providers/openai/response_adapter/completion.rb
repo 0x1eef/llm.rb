@@ -31,6 +31,15 @@ module LLM::OpenAI::ResponseAdapter
     end
 
     ##
+    # (see LLM::Contract::Completion#reasoning_tokens)
+    def reasoning_tokens
+      body
+        .usage
+        &.completion_tokens_details
+        &.reasoning_tokens || 0
+    end
+
+    ##
     # (see LLM::Contract::Completion#total_tokens)
     def total_tokens
       body.usage["total_tokens"] || 0

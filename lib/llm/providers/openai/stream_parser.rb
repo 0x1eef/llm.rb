@@ -71,7 +71,8 @@ class LLM::OpenAI
     def merge_tools!(target, tools)
       target["tool_calls"] ||= []
       tools.each.with_index do |toola, index|
-        tindex = toola["index"] || index
+        tindex = toola["index"]
+        tindex = index unless Integer === tindex && tindex >= 0
         toolb = target["tool_calls"][tindex]
         if toolb && toola["function"] && toolb["function"]
           # Append to existing function arguments

@@ -31,6 +31,13 @@ module LLM::Contract
 
     ##
     # @return [Integer]
+    # Returns the number of reasoning tokens
+    def reasoning_tokens
+      raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
+    end
+
+    ##
+    # @return [Integer]
     #  Returns the total number of tokens
     def total_tokens
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
@@ -43,6 +50,7 @@ module LLM::Contract
       LLM::Usage.new(
         input_tokens:,
         output_tokens:,
+        reasoning_tokens:,
         total_tokens:
       )
     end
