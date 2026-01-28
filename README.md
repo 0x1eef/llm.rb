@@ -104,38 +104,33 @@ bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n"
 ## Features
 
 #### General
-- ✅ A single unified interface for multiple providers
-- 📦 Zero dependencies outside Ruby's standard library
-- 🧩 Choose your own JSON parser (JSON stdlib, Oj, Yajl, etc)
-- 🚀 Simple, composable API
-- ♻️ Optional: per-provider, process-wide connection pool via net-http-persistent
+- ✅  Unified API across providers
+- 📦  Zero runtime deps (stdlib-only)
+- 🧩  Pluggable JSON adapters (JSON, Oj, Yajl, etc)
+- ♻️  Optional persistent HTTP pool (net-http-persistent)
 
 #### Chat, Agents
-- 🧠 Stateless and stateful chat via completions and responses API
-- 🤖 Tool calling and function execution
-- 🗂️ JSON Schema support for structured, validated responses
-- 📡 Streaming support for real-time response updates
+- 🧠  Stateless + stateful chat (completions + responses)
+- 🤖  Tool calling / function execution
+- 🗂️  JSON Schema structured output
+- 📡  Streaming responses
 
 #### Media
-- 🗣️ Text-to-speech, transcription, and translation
-- 🖼️ Image generation, editing, and variation support
-- 📎 File uploads and prompt-aware file interaction
-- 📦 Streams multipart uploads and avoids buffering large files in memory
-- 💡 Multimodal prompts (text, documents, audio, images, videos, URLs, etc)
+- 🗣️  TTS, transcription, translation
+- 🖼️  Image generation + editing
+- 📎  Files API + prompt-aware file inputs
+- 📦  Streaming multipart uploads (no full buffering)
+- 💡  Multimodal prompts (text, documents, audio, images, video, URLs)
 
 #### Embeddings
-- 🧮 Text embeddings and vector support
-- 🧱 Includes support for OpenAI's vector stores API
+- 🧮  Embeddings
+- 🧱  OpenAI vector stores (RAG)
 
 #### Miscellaneous
-- 📜 Model management and selection
-- 🔧 Includes support for OpenAI's responses, moderations, and vector stores APIs
+- 📜  Models API
+- 🔧  OpenAI responses + moderations
 
 ## Matrix
-
-While the Features section above gives you the high-level picture, the table below
-breaks things down by provider, so you can see exactly what’s supported where.
-
 
 | Feature / Provider                  | OpenAI | Anthropic | Gemini | DeepSeek | xAI (Grok) | zAI    | Ollama | LlamaCpp |
 |--------------------------------------|:------:|:---------:|:------:|:--------:|:----------:|:------:|:------:|:--------:|
