@@ -40,6 +40,7 @@ class LLM::Anthropic
           if Hash === content["input"]
             content["input"] = chunk["delta"]["partial_json"]
           else
+            content["input"] ||= +""
             content["input"] << chunk["delta"]["partial_json"]
           end
         end
