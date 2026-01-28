@@ -41,6 +41,9 @@ module LLM
 
   ##
   # Sets the JSON adapter used by the library
+  # @note
+  #  This should be set once from the main thread when your program starts.
+  #  Defaults to {LLM::JSONAdapter::JSON LLM::JSONAdapter::JSON}.
   # @param [Class, String, Symbol] adapter
   #  A JSON adapter class or its name
   # @return [void]
