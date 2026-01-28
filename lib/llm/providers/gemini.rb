@@ -64,18 +64,9 @@ module LLM
     #  When given an object a provider does not understand
     # @return [LLM::Response]
     def complete(prompt, params = {})
-      params = {role: :user, model: default_model}.merge!(params)
-      tools  = resolve_tools(params.delete(:tools))
-      params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
-      role, model, stream = [:role, :model, :stream].map { params.delete(_1) }
-      action = stream ? "streamGenerateContent?key=#{@key}&alt=sse" : "generateContent?key=#{@key}"
-      model.respond_to?(:id) ? model.id : model
-      path = ["/v1beta/models/#{model}", action].join(":")
-      req  = Net::HTTP::Post.new(path, headers)
-      messages = [*(params.delete(:messages) || []), LLM::Message.new(role, prompt)]
-      body = LLM.json.dump({contents: adapt(messages)}.merge!(params))
-      set_body_stream(req, StringIO.new(body))
-      res = execute(request: req, stream:)
+      params, stream, tools, role, model = normalize_complete_params(params)
+      req = build_complete_request(prompt, params, role, model, stream)
+      res = execute(request: req, stream: stream)
       ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
     end
@@ -164,6 +155,25 @@ module LLM
 
     def error_handler
       LLM::Gemini::ErrorHandler
+    end
+
+    def normalize_complete_params(params)
+      params = {role: :user, model: default_model}.merge!(params)
+      tools  = resolve_tools(params.delete(:tools))
+      params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
+      role, model, stream = [:role, :model, :stream].map { params.delete(_1) }
+      [params, stream, tools, role, model]
+    end
+
+    def build_complete_request(prompt, params, role, model, stream)
+      action = stream ? "streamGenerateContent?key=#{@key}&alt=sse" : "generateContent?key=#{@key}"
+      model.respond_to?(:id) ? model.id : model
+      path = ["/v1beta/models/#{model}", action].join(":")
+      req  = Net::HTTP::Post.new(path, headers)
+      messages = [*(params.delete(:messages) || []), LLM::Message.new(role, prompt)]
+      body = LLM.json.dump({contents: adapt(messages)}.merge!(params))
+      set_body_stream(req, StringIO.new(body))
+      req
     end
   end
 end

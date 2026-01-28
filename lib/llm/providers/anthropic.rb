@@ -41,16 +41,9 @@ module LLM
     #  When given an object a provider does not understand
     # @return (see LLM::Provider#complete)
     def complete(prompt, params = {})
-      params = {role: :user, model: default_model, max_tokens: 1024}.merge!(params)
-      tools  = resolve_tools(params.delete(:tools))
-      params = [params, adapt_tools(tools)].inject({}, &:merge!).compact
-      role, stream = params.delete(:role), params.delete(:stream)
-      params[:stream] = true if stream.respond_to?(:<<) || stream == true
-      req = Net::HTTP::Post.new("/v1/messages", headers)
-      messages = [*(params.delete(:messages) || []), Message.new(role, prompt)]
-      body = LLM.json.dump({messages: [adapt(messages)].flatten}.merge!(params))
-      set_body_stream(req, StringIO.new(body))
-      res = execute(request: req, stream:)
+      params, stream, tools, role = normalize_complete_params(params)
+      req = build_complete_request(prompt, params, role)
+      res = execute(request: req, stream: stream)
       ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
     end
@@ -130,6 +123,23 @@ module LLM
 
     def error_handler
       LLM::Anthropic::ErrorHandler
+    end
+
+    def normalize_complete_params(params)
+      params = {role: :user, model: default_model, max_tokens: 1024}.merge!(params)
+      tools = resolve_tools(params.delete(:tools))
+      params = [params, adapt_tools(tools)].inject({}, &:merge!).compact
+      role, stream = params.delete(:role), params.delete(:stream)
+      params[:stream] = true if stream.respond_to?(:<<) || stream == true
+      [params, stream, tools, role]
+    end
+
+    def build_complete_request(prompt, params, role)
+      messages = [*(params.delete(:messages) || []), Message.new(role, prompt)]
+      body = LLM.json.dump({messages: [adapt(messages)].flatten}.merge!(params))
+      req = Net::HTTP::Post.new("/v1/messages", headers)
+      set_body_stream(req, StringIO.new(body))
+      req
     end
   end
 end
