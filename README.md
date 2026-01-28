@@ -19,11 +19,11 @@ A simple chatbot that maintains a conversation and streams responses in real-tim
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.openai(key: ENV["KEY"])
+llm = LLM.openai(key: ENV.fetch("KEY"))
 bot = LLM::Bot.new(llm, stream: $stdout)
 loop do
   print "> "
-  bot.chat(gets)
+  bot.chat(STDIN.gets)
   print "\n"
 end
 ```
@@ -36,15 +36,15 @@ A prompt builder that produces a chain of messages that can be sent in one reque
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.openai(key: ENV["KEY"])
+llm = LLM.openai(key: ENV.fetch("KEY"))
 bot = LLM::Bot.new(llm)
 prompt = bot.build_prompt do
-  it.system "Your task is to answer all user queries"
+  it.system "Answer concisely."
   it.user "Was 2024 a leap year?"
-  it.user "How many days in a year?"
+  it.user "How many days were in that year?"
 end
-bot.chat(prompt)
-bot.messages.each { print "[#{it.role}] ", it.content, "\n" }
+res = bot.chat(prompt)
+res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 #### Schema
@@ -56,20 +56,20 @@ A bot that instructs the LLM to respond in JSON, and according to the given sche
 require "llm"
 
 class Estimation < LLM::Schema
-  property :age, Integer, "The age of a person in a photo", required: true
-  property :confidence, Number, "Model confidence (0.0 to 1.0)", required: true
-  property :notes, String, "Model notes or caveats", optional: true
+  property :age, Integer, "Estimated age", required: true
+  property :confidence, Number, "0.0–1.0", required: true
+  property :notes, String, "Short notes", optional: true
 end
 
-llm = LLM.openai(key: ENV["KEY"])
+llm = LLM.openai(key: ENV.fetch("KEY"))
 bot = LLM::Bot.new(llm, schema: Estimation)
 img = llm.images.create(prompt: "A man in his 30s")
-res = bot.chat bot.image_url(img.urls[0])
-estimation = res.choices.find(&:assistant?).content!
+res = bot.chat bot.image_url(img.urls.first)
+data = res.choices.find(&:assistant?).content!
 
-puts "age: #{estimation["age"]}"
-puts "confidence: #{estimation["confidence"]}"
-puts "notes: #{estimation["notes"]}"
+puts "age: #{data["age"]}"
+puts "confidence: #{data["confidence"]}"
+puts "notes: #{data["notes"]}" if data["notes"]
 ```
 
 #### Tools
@@ -83,21 +83,21 @@ require "llm"
 class System < LLM::Tool
   name "system"
   description "Run a shell command"
-  param :command, String, "The command to execute", required: true
+  param :command, String, "Command to execute", required: true
 
   def call(command:)
     {success: system(command)}
   end
 end
 
-llm  = LLM.openai(key: ENV["KEY"])
+llm  = LLM.openai(key: ENV.fetch("KEY"))
 bot  = LLM::Bot.new(llm, tools: [System])
 prompt = bot.build_prompt do
-  it.system "Your task is to execute system commands"
-  it.user "mkdir /home/robert/projects"
+  it.system "You can run safe shell commands."
+  it.user "Run `date`."
 end
 bot.chat(prompt)
-bot.chat bot.functions.map(&:call)
+bot.chat(bot.functions.map(&:call))
 bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n" }
 ```
 
