@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=TOKEN
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"Hey, run the ''date''
+        command"}]},{"role":"user","parts":[{"text":"You are a bot that can run UNIX
+        system commands"}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
+        system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
+    headers:
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Transfer-Encoding:
+      - chunked
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/event-stream
+      Content-Disposition:
+      - attachment
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Wed, 28 Jan 2026 15:48:40 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - gfet4t7; dur=752
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"system\",\"args\": {\"command\": \"date\"}},\"thoughtSignature\":
+        \"CiQBcsjafM1eausINmRBwdqxA2J0U3gd4KjlT3FBoPpQDyyNgjoKaAFyyNp8FO3ZKMuxzpp92QnTooAbYJxLaSRZrlvJ2uv5O9Qx4BGcaMRL7nfzibs1HEPWvq/aIe2GEzxyIMZLmFiv1FND5VufMlYv0GFNInSaF639JF6VGGBRwTqukBVOxaTBd6e9qoAKCqkBAXLI2nzvx4LpvDd/JV/q65CQgFOE5uncWOd3B3FQe2d2oJ8PmNab8enuo6HuamOCj+vWliNJgmRp//Si+Ns6ofoFtDww80fYBj73eS3vyO1wp4yF9NVr3ziP4XW93CosUmjDNlwj0oSsXmp6cN7QwqYmRzLamHlQZX18H+N6lDFCN38elmkpEikNvGbgR75J+SH8+Lye5/LbTWsrjvtMIFXv2IySamPLUw==\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
+        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
+        53,\"candidatesTokenCount\": 13,\"totalTokenCount\": 119,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 53}],\"thoughtsTokenCount\": 53},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"1y96aZOHK4uX_uMPmqCumQY\"}\r\n\r\n"
+  recorded_at: Wed, 28 Jan 2026 15:47:51 GMT
+recorded_with: VCR 6.3.1

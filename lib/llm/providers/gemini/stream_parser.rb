@@ -104,6 +104,10 @@ class LLM::Gemini
       delta_call = delta["functionCall"]
       if last_call.is_a?(Hash) && delta_call.is_a?(Hash)
         last_existing_part["functionCall"] = last_call.merge(delta_call)
+        delta.each do |key, value|
+          next if key == "functionCall"
+          last_existing_part[key] = value
+        end
       else
         parts << delta
       end
