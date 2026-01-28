@@ -44,7 +44,9 @@ class LLM::Anthropic
           end
         end
       elsif chunk["type"] == "message_delta"
-        merge_message!(chunk["delta"])
+        merge_message!(chunk["delta"]) if chunk["delta"]
+        extras = chunk.reject { |k, _| k == "type" || k == "delta" }
+        merge_message!(extras) unless extras.empty?
       elsif chunk["type"] == "content_block_stop"
         content = @body["content"][chunk["index"]]
         if content["input"]
@@ -54,11 +56,22 @@ class LLM::Anthropic
     end
 
     def merge_message!(message)
-      message.each do |key, value|
-        @body[key] = if value.respond_to?(:each_pair)
-          merge_message!(value)
+      message.each_pair do |key, value|
+        if value.respond_to?(:each_pair)
+          @body[key] ||= {}
+          deep_merge!(@body[key], value)
         else
-          value
+          @body[key] = value
+        end
+      end
+    end
+
+    def deep_merge!(target, source)
+      source.each_pair do |key, value|
+        if value.respond_to?(:each_pair) && target[key].respond_to?(:each_pair)
+          deep_merge!(target[key], value)
+        else
+          target[key] = value
         end
       end
     end
