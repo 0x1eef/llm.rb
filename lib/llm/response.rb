@@ -26,6 +26,8 @@ module LLM
     ##
     # Returns the response body
     # @return [LLM::Object, String]
+    #  Returns an LLM::Object when the response body is JSON,
+    #  otherwise returns a raw string.
     def body
       @res.body
     end

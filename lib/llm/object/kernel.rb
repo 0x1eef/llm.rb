@@ -20,17 +20,17 @@ class LLM::Object
       ::Kernel.instance_method(:method).bind(self).call(...)
     end
 
-    def kind_of?(...)
-      ::Kernel.instance_method(:kind_of?).bind(self).call(...)
+    def kind_of?(klass)
+      ::Kernel.instance_method(:kind_of?).bind(self).call(klass)
     end
     alias_method :is_a?, :kind_of?
 
     def respond_to?(m, include_private = false)
-      !!key(m) || self.class.method_defined?(m) || super
+      !!key(m) || self.class.method_defined?(m)
     end
 
     def respond_to_missing?(m, include_private = false)
-      !!key(m) || super
+      !!key(m)
     end
 
     def object_id

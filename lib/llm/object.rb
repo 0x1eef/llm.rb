@@ -69,15 +69,55 @@ class LLM::Object < BasicObject
   end
 
   ##
+  # @return [Array<String>]
+  def keys
+    @h.keys
+  end
+
+  ##
+  # @return [Array]
+  def values
+    @h.values
+  end
+
+  ##
+  # @param [String, Symbol] k
+  # @return [Boolean]
+  def key?(k)
+    @h.key?(key(k))
+  end
+  alias_method :has_key?, :key?
+
+  ##
+  # @param [String, Symbol] k
+  # @return [Object]
+  def fetch(k, *args, &b)
+    @h.fetch(key(k), *args, &b)
+  end
+
+  ##
+  # @return [Integer]
+  def size
+    @h.size
+  end
+  alias_method :length, :size
+
+  ##
+  # @yieldparam [String, Object]
+  def each_pair(&)
+    @h.each(&)
+  end
+
+  ##
   # @return [Object, nil]
   def dig(...)
-    to_h.dig(...)
+    @h.dig(...)
   end
 
   ##
   # @return [Hash]
   def slice(...)
-    to_h.slice(...)
+    @h.slice(...)
   end
 
   private
