@@ -24,11 +24,15 @@ bot = LLM::Bot.new(llm, stream: $stdout)
 loop do
   print "> "
   bot.chat(STDIN.gets)
-  print "\n"
+  puts
 end
 ```
 
 #### Prompts
+
+> ℹ️  **Tip:** Some providers (such as OpenAI) support `system` and `developer`
+> roles, but the examples in this README stick to `user` roles since they are
+> supported across all providers.
 
 A prompt builder that produces a chain of messages that can be sent in one request:
 
@@ -40,7 +44,7 @@ llm = LLM.openai(key: ENV.fetch("KEY"))
 bot = LLM::Bot.new(llm)
 
 prompt = bot.build_prompt do
-  it.system "Answer concisely."
+  it.user "Answer concisely."
   it.user "Was 2024 a leap year?"
   it.user "How many days were in that year?"
 end
@@ -96,13 +100,13 @@ llm  = LLM.openai(key: ENV.fetch("KEY"))
 bot  = LLM::Bot.new(llm, tools: [System])
 
 prompt = bot.build_prompt do
-  it.system "You can run safe shell commands."
+  it.user "You can run safe shell commands."
   it.user "Run `date`."
 end
 
 bot.chat(prompt)
 bot.chat(bot.functions.map(&:call))
-bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n" }
+bot.messages.select(&:assistant?).each { |msg| puts "[#{msg.role}] #{msg.content}" }
 ```
 
 ## Features
@@ -203,8 +207,8 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.models.all
-print res.object, "\n"
-print res.data.first.id, "\n"
+puts res.object
+puts res.data.first.id
 ```
 
 #### Persistence
@@ -223,7 +227,7 @@ llm  = LLM.openai(key: ENV["KEY"], persistent: true)
 res1 = llm.responses.create "message 1"
 res2 = llm.responses.create "message 2", previous_response_id: res1.response_id
 res3 = llm.responses.create "message 3", previous_response_id: res2.response_id
-print res3.output_text, "\n"
+puts res3.output_text
 ```
 
 #### Thread Safety
@@ -256,15 +260,17 @@ require "llm"
 
 llm  = LLM.openai(key: ENV["KEY"])
 bot  = LLM::Bot.new(llm)
-url  = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Lisc_lipy.jpg"
+image_url = "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg"
+image_path = "/tmp/llm-logo.png"
+pdf_path = "/tmp/llm-handbook.pdf"
 
 prompt = bot.build_prompt do
-  it.system "Your task is to answer all user queries"
-  it.user ["Tell me about this URL", bot.image_url(url)]
-  it.user ["Tell me about this PDF", bot.local_file("handbook.pdf")]
+  it.user ["Tell me about this image", bot.image_url(image_url)]
+  it.user ["Tell me about this image", bot.local_file(image_path)]
+  it.user ["Tell me about this PDF", bot.local_file(pdf_path)]
 end
 bot.chat(prompt)
-bot.messages.each { print "[#{it.role}] ", it.content, "\n" }
+bot.messages.each { |msg| puts "[#{msg.role}] #{msg.content}" }
 ```
 
 #### Streaming
@@ -282,19 +288,19 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, stream: $stdout)
-url = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Lisc_lipy.jpg"
+image_url = "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg"
+image_path = "/tmp/llm-logo.png"
+pdf_path = "/tmp/llm-handbook.pdf"
 
 prompt = bot.build_prompt do
-  it.system "Your task is to answer all user queries"
-  it.user ["Tell me about this URL", bot.image_url(url)]
-  it.user ["Tell me about the PDF", bot.local_file("handbook.pdf")]
+  it.user ["Tell me about this image", bot.image_url(image_url)]
+  it.user ["Tell me about this image", bot.local_file(image_path)]
+  it.user ["Tell me about the PDF", bot.local_file(pdf_path)]
 end
 bot.chat(prompt)
 ```
 
 ### Schema
-
-#### Object
 
 All LLM providers except Anthropic and DeepSeek allow a client to describe
 the structure of a response that a LLM emits according to a schema that is
@@ -306,56 +312,21 @@ its ability:
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.openai(key: ENV["KEY"])
-
-##
-# Objects
-schema = llm.schema.object(probability: llm.schema.number.required)
-bot = LLM::Bot.new(llm, schema:)
-bot.chat "Does the earth orbit the sun?", role: :user
-puts bot.messages.find(&:assistant?).content! # => {"probability"=>1.0}
-
-##
-# Enums
-schema = llm.schema.object(fruit: llm.schema.string.enum("Apple", "Orange", "Pineapple"))
-bot = LLM::Bot.new(llm, schema:) :system
-bot.chat "What fruit is your favorite?", role: :user
-puts bot.messages.find(&:assistant?).content! # => {"fruit"=>"Pineapple"}
-
-##
-# Arrays
-schema = llm.schema.object(answers: llm.schema.array(llm.schema.integer.required))
-bot = LLM::Bot.new(llm, schema:)
-bot.chat "Tell me the answer to ((5 + 5) / 2) * 2 + 1", role: :user
-puts bot.messages.find(&:assistant?).content! # => {"answers"=>[11]}
-```
-
-#### Class
-
-Other than the object form we saw in the previous example, a class form
-is also supported. Under the hood, it is implemented with the object form
-and the class form primarily exists to provide structure and organization
-that the object form lacks:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
 class Player < LLM::Schema
   property :name, String, "The player's name", required: true
-  property :numbers, Array[Integer], "The player's favorite numbers", required: true
+  property :position, Array[Number], "The player's [x, y] position", required: true
 end
 
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, schema: Player)
 prompt = bot.build_prompt do
-  it.system "The user's name is Robert and their favorite numbers are 7 and 12"
-  it.user "Tell me about myself"
+  it.user "The player's name is Sam and their position is (7, 12)."
+  it.user "Return the player's name and position"
 end
 
 player = bot.chat(prompt).content!
-puts "name: #{player.name}"
-puts "numbers: #{player.numbers}"
+puts "name: #{player['name']}"
+puts "position: #{player['position'].join(', ')}"
 ```
 
 ### Tools
@@ -403,7 +374,7 @@ tool = LLM.function(:system) do |fn|
 end
 
 bot = LLM::Bot.new(llm, tools: [tool])
-bot.chat "Your task is to run shell commands via a tool.", role: :system
+bot.chat "Your task is to run shell commands via a tool.", role: :user
 
 bot.chat "What is the current date?", role: :user
 bot.chat bot.functions.map(&:call) # report return value to the LLM
@@ -450,7 +421,7 @@ end
 
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, tools: [System])
-bot.chat "Your task is to run shell commands via a tool.", role: :system
+bot.chat "Your task is to run shell commands via a tool.", role: :user
 
 bot.chat "What is the current date?", role: :user
 bot.chat bot.functions.map(&:call) # report return value to the LLM
@@ -480,9 +451,9 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm)
-file = llm.files.create(file: "/book.pdf")
+file = llm.files.create(file: "/tmp/llm-book.pdf")
 res = bot.chat ["Tell me about this file", file]
-res.choices.each { print "[#{it.role}] ", it.content, "\n" }
+res.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
 ```
 
 ### Prompts
@@ -513,17 +484,19 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm)
-url = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Lisc_lipy.jpg"
+image_url = "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg"
+image_path = "/tmp/llm-logo.png"
+pdf_path = "/tmp/llm-book.pdf"
 
-res1 = bot.chat ["Tell me about this URL", bot.image_url(url)]
-res1.choices.each { print "[#{it.role}] ", it.content, "\n" }
+res1 = bot.chat ["Tell me about this image URL", bot.image_url(image_url)]
+res1.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
 
-file = llm.files.create(file: "/book.pdf")
+file = llm.files.create(file: pdf_path)
 res2 = bot.chat ["Tell me about this PDF", bot.remote_file(file)]
-res2.choices.each { print "[#{it.role}] ", it.content, "\n" }
+res2.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
 
-res3 = bot.chat ["Tell me about this image", bot.local_file("/puffy.png")]
-res3.choices.each { print "[#{it.role}] ", it.content, "\n" }
+res3 = bot.chat ["Tell me about this image", bot.local_file(image_path)]
+res3.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
 ```
 
 ### Audio
@@ -560,7 +533,7 @@ llm = LLM.openai(key: ENV["KEY"])
 res = llm.audio.create_transcription(
   file: File.join(Dir.home, "hello.mp3")
 )
-print res.text, "\n" # => "Hello world."
+puts res.text # => "Hello world."
 ```
 
 #### Translate
@@ -578,7 +551,7 @@ llm = LLM.openai(key: ENV["KEY"])
 res = llm.audio.create_translation(
   file: File.join(Dir.home, "bomdia.mp3")
 )
-print res.text, "\n" # => "Good morning."
+puts res.text # => "Good morning."
 ```
 
 ### Images
@@ -608,8 +581,8 @@ end
 #### Edit
 
 The following example is focused on editing a local image with the aid
-of a prompt. The image (`/images/cat.png`) is returned to us with the cat
-now wearing a hat. The image is then moved to `${HOME}/catwithhat.png` as
+of a prompt. The image (`/tmp/llm-logo.png`) is returned to us with a hat.
+The image is then moved to `${HOME}/logo-with-hat.png` as
 the final step:
 
 ```ruby
@@ -620,20 +593,20 @@ require "fileutils"
 
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.images.edit(
-  image: "/images/cat.png",
-  prompt: "a cat with a hat",
+  image: "/tmp/llm-logo.png",
+  prompt: "add a hat to the logo",
 )
 res.urls.each do |url|
   FileUtils.mv OpenURI.open_uri(url).path,
-               File.join(Dir.home, "catwithhat.png")
+               File.join(Dir.home, "logo-with-hat.png")
 end
 ```
 
 #### Variations
 
 The following example is focused on creating variations of a local image.
-The image (`/images/cat.png`) is returned to us with five different variations.
-The images are then moved to `${HOME}/catvariation0.png`, `${HOME}/catvariation1.png`
+The image (`/tmp/llm-logo.png`) is returned to us with five different variations.
+The images are then moved to `${HOME}/logo-variation0.png`, `${HOME}/logo-variation1.png`
 and so on as the final step:
 
 ```ruby
@@ -644,12 +617,12 @@ require "fileutils"
 
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.images.create_variation(
-  image: "/images/cat.png",
+  image: "/tmp/llm-logo.png",
   n: 5
 )
 res.urls.each.with_index do |url, index|
   FileUtils.mv OpenURI.open_uri(url).path,
-               File.join(Dir.home, "catvariation#{index}.png")
+               File.join(Dir.home, "logo-variation#{index}.png")
 end
 ```
 
@@ -668,9 +641,9 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.embed(["programming is fun", "ruby is a programming language", "sushi is art"])
-print res.class, "\n"
-print res.embeddings.size, "\n"
-print res.embeddings[0].size, "\n"
+puts res.class
+puts res.embeddings.size
+puts res.embeddings[0].size
 
 ##
 # LLM::Response
@@ -695,7 +668,7 @@ require "llm"
 # List all models
 llm = LLM.openai(key: ENV["KEY"])
 llm.models.all.each do |model|
-  print "model: ", model.id, "\n"
+  puts "model: #{model.id}"
 end
 
 ##
@@ -703,7 +676,7 @@ end
 model = llm.models.all.find { |m| m.id == "gpt-3.5-turbo" }
 bot = LLM::Bot.new(llm, model: model.id)
 res = bot.chat "Hello #{model.id} :)"
-res.choices.each { print "[#{it.role}] ", it.content, "\n" }
+res.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
 ```
 
 ## Install
