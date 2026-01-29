@@ -51,8 +51,9 @@ module LLM
     alias_method :eql?, :==
 
     ##
-    # Try to parse the content as JSON
+    # Try to parse JSON content
     # @return [Hash]
+    #  Returns the parsed content as a Hash
     def content!
       LLM.json.load(content)
     end

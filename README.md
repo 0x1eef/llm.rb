@@ -182,6 +182,27 @@ llm = LLM.ollama(key: nil)
 llm = LLM.llamacpp(key: nil)
 ```
 
+#### LLM::Response
+
+All provider methods that perform requests return an
+[LLM::Response](https://0x1eef.github.io/x/llm.rb/LLM/Response.html).
+If the HTTP response is JSON (`content-type: application/json`),
+`response.body` is parsed into an
+[LLM::Object](https://0x1eef.github.io/x/llm.rb/LLM/Object.html) for
+dot-access. For non-JSON responses, `response.body` is a raw string.
+It is also possible to access top-level keys directly on the response
+(eg: `res.object` instead of `res.body.object`):
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+res = llm.models.all
+print res.object, "\n"
+print res.data.first.id, "\n"
+```
+
 #### Persistence
 
 The llm.rb library can maintain a process-wide connection pool
@@ -288,21 +309,21 @@ llm = LLM.openai(key: ENV["KEY"])
 schema = llm.schema.object(probability: llm.schema.number.required)
 bot = LLM::Bot.new(llm, schema:)
 bot.chat "Does the earth orbit the sun?", role: :user
-puts bot.messages.find(&:assistant?).content! # => {probability: 1.0}
+puts bot.messages.find(&:assistant?).content! # => {"probability"=>1.0}
 
 ##
 # Enums
 schema = llm.schema.object(fruit: llm.schema.string.enum("Apple", "Orange", "Pineapple"))
 bot = LLM::Bot.new(llm, schema:) :system
 bot.chat "What fruit is your favorite?", role: :user
-puts bot.messages.find(&:assistant?).content! # => {fruit: "Pineapple"}
+puts bot.messages.find(&:assistant?).content! # => {"fruit"=>"Pineapple"}
 
 ##
 # Arrays
 schema = llm.schema.object(answers: llm.schema.array(llm.schema.integer.required))
 bot = LLM::Bot.new(llm, schema:)
 bot.chat "Tell me the answer to ((5 + 5) / 2) * 2 + 1", role: :user
-puts bot.messages.find(&:assistant?).content! # => {answers: [11]}
+puts bot.messages.find(&:assistant?).content! # => {"answers"=>[11]}
 ```
 
 #### Class
