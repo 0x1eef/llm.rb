@@ -38,11 +38,13 @@ require "llm"
 
 llm = LLM.openai(key: ENV.fetch("KEY"))
 bot = LLM::Bot.new(llm)
+
 prompt = bot.build_prompt do
   it.system "Answer concisely."
   it.user "Was 2024 a leap year?"
   it.user "How many days were in that year?"
 end
+
 res = bot.chat(prompt)
 res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
@@ -92,10 +94,12 @@ end
 
 llm  = LLM.openai(key: ENV.fetch("KEY"))
 bot  = LLM::Bot.new(llm, tools: [System])
+
 prompt = bot.build_prompt do
   it.system "You can run safe shell commands."
   it.user "Run `date`."
 end
+
 bot.chat(prompt)
 bot.chat(bot.functions.map(&:call))
 bot.messages.select(&:assistant?).each { print "[#{it.role}] ", it.content, "\n" }
