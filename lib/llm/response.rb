@@ -56,11 +56,19 @@ module LLM
     private
 
     def method_missing(m, *args, **kwargs, &b)
-      body.respond_to?(m) ? body[m.to_s] : super
+      if LLM::Object === body
+        body.respond_to?(m) ? body[m.to_s] : super
+      else
+        super
+      end
     end
 
     def respond_to_missing?(m, include_private = false)
-      body.respond_to?(m) || super
+      if LLM::Object === body
+        body.respond_to?(m)
+      else
+        false
+      end
     end
   end
 end
