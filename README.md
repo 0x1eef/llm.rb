@@ -655,13 +655,8 @@ end
 
 The
 [`LLM::Provider#embed`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html#embed-instance_method)
-method generates a vector representation of one or more chunks
-of text. Embeddings capture the semantic meaning of text &ndash;
-a common use-case for them is to store chunks of text in a
-vector database, and then to query the database for *semantically
-similar* text. These chunks of similar text can then support the
-generation of a prompt that is used to query a large language model,
-which will go on to generate a response:
+method returns vector embeddings for one or more text inputs. A common
+use is semantic search (store vectors, then query for similar text):
 
 ```ruby
 #!/usr/bin/env ruby
@@ -685,10 +680,8 @@ print res.embeddings[0].size, "\n"
 
 Almost all LLM providers provide a models endpoint that allows a client to
 query the list of models that are available to use. The list is dynamic,
-maintained by LLM providers, and it is independent of a specific llm.rb release.
-[LLM::Model](https://0x1eef.github.io/x/llm.rb/LLM/Model.html)
-objects can be used instead of a string that describes a model name (although
-either works). Let's take a look at an example:
+maintained by LLM providers, and it is independent of a specific llm.rb
+release:
 
 ```ruby
 #!/usr/bin/env ruby
