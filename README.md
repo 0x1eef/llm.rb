@@ -106,7 +106,7 @@ end
 
 bot.chat(prompt)
 bot.chat(bot.functions.map(&:call))
-bot.messages.select(&:assistant?).each { |msg| puts "[#{msg.role}] #{msg.content}" }
+bot.messages.select(&:assistant?).each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 ## Features
@@ -270,7 +270,7 @@ prompt = bot.build_prompt do
   it.user ["Tell me about this PDF", bot.local_file(pdf_path)]
 end
 bot.chat(prompt)
-bot.messages.each { |msg| puts "[#{msg.role}] #{msg.content}" }
+bot.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 #### Streaming
@@ -453,7 +453,7 @@ llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm)
 file = llm.files.create(file: "/tmp/llm-book.pdf")
 res = bot.chat ["Tell me about this file", file]
-res.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
+res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 ### Prompts
@@ -489,14 +489,14 @@ image_path = "/tmp/llm-logo.png"
 pdf_path = "/tmp/llm-book.pdf"
 
 res1 = bot.chat ["Tell me about this image URL", bot.image_url(image_url)]
-res1.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
+res1.choices.each { |m| puts "[#{m.role}] #{m.content}" }
 
 file = llm.files.create(file: pdf_path)
 res2 = bot.chat ["Tell me about this PDF", bot.remote_file(file)]
-res2.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
+res2.choices.each { |m| puts "[#{m.role}] #{m.content}" }
 
 res3 = bot.chat ["Tell me about this image", bot.local_file(image_path)]
-res3.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
+res3.choices.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 ### Audio
@@ -676,7 +676,7 @@ end
 model = llm.models.all.find { |m| m.id == "gpt-3.5-turbo" }
 bot = LLM::Bot.new(llm, model: model.id)
 res = bot.chat "Hello #{model.id} :)"
-res.choices.each { |msg| puts "[#{msg.role}] #{msg.content}" }
+res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 ## Install
