@@ -41,7 +41,7 @@ class LLM::OpenAI
         index = choice["index"]
         if @body["choices"][index]
           target_message = @body["choices"][index]["message"]
-          delta = choice["delta"]
+          delta = choice["delta"] || {}
           delta.each do |key, value|
             if key == "content"
               target_message[key] ||= +""
@@ -56,7 +56,7 @@ class LLM::OpenAI
         else
           message_hash = {"role" => "assistant"}
           @body["choices"][index] = {"message" => message_hash}
-          choice["delta"].each do |key, value|
+          (choice["delta"] || {}).each do |key, value|
             if key == "content"
               @io << value if @io.respond_to?(:<<)
               message_hash[key] = value
