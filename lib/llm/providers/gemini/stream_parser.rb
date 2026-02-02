@@ -43,7 +43,7 @@ class LLM::Gemini
 
     def merge_candidates!(deltas)
       deltas.each do |delta|
-        index = delta["index"]
+        index = delta["index"].to_i
         @body["candidates"][index] ||= {"content" => {"parts" => []}}
         candidate = @body["candidates"][index]
         delta.each do |key, value|
@@ -80,6 +80,8 @@ class LLM::Gemini
         elsif delta["functionResponse"]
           parts << delta
         elsif delta["fileData"]
+          parts << delta
+        else
           parts << delta
         end
       end
