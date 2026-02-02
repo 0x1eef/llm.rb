@@ -21,13 +21,13 @@ module LLM::OpenAI::ResponseAdapter
     ##
     # (see LLM::Contract::Completion#input_tokens)
     def input_tokens
-      body.usage["prompt_tokens"] || 0
+      body.usage&.prompt_tokens || 0
     end
 
     ##
     # (see LLM::Contract::Completion#output_tokens)
     def output_tokens
-      body.usage["completion_tokens"] || 0
+      body.usage&.completion_tokens || 0
     end
 
     ##
@@ -42,7 +42,7 @@ module LLM::OpenAI::ResponseAdapter
     ##
     # (see LLM::Contract::Completion#total_tokens)
     def total_tokens
-      body.usage["total_tokens"] || 0
+      body.usage&.total_tokens || 0
     end
 
     ##

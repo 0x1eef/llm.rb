@@ -12,13 +12,13 @@ module LLM::Anthropic::ResponseAdapter
     ##
     # (see LLM::Contract::Completion#input_tokens)
     def input_tokens
-      body.usage["input_tokens"] || 0
+      body.usage&.input_tokens || 0
     end
 
     ##
     # (see LLM::Contract::Completion#output_tokens)
     def output_tokens
-      body.usage["output_tokens"] || 0
+      body.usage&.output_tokens || 0
     end
 
     ##
