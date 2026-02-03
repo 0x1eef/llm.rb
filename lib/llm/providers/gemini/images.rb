@@ -46,7 +46,7 @@ class LLM::Gemini
           sampleCount: n,
           imageSize: image_size,
           aspectRatio: aspect_ratio,
-          personGeneration: person_generation,
+          personGeneration: person_generation
         }.compact.merge!(params),
         instances: [{prompt:}]
       })
