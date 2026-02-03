@@ -36,10 +36,6 @@ module LLM
   ServerError = Class.new(Error)
 
   ##
-  # When no images are found in a response
-  NoImageError = Class.new(Error)
-
-  ##
   # When an given an input object that is not understood
   FormatError = Class.new(Error)
 

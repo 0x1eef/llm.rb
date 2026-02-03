@@ -3,14 +3,12 @@
 class LLM::Gemini
   ##
   # The {LLM::Gemini::Images LLM::Gemini::Images} class provides an images
-  # object for interacting with [Gemini's images API](https://ai.google.dev/gemini-api/docs/image-generation).
-  # Please note that unlike OpenAI, which can return either URLs or base64-encoded strings,
-  # Gemini's images API will always return an image as a base64 encoded string that
-  # can be decoded into binary.
+  # object for interacting with Google's Imagen text-to-image models via the
+  # Gemini API: https://ai.google.dev/gemini-api/docs/imagen
+  #
   # @example
   #   #!/usr/bin/env ruby
   #   require "llm"
-  #
   #   llm = LLM.gemini(key: ENV["KEY"])
   #   res = llm.images.create prompt: "A dog on a rocket to the moon"
   #   IO.copy_stream res.images[0], "rocket.png"
@@ -33,19 +31,27 @@ class LLM::Gemini
     #   IO.copy_stream res.images[0], "rocket.png"
     # @see https://ai.google.dev/gemini-api/docs/image-generation Gemini docs
     # @param [String] prompt The prompt
+    # @param [Integer] n The number of images to generate
+    # @param [String] model The model to use
+    # @param [String] image_size The size of the image ("1K", "2K", etc.)
+    # @param [String] aspect_ratio The aspect ratio of the image ("1:1", "16:9", etc.)
     # @param [Hash] params Other parameters (see Gemini docs)
     # @raise (see LLM::Provider#request)
-    # @raise [LLM::NoImageError] when no images are returned
     # @return [LLM::Response]
-    def create(prompt:, model: "gemini-2.5-flash-image", **params)
-      req  = Net::HTTP::Post.new("/v1beta/models/#{model}:generateContent?key=#{key}", headers)
+    def create(prompt:, n: 1, image_size: nil, aspect_ratio: nil, person_generation: nil, model: "imagen-4.0-generate-001", **params)
+      req  = Net::HTTP::Post.new("/v1beta/models/#{model}:predict?key=#{key}", headers)
       body = LLM.json.dump({
-        contents: [{parts: [{text: create_prompt}, {text: prompt}]}],
-        generationConfig: {responseModalities: ["TEXT", "IMAGE"]}
-      }.merge!(params))
+        parameters: {
+          sampleCount: n,
+          imageSize: image_size,
+          aspectRatio: aspect_ratio,
+          personGeneration: person_generation,
+        }.compact.merge!(params),
+        instances: [{prompt:}]
+      })
       req.body = body
       res = execute(request: req)
-      validate ResponseAdapter.adapt(res, type: :image)
+      ResponseAdapter.adapt(res, type: :image)
     end
 
     ##
@@ -59,19 +65,10 @@ class LLM::Gemini
     # @param [String] prompt The prompt
     # @param [Hash] params Other parameters (see Gemini docs)
     # @raise (see LLM::Provider#request)
-    # @raise [LLM::NoImageError] when no images are returned
     # @note (see LLM::Gemini::Images#create)
     # @return [LLM::Response]
     def edit(image:, prompt:, model: "gemini-2.5-flash-image", **params)
-      req   = Net::HTTP::Post.new("/v1beta/models/#{model}:generateContent?key=#{key}", headers)
-      image = LLM::Object.from(value: LLM.File(image), kind: :local_file)
-      body  = LLM.json.dump({
-        contents: [{parts: [{text: edit_prompt}, {text: prompt}, adapter.adapt_content(image)]}],
-        generationConfig: {responseModalities: ["TEXT", "IMAGE"]}
-      }.merge!(params)).b
-      set_body_stream(req, StringIO.new(body))
-      res = execute(request: req)
-      validate ResponseAdapter.adapt(res, type: :image)
+      raise NotImplementedError, "image editing is not yet supported by Gemini"
     end
 
     ##
@@ -89,36 +86,6 @@ class LLM::Gemini
 
     def key
       @provider.instance_variable_get(:@key)
-    end
-
-    def create_prompt
-      <<~PROMPT
-        ## Context
-        Your task is to generate one or more image(s) based on the user's instructions.
-        The user will provide you with text only.
-
-        ## Instructions
-        1. The model *MUST* generate image(s) based on the user text alone.
-        2. The model *MUST NOT* generate anything else.
-      PROMPT
-    end
-
-    def edit_prompt
-      <<~PROMPT
-        ## Context
-        Your task is to edit the provided image based on the user's instructions.
-        The user will provide you with both text and an image.
-
-        ## Instructions
-        1. The model *MUST* edit the provided image based on the user's instructions
-        2. The model *MUST NOT* generate a new image.
-        3. The model *MUST NOT* generate anything else.
-      PROMPT
-    end
-
-    def validate(res)
-      return res unless res.images.empty?
-      raise LLM::NoImageError.new { _1.response = res.res }, "no images found in response"
     end
 
     [:headers, :execute, :set_body_stream].each do |m|

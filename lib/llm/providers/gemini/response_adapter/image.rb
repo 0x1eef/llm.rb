@@ -5,13 +5,9 @@ module LLM::Gemini::ResponseAdapter
     ##
     # @return [Array<StringIO>]
     def images
-      candidates.flat_map do |candidate|
-        parts = candidate&.dig("content", "parts") || []
-        parts.filter_map do
-          data = _1.dig("inlineData", "data")
-          next unless data
-          StringIO.new(data.unpack1("m0"))
-        end
+      (body.predictions || []).map do
+        b64 = _1["bytesBase64Encoded"]
+        StringIO.new(b64.unpack1("m0"))
       end
     end
 
@@ -22,10 +18,5 @@ module LLM::Gemini::ResponseAdapter
     #  will always return an empty array.
     # @return [Array<String>]
     def urls = []
-
-    ##
-    # Returns one or more candidates, or an empty array
-    # @return [Array<Hash>]
-    def candidates = body.candidates || []
   end
 end
