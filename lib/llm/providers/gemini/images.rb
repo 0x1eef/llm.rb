@@ -34,7 +34,7 @@ class LLM::Gemini
     # @param [Integer] n The number of images to generate
     # @param [String] image_size The size of the image ("1K", "2K", etc.)
     # @param [String] aspect_ratio The aspect ratio of the image ("1:1", "16:9", etc.)
-    # @param [Boolean] person_generation Allow the model to generate images of people ("dont_allow", "allow_adult", "allow_all")
+    # @param [String] person_generation Allow the model to generate images of people ("dont_allow", "allow_adult", "allow_all")
     # @param [String] model The model to use
     # @param [Hash] params Other parameters (see Imagen docs)
     # @raise (see LLM::Provider#request)
