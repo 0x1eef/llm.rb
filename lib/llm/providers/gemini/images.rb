@@ -4,7 +4,7 @@ class LLM::Gemini
   ##
   # The {LLM::Gemini::Images LLM::Gemini::Images} class provides an images
   # object for interacting with Google's Imagen text-to-image models via the
-  # Gemini API: https://ai.google.dev/gemini-api/docs/imagen
+  # Imagen API: https://ai.google.dev/gemini-api/docs/imagen
   #
   # @example
   #   #!/usr/bin/env ruby
@@ -29,13 +29,14 @@ class LLM::Gemini
     #   llm = LLM.gemini(key: ENV["KEY"])
     #   res = llm.images.create prompt: "A dog on a rocket to the moon"
     #   IO.copy_stream res.images[0], "rocket.png"
-    # @see https://ai.google.dev/gemini-api/docs/image-generation Gemini docs
+    # @see https://ai.google.dev/gemini-api/docs/imagen Imagen docs
     # @param [String] prompt The prompt
     # @param [Integer] n The number of images to generate
-    # @param [String] model The model to use
     # @param [String] image_size The size of the image ("1K", "2K", etc.)
     # @param [String] aspect_ratio The aspect ratio of the image ("1:1", "16:9", etc.)
-    # @param [Hash] params Other parameters (see Gemini docs)
+    # @param [Boolean] person_generation Allow the model to generate images of people ("dont_allow", "allow_adult", "allow_all")
+    # @param [String] model The model to use
+    # @param [Hash] params Other parameters (see Imagen docs)
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
     def create(prompt:, n: 1, image_size: nil, aspect_ratio: nil, person_generation: nil, model: "imagen-4.0-generate-001", **params)
