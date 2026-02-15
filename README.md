@@ -115,7 +115,7 @@ of messages that have a role (eg system, user), and content:
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.openai(key: ENV.fetch("KEY"))
+llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm)
 prompt = bot.build_prompt do
   it.system "Answer concisely."
