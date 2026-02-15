@@ -13,7 +13,9 @@ tool calling, audio, images, files, and structured outputs.
 
 #### REPL
 
-A simple chatbot that maintains a conversation and streams responses in real-time:
+The [LLM::Bot](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Bot.html) class provides
+a session with an LLM provider that maintains conversation history and context across
+multiple requests. The following example implements a simple REPL loop:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -28,34 +30,12 @@ loop do
 end
 ```
 
-#### Prompts
-
-> ℹ️  **Tip:** Some providers support `system` and `developer` roles while
-> others do not, and llm.rb will map roles appropriately for providers with
-> different role support.
-
-A prompt builder that produces a chain of messages that can be sent in one request:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV.fetch("KEY"))
-bot = LLM::Bot.new(llm)
-
-prompt = bot.build_prompt do
-  it.system "Answer concisely."
-  it.user "Was 2024 a leap year?"
-  it.user "How many days were in that year?"
-end
-
-res = bot.chat(prompt)
-res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
-```
-
 #### Schema
 
-A bot that instructs the LLM to respond in JSON, and according to the given schema:
+The [LLM::Schema](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Schema.html) class provides
+a simple DSL for describing the structure of a response that an LLM emits according
+to a JSON schema. The schema lets a client describe what JSON object an LLM should
+emit, and the LLM will abide by the schema to the best of its ability:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -69,18 +49,17 @@ end
 
 llm = LLM.openai(key: ENV.fetch("KEY"))
 bot = LLM::Bot.new(llm, schema: Estimation)
-img = llm.images.create(prompt: "A man in his 30s")
-res = bot.chat bot.image_url(img.urls.first)
-data = res.choices.find(&:assistant?).content!
-
-puts "age: #{data["age"]}"
-puts "confidence: #{data["confidence"]}"
-puts "notes: #{data["notes"]}" if data["notes"]
+bot.chat("Estimate age and confidence for a man in his 30s.")
 ```
 
 #### Tools
 
-A bot equipped with a tool that is capable of running system commands:
+The [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Tool.html) class lets you
+define callable tools for the model. Each tool is described to the LLM as a function
+it can invoke to fetch information or perform an action. The model decides when to
+call tools based on the conversation; when it does, llm.rb runs the tool and sends
+the result back on the next request. The following example implements a simple tool
+that runs shell commands:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -96,17 +75,9 @@ class System < LLM::Tool
   end
 end
 
-llm  = LLM.openai(key: ENV.fetch("KEY"))
-bot  = LLM::Bot.new(llm, tools: [System])
-
-prompt = bot.build_prompt do
-  it.system "You can run safe shell commands."
-  it.user "Run `date`."
-end
-
-bot.chat(prompt)
-bot.chat(bot.functions.map(&:call))
-bot.messages.select(&:assistant?).each { |m| puts "[#{m.role}] #{m.content}" }
+llm = LLM.openai(key: ENV.fetch("KEY"))
+bot = LLM::Bot.new(llm, tools: [System])
+bot.chat("Run `date`.")
 ```
 
 #### Agents
@@ -130,6 +101,27 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 agent = SystemAdmin.new(llm)
 res = agent.chat("Run 'date'")
+```
+
+#### Prompts
+
+The [LLM::Bot#build_prompt](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Bot.html#build_prompt-instance_method)
+method provides a simple DSL for building a chain of messages that
+can be sent in a single request. A conversation with an LLM consists
+of messages that have a role (eg system, user), and content:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV.fetch("KEY"))
+bot = LLM::Bot.new(llm)
+prompt = bot.build_prompt do
+  it.system "Answer concisely."
+  it.user "Was 2024 a leap year?"
+  it.user "How many days were in that year?"
+end
+bot.chat(prompt)
 ```
 
 ## Features
