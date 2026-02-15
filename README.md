@@ -21,7 +21,7 @@ multiple requests. The following example implements a simple REPL loop:
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.openai(key: ENV.fetch("KEY"))
+llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, stream: $stdout)
 loop do
   print "> "
@@ -47,7 +47,7 @@ class Estimation < LLM::Schema
   property :notes, String, "Short notes", optional: true
 end
 
-llm = LLM.openai(key: ENV.fetch("KEY"))
+llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, schema: Estimation)
 bot.chat("Estimate age and confidence for a man in his 30s.")
 ```
@@ -75,7 +75,7 @@ class System < LLM::Tool
   end
 end
 
-llm = LLM.openai(key: ENV.fetch("KEY"))
+llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, tools: [System])
 bot.chat("Run `date`.")
 bot.chat(bot.functions.map(&:call)) # report return value to the LLM
