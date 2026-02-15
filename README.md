@@ -78,6 +78,7 @@ end
 llm = LLM.openai(key: ENV.fetch("KEY"))
 bot = LLM::Bot.new(llm, tools: [System])
 bot.chat("Run `date`.")
+bot.chat(bot.functions.map(&:call)) # report return value to the LLM
 ```
 
 #### Agents
