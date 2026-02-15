@@ -18,9 +18,6 @@ a session with an LLM provider that maintains conversation history and context a
 multiple requests. The following example implements a simple REPL loop:
 
 ```ruby
-#!/usr/bin/env ruby
-require "llm"
-
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, stream: $stdout)
 loop do
@@ -38,9 +35,6 @@ to a JSON schema. The schema lets a client describe what JSON object an LLM shou
 emit, and the LLM will abide by the schema to the best of its ability:
 
 ```ruby
-#!/usr/bin/env ruby
-require "llm"
-
 class Estimation < LLM::Schema
   property :age, Integer, "Estimated age", required: true
   property :confidence, Number, "0.0–1.0", required: true
@@ -62,9 +56,6 @@ the result back on the next request. The following example implements a simple t
 that runs shell commands:
 
 ```ruby
-#!/usr/bin/env ruby
-require "llm"
-
 class System < LLM::Tool
   name "system"
   description "Run a shell command"
@@ -112,9 +103,6 @@ can be sent in a single request. A conversation with an LLM consists
 of messages that have a role (eg system, user), and content:
 
 ```ruby
-#!/usr/bin/env ruby
-require "llm"
-
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm)
 prompt = bot.build_prompt do
