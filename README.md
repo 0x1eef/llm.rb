@@ -270,90 +270,6 @@ between threads. Generally the library tries to avoid global or
 shared state but where it exists reentrant locks are used to
 ensure thread-safety.
 
-### Conversations
-
-#### Completions
-
-The following example creates an instance of
-[LLM::Bot](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html)
-and enters into a conversation where each call to "bot.chat" immediately
-sends a request to the provider, updates the conversation history, and
-returns an [LLM::Response](https://rubydoc.info/github/llmrb/llm.rb/LLM/Response.html).
-The full conversation history is automatically included in
-each subsequent request:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm  = LLM.openai(key: ENV["KEY"])
-bot  = LLM::Bot.new(llm)
-image_url = "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg"
-image_path = "/tmp/llm-logo.png"
-pdf_path = "/tmp/llm-handbook.pdf"
-
-prompt = bot.build_prompt do
-  it.user ["Tell me about this image", bot.image_url(image_url)]
-  it.user ["Tell me about this image", bot.local_file(image_path)]
-  it.user ["Tell me about this PDF", bot.local_file(pdf_path)]
-end
-bot.chat(prompt)
-bot.messages.each { |m| puts "[#{m.role}] #{m.content}" }
-```
-
-#### Streaming
-
-The following example streams the messages in a conversation
-as they are generated in real-time. The `stream` option can
-be set to an IO object, or the value `true` to enable streaming.
-When streaming, the `bot.chat` method will block until the entire
-stream is received. At the end, it returns the `LLM::Response` object
-containing the full aggregated content:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm, stream: $stdout)
-image_url = "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg"
-image_path = "/tmp/llm-logo.png"
-pdf_path = "/tmp/llm-handbook.pdf"
-
-prompt = bot.build_prompt do
-  it.user ["Tell me about this image", bot.image_url(image_url)]
-  it.user ["Tell me about this image", bot.local_file(image_path)]
-  it.user ["Tell me about the PDF", bot.local_file(pdf_path)]
-end
-bot.chat(prompt)
-```
-
-### Schema
-
-All LLM providers except Anthropic and DeepSeek allow a client to describe
-the structure of a response that a LLM emits according to a schema that is
-described by JSON. The schema lets a client describe what JSON object
-an LLM should emit, and the LLM will abide by the schema to the best of
-its ability:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-require "pp"
-
-class Report < LLM::Schema
-  property :category, String, "Report category", required: true
-  property :summary, String, "Short summary", required: true
-  property :impact, String, "Impact", required: true
-  property :timestamp, String, "When it happened", optional: true
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm, schema: Report)
-res = bot.chat("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
-pp res.messages.first(&:assistant?).content!
-```
-
 ### Tools
 
 #### Introduction
@@ -451,7 +367,7 @@ bot.chat "Your task is to run shell commands via a tool.", role: :user
 bot.chat "What is the current date?", role: :user
 bot.chat bot.functions.map(&:call) # report return value to the LLM
 
-bot.chat "What operating system am I running? (short version please!)", role: :user
+bot.chat "What operating system am I running? (short version please)", role: :user
 bot.chat bot.functions.map(&:call) # report return value to the LLM
 
 ##
