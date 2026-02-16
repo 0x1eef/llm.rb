@@ -11,19 +11,15 @@ module LLM
   #   #!/usr/bin/env ruby
   #   require "llm"
   #
-  #   llm  = LLM.openai(key: ENV["KEY"])
-  #   bot  = LLM::Bot.new(llm)
-  #   url  = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Lisc_lipy.jpg"
-  #
+  #   llm = LLM.openai(key: ENV["KEY"])
+  #   bot = LLM::Bot.new(llm)
   #   prompt = bot.build_prompt do
-  #     it.system "Your task is to answer all user queries"
-  #     it.user ["Tell me about this URL", bot.image_url(url)]
-  #     it.user ["Tell me about this PDF", bot.local_file("handbook.pdf")]
+  #     it.system "Be concise and show your reasoning briefly."
+  #     it.user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
+  #     it.user "Now double the speed for the same time."
   #   end
-  #   bot.chat(prompt)
-  #
-  #   # The full conversation history is in bot.messages
-  #   bot.messages.each { print "[#{_1.role}] ", _1.content, "\n" }
+  #   res = bot.chat(prompt)
+  #   res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
   class Bot
     ##
     # Returns an Enumerable for the messages in a conversation
