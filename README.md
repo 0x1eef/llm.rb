@@ -1,6 +1,11 @@
-> **Minimal footprint** <br>
-> Zero dependencies outside Ruby’s standard library. <br>
-> Zero runtime dependencies.
+<p align="center">
+  <a href="llm.rb"><img src="llm.png" width="200" height="200" border="0" alt="llm.rb"></a>
+</p>
+<p align="center">
+  <a href="https://rubydoc.info/github/llmrb/llm.rb"><img src="https://img.shields.io/badge/docs-rubydoc.info-blue.svg" alt="RubyDoc"></a>
+  <a href="https://opensource.org/license/0bsd"><img src="https://img.shields.io/badge/License-0BSD-orange.svg?" alt="License"></a>
+  <a href="https://github.com/llmrb/llm.rb/tags"><img src="https://img.shields.io/badge/version-4.1.0-green.svg?" alt="Version"></a>
+</p>
 
 ## About
 
@@ -13,7 +18,7 @@ tool calling, audio, images, files, and structured outputs.
 
 #### REPL
 
-The [LLM::Bot](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Bot.html) class provides
+The [LLM::Bot](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html) class provides
 a session with an LLM provider that maintains conversation history and context across
 multiple requests. The following example implements a simple REPL loop:
 
@@ -32,7 +37,7 @@ end
 
 #### Schema
 
-The [LLM::Schema](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Schema.html) class provides
+The [LLM::Schema](https://rubydoc.info/github/llmrb/llm.rb/LLM/Schema.html) class provides
 a simple DSL for describing the structure of a response that an LLM emits according
 to a JSON schema. The schema lets a client describe what JSON object an LLM should
 emit, and the LLM will abide by the schema to the best of its ability:
@@ -54,7 +59,7 @@ bot.chat("Estimate age and confidence for a man in his 30s.")
 
 #### Tools
 
-The [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Tool.html) class lets you
+The [LLM::Tool](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tool.html) class lets you
 define callable tools for the model. Each tool is described to the LLM as a function
 it can invoke to fetch information or perform an action. The model decides when to
 call tools based on the conversation; when it does, llm.rb runs the tool and sends
@@ -83,12 +88,12 @@ bot.chat(bot.functions.map(&:call)) # report return value to the LLM
 
 #### Agents
 
-The [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Agent.html)
+The [LLM::Agent](https://rubydoc.info/github/llmrb/llm.rb/LLM/Agent.html)
 class provides a class-level DSL for defining reusable, preconfigured
 assistants with defaults for model, tools, schema, and instructions.
 Instructions are injected only on the first request, and unlike
-[LLM::Bot](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Bot.html),
-an [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Agent.html)
+[LLM::Bot](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html),
+an [LLM::Agent](https://rubydoc.info/github/llmrb/llm.rb/LLM/Agent.html)
 will automatically call tools when needed:
 
 ```ruby
@@ -109,7 +114,7 @@ res = agent.chat("Run 'date'")
 
 #### Prompts
 
-The [LLM::Bot#build_prompt](https://0x1eef.github.io/x/llm.rb/LLM/LLM/Bot.html#build_prompt-instance_method)
+The [LLM::Bot#build_prompt](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html#build_prompt-instance_method)
 method provides a simple DSL for building a chain of messages that
 can be sent in a single request. A conversation with an LLM consists
 of messages that have a role (eg system, user), and content:
@@ -186,10 +191,10 @@ bot.chat(prompt)
 
 #### LLM::Provider
 
-All providers inherit from [LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html) &ndash;
+All providers inherit from [LLM::Provider](https://rubydoc.info/github/llmrb/llm.rb/LLM/Provider.html) &ndash;
 they share a common interface and set of functionality. Each provider can be instantiated
 using an API key (if required) and an optional set of configuration options via
-[the singleton methods of LLM](https://0x1eef.github.io/x/llm.rb/LLM.html). For example:
+[the singleton methods of LLM](https://rubydoc.info/github/llmrb/llm.rb/LLM.html). For example:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -213,10 +218,10 @@ llm = LLM.llamacpp(key: nil)
 #### LLM::Response
 
 All provider methods that perform requests return an
-[LLM::Response](https://0x1eef.github.io/x/llm.rb/LLM/Response.html).
+[LLM::Response](https://rubydoc.info/github/llmrb/llm.rb/LLM/Response.html).
 If the HTTP response is JSON (`content-type: application/json`),
 `response.body` is parsed into an
-[LLM::Object](https://0x1eef.github.io/x/llm.rb/LLM/Object.html) for
+[LLM::Object](https://rubydoc.info/github/llmrb/llm.rb/LLM/Object.html) for
 dot-access. For non-JSON responses, `response.body` is a raw string.
 It is also possible to access top-level keys directly on the response
 (eg: `res.object` instead of `res.body.object`):
@@ -254,9 +259,9 @@ puts res3.output_text
 
 The llm.rb library is thread-safe and can be used in a multi-threaded
 environments but it is important to keep in mind that the
-[LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
+[LLM::Provider](https://rubydoc.info/github/llmrb/llm.rb/LLM/Provider.html)
 and
-[LLM::Bot](https://0x1eef.github.io/x/llm.rb/LLM/Bot.html)
+[LLM::Bot](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html)
 classes should be instantiated once per thread, and not shared
 between threads. Generally the library tries to avoid global or
 shared state but where it exists reentrant locks are used to
@@ -267,10 +272,10 @@ ensure thread-safety.
 #### Completions
 
 The following example creates an instance of
-[LLM::Bot](https://0x1eef.github.io/x/llm.rb/LLM/Bot.html)
+[LLM::Bot](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html)
 and enters into a conversation where each call to "bot.chat" immediately
 sends a request to the provider, updates the conversation history, and
-returns an [LLM::Response](https://0x1eef.github.io/x/llm.rb/LLM/Response.html).
+returns an [LLM::Response](https://rubydoc.info/github/llmrb/llm.rb/LLM/Response.html).
 The full conversation history is automatically included in
 each subsequent request:
 
@@ -355,21 +360,21 @@ puts "position: #{player['position'].join(', ')}"
 
 All providers support a powerful feature known as tool calling, and although
 it is a little complex to understand at first, it can be powerful for building
-agents. There are three main interfaces to understand: [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html),
-[LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html), and
-[LLM::ServerTool](https://0x1eef.github.io/x/llm.rb/LLM/ServerTool.html).
+agents. There are three main interfaces to understand: [LLM::Function](https://rubydoc.info/github/llmrb/llm.rb/LLM/Function.html),
+[LLM::Tool](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tool.html), and
+[LLM::ServerTool](https://rubydoc.info/github/llmrb/llm.rb/LLM/ServerTool.html).
 
 
 #### LLM::Function
 
-The following example demonstrates [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
+The following example demonstrates [LLM::Function](https://rubydoc.info/github/llmrb/llm.rb/LLM/Function.html)
 and how it can define a local function (which happens to be a tool), and how
 a provider (such as OpenAI) can then detect when we should call the function.
 Its most notable feature is that it can act as a closure and has access to
 its surrounding scope, which can be useful in some situations.
 
 The
-[LLM::Bot#functions](https://0x1eef.github.io/x/llm.rb/LLM/Bot.html#functions-instance_method)
+[LLM::Bot#functions](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html#functions-instance_method)
 method returns an array of functions that can be called after a `chat` interaction
 if the LLM detects a function should be called. You would then typically call these
 functions and send their results back to the LLM in a subsequent `chat` call:
@@ -409,15 +414,15 @@ bot.chat bot.functions.map(&:call) # report return value to the LLM
 
 #### LLM::Tool
 
-The [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) class can be used
-to implement a [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-as a class. Under the hood, a subclass of [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html)
-wraps an instance of [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
+The [LLM::Tool](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tool.html) class can be used
+to implement a [LLM::Function](https://rubydoc.info/github/llmrb/llm.rb/LLM/Function.html)
+as a class. Under the hood, a subclass of [LLM::Tool](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tool.html)
+wraps an instance of [LLM::Function](https://rubydoc.info/github/llmrb/llm.rb/LLM/Function.html)
 and delegates to it.
 
-The choice between [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-and [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) is often a matter of
-preference but each carry their own benefits. For example, [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
+The choice between [LLM::Function](https://rubydoc.info/github/llmrb/llm.rb/LLM/Function.html)
+and [LLM::Tool](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tool.html) is often a matter of
+preference but each carry their own benefits. For example, [LLM::Function](https://rubydoc.info/github/llmrb/llm.rb/LLM/Function.html)
 has the benefit of being a closure that has access to its surrounding context and
 sometimes that is useful:
 
@@ -462,7 +467,7 @@ The OpenAI and Gemini providers provide a Files API where a client can upload fi
 that can be referenced from a prompt, and with other APIs as well. The following
 example uses the OpenAI provider to describe the contents of a PDF file after
 it has been uploaded. The file (a specialized instance of
-[LLM::Response](https://0x1eef.github.io/x/llm.rb/LLM/Response.html)
+[LLM::Response](https://rubydoc.info/github/llmrb/llm.rb/LLM/Response.html)
 ) is given as part of a prompt that is understood by llm.rb:
 
 ```ruby
@@ -651,7 +656,7 @@ end
 #### Text
 
 The
-[`LLM::Provider#embed`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html#embed-instance_method)
+[`LLM::Provider#embed`](https://rubydoc.info/github/llmrb/llm.rb/LLM/Provider.html#embed-instance_method)
 method returns vector embeddings for one or more text inputs. A common
 use is semantic search (store vectors, then query for similar text):
 
