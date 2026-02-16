@@ -278,13 +278,7 @@ The following example demonstrates [LLM::Function](https://rubydoc.info/github/l
 and how it can define a local function (which happens to be a tool), and how
 a provider (such as OpenAI) can then detect when we should call the function.
 Its most notable feature is that it can act as a closure and has access to
-its surrounding scope, which can be useful in some situations.
-
-The
-[LLM::Bot#functions](https://rubydoc.info/github/llmrb/llm.rb/LLM/Bot.html#functions-instance_method)
-method returns an array of functions that can be called after a `chat` interaction
-if the LLM detects a function should be called. You would then typically call these
-functions and send their results back to the LLM in a subsequent `chat` call:
+its surrounding scope, which can be useful in some situations:
 
 ```ruby
 #!/usr/bin/env ruby
