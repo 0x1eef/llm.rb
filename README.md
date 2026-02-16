@@ -339,22 +339,19 @@ its ability:
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
+require "pp"
 
-class Player < LLM::Schema
-  property :name, String, "The player's name", required: true
-  property :position, Array[Number], "The player's [x, y] position", required: true
+class Report < LLM::Schema
+  property :category, String, "Report category", required: true
+  property :summary, String, "Short summary", required: true
+  property :impact, String, "Impact", required: true
+  property :timestamp, String, "When it happened", optional: true
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm, schema: Player)
-prompt = bot.build_prompt do
-  it.system "The player's name is Sam and their position is (7, 12)."
-  it.user "Return the player's name and position"
-end
-
-player = bot.chat(prompt).content!
-puts "name: #{player['name']}"
-puts "position: #{player['position'].join(', ')}"
+bot = LLM::Bot.new(llm, schema: Report)
+res = bot.chat("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
+pp res.messages.first(&:assistant?).content!
 ```
 
 ### Tools
