@@ -386,23 +386,16 @@ res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 
 #### Multimodal
 
-While LLMs inherently understand text, they can also process and
-generate other types of media such as audio, images, video, and
-even URLs. To provide these multimodal inputs to the LLM, llm.rb
-uses explicit tagging methods on the `LLM::Bot` instance.
-These methods wrap your input into a special `LLM::Object`,
-clearly indicating its type and intent to the underlying LLM
-provider.
+LLMs are great with text, but many can also handle images, audio, video,
+and URLs. With llm.rb you pass those inputs by tagging them with one of
+the following methods. And for multipart prompts, we can pass an array
+where each element is a part of the input. See the example below for
+details, in the meantime here are the methods to know for multimodal
+inputs:
 
-For instance, to specify an image URL, you would use
-`bot.image_url`. For a local file, `bot.local_file`. For an
-already uploaded file managed by the LLM provider's Files API,
-`bot.remote_file`. This approach ensures clarity and allows
-llm.rb to correctly format the input for each provider's
-specific requirements.
-
-An array can be used for a prompt with multiple parts, where each
-element contributes to the overall input:
+* `bot.image_url` for an image URL
+* `bot.local_file` for a local file
+* `bot.remote_file` for a file already uploaded via the provider's Files API
 
 ```ruby
 #!/usr/bin/env ruby
@@ -410,19 +403,9 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm)
-image_url = "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg"
-image_path = "/tmp/llm-logo.png"
-pdf_path = "/tmp/llm-book.pdf"
-
-res1 = bot.chat ["Tell me about this image URL", bot.image_url(image_url)]
-res1.messages.each { |m| puts "[#{m.role}] #{m.content}" }
-
-file = llm.files.create(file: pdf_path)
-res2 = bot.chat ["Tell me about this PDF", bot.remote_file(file)]
-res2.messages.each { |m| puts "[#{m.role}] #{m.content}" }
-
-res3 = bot.chat ["Tell me about this image", bot.local_file(image_path)]
-res3.messages.each { |m| puts "[#{m.role}] #{m.content}" }
+res = bot.chat ["Tell me about this image URL", bot.image_url(url)]
+res = bot.chat ["Tell me about this PDF", bot.remote_file(file)]
+res = bot.chat ["Tell me about this image", bot.local_file(path)]}
 ```
 
 ### Audio
