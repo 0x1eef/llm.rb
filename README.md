@@ -272,15 +272,6 @@ ensure thread-safety.
 
 ### Tools
 
-#### Introduction
-
-All providers support a powerful feature known as tool calling, and although
-it is a little complex to understand at first, it can be powerful for building
-agents. There are three main interfaces to understand: [LLM::Function](https://rubydoc.info/github/llmrb/llm.rb/LLM/Function.html),
-[LLM::Tool](https://rubydoc.info/github/llmrb/llm.rb/LLM/Tool.html), and
-[LLM::ServerTool](https://rubydoc.info/github/llmrb/llm.rb/LLM/ServerTool.html).
-
-
 #### LLM::Function
 
 The following example demonstrates [LLM::Function](https://rubydoc.info/github/llmrb/llm.rb/LLM/Function.html)
@@ -320,7 +311,7 @@ bot.chat "Your task is to run shell commands via a tool.", role: :user
 bot.chat "What is the current date?", role: :user
 bot.chat bot.functions.map(&:call) # report return value to the LLM
 
-bot.chat "What operating system am I running? (short version please!)", role: :user
+bot.chat "What operating system am I running?", role: :user
 bot.chat bot.functions.map(&:call) # report return value to the LLM
 
 ##
@@ -367,7 +358,7 @@ bot.chat "Your task is to run shell commands via a tool.", role: :user
 bot.chat "What is the current date?", role: :user
 bot.chat bot.functions.map(&:call) # report return value to the LLM
 
-bot.chat "What operating system am I running? (short version please)", role: :user
+bot.chat "What operating system am I running?", role: :user
 bot.chat bot.functions.map(&:call) # report return value to the LLM
 
 ##
