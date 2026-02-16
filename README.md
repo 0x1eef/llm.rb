@@ -57,7 +57,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm, schema: Report)
 res = bot.chat("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
-pp res.content!
+pp res.messages.first(&:assistant?).content!
 ```
 
 #### Tools
@@ -481,7 +481,7 @@ llm = LLM.openai(key: ENV["KEY"])
 bot = LLM::Bot.new(llm)
 file = llm.files.create(file: "/tmp/llm-book.pdf")
 res = bot.chat ["Tell me about this file", file]
-res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
+res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 ### Prompts
@@ -517,14 +517,14 @@ image_path = "/tmp/llm-logo.png"
 pdf_path = "/tmp/llm-book.pdf"
 
 res1 = bot.chat ["Tell me about this image URL", bot.image_url(image_url)]
-res1.choices.each { |m| puts "[#{m.role}] #{m.content}" }
+res1.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 
 file = llm.files.create(file: pdf_path)
 res2 = bot.chat ["Tell me about this PDF", bot.remote_file(file)]
-res2.choices.each { |m| puts "[#{m.role}] #{m.content}" }
+res2.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 
 res3 = bot.chat ["Tell me about this image", bot.local_file(image_path)]
-res3.choices.each { |m| puts "[#{m.role}] #{m.content}" }
+res3.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 ### Audio
@@ -704,7 +704,7 @@ end
 model = llm.models.all.find { |m| m.id == "gpt-3.5-turbo" }
 bot = LLM::Bot.new(llm, model: model.id)
 res = bot.chat "Hello #{model.id} :)"
-res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
+res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
 ```
 
 ## Install

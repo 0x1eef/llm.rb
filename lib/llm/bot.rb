@@ -19,7 +19,7 @@ module LLM
   #     it.user "Now double the speed for the same time."
   #   end
   #   res = bot.chat(prompt)
-  #   res.choices.each { |m| puts "[#{m.role}] #{m.content}" }
+  #   res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
   class Bot
     ##
     # Returns an Enumerable for the messages in a conversation

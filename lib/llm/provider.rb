@@ -69,7 +69,7 @@ class LLM::Provider
   #   llm = LLM.openai(key: ENV["KEY"])
   #   messages = [{role: "system", content: "Your task is to answer all of my questions"}]
   #   res = llm.complete("5 + 2 ?", messages:)
-  #   print "[#{res.choices[0].role}]", res.choices[0].content, "\n"
+  #   print "[#{res.messages[0].role}]", res.messages[0].content, "\n"
   # @param [String] prompt
   #  The input prompt to be completed
   # @param [Hash] params
