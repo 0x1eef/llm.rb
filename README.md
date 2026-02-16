@@ -45,16 +45,19 @@ emit, and the LLM will abide by the schema to the best of its ability:
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
+require "pp"
 
-class Estimation < LLM::Schema
-  property :age, Integer, "Estimated age", required: true
-  property :confidence, Number, "0.0–1.0", required: true
-  property :notes, String, "Short notes", optional: true
+class Report < LLM::Schema
+  property :category, String, "Report category", required: true
+  property :summary, String, "Short summary", required: true
+  property :impact, String, "Impact", required: true
+  property :timestamp, String, "When it happened", optional: true
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-bot = LLM::Bot.new(llm, schema: Estimation)
-bot.chat("Estimate age and confidence for a man in his 30s.")
+bot = LLM::Bot.new(llm, schema: Report)
+res = bot.chat("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
+pp res.content!
 ```
 
 #### Tools
