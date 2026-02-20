@@ -36,35 +36,22 @@ module LLM
     ##
     # @param (see LLM::Tracer#on_request_start)
     def on_request_start(operation:, model:)
-      return nil unless operation == "chat"
-      attributes = {
-        "gen_ai.operation.name" => operation,
-        "gen_ai.request.model" => model,
-        "gen_ai.provider.name" => provider_name,
-        "server.address" => provider_host,
-        "server.port" => provider_port
-      }.compact
-      span_name = [operation, model].compact.join(" ")
-      span = @tracer.start_span(span_name.empty? ? "gen_ai.request" : span_name, kind: :client, attributes:)
-      span.add_event("gen_ai.request.start")
-      span
+      case operation
+      when "chat" then start_chat(operation:, model:)
+      when "retrieval" then start_retrieval(operation:)
+      else nil
+      end
     end
 
     ##
     # @param (see LLM::Tracer#on_request_finish)
     def on_request_finish(operation:, model:, res:, span: nil)
-      return nil unless operation == "chat"
-      attributes = {
-        "gen_ai.operation.name" => operation,
-        "gen_ai.request.model" => model,
-        "gen_ai.response.id" => res.id,
-        "gen_ai.response.model" => model,
-        "gen_ai.usage.input_tokens" => res.usage.input_tokens,
-        "gen_ai.usage.output_tokens" => res.usage.output_tokens
-      }.merge!(finish_attributes(res)).compact
-      attributes.each { span.set_attribute(_1, _2) }
-      span.add_event("gen_ai.request.finish")
-      span.tap(&:finish)
+      return nil unless span
+      case operation
+      when "chat" then finish_chat(operation:, model:, res:, span:)
+      when "retrieval" then finish_retrieval(operation:, res:, span:)
+      else nil
+      end
     end
 
     ##
@@ -134,20 +121,6 @@ module LLM
     private
 
     ##
-    # @param [LLM::Response] res
-    # @api private
-    def finish_attributes(res)
-      case @provider.class.to_s
-      when "LLM::OpenAI"
-        {
-          "openai.response.service_tier" => res.service_tier,
-          "openai.response.system_fingerprint" => res.system_fingerprint
-        }
-      else {}
-      end
-    end
-
-    ##
     # @api private
     def setup!
       require "opentelemetry/sdk" unless defined?(OpenTelemetry)
@@ -156,6 +129,92 @@ module LLM
       @tracer_provider = OpenTelemetry::SDK::Trace::TracerProvider.new
       @tracer_provider.add_span_processor(processor)
       @tracer = @tracer_provider.tracer("llm.rb", LLM::VERSION)
+    end
+
+    ##
+    # @param [String] operation
+    # @param [LLM::Response] res
+    # @api private
+    def finish_attributes(operation, res)
+      case @provider.class.to_s
+      when "LLM::OpenAI" then openai_attributes(operation, res)
+      else {}
+      end
+    end
+
+    ##
+    # @param [String] operation
+    # @param [LLM::Response] res
+    # @api private
+    def openai_attributes(operation, res)
+      case operation
+      when "chat"
+        {
+          "openai.response.service_tier" => res.service_tier,
+          "openai.response.system_fingerprint" => res.system_fingerprint
+        }
+      when "retrieval"
+        {
+          "openai.vector_store.search.result_count" => res.size,
+          "openai.vector_store.search.has_more" => res.has_more
+        }
+      else {}
+      end
+    end
+
+    ##
+    # start_*
+
+    def start_chat(operation:, model:)
+      attributes = {
+        "gen_ai.operation.name" => operation,
+        "gen_ai.request.model" => model,
+        "gen_ai.provider.name" => provider_name,
+        "server.address" => provider_host,
+        "server.port" => provider_port
+      }.compact
+      span_name = [operation, model].compact.join(" ")
+      span = @tracer.start_span(span_name.empty? ? "gen_ai.request" : span_name, kind: :client, attributes:)
+      span.add_event("gen_ai.request.start")
+      span
+    end
+
+    def start_retrieval(operation:)
+      attributes = {
+        "gen_ai.operation.name" => operation,
+        "gen_ai.provider.name" => provider_name,
+        "server.address" => provider_host,
+        "server.port" => provider_port
+      }.compact
+      span = @tracer.start_span(operation, kind: :client, attributes:)
+      span.add_event("gen_ai.request.start")
+      span
+    end
+
+    ##
+    # finish_*
+
+    def finish_chat(operation:, model:, res:, span:)
+      attributes = {
+        "gen_ai.operation.name" => operation,
+        "gen_ai.request.model" => model,
+        "gen_ai.response.id" => res.id,
+        "gen_ai.response.model" => model,
+        "gen_ai.usage.input_tokens" => res.usage.input_tokens,
+        "gen_ai.usage.output_tokens" => res.usage.output_tokens
+      }.merge!(finish_attributes(operation, res)).compact
+      attributes.each { span.set_attribute(_1, _2) }
+      span.add_event("gen_ai.request.finish")
+      span.tap(&:finish)
+    end
+
+    def finish_retrieval(operation:, res:, span:)
+      attributes = {
+        "gen_ai.operation.name" => operation
+      }.merge!(finish_attributes(operation, res)).compact
+      attributes.each { span.set_attribute(_1, _2) }
+      span.add_event("gen_ai.request.finish")
+      span.tap(&:finish)
     end
   end
 end
