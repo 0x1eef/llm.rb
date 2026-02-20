@@ -105,6 +105,7 @@ module LLM
         .select(&:assistant?)
         .flat_map(&:functions)
         .select(&:pending?)
+        .each { _1.tracer = tracer }
     end
 
     ##
@@ -158,6 +159,13 @@ module LLM
     #  Returns a tagged object
     def remote_file(res)
       LLM::Object.from(value: res, kind: :remote_file)
+    end
+
+    ##
+    # @return [LLM::Tracer]
+    #  Returns an LLM tracer
+    def tracer
+      @provider.tracer
     end
 
     private
