@@ -58,7 +58,7 @@ module LLM
     ##
     # @param (see LLM::Tracer#on_tool_start)
     # @return [void]
-    def on_tool_start(id:, name:, arguments:)
+    def on_tool_start(id:, name:, arguments:, model:, **)
       @logger.info(
         tracer: "llm.rb (logger)",
         event: "tool.start",
@@ -66,7 +66,8 @@ module LLM
         operation: "execute_tool",
         tool_id: id,
         tool_name: name,
-        tool_arguments: arguments
+        tool_arguments: arguments,
+        model:
       )
     end
 

@@ -7,7 +7,7 @@ class LLM::Function
   module Tracing
     def call(...)
       return super unless @tracer
-      span = @tracer.on_tool_start(id:, name:, arguments:)
+      span = @tracer.on_tool_start(id:, name:, arguments:, model:)
       result = super
       @tracer.on_tool_finish(result:, span:)
       result

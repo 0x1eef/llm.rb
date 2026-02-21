@@ -54,14 +54,16 @@ module LLM
 
     ##
     # Called before a local tool/function executes.
-    # @param [String, nil] id
-    #  The tool call ID assigned by the model/provider, if available.
-    # @param [String, nil] name
+    # @param [String] id
+    #  The tool call ID assigned by the model/provider
+    # @param [String] name
     #  The tool (function) name.
-    # @param [Hash, nil] arguments
+    # @param [Hash] arguments
     #  The parsed tool arguments.
+    # @param [String] model
+    #  The model name
     # @return [void]
-    def on_tool_start(id:, name:, arguments:)
+    def on_tool_start(id:, name:, arguments:, model:)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 

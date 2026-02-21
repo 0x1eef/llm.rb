@@ -198,6 +198,13 @@ module LLM
       @bot.tracer
     end
 
+    ##
+    # Returns the model an Agent is actively using
+    # @return [String]
+    def model
+      @bot.model
+    end
+
     private
 
     def apply_instructions(prompt)

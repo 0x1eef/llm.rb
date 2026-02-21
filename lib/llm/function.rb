@@ -51,6 +51,11 @@ class LLM::Function
   attr_accessor :tracer
 
   ##
+  # Returns a model name, or nil
+  # @return [String, nil]
+  attr_accessor :model
+
+  ##
   # @param [String] name The function name
   # @yieldparam [LLM::Function] self The function object
   def initialize(name, &b)

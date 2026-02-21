@@ -69,12 +69,12 @@ RSpec.describe LLM::Tracer::Telemetry do
   end
 
   describe "#on_tool_start" do
-    subject { tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}) }
+    subject { tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}, model: "gpt-4.1") }
     it { is_expected.to be_a(OpenTelemetry::SDK::Trace::Span) }
   end
 
   describe "#on_tool_finish" do
-    let(:span) { tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}) }
+    let(:span) { tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}, model: "gpt-4.1") }
     let(:result) { LLM::Function::Return.new("call_1", "tool", {ok: true}) }
 
     before { tracer.on_tool_finish(result:, span:) }
@@ -87,7 +87,7 @@ RSpec.describe LLM::Tracer::Telemetry do
 
   describe "#on_tool_error" do
     let(:ex) { RuntimeError.new("yabadabadoo") }
-    let(:span) { tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}) }
+    let(:span) { tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}, model: "gpt-4.1") }
 
     before { tracer.on_tool_error(ex:, span:) }
 

@@ -42,7 +42,7 @@ RSpec.describe LLM::Tracer::Logger do
 
   describe "#on_tool_start" do
     subject(:output) { io.string }
-    before { tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}) }
+    before { tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}, model: "gpt-4.1") }
     it { is_expected.to include("tool.start") }
   end
 

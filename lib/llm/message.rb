@@ -137,6 +137,13 @@ module LLM
     alias_method :token_usage, :usage
 
     ##
+    # @return [String, nil]
+    #  Returns the model associated with a message
+    def model
+      response&.model
+    end
+
+    ##
     # Returns a string representation of the message
     # @return [String]
     def inspect

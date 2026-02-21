@@ -84,9 +84,10 @@ module LLM
     ##
     # @param (see LLM::Tracer#on_tool_start)
     # @return (see LLM::Tracer#on_tool_start)
-    def on_tool_start(id:, name:, arguments:)
+    def on_tool_start(id:, name:, arguments:, model:)
       attributes = {
         "gen_ai.operation.name" => "execute_tool",
+        "gen_ai.request.model" => model,
         "gen_ai.tool.call.id" => id,
         "gen_ai.tool.name" => name,
         "gen_ai.tool.call.arguments" => LLM.json.dump(arguments),

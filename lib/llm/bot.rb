@@ -103,9 +103,13 @@ module LLM
     def functions
       @messages
         .select(&:assistant?)
-        .flat_map(&:functions)
-        .select(&:pending?)
-        .each { _1.tracer = tracer }
+        .flat_map do |msg|
+          fns = msg.functions.select(&:pending?)
+          fns.each do |fn|
+            fn.tracer = tracer
+            fn.model  = msg.model
+          end
+        end
     end
 
     ##
@@ -166,6 +170,13 @@ module LLM
     #  Returns an LLM tracer
     def tracer
       @provider.tracer
+    end
+
+    ##
+    # Returns the model a Bot is actively using
+    # @return [String]
+    def model
+      messages.find(&:assistant?)&.model || @params[:model]
     end
 
     private

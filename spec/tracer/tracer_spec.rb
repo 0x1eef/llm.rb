@@ -59,7 +59,7 @@ RSpec.describe LLM::Tracer do
   describe "#on_tool_start" do
     it "raises NotImplementedError" do
       expect {
-        tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1})
+        tracer.on_tool_start(id: "call_1", name: "tool", arguments: {q: 1}, model: "gpt-4.1")
       }.to raise_error(NotImplementedError)
     end
   end
