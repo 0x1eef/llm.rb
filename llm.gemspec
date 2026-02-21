@@ -42,4 +42,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "dotenv", "~> 2.8"
   spec.add_development_dependency "net-http-persistent", "~> 4.0"
   spec.add_development_dependency "opentelemetry-sdk", "~> 1.10"
+  spec.add_development_dependency "logger", "~> 1.7"
 end

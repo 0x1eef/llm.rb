@@ -28,7 +28,7 @@ module LLM
     # @param [String] operation
     # @param [String] model
     # @return [void]
-    def on_request_start(operation:, model:)
+    def on_request_start(operation:, model: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
@@ -39,7 +39,7 @@ module LLM
     # @param [LLM::Response] res
     # @param [Object, nil] span
     # @return [void]
-    def on_request_finish(operation:, model:, res:, span: nil)
+    def on_request_finish(operation:, res:, model: nil, span: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
