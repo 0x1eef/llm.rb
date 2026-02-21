@@ -68,10 +68,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Run tests
-      uses: 0x1eef/hardenedbsd-vm@v1
+      uses: vmactions/freebsd-vm@v1
       with:
-        release: '16-CURRENT'
+        copyback: false
         run: |
-          mdo -u root pkg-static install -y rubygem-bundler
+          pkg-static install -y rubygem-bundler
           bundle install
           bundle exec rake
