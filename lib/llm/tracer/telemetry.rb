@@ -51,7 +51,7 @@ module LLM
 
     ##
     # @param (see LLM::Tracer#on_request_start)
-    def on_request_start(operation:, model:)
+    def on_request_start(operation:, model: nil)
       case operation
       when "chat" then start_chat(operation:, model:)
       when "retrieval" then start_retrieval(operation:)
@@ -61,7 +61,7 @@ module LLM
 
     ##
     # @param (see LLM::Tracer#on_request_finish)
-    def on_request_finish(operation:, model:, res:, span: nil)
+    def on_request_finish(operation:, res:, model: nil, span: nil)
       return nil unless span
       case operation
       when "chat" then finish_chat(operation:, model:, res:, span:)
