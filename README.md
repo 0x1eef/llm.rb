@@ -39,7 +39,7 @@ llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, stream: $stdout)
 loop do
   print "> "
-  ses.talk(STDIN.gets)
+  ses.talk(STDIN.gets || break)
   puts
 end
 ```
