@@ -14,6 +14,11 @@ includes OpenAI, Gemini, Anthropic, xAI (Grok), zAI, DeepSeek, Ollama,
 and LlamaCpp. The toolkit includes full support for chat, streaming,
 tool calling, audio, images, files, and structured outputs.
 
+And it is licensed under the [0BSD License](https://choosealicense.com/licenses/0bsd/) &ndash;
+one of the most permissive open source licenses, with minimal conditions for use,
+modification, and/or distribution. Attribution is appreciated, but not required
+by the license. ✌️
+
 ## Quick start
 
 #### REPL
