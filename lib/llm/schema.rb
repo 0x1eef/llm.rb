@@ -19,6 +19,10 @@
 #  })
 #
 # @example Ruby-style
+#  class Address < LLM::Schema
+#    property :address, String, "Street address", required: true
+#  end
+#
 #  class Person < LLM::Schema
 #    property :name, String, "Person's name", required: true
 #    property :age, Integer, "Person's age", required: true
