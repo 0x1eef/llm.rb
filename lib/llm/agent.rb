@@ -6,15 +6,10 @@ module LLM
   # reusable, preconfigured assistants with defaults for model,
   # tools, schema, and instructions.
   #
-  # @note
-  # Unlike {LLM::Session LLM::Session}, this class will automatically run
-  # tool calls for you.
-  #
-  # @note
-  #  Instructions are injected only on the first request.
-  #
-  # @note
-  #  This idea originally came from RubyLLM and was adapted to llm.rb.
+  # **Notes:**
+  # * Instructions are injected only on the first request.
+  # * An agent will automatically execute tool calls (unlike {LLM::Session LLM::Session}).
+  # * The idea originally came from RubyLLM and was adapted to llm.rb.
   #
   # @example
   #   class SystemAdmin < LLM::Agent
