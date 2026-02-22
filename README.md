@@ -341,6 +341,12 @@ the exporter before they exit &ndash; otherwise some telemetry data could be los
  ses = LLM::Session.new(llm)
  ses.talk "hello"
  ses.talk "how are you?"
+
+ at_exit do
+   # Helpful for short-lived scripts, otherwise the exporter
+   # might not have time to flush pending telemetry data
+   ses.tracer.flush!
+ end
  ```
 
 #### Logger
