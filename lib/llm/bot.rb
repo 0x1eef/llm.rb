@@ -20,8 +20,8 @@ module LLM
   #     user "Now double the speed for the same time."
   #   end
   #
-  #   res = ses.talk(prompt)
-  #   res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
+  #   ses.talk(prompt)
+  #   ses.messages.each { |m| puts "[#{m.role}] #{m.content}" }
   class Session
     ##
     # Returns an Enumerable for the messages in a conversation
@@ -54,7 +54,7 @@ module LLM
     #   llm = LLM.openai(key: ENV["KEY"])
     #   ses = LLM::Session.new(llm)
     #   res = ses.talk("Hello, what is your name?")
-    #   puts res.choices[0].content
+    #   puts res.messages[0].content
     def talk(prompt, params = {})
       prompt, params, messages = fetch(prompt, params)
       params = params.merge(messages: [*@messages.to_a, *messages])
