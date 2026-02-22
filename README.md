@@ -20,7 +20,10 @@ tool calling, audio, images, files, and structured outputs.
 
 The [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) class provides
 a session with an LLM provider that maintains conversation history and context across
-multiple requests. The following example implements a simple REPL loop:
+multiple requests. The following example implements a simple REPL loop, and the response
+is streamed to the terminal in real-time as it arrives from the provider. The provider
+happens to be OpenAI in this case but it could be any other provider, and `$stdout`
+could be any object that implements the `#<<` method:
 
 ```ruby
 #!/usr/bin/env ruby
