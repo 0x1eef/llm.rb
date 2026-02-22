@@ -203,4 +203,7 @@ module LLM
 
   # Backward-compatible alias
   Bot = Session
+
+  # Scheduled for removal in v5.0
+  deprecate_constant :Bot
 end
