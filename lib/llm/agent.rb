@@ -163,8 +163,8 @@ module LLM
     # @param (see LLM::Session#prompt)
     # @return (see LLM::Session#prompt)
     # @see LLM::Session#prompt
-    def prompt(&)
-      @ses.prompt(&)
+    def prompt(&b)
+      @ses.prompt(&b)
     end
     alias_method :build_prompt, :prompt
 

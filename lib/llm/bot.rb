@@ -137,9 +137,12 @@ module LLM
     #     user "Hello, can you assist me?"
     #   end
     #   ses.talk(prompt)
+    # @param [Proc] b
+    #  A block that composes messages. If it takes one argument,
+    #  it receives the prompt object. Otherwise it runs in prompt context.
     # @return [LLM::Prompt]
-    def prompt(&)
-      LLM::Prompt.new(@provider, &)
+    def prompt(&b)
+      LLM::Prompt.new(@provider, &b)
     end
     alias_method :build_prompt, :prompt
 
