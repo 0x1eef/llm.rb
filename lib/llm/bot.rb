@@ -53,8 +53,8 @@ module LLM
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
     #   ses = LLM::Session.new(llm)
-    #   response = ses.talk("Hello, what is your name?")
-    #   puts response.choices[0].content
+    #   res = ses.talk("Hello, what is your name?")
+    #   puts res.choices[0].content
     def talk(prompt, params = {})
       prompt, params, messages = fetch(prompt, params)
       params = params.merge(messages: [*@messages.to_a, *messages])
