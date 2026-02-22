@@ -23,39 +23,35 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 25 Jan 2026 17:13:35 GMT
+      - Sun, 22 Feb 2026 02:19:17 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
+      Server:
+      - cloudflare
       Openai-Version:
       - '2020-10-01'
       X-Request-Id:
-      - 2988e3c79032040f0b2120b31e2df879
+      - 23f36c73-6b49-4b12-93b1-3147cf4c336d
       Openai-Processing-Ms:
-      - '198'
-      X-Envoy-Upstream-Service-Time:
-      - '200'
+      - '235'
       X-Openai-Proxy-Wasm:
       - v0.1
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=oJo5TmqEa6Q_LgViVoHdlI9WGR_0yIBI1g98ZApCjj0-1769361215-1.0.1.1-o9M24X7b5QONlSbcrm1L0.ULGYFaN2Zb58lCGw29IxWqkVqnZKGR4dXRFGLpy_NJxMnzm8HG.GMEsxf6IMrjT8istHO9IaECdigPUEaKDjs;
-        path=/; expires=Sun, 25-Jan-26 17:43:35 GMT; domain=.api.openai.com; HttpOnly;
-        Secure; SameSite=None
-      - _cfuvid=TgSCmBp0iyhlQGLsxxlYlKpJsodEQ_n1MyNt_IjqAqg-1769361215057-0.0.1.1-604800000;
-        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      - __cf_bm=5TZYtvaEdtXe1mA0_QKI_LxpxPwXI7aNUyfKfzFkIdQ-1771726757.3002865-1.0.1.1-tNsERR3DF_j97uNu3MZLMiAbAEILdDu4pcHx_xyCeJGIPml34sQ0KqAbnq3SAU7BJGUlZyd_nRFNGRe8GPK6arkje.qPPwV.gBE4k_ZcwW4eDVTaxBlVQJojQjdjpCsM;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
+        02:49:17 GMT
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
-      Server:
-      - cloudflare
       Cf-Ray:
-      - 9c3966e69f24c504-GRU
+      - 9d1aff691a505402-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
@@ -248,12 +244,6 @@ http_interactions:
               "id": "gpt-4o-2024-08-06",
               "object": "model",
               "created": 1722814719,
-              "owned_by": "system"
-            },
-            {
-              "id": "chatgpt-4o-latest",
-              "object": "model",
-              "created": 1723515131,
               "owned_by": "system"
             },
             {
@@ -464,12 +454,6 @@ http_interactions:
               "id": "gpt-image-1",
               "object": "model",
               "created": 1745517030,
-              "owned_by": "system"
-            },
-            {
-              "id": "codex-mini-latest",
-              "object": "model",
-              "created": 1746673257,
               "owned_by": "system"
             },
             {
@@ -756,5 +740,5 @@ http_interactions:
             }
           ]
         }
-  recorded_at: Sun, 25 Jan 2026 17:12:54 GMT
+  recorded_at: Sun, 22 Feb 2026 02:19:17 GMT
 recorded_with: VCR 6.3.1

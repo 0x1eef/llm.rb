@@ -23,13 +23,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 25 Jan 2026 17:12:58 GMT
+      - Sun, 22 Feb 2026 02:18:38 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
+      Server:
+      - cloudflare
       Openai-Version:
       - '2020-10-01'
       Openai-Organization:
@@ -37,40 +39,34 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_83e09f143891437ebeab01db4ed5e8d9
+      - req_98120656e2be4acf940a02163b2e7be9
       Openai-Processing-Ms:
-      - '10634'
-      X-Envoy-Upstream-Service-Time:
-      - '10637'
+      - '12168'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=GTaL5zERQ5v4GLgLDRWZFGvLQNk5wnT6EjBdi5yfX1U-1769361178-1.0.1.1-pzHY1v7MDV8b1ific_uzzGyABLoVzezCwKsn1uAnEhEDSCfgNPtich7U5lWau6f3T0mvFvA829V3wdnNR7LAPQFElCWAHIRm9vHlP27JEoA;
-        path=/; expires=Sun, 25-Jan-26 17:42:58 GMT; domain=.api.openai.com; HttpOnly;
-        Secure; SameSite=None
-      - _cfuvid=Q0BYQ9JbshW_yUqM86t2JNc6xZXSuhPCr1b6mY.sbeg-1769361178792-0.0.1.1-604800000;
-        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      - __cf_bm=ilwjLPKSHtqWsr6IxzJs.sB9.d5_KOwvH.GAuMDVohE-1771726705.9079487-1.0.1.1-.Ey.FBRaJ73Dp4wlkkYAkbznfhPm9614gYVOHVpCA1CsMI8nFu70NUUCxFYubcVfOjsJWh9H7X97XtyPwdDNksLDjBuhy_AlskbCMBMyjMJpEBjjqtGnL1nnfPe4hTjZ;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
+        02:48:38 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
-      Server:
-      - cloudflare
       Cf-Ray:
-      - 9c3965c308fbf1ea-GRU
+      - 9d1afe27eb9d2912-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "created": 1769361178,
+          "created": 1771726718,
           "data": [
             {
-              "revised_prompt": "A playful Siberian Husky, with its shining blue eyes and striking gray and white fur, is seen bounding on top of a vibrant orange and metallic blue rocket. The rocket is a traditional pointed top shape, streaking across a background of a dark night sky speckled with twinkling white stars. In the distance, the creamy white, luminous sphere of the moon is growing larger, highlighting the sense of adventure and joy in the Husky's journey. The scene is filled with energy, excitement, and a sense of whimsy and fun.",
+              "revised_prompt": "Picture a chubby golden retriever, with fur as bright as the morning sun and eyes sparkling with boundless enthusiasm, strapped into a seat of a classic retro-style rocket. The rocket is in vibrant shades of red and silver, with plumes of fire and smoke sprouting out from the base. The scene is against the backdrop of a clear night sky splashed with scattered stars and the illuminating glow of the moon, which is their destination. The golden retriever seems to smile, as if excited for the lunar adventure that awaits.",
               "url": "https://openai.com/generated/image.png"
             }
           ]
         }
-  recorded_at: Sun, 25 Jan 2026 17:12:17 GMT
+  recorded_at: Sun, 22 Feb 2026 02:18:38 GMT
 recorded_with: VCR 6.3.1

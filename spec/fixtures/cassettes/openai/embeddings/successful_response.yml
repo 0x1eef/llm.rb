@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 25 Jan 2026 17:12:10 GMT
+      - Sun, 22 Feb 2026 02:17:49 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -39,17 +39,17 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '85'
+      - '67'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
       - '2020-10-01'
+      Server:
+      - cloudflare
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       Via:
-      - envoy-router-canary-59768ccbd8-tt5jl
-      X-Envoy-Upstream-Service-Time:
-      - '104'
+      - envoy-router-canary-6cdbcdbbf6-m2bnm
       X-Ratelimit-Limit-Requests:
       - '3000'
       X-Ratelimit-Limit-Tokens:
@@ -63,23 +63,19 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 0s
       X-Request-Id:
-      - req_78a6b72c38574048bde50957ef1f5afb
+      - req_f8c1858ea0844b7ba89ea6cba36cc1af
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=CaHsNtGFoCxiBi_C461YqwhmC_b2zHw_AWB5_h2r8uU-1769361130-1.0.1.1-R160yuDXLafcMFAHG.0fp7QuTCh8RsZWcAuGIvSbgatutV3LNXThTEuwLfF_qSKzjNOax9zBKWvlwGIbalooqjOKcjy2ucDsnkx4sXv7vwk;
-        path=/; expires=Sun, 25-Jan-26 17:42:10 GMT; domain=.api.openai.com; HttpOnly;
-        Secure; SameSite=None
-      - _cfuvid=b1LKkJM5rU5RAPNZTPlXncWhOEODdQGWy94pFu4gcrM-1769361130861-0.0.1.1-604800000;
-        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      - __cf_bm=WlZP9LDAiKqsEDdFeYWDl8MjJJRoiC0Etx.bpagrDCY-1771726668.3919437-1.0.1.1-wpLX4Ye4gP.ObPQDwkIIIi9UrhSvFv99OyJHrg3wLUPveQWs_LXzVVk8BIpbMRotzbprKk0K4vEQU_ShgZRudf4nrQF38WZes3r5Qm31mkyYncX0yfq_dnlAKTwRsHtY;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
+        02:47:49 GMT
       X-Content-Type-Options:
       - nosniff
-      Server:
-      - cloudflare
       Cf-Ray:
-      - 9c3964d93a59bc64-GRU
+      - 9d1afd3d781e346c-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
@@ -1637,5 +1633,5 @@ http_interactions:
             "total_tokens": 3
           }
         }
-  recorded_at: Sun, 25 Jan 2026 17:11:29 GMT
+  recorded_at: Sun, 22 Feb 2026 02:17:48 GMT
 recorded_with: VCR 6.3.1

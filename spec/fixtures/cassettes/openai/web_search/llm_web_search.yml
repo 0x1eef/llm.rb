@@ -26,13 +26,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 25 Jan 2026 17:11:59 GMT
+      - Sun, 22 Feb 2026 02:17:33 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
+      Server:
+      - cloudflare
       X-Ratelimit-Limit-Requests:
       - '500'
       X-Ratelimit-Limit-Tokens:
@@ -40,11 +42,11 @@ http_interactions:
       X-Ratelimit-Remaining-Requests:
       - '499'
       X-Ratelimit-Remaining-Tokens:
-      - '12109'
+      - '12300'
       X-Ratelimit-Reset-Requests:
       - 120ms
       X-Ratelimit-Reset-Tokens:
-      - 35.782s
+      - 35.4s
       Openai-Version:
       - '2020-10-01'
       Openai-Organization:
@@ -52,42 +54,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_acdb79835ef649748db741bc458ec9b6
+      - req_18de50083c234965810623b49392da06
       Openai-Processing-Ms:
-      - '8772'
-      X-Envoy-Upstream-Service-Time:
-      - '8780'
+      - '8752'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=cINY1HIBfTKAx0fOgamjhpOM6KMxIofh_M.HC0b5TK4-1769361119-1.0.1.1-SD_9VyROIL5f85ddqvc42zQw.zy395y87exv7uOHxaHVj34VTi6TaX44tkeBP41nujlO6DiH7noe2Stf3m3CPiB.ubNyAMYyw6.O5yJHTRw;
-        path=/; expires=Sun, 25-Jan-26 17:41:59 GMT; domain=.api.openai.com; HttpOnly;
-        Secure; SameSite=None
-      - _cfuvid=DMc8Cs6ddt677USwiJzocYFXRF4gxHiKRkBYj9E6P1Y-1769361119166-0.0.1.1-604800000;
-        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      - __cf_bm=DmSnhGFeGT.oBVVRk1kmn0m698SaC6N1L2qdbvgfYSM-1771726643.6658452-1.0.1.1-A8ja7PF1Vke4o8DdYXdq8O7GG18OhaipnqjaqY6q5KcCyrB1pTjKQAFffDdDTrPesXd4Qcuhz9P00k0Wfndg9jgKiF.iZnLwZxw4qWJSwBPZ_R641P9wLg6t8hk4.OLh;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
+        02:47:33 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
-      Server:
-      - cloudflare
       Cf-Ray:
-      - 9c39645add235cf3-GRU
+      - 9d1afca2eca7cef0-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_0bdd320d5bab26da0169764ed651248190b44ea5f9667d6a21",
+          "id": "resp_05d9cd08e8f1ef8c01699a673456388197adebfb96e11a3b96",
           "object": "response",
-          "created_at": 1769361110,
+          "created_at": 1771726644,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1769361119,
+          "completed_at": 1771726653,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -97,19 +93,19 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "ws_0bdd320d5bab26da0169764ed6b8808190bb4a1b39012fb2a3",
+              "id": "ws_05d9cd08e8f1ef8c01699a67353e3881979664b28cc4d04bdd",
               "type": "web_search_call",
               "status": "completed",
               "action": {
                 "type": "search",
                 "queries": [
-                  "top news headlines today"
+                  "today's top news summary"
                 ],
-                "query": "top news headlines today"
+                "query": "today's top news summary"
               }
             },
             {
-              "id": "msg_0bdd320d5bab26da0169764ed918188190b866d3cb8a97e555",
+              "id": "msg_05d9cd08e8f1ef8c01699a6737c43c81979cf663b40df1bc13",
               "type": "message",
               "status": "completed",
               "content": [
@@ -118,98 +114,91 @@ http_interactions:
                   "annotations": [
                     {
                       "type": "url_citation",
-                      "end_index": 543,
-                      "start_index": 433,
-                      "title": "January 2026 North American winter storm",
-                      "url": "https://en.wikipedia.org/wiki/January_2026_North_American_winter_storm?utm_source=openai"
+                      "end_index": 569,
+                      "start_index": 473,
+                      "title": "February 2026 nor'easter",
+                      "url": "https://en.wikipedia.org/wiki/February_2026_nor%27easter?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 844,
-                      "start_index": 734,
-                      "title": "January 2026 North American winter storm",
-                      "url": "https://en.wikipedia.org/wiki/January_2026_North_American_winter_storm?utm_source=openai"
+                      "end_index": 898,
+                      "start_index": 719,
+                      "title": "Governor Lamont Urges Connecticut Residents To Prepare for Blizzard Conditions Sunday Night and Monday Morning",
+                      "url": "https://portal.ct.gov/governor/news/press-releases/2026/02-2026/governor-lamont-urges-connecticut-residents-to-prepare-for-blizzard-conditions?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1148,
-                      "start_index": 1021,
-                      "title": "Major winter storm spurs CT state of emergency and travel ban on Sunday. Here's what to know",
-                      "url": "https://www.ctinsider.com/weather/article/ct-weather-sunday-snow-storm-impact-21311630.php?utm_source=openai"
+                      "end_index": 1058,
+                      "start_index": 966,
+                      "title": "Trumbull Library System Closed Sunday, February 22, 2026",
+                      "url": "https://www.trumbull-ct.gov/CivicAlerts.aspx?AID=3003&utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1407,
-                      "start_index": 1276,
-                      "title": "Why long-lasting power outages could be a big problem after the storm",
-                      "url": "https://www.washingtonpost.com/weather/2026/01/24/winter-storm-states-power-outage-plans/?utm_source=openai"
+                      "end_index": 1412,
+                      "start_index": 1292,
+                      "title": "'We\u2019re one shot away': USA duels Canada for first men's hockey gold since 'Miracle on Ice'",
+                      "url": "https://www.nbcolympics.com/news/usa-canada-olympics-mens-hockey-gold-medal-final?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1842,
-                      "start_index": 1750,
-                      "title": "Killing of Alex Pretti",
-                      "url": "https://en.wikipedia.org/wiki/Killing_of_Alex_Pretti?utm_source=openai"
+                      "end_index": 1916,
+                      "start_index": 1790,
+                      "title": "Trump news at a glance: President condemns 'anti-American decision' and pursues new tariffs avenue",
+                      "url": "https://www.theguardian.com/us-news/2026/feb/22/trump-administration-news-updates-today?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 2199,
-                      "start_index": 2086,
-                      "title": "2026 Anti-ICE Protests in the United States",
-                      "url": "https://en.wikipedia.org/wiki/2026_Anti-ICE_Protests_in_the_United_States?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 2502,
-                      "start_index": 2366,
-                      "title": "News Above the Noise\u2014Week of January 25, 2026",
-                      "url": "https://www.mariashriversundaypaper.com/news-above-the-noise-week-of-january-25-2026/?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 2861,
-                      "start_index": 2735,
-                      "title": "Trump news at a glance: groundswell of anger at second fatal shooting by federal agents in weeks",
-                      "url": "https://www.theguardian.com/us-news/2026/jan/25/trump-administration-news-updates-today?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 3357,
-                      "start_index": 3245,
-                      "title": "AnewZ Morning Brief - 25 January, 2026 | AnewZ",
-                      "url": "https://anewz.tv/world/world-news/17517/anewz-morning-brief-25-january-2026/news?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 3735,
-                      "start_index": 3640,
-                      "title": "56th World Economic Forum",
-                      "url": "https://en.wikipedia.org/wiki/56th_World_Economic_Forum?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 4042,
-                      "start_index": 3947,
-                      "title": "56th World Economic Forum",
-                      "url": "https://en.wikipedia.org/wiki/56th_World_Economic_Forum?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 4445,
-                      "start_index": 4333,
+                      "end_index": 2254,
+                      "start_index": 2142,
                       "title": "List of Falcon 9 and Falcon Heavy launches",
                       "url": "https://en.wikipedia.org/wiki/List_of_Falcon_9_and_Falcon_Heavy_launches?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 5058,
-                      "start_index": 4942,
-                      "title": "Darts Royal Rumble CONFIRMED for this year following strong Luke Littler backing",
-                      "url": "https://www.thesun.co.uk/sport/38014849/darts-royal-rumble-luke-littler-backing/?utm_source=openai"
+                      "end_index": 2764,
+                      "start_index": 2606,
+                      "title": "Breaking news live updates, February 22: Pakistan says it struck militant hideouts along Afghan border after surge in deadly attacks - The Times of India",
+                      "url": "https://timesofindia.indiatimes.com/india/breaking-news-live-updates-february-22/amp_liveblog/128660020.cms?utm_source=openai"
+                    },
+                    {
+                      "type": "url_citation",
+                      "end_index": 2989,
+                      "start_index": 2878,
+                      "title": "News Headlines for School Assembly \u2013 22 February 2026",
+                      "url": "https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai"
+                    },
+                    {
+                      "type": "url_citation",
+                      "end_index": 3184,
+                      "start_index": 3073,
+                      "title": "News Headlines for School Assembly \u2013 22 February 2026",
+                      "url": "https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai"
+                    },
+                    {
+                      "type": "url_citation",
+                      "end_index": 3430,
+                      "start_index": 3319,
+                      "title": "News Headlines for School Assembly \u2013 22 February 2026",
+                      "url": "https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai"
+                    },
+                    {
+                      "type": "url_citation",
+                      "end_index": 3961,
+                      "start_index": 3857,
+                      "title": "This week on \"Sunday Morning\" (Feb. 22) - CBS News",
+                      "url": "https://www.cbsnews.com/news/this-week-on-sunday-morning-feb-22-2026/?utm_source=openai"
+                    },
+                    {
+                      "type": "url_citation",
+                      "end_index": 4263,
+                      "start_index": 4121,
+                      "title": "Don Day's Wyoming Weather Forecast: Sunday, February 22, 2026",
+                      "url": "https://cowboystatedaily.com/2026/02/21/don-days-wyoming-weather-forecast-sunday-february-22-2026/?utm_source=openai"
                     }
                   ],
                   "logprobs": [],
-                  "text": "Below is a comprehensive summary of **Sunday, January 25, 2026** major news in the United States, organized into key themes and rooted in the most recent, reliable reporting.\n\n---\n\n## 1. Catastrophic Winter Storm Overwhelms U.S.\n\n- A **massive winter storm**, unofficially dubbed *Winter Storm Fern*, is sweeping across North America, stretching approximately 2,000 miles\u2014from Texas and Mexico up through New England and into Canada ([en.wikipedia.org](https://en.wikipedia.org/wiki/January_2026_North_American_winter_storm?utm_source=openai)).\n- As of today, **over 750,000 people** have lost power, and at least **5 deaths** have been confirmed. Travel disruptions are widespread, with **nearly 4,000 flights canceled** nationwide. ([en.wikipedia.org](https://en.wikipedia.org/wiki/January_2026_North_American_winter_storm?utm_source=openai))\n- Connecticut Governor Ned Lamont declared a **state of emergency** effective Sunday and instituted a **ban on commercial vehicles** on state highways to ensure public safety. ([ctinsider.com](https://www.ctinsider.com/weather/article/ct-weather-sunday-snow-storm-impact-21311630.php?utm_source=openai))\n- The financial and operational strain continues to mount, as utilities and government agencies prepare for prolonged outages. ([washingtonpost.com](https://www.washingtonpost.com/weather/2026/01/24/winter-storm-states-power-outage-plans/?utm_source=openai))\n\n---\n\n## 2. Protests Erupt After Fatal ICE Shooting in Minneapolis\n\n- On **January 24, 2026**, **U.S. Border Patrol agents fatally shot Alex Pretti**, a 37-year-old ICU nurse, in Minneapolis. The shooting occurred amid heightened tensions over immigration enforcement and follows a previous fatal shooting of Renee Good earlier in the month. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Killing_of_Alex_Pretti?utm_source=openai))\n- The incident sparked **nationwide anti-ICE protests** in cities including Minneapolis, San Francisco, Los Angeles, New York City, and Boston. Demonstrations have called for accountability, policy reform, and even the **abolishment of ICE**. ([en.wikipedia.org](https://en.wikipedia.org/wiki/2026_Anti-ICE_Protests_in_the_United_States?utm_source=openai))\n- In Minnesota, Governor Tim Walz mobilized the **National Guard** to support law enforcement near the shooting site and a federal building amid escalating protests. ([mariashriversundaypaper.com](https://www.mariashriversundaypaper.com/news-above-the-noise-week-of-january-25-2026/?utm_source=openai))\n- Local leaders\u2014Minneapolis Mayor Jacob Frey and Governor Walz\u2014condemned the shooting, while Senate Democrats, led by Chuck Schumer, are threatening to **block Department of Homeland Security funding** in response to ICE\u2019s actions. ([theguardian.com](https://www.theguardian.com/us-news/2026/jan/25/trump-administration-news-updates-today?utm_source=openai))\n\n---\n\n## 3. Geopolitics and Global Tensions: Ukraine\u2013Russia Talks Stall\n\n- U.S.-brokered peace negotiations between **Ukraine and Russia in Abu Dhabi** concluded without agreement, though both parties remain open to future engagement. The talks ended amidst renewed **Russian airstrikes** that have left large swaths of Ukraine without power or heating amid plummeting temperatures. ([anewz.tv](https://anewz.tv/world/world-news/17517/anewz-morning-brief-25-january-2026/news?utm_source=openai))\n\n---\n\n## 4. Davos Concludes Amid Global Friction and Initiatives\n\n- The **56th World Economic Forum** wrapped up in Davos, Switzerland, running from **January 19 to 23, 2026**. Key themes included international cooperation, inclusive growth, innovation, and sustainable prosperity. ([en.wikipedia.org](https://en.wikipedia.org/wiki/56th_World_Economic_Forum?utm_source=openai))\n- U.S.\u2013NATO relations remained strained, notably over the escalating **Greenland crisis**. Nevertheless, President Trump unveiled a **\u201cBoard of Peace\u201d** focused on conflict resolution during a ceremonial event. ([en.wikipedia.org](https://en.wikipedia.org/wiki/56th_World_Economic_Forum?utm_source=openai))\n\n---\n\n## 5. SpaceX Launches Starlink Satellites Today\n\n- On **January 25, 2026**, **SpaceX** is scheduled to launch **24 Starlink v2 mini satellites** into sun-synchronous orbit from Vandenberg Space Launch Complex 4E. This is part of an ongoing effort to expand global broadband coverage. ([en.wikipedia.org](https://en.wikipedia.org/wiki/List_of_Falcon_9_and_Falcon_Heavy_launches?utm_source=openai))\n\n---\n\n## 6. Cultural Spotlight \u2014 Darts \u201cRoyal Rumble\u201d Event Confirmed\n\n- A novel **\u201cRoyal Rumble\u201d\u2013style darts event** has been confirmed for 2026 as part of the Modus Super Series. Modeled after WWE\u2019s iconic format, it will feature single-leg knockouts. Although full details\u2014including date and participants\u2014are pending, the promotional video teases appearances by notable players such as **Steve Beaton, Fallon Sherrock**, and potentially **Phil Taylor**. The event will stream on **Pluto TV**. ([thesun.co.uk](https://www.thesun.co.uk/sport/38014849/darts-royal-rumble-luke-littler-backing/?utm_source=openai))\n\n---\n\n## Summary Table\n\n| Topic                           | Key Developments                                                                 |\n|--------------------------------|----------------------------------------------------------------------------------|\n| Winter Storm                   | Massive snow and ice storm causes widespread power outages, travel chaos.        |\n| Minneapolis ICE Shooting       | Fatal shooting spurs protests, National Guard mobilized, political backlash.      |\n| Ukraine\u2013Russia Diplomacy       | Peace talks stall; renewed bombing during freezing winter continues.              |\n| World Economic Forum (Davos)   | Highlights global tensions and new peace initiatives amid geopolitical strain.    |\n| SpaceX Starlink Launch         | Deployment of 24 satellites to expand internet reach.                             |\n| Darts \u201cRoyal Rumble\u201d Event     | A new knockout darts competition announced, blending sport and entertainment.      |\n\n---\n\nThis overview captures the most significant events unfolding **today, January 25, 2026**, across U.S. and global headlines, with clear sourcing and adherence to current reporting. Let me know if you\u2019d like to delve deeper into any of these stories!"
+                  "text": "Here\u2019s a comprehensive summary of **today\u2019s news\u2014Sunday, February 22, 2026**:\n\nBlizzard and Winter Storm Warnings  \n- A **major nor\u2019easter** is slamming the Northeastern United States today, February 22, bringing *potentially historic* blizzard conditions with expected snowfall of 12\u201324 inches. New York City has been placed under a rare blizzard warning\u2014the first in nearly a decade\u2014and the city\u2019s Department of Sanitation is mobilizing 5,000 workers to combat the storm ([en.wikipedia.org](https://en.wikipedia.org/wiki/February_2026_nor%27easter?utm_source=openai)).  \n- In **Connecticut**, Governor Ned Lamont has issued warnings urging residents to prepare for blizzard conditions tonight and into Monday morning ([portal.ct.gov](https://portal.ct.gov/governor/news/press-releases/2026/02-2026/governor-lamont-urges-connecticut-residents-to-prepare-for-blizzard-conditions?utm_source=openai)). The **Trumbull Library System** is closed today due to heavy snow ([trumbull-ct.gov](https://www.trumbull-ct.gov/CivicAlerts.aspx?AID=3003&utm_source=openai)).\n\nWinter Olympics Highlights  \n- Amid the storm, attention turns to the **Winter Olympics**, where today features the **men\u2019s ice hockey gold medal final**: the United States faces off against Canada in a highly anticipated showdown ([nbcolympics.com](https://www.nbcolympics.com/news/usa-canada-olympics-mens-hockey-gold-medal-final?utm_source=openai)).\n\nMajor U.S. Political and Economic News  \n- Former President **Donald Trump** has publicly denounced a **Supreme Court decision** striking down parts of his tariff program, calling it \u201cextraordinarily anti\u2011American.\u201d In response, he has announced plans to raise global import tariffs to **15%**, citing alternative legal authority and aiming to impose them by **February 24** ([theguardian.com](https://www.theguardian.com/us-news/2026/feb/22/trump-administration-news-updates-today?utm_source=openai)).\n\nSpace and Technology Developments  \n- Meanwhile, **SpaceX** is set to launch **29 Starlink v2 mini satellites** today, February 22, from Cape Canaveral (SLC\u201140) aboard a Falcon 9 rocket to expand its internet constellation ([en.wikipedia.org](https://en.wikipedia.org/wiki/List_of_Falcon_9_and_Falcon_Heavy_launches?utm_source=openai)).\n\nNational Politics & Global Developments (from broader India-focused school headlines)  \n- In India, headlines include:\n  1. Surge in foreign investment due to India\u2019s trade pacts, strengthening the rupee.\n  2. Arrests in Tamil Nadu related to pro-Pakistan terror content.\n  3. A **mass suicide** of a family in Uttar Pradesh amid financial hardship ([timesofindia.indiatimes.com](https://timesofindia.indiatimes.com/india/breaking-news-live-updates-february-22/amp_liveblog/128660020.cms?utm_source=openai)).  \n- Internationally:\n  1. A U.S.\u2013China visit is planned, with Trump to visit China from **March 31 to April 2** ([studmentor.in](https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai)).  \n  2. Iran expects to draft a **nuclear deal proposal** for the U.S. within days ([studmentor.in](https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai)).  \n  3. **Peace talks** involving the U.S., Ukraine, and Russia are underway in Geneva addressing territorial and security safeguards ([studmentor.in](https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai)).\n\nAdditional Noteworthy Coverage  \n- **CBS News Sunday Morning**\u2014airing today\u2014focuses on:\n  - The risk of **polio\u2019s resurgence** in the U.S. due to declining vaccination rates.\n  - The recent and symbolic **reopening of the Studio Museum in Harlem**.\n  - A tribute remembering **Rev. Jesse Jackson**, who passed away on **February 17, 2026**, and an over\u2011six\u2011decade retrospective on investigative journalist **Seymour Hersh** ([cbsnews.com](https://www.cbsnews.com/news/this-week-on-sunday-morning-feb-22-2026/?utm_source=openai)).\n\nWeather Elsewhere  \n- In **Wyoming**, February 22 is expected to be mostly **sunny**, with daytime highs in the mid\u201130s to mid\u201140s and clear overnight skies ([cowboystatedaily.com](https://cowboystatedaily.com/2026/02/21/don-days-wyoming-weather-forecast-sunday-february-22-2026/?utm_source=openai)).\n\nSummary of Key Themes Today  \n- A **historic blizzard** disrupts daily life across the Northeast.\n- **Olympic fervor** continues amid extreme weather.\n- **Political drama** unfolds with Trump\u2019s trade policy controversy.\n- **SpaceX advances** global internet infrastructure with a satellite launch.\n- **Public health**, **cultural heritage**, and **investigative journalism** are spotlighted in national media.\n- **Diplomatic and geopolitical movements** remain active between the U.S., China, Iran, and others.\n\nIf you're interested in more details on any of these topics\u2014weather impact, Olympics coverage, Trump\u2019s tariff policy, or the SpaceX launch\u2014I\u2019d be happy to dive deeper."
                 }
               ],
               "role": "assistant"
@@ -253,18 +242,18 @@ http_interactions:
           "top_p": 1.0,
           "truncation": "disabled",
           "usage": {
-            "input_tokens": 16964,
+            "input_tokens": 17007,
             "input_tokens_details": {
               "cached_tokens": 0
             },
-            "output_tokens": 1252,
+            "output_tokens": 1018,
             "output_tokens_details": {
               "reasoning_tokens": 0
             },
-            "total_tokens": 18216
+            "total_tokens": 18025
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Sun, 25 Jan 2026 17:11:18 GMT
+  recorded_at: Sun, 22 Feb 2026 02:17:32 GMT
 recorded_with: VCR 6.3.1

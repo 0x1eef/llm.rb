@@ -25,13 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 25 Jan 2026 17:13:37 GMT
+      - Sun, 22 Feb 2026 02:19:19 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
+      Server:
+      - cloudflare
       X-Ratelimit-Limit-Requests:
       - '500'
       X-Ratelimit-Limit-Tokens:
@@ -51,42 +53,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_90810efdd7514b8196d54579cec07900
+      - req_95d2831efc4446158fcd9ad4fcc37d2b
       Openai-Processing-Ms:
-      - '640'
-      X-Envoy-Upstream-Service-Time:
-      - '643'
+      - '396'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=x6hUh8xbx2172QKIu.a5k2eXPhOyZrbqipN2g6ej34Y-1769361217-1.0.1.1-okUPT9j3qXYQ5XA5hdS11JcO2J7WImy1FR1ubh1K3z6GYmCzmsUuJCuqlgjckFzFgwZ66l.v6bCgP9egI.j3Wr_F_CYiI3KM5t.FN95_Qaw;
-        path=/; expires=Sun, 25-Jan-26 17:43:37 GMT; domain=.api.openai.com; HttpOnly;
-        Secure; SameSite=None
-      - _cfuvid=pNw96uRto8iJe62Jln4dT1YGYyKV98NR05DabTLHhYU-1769361217261-0.0.1.1-604800000;
-        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      - __cf_bm=mJfCqF8KeBxMuZTsnE0fzx0HD84UQWWGA.Ao8HPRwXI-1771726758.8587592-1.0.1.1-BziiddeXjNYazcI7uPOM6p89fOqScBL3fHlXfraJInZ4szNtzMyw9n2Imi7_8XVamjGsB8X0kZaKEITsTxc_KfjTvL82q4SrOMN30zXtMf5n9p_rJhThYj_Gc899KPQT;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
+        02:49:19 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
-      Server:
-      - cloudflare
       Cf-Ray:
-      - 9c3966f2cc240188-GRU
+      - 9d1aff72dc787254-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_02096b89863606b30069764f408d1c8194812cc051d422d58e",
+          "id": "resp_0a97e4474234cf6100699a67a6f3c48190b57692cb0f318eb9",
           "object": "response",
-          "created_at": 1769361216,
+          "created_at": 1771726758,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1769361217,
+          "completed_at": 1771726759,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -96,7 +92,7 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "msg_02096b89863606b30069764f40eef48194b3df63ec31075e93",
+              "id": "msg_0a97e4474234cf6100699a67a72b288190a5071ddfd430af87",
               "type": "message",
               "status": "completed",
               "content": [
@@ -104,7 +100,7 @@ http_interactions:
                   "type": "output_text",
                   "annotations": [],
                   "logprobs": [],
-                  "text": "Hello! How can I help you today?"
+                  "text": "Hello! How can I help you today? \ud83d\ude0a"
                 }
               ],
               "role": "assistant"
@@ -139,19 +135,19 @@ http_interactions:
             "input_tokens_details": {
               "cached_tokens": 0
             },
-            "output_tokens": 10,
+            "output_tokens": 11,
             "output_tokens_details": {
               "reasoning_tokens": 0
             },
-            "total_tokens": 18
+            "total_tokens": 19
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Sun, 25 Jan 2026 17:12:56 GMT
+  recorded_at: Sun, 22 Feb 2026 02:19:19 GMT
 - request:
     method: get
-    uri: https://api.openai.com/v1/responses/resp_02096b89863606b30069764f408d1c8194812cc051d422d58e
+    uri: https://api.openai.com/v1/responses/resp_0a97e4474234cf6100699a67a6f3c48190b57692cb0f318eb9
     body:
       encoding: US-ASCII
       string: ''
@@ -172,13 +168,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 25 Jan 2026 17:13:37 GMT
+      - Sun, 22 Feb 2026 02:19:19 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
+      Server:
+      - cloudflare
       Openai-Version:
       - '2020-10-01'
       Openai-Organization:
@@ -186,42 +184,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_e1edb6b0a193487a98d9fb58973aa5ad
+      - req_974c4650cc9e481fb62448f77c90b2a2
       Openai-Processing-Ms:
-      - '109'
-      X-Envoy-Upstream-Service-Time:
-      - '112'
+      - '52'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=lfMiFAEYDyqCtqQ3HcO4phXRruF5ZcGP_IJxrfntiTg-1769361217-1.0.1.1-mymox767DaNIbSYcNAYG2gOxM12JTeFGVH9UD5ba1P8IRpb498TgUbSY8.4d4TI69NHCt4tFfV4gqMBbHjAlwjlvBGD_oNjBMhFNubQG0Gk;
-        path=/; expires=Sun, 25-Jan-26 17:43:37 GMT; domain=.api.openai.com; HttpOnly;
-        Secure; SameSite=None
-      - _cfuvid=IVl4EI9dCEipf8FScRxomVflznrHtKxYyoQudhHOBlE-1769361217767-0.0.1.1-604800000;
-        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      - __cf_bm=5gR8fkMNSzKI_fANf_rEJmBD5pZOt9rItNAAaumq2Ok-1771726759.447913-1.0.1.1-YmrpDUB69eEmrlTB3foDoKSBsNYrDdCMms5JLwtQuC3H92AqExm4.YOLr_oVnQKLggWPir2QtLVYoYHH5HA8md_cio9tAJLBJcjdEe.ApK3_Z3I1FALFNX34yJplrjb0;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
+        02:49:19 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
-      Server:
-      - cloudflare
       Cf-Ray:
-      - 9c3966f84ecd8913-GRU
+      - 9d1aff768f00decb-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_02096b89863606b30069764f408d1c8194812cc051d422d58e",
+          "id": "resp_0a97e4474234cf6100699a67a6f3c48190b57692cb0f318eb9",
           "object": "response",
-          "created_at": 1769361216,
+          "created_at": 1771726758,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1769361217,
+          "completed_at": 1771726759,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -231,7 +223,7 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "msg_02096b89863606b30069764f40eef48194b3df63ec31075e93",
+              "id": "msg_0a97e4474234cf6100699a67a72b288190a5071ddfd430af87",
               "type": "message",
               "status": "completed",
               "content": [
@@ -239,7 +231,7 @@ http_interactions:
                   "type": "output_text",
                   "annotations": [],
                   "logprobs": [],
-                  "text": "Hello! How can I help you today?"
+                  "text": "Hello! How can I help you today? \ud83d\ude0a"
                 }
               ],
               "role": "assistant"
@@ -274,14 +266,14 @@ http_interactions:
             "input_tokens_details": {
               "cached_tokens": 0
             },
-            "output_tokens": 10,
+            "output_tokens": 11,
             "output_tokens_details": {
               "reasoning_tokens": 0
             },
-            "total_tokens": 18
+            "total_tokens": 19
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Sun, 25 Jan 2026 17:12:56 GMT
+  recorded_at: Sun, 22 Feb 2026 02:19:19 GMT
 recorded_with: VCR 6.3.1
