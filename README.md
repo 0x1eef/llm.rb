@@ -2,7 +2,7 @@
   <a href="llm.rb"><img src="https://github.com/llmrb/llm.rb/raw/main/llm.png" width="200" height="200" border="0" alt="llm.rb"></a>
 </p>
 <p align="center">
-  <a href="https://rubydoc.info/github/llmrb/llm.rb"><img src="https://img.shields.io/badge/docs-rubydoc.info-blue.svg" alt="RubyDoc"></a>
+  <a href="https://rubydoc.info/github/llmrb/llm.rb?rebuild=1"><img src="https://img.shields.io/badge/docs-rubydoc.info-blue.svg" alt="RubyDoc"></a>
   <a href="https://opensource.org/license/0bsd"><img src="https://img.shields.io/badge/License-0BSD-orange.svg?" alt="License"></a>
   <a href="https://github.com/llmrb/llm.rb/tags"><img src="https://img.shields.io/badge/version-4.1.0-green.svg?" alt="Version"></a>
 </p>
