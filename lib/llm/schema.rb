@@ -9,7 +9,7 @@
 # @see https://json-schema.org/ JSON Schema Specification
 # @see https://tour.json-schema.org/ JSON Schema Tour
 #
-# @example
+# @example JavaScript-style
 #  schema = LLM::Schema.new
 #  schema.object({
 #    name: schema.string.enum("John", "Jane").required,
@@ -17,6 +17,14 @@
 #    hobbies: schema.array(schema.string, schema.null).required,
 #    address: schema.object({street: schema.string}).required,
 #  })
+#
+# @example Ruby-style
+#  class Person < LLM::Schema
+#    property :name, String, "Person's name", required: true
+#    property :age, Integer, "Person's age", required: true
+#    property :hobbies, Array[String, Null], "Person's hobbies", required: true
+#    property :address, Address, "Person's address", required: true
+#  end
 class LLM::Schema
   require_relative "schema/version"
   require_relative "schema/leaf"
