@@ -3,21 +3,21 @@
 ##
 # {LLM::Prompt LLM::Prompt} is a small object for composing
 # a single request from multiple role-aware messages.
-#
 # A prompt is not just a string. It is an ordered chain of
-# messages with explicit roles (for example +system+ and +user+).
-#
+# messages with explicit roles (for example `system` and `user`).
 # Use {LLM::Session#prompt} when building a prompt inside a session.
-# Use +LLM::Prompt.new(provider)+ directly when you want to construct
+# Use `LLM::Prompt.new(provider)` directly when you want to construct
 # or pass prompt objects around explicitly.
 #
 # @example
 #   llm = LLM.openai(key: ENV["KEY"])
 #   ses = LLM::Session.new(llm)
+#
 #   prompt = ses.prompt do
 #     system "Your task is to assist the user"
 #     user "Hello. Can you assist me?"
 #   end
+#
 #   res = ses.talk(prompt)
 class LLM::Prompt
   ##
@@ -26,7 +26,7 @@ class LLM::Prompt
   # @param [Proc] b
   #  A block that composes messages. If the block takes one argument,
   #  it receives the prompt object. Otherwise the block runs in the
-  #  prompt context via +instance_eval+.
+  #  prompt context via `instance_eval`.
   def initialize(provider, &b)
     @provider = provider
     @buffer = []

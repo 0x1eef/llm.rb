@@ -36,7 +36,7 @@ module LLM
   ##
   # Returns the JSON adapter used by the library
   # @return [Class]
-  #  Returns a class that responds to +dump+ and +load+
+  #  Returns a class that responds to `dump` and `load`
   def json
     @json ||= JSONAdapter::JSON
   end
