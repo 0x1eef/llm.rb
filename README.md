@@ -142,6 +142,27 @@ end
 ses.talk(prompt)
 ```
 
+But prompts are not session-scoped. [LLM::Prompt](https://0x1eef.github.io/x/llm.rb/LLM/Prompt.html)
+is a first-class object that you can build and pass around independently of a session.
+This enables patterns where you compose a prompt in one part of your code,
+and execute it through a session elsewhere:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm)
+
+prompt = LLM::Prompt.new(llm) do
+  system "Be concise and show your reasoning briefly."
+  user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
+  user "Now double the speed for the same time."
+end
+
+ses.talk(prompt)
+```
+
 ## Features
 
 #### General
