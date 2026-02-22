@@ -21,7 +21,8 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 3.2.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/llmrb/llm"
+  spec.metadata["source_code_uri"] = "https://github.com/llmrb/llm.rb"
+  spec.metadata["documentation_uri"] = "https://0x1eef.github.io/x/llm.rb"
 
   spec.files = Dir[
     "README.md", "LICENSE",
