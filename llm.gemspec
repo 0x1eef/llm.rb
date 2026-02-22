@@ -16,11 +16,11 @@ Gem::Specification.new do |spec|
   SUMMARY
 
   spec.description = spec.summary
-  spec.homepage = "https://github.com/llmrb/llm"
   spec.license = "0BSD"
   spec.required_ruby_version = ">= 3.2.0"
 
-  spec.metadata["homepage_uri"] = spec.homepage
+  spec.homepage = "https://github.com/llmrb/llm.rb"
+  spec.metadata["homepage_uri"] = "https://github.com/llmrb/llm.rb"
   spec.metadata["source_code_uri"] = "https://github.com/llmrb/llm.rb"
   spec.metadata["documentation_uri"] = "https://0x1eef.github.io/x/llm.rb"
 
