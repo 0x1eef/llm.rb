@@ -13,11 +13,13 @@ module LLM
   #
   #   llm = LLM.openai(key: ENV["KEY"])
   #   ses = LLM::Session.new(llm)
+  #
   #   prompt = LLM::Prompt.new(llm) do
   #     system "Be concise and show your reasoning briefly."
   #     user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
   #     user "Now double the speed for the same time."
   #   end
+  #
   #   res = ses.talk(prompt)
   #   res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
   class Session
