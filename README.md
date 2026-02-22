@@ -178,7 +178,7 @@ ses.talk(prompt)
 
 #### Optionals
 
-- ♻️  Optional persistent HTTP pool ([net-http-persistent](https://github.com/drbrain/net-http-persistent))
+- ♻️  Optional persistent HTTP pool via net-http-persistent ([net-http-persistent](https://github.com/drbrain/net-http-persistent))
 - 📈  Optional telemetry support via OpenTelemetry ([opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby))
 - 🪵  Optional logging support via Ruby's standard library ([ruby/logger](https://github.com/ruby/logger))
 
