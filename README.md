@@ -17,7 +17,8 @@ tool calling, audio, images, files, and structured outputs.
 And it is licensed under the [0BSD License](https://choosealicense.com/licenses/0bsd/) &ndash;
 one of the most permissive open source licenses, with minimal conditions for use,
 modification, and/or distribution. Attribution is appreciated, but not required
-by the license. ✌️
+by the license. Built with [good music](https://www.youtube.com/watch?v=SNvaqwTbn14)
+and a lot of ☕️.
 
 ## Quick start
 
@@ -58,7 +59,7 @@ require "pp"
 class Report < LLM::Schema
   property :category, String, "Report category", required: true
   property :summary, String, "Short summary", required: true
-  property :impact, String, "Impact", required: true
+  property :services, Array[String], "Impacted services", required: true
   property :timestamp, String, "When it happened", optional: true
 end
 
@@ -66,6 +67,14 @@ llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, schema: Report)
 res = ses.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
 pp res.messages.first(&:assistant?).content!
+
+##
+# {
+#   "category" => "Performance Incident",
+#   "summary" => "Database latency spiked, causing 5% request timeouts for 12 minutes.",
+#   "services" => ["Database"],
+#   "timestamp" => "2024-06-05T10:42:00Z"
+# }
 ```
 
 #### Tools
