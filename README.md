@@ -719,6 +719,12 @@ llm.rb can be installed via rubygems.org:
 
 	gem install llm.rb
 
+## Sources
+
+* [GitHub.com](https://github.com/llmrb/llm.rb)
+* [GitLab.com](https://gitlab.com/llmrb/llm)
+* [Codeberg.org](https://codeberg.org/llmrb/llm)
+
 ## License
 
 [BSD Zero Clause](https://choosealicense.com/licenses/0bsd/)
