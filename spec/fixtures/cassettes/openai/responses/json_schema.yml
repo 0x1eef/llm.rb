@@ -26,7 +26,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 22 Feb 2026 02:19:21 GMT
+      - Mon, 23 Feb 2026 10:10:19 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -54,36 +54,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_3e2fe257ae024683aa3c0c3be2682dab
+      - req_32feefcd9a14464095f082e93adbe77d
       Openai-Processing-Ms:
-      - '360'
+      - '680'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=fv1El3qq1go1JPuYfXKdU2hgwxkh7pNQ0JgGcqVgszc-1771726760.7600787-1.0.1.1-l_IS_tbznyNdQJHrbeR5m120nSjzLpOxArDN0eaG7_TO_OFOxQRebxE7ExSMCpmB6NM1wTZNu8ci4VhyZz9eCYU2MqANJwzMEZjJC333b_Ul5_JXZsscY9i4Jsneacgo;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
-        02:49:21 GMT
+      - __cf_bm=EKv9L9hCrUHXI06sdBqV6OruSMORcaNNVwC_GHu9i8g-1771841417.9215782-1.0.1.1-05sbWvHhat5tYm7XhpmRpdWas4rOqcLFoImBWLbi_Ekudn_67NcACLiUo7aZJhPxFYSEBaouFGkE6SsnHyWAyici015hc3wpp0PfZaQ4w2q5bGlE4P70VthEgmuzF9te;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
+        10:40:19 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d1aff7ebdc21abb-GRU
+      - 9d25eebe0f5bf252-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_0ab176c5df35ea3400699a67a8dccc8190bbeae87c6bb3631f",
+          "id": "resp_06671cfd6d6ad20100699c278a9e508195b89f73051ba90581",
           "object": "response",
-          "created_at": 1771726760,
+          "created_at": 1771841418,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1771726761,
+          "completed_at": 1771841419,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -93,7 +93,7 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "msg_0ab176c5df35ea3400699a67a90fe0819098d1631eaea48de0",
+              "id": "msg_06671cfd6d6ad20100699c278b19a8819584220fe94c32d71c",
               "type": "message",
               "status": "completed",
               "content": [
@@ -160,5 +160,5 @@ http_interactions:
           "user": null,
           "metadata": {}
         }
-  recorded_at: Sun, 22 Feb 2026 02:19:21 GMT
+  recorded_at: Mon, 23 Feb 2026 10:10:15 GMT
 recorded_with: VCR 6.3.1

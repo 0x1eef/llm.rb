@@ -26,7 +26,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 22 Feb 2026 02:19:37 GMT
+      - Mon, 23 Feb 2026 10:10:33 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -42,11 +42,11 @@ http_interactions:
       X-Ratelimit-Remaining-Requests:
       - '499'
       X-Ratelimit-Remaining-Tokens:
-      - '0'
+      - '13106'
       X-Ratelimit-Reset-Requests:
       - 120ms
       X-Ratelimit-Reset-Tokens:
-      - 1m3.68s
+      - 33.788s
       Openai-Version:
       - '2020-10-01'
       Openai-Organization:
@@ -54,36 +54,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_c98cd854e81842428a04f84d26f56fa4
+      - req_c6c179233f1f4e24814d8b627837a630
       Openai-Processing-Ms:
-      - '7242'
+      - '3915'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=PjDSaJHTgfIMOjGyowQ._FWmnTEnJvJbd2FbG7FO6Lc-1771726770.344917-1.0.1.1-vArdBNQBmcaUw81hAvZ5ZO4t4mDD5t5jEwkGWE4QRpK_wn50NO2cFmFe4pem_KjRDv_yRJF3jZQKLGb4Sch93NTskRIJjj3nBjCGFcxeXg1x9OlwtSWOLX6r5BdcpjME;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
-        02:49:37 GMT
+      - __cf_bm=rCyVaGlMgvNk4CNOVRX2QXVivPHU7uy_pHlVOmVGVyA-1771841429.8849547-1.0.1.1-wl_1_7sXKwMUBRqpRo3FvMNa4CfCQ.vJQbkMe8Xfr.ClB.ApqzTawoBo65Dav5.O2kEMVtRNE5fUi4rR40KDNa3DAJyW_TIG2RHe3j4Wvyy4gENECZ8q5d_0BWQY7qJj;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
+        10:40:33 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d1affbaad0bb490-GRU
+      - 9d25ef08c922a529-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_02bc90279b2c0ecd00699a67b270608195983b3ca9740b3eb2",
+          "id": "resp_09880c73ecbd47cb00699c2795fa808190b7e3260ef769ad50",
           "object": "response",
-          "created_at": 1771726770,
+          "created_at": 1771841430,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1771726777,
+          "completed_at": 1771841433,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -93,7 +93,7 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "ws_02bc90279b2c0ecd00699a67b3047c8195995f35ab36710502",
+              "id": "ws_09880c73ecbd47cb00699c2797534881908cac603a9cc34691",
               "type": "web_search_call",
               "status": "completed",
               "action": {
@@ -105,7 +105,7 @@ http_interactions:
               }
             },
             {
-              "id": "msg_02bc90279b2c0ecd00699a67b5e40481959a0a7ce3a6edc7c3",
+              "id": "msg_09880c73ecbd47cb00699c2798ad348190819902c70fb44601",
               "type": "message",
               "status": "completed",
               "content": [
@@ -114,42 +114,14 @@ http_interactions:
                   "annotations": [
                     {
                       "type": "url_citation",
-                      "end_index": 908,
-                      "start_index": 668,
-                      "title": "Tropfest: Sydney finalists from Bondi to Manly celebrate festival's return",
-                      "url": "https://www.dailytelegraph.com.au/newslocal/wentworth-courier/2026-tropfest-finalists-celebrate-return-of-iconic-short-film-festival-at-centennial-park/news-story/727df57b2cb18f78effef455215d2d3c?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 1383,
-                      "start_index": 1195,
-                      "title": "John Polson and David Mich\u00f4d on Tropfest's return: the film festival that 'can change your career overnight'",
-                      "url": "https://www.theguardian.com/film/2026/feb/14/john-polson-and-david-michod-on-tropfests-return-the-film-festival-that-can-change-your-career-overnight?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 1993,
-                      "start_index": 1764,
-                      "title": "Sarah Snook joins Margot Robbie on Tropfest 2026 jury",
-                      "url": "https://www.dailytelegraph.com.au/entertainment/sydney-confidential/emmy-winner-sarah-snook-joins-margot-robbie-on-starstudded-tropfest-jury/news-story/5af293ed87dcfc422d2f53df3db61e1c?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 2785,
-                      "start_index": 2640,
-                      "title": "Improve Your News Literacy at Free Event on Feb. 22 - National Today",
-                      "url": "https://nationaltoday.com/us/co/ouray/news/2026/02/12/improve-your-news-literacy-at-free-event-on-feb-22?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 3133,
-                      "start_index": 2988,
-                      "title": "Improve Your News Literacy at Free Event on Feb. 22 - National Today",
-                      "url": "https://nationaltoday.com/us/co/ouray/news/2026/02/12/improve-your-news-literacy-at-free-event-on-feb-22?utm_source=openai"
+                      "end_index": 979,
+                      "start_index": 858,
+                      "title": "Religion news 23 February 2026 - Religion Media Centre",
+                      "url": "https://religionmediacentre.org.uk/news/religion-news-23-february-2026/?utm_source=openai"
                     }
                   ],
                   "logprobs": [],
-                  "text": "Here are two truly uplifting stories from **today, Sunday, February 22, 2026**, reflecting creativity, community, and empowerment:\n\n1. **Tropfest Returns to Sydney: A Celebration of Emerging Filmmakers**  \n   After six transformative years, **Tropfest**, the world\u2019s largest short film festival, has made a triumphant return today in **Centennial Park, Sydney**. The event features 16 finalist films premiering under the stars, with a live global livestream for audiences everywhere. Entry is free (with required registration), and a prize fund of **$100,000** is at stake to support emerging talents\u2014$50,000 for first prize, $30,000 for second, and $20,000 for third ([dailytelegraph.com.au](https://www.dailytelegraph.com.au/newslocal/wentworth-courier/2026-tropfest-finalists-celebrate-return-of-iconic-short-film-festival-at-centennial-park/news-story/727df57b2cb18f78effef455215d2d3c?utm_source=openai)).\n\n   The festival has undergone a thoughtful transformation, now operated by the **not-for-profit Tropfest Foundation**, under the leadership of chair Sarah Murdoch and a board including Peter V\u2019landys and Bryan Brown. This new structure ensures sustainability and community engagement ([theguardian.com](https://www.theguardian.com/film/2026/feb/14/john-polson-and-david-michod-on-tropfests-return-the-film-festival-that-can-change-your-career-overnight?utm_source=openai)).\n\n   Among notable developments, a dynamic and star-studded jury\u2014headed by **Margot Robbie**, with **Sarah Snook**, Bruna Papandrea, and Dylan River\u2014brings exciting visibility and credibility to the event. The significance of Tropfest lies in its reputation as a launch pad for filmmakers\u2014past alumni include Nash Edgerton, Rebel Wilson, Murray Bartlett, David Mich\u00f4d, and others ([dailytelegraph.com.au](https://www.dailytelegraph.com.au/entertainment/sydney-confidential/emmy-winner-sarah-snook-joins-margot-robbie-on-starstudded-tropfest-jury/news-story/5af293ed87dcfc422d2f53df3db61e1c?utm_source=openai)).\n\n   This return marks a powerful moment in creative storytelling\u2014uniting communities, empowering new voices, and celebrating filmmaking with renewed energy and inclusivity.\n\n2. **Boosting News Literacy in Colorado**  \n   In Ridgway, Colorado, a free community event titled *\u201cRecognizing Credible News in a Time of Truth Decay\u201d* is taking place today from **4\u20136 pm** at Space to Create. Led by Emmy-award-winning journalists **Judy Muller** and **George Lewis**, this workshop aims to equip attendees with tools to discern factual news from misinformation\u2014vital skills in our media-saturated age. Free childcare is also available for registrants ([nationaltoday.com](https://nationaltoday.com/us/co/ouray/news/2026/02/12/improve-your-news-literacy-at-free-event-on-feb-22?utm_source=openai)).\n\n   As the News Literacy Project explains, in an environment overflowing with blogs, deepfakes, viral rumors, and manipulated content, being able to evaluate sources critically is more vital than ever ([nationaltoday.com](https://nationaltoday.com/us/co/ouray/news/2026/02/12/improve-your-news-literacy-at-free-event-on-feb-22?utm_source=openai)).\n\n---\n\n**Why these stories matter:**\n\n- **Tropfest\u2019s revival** showcases the beauty of storytelling and resilience\u2014creators, filmmakers, and audiences alike are welcomed into a communal space where culture flourishes freely.\n- **The news literacy workshop** contributes to a smarter, more informed public\u2014empowering individuals to navigate today's complex information environment with clarity and skepticism.\n\nIn sum, today\u2019s standout positive stories highlight both creative expression and civic education\u2014two pillars that strengthen our communities.\n\nLet me know if you'd like more details or additional uplifting news from today!"
+                  "text": "Here\u2019s a genuinely positive and uplifting **news story from today, Monday, February 23, 2026**:\n\nA remarkable wave of spiritual engagement is unfolding across two major Catholic dioceses in the UK. At the recent \u201cRite of Election\u201d ceremonies\u2014where parishioners are formally chosen for baptism, confirmation, and Holy Communion\u2014**the Diocese of Westminster welcomed nearly 800 new adult members**, marking its **highest participation in 15 years**, while **the Diocese of Southwark reported 590 adults coming forward**, its **strongest showing since 2011**. A significant portion of these individuals are young and under 35, and 57% are women. Church leaders credit these numbers to a successful evangelization initiative with local parishes. This surge in adult faith commitment stands out as a powerful, uplifting moment of community and spiritual renewal. ([religionmediacentre.org.uk](https://religionmediacentre.org.uk/news/religion-news-23-february-2026/?utm_source=openai))\n\nThis story embodies hope and positive transformation, illustrating how communities continue to grow and evolve in encouraging ways."
                 }
               ],
               "role": "assistant"
@@ -193,18 +165,18 @@ http_interactions:
           "top_p": 1.0,
           "truncation": "disabled",
           "usage": {
-            "input_tokens": 31438,
+            "input_tokens": 16985,
             "input_tokens_details": {
               "cached_tokens": 0
             },
-            "output_tokens": 731,
+            "output_tokens": 238,
             "output_tokens_details": {
               "reasoning_tokens": 0
             },
-            "total_tokens": 32169
+            "total_tokens": 17223
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Sun, 22 Feb 2026 02:19:37 GMT
+  recorded_at: Mon, 23 Feb 2026 10:10:30 GMT
 recorded_with: VCR 6.3.1

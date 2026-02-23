@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 22 Feb 2026 02:18:38 GMT
+      - Mon, 23 Feb 2026 10:09:35 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -39,34 +39,34 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_98120656e2be4acf940a02163b2e7be9
+      - req_897dd4874bc9455fad98ceecaf3b6725
       Openai-Processing-Ms:
-      - '12168'
+      - '11161'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=ilwjLPKSHtqWsr6IxzJs.sB9.d5_KOwvH.GAuMDVohE-1771726705.9079487-1.0.1.1-.Ey.FBRaJ73Dp4wlkkYAkbznfhPm9614gYVOHVpCA1CsMI8nFu70NUUCxFYubcVfOjsJWh9H7X97XtyPwdDNksLDjBuhy_AlskbCMBMyjMJpEBjjqtGnL1nnfPe4hTjZ;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
-        02:48:38 GMT
+      - __cf_bm=BotQTZ9tmGvHmmY04mPjwqF7Dnb80soPkFi6PQh3uOY-1771841363.5277429-1.0.1.1-nPSYOhtPqLd8EzvNEPgIqVMtwgHzWFDAkor3j7DbtFoxhFlJYg4KYytOriCJCBtT8XHTdUC5Eu1Umi1GdVI2wTjWwYOCTfcWk2u8DdaXskHrEi5SrPtaoQXt7Sqx3Ovf;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
+        10:39:35 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d1afe27eb9d2912-GRU
+      - 9d25ed6a0d0ef195-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "created": 1771726718,
+          "created": 1771841375,
           "data": [
             {
-              "revised_prompt": "Picture a chubby golden retriever, with fur as bright as the morning sun and eyes sparkling with boundless enthusiasm, strapped into a seat of a classic retro-style rocket. The rocket is in vibrant shades of red and silver, with plumes of fire and smoke sprouting out from the base. The scene is against the backdrop of a clear night sky splashed with scattered stars and the illuminating glow of the moon, which is their destination. The golden retriever seems to smile, as if excited for the lunar adventure that awaits.",
+              "revised_prompt": "A cheerful golden retriever is strapped into a silver rocketship that is blasting off into space. A bright boost trail hints at the impressive speed of the craft as it hurtles towards a cream-colored moon in the distance. The sky transitions from the blue hues of the Earth's atmosphere into the inky blackness of outer space. Stars twinkle in the cosmic backdrop. The golden retriever has a brave expression on its face, looking ahead with anticipation. The rocket carries an emblem of a bone signaling the dog's exciting journey.",
               "url": "https://openai.com/generated/image.png"
             }
           ]
         }
-  recorded_at: Sun, 22 Feb 2026 02:18:38 GMT
+  recorded_at: Mon, 23 Feb 2026 10:09:31 GMT
 recorded_with: VCR 6.3.1

@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 22 Feb 2026 02:19:18 GMT
+      - Mon, 23 Feb 2026 10:10:14 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -39,30 +39,30 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_8109d03b99ba4309a2716eb6b9e4262a
+      - req_797635eed85241e6a1d3ff0d628283de
       Openai-Processing-Ms:
-      - '182'
+      - '98'
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=CZ_QCT5kitbg0GviWA1UEhXrSH1mrArbv6yuMZsj.yg-1771726757.884126-1.0.1.1-DMicTwWE_JQt1_fQnCxDx3NF7SSVbz7qNTs.4StDpJVn1OhEa8amk9oFOstt4HP74qgAzCeNyEU_5mYg8DYHwcwiBA02aQ75UWjut4hXpAOC3ZHdjsdgEPYfHgU5H3ya;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
-        02:49:18 GMT
+      - __cf_bm=dJnKt02TQgTUw3BmnOxiAzZI_NVLiEO5EoVKNkpLcJ4-1771841414.204116-1.0.1.1-uxiKopqzWYCgQGLdQCv6jc2kDevA7T2_jdqx7UeaoXNIJ7ermY44jSfA1lV1Jxo1jIHbSVLafP5fcu.EfjFUvD1C_x0yqTwhh_BDpCYjjOJOp0RWYSDZnX0ZhJW3XS3e;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
+        10:40:14 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d1aff6cc855e142-GRU
+      - 9d25eea6c99e35d8-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "modr-8310",
+          "id": "modr-3792",
           "model": "omni-moderation-latest",
           "results": [
             {
@@ -141,5 +141,5 @@ http_interactions:
             }
           ]
         }
-  recorded_at: Sun, 22 Feb 2026 02:19:18 GMT
+  recorded_at: Mon, 23 Feb 2026 10:10:10 GMT
 recorded_with: VCR 6.3.1

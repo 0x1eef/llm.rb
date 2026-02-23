@@ -26,7 +26,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 22 Feb 2026 02:17:33 GMT
+      - Mon, 23 Feb 2026 10:08:34 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -42,11 +42,11 @@ http_interactions:
       X-Ratelimit-Remaining-Requests:
       - '499'
       X-Ratelimit-Remaining-Tokens:
-      - '12300'
+      - '12432'
       X-Ratelimit-Reset-Requests:
       - 120ms
       X-Ratelimit-Reset-Tokens:
-      - 35.4s
+      - 35.136s
       Openai-Version:
       - '2020-10-01'
       Openai-Organization:
@@ -54,36 +54,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_18de50083c234965810623b49392da06
+      - req_0ea678fba54144848e33958e09313cb6
       Openai-Processing-Ms:
-      - '8752'
+      - '8075'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=DmSnhGFeGT.oBVVRk1kmn0m698SaC6N1L2qdbvgfYSM-1771726643.6658452-1.0.1.1-A8ja7PF1Vke4o8DdYXdq8O7GG18OhaipnqjaqY6q5KcCyrB1pTjKQAFffDdDTrPesXd4Qcuhz9P00k0Wfndg9jgKiF.iZnLwZxw4qWJSwBPZ_R641P9wLg6t8hk4.OLh;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
-        02:47:33 GMT
+      - __cf_bm=yiovlWWylkyN317pmt6P9El_veuFYpETxRyIlvlIt7U-1771841306.071754-1.0.1.1-QzWAEUKcss6Ix9.Rg9kTXH90GDY7su5ovjFQP50DLmk.DqLsNCzB0ER1eqKYlRGtODK7oZ6_Ndfszzk_G3AxzxlYR_BWlv0C34xXnZDbwlTU2w.pwjR5i2pYYi.Y2pE8;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
+        10:38:34 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d1afca2eca7cef0-GRU
+      - 9d25ec02fe51768e-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_05d9cd08e8f1ef8c01699a673456388197adebfb96e11a3b96",
+          "id": "resp_0afda25b5f4e49e001699c271a82b8819696c3adb6f3c0793f",
           "object": "response",
-          "created_at": 1771726644,
+          "created_at": 1771841306,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1771726653,
+          "completed_at": 1771841314,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -93,19 +93,19 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "ws_05d9cd08e8f1ef8c01699a67353e3881979664b28cc4d04bdd",
+              "id": "ws_0afda25b5f4e49e001699c271b7df08196b034a8fe06e2e16b",
               "type": "web_search_call",
               "status": "completed",
               "action": {
                 "type": "search",
                 "queries": [
-                  "today's top news summary"
+                  "today's top news stories"
                 ],
-                "query": "today's top news summary"
+                "query": "today's top news stories"
               }
             },
             {
-              "id": "msg_05d9cd08e8f1ef8c01699a6737c43c81979cf663b40df1bc13",
+              "id": "msg_0afda25b5f4e49e001699c271dda4c8196bf2afdcac1815cc5",
               "type": "message",
               "status": "completed",
               "content": [
@@ -114,91 +114,63 @@ http_interactions:
                   "annotations": [
                     {
                       "type": "url_citation",
-                      "end_index": 569,
-                      "start_index": 473,
-                      "title": "February 2026 nor'easter",
-                      "url": "https://en.wikipedia.org/wiki/February_2026_nor%27easter?utm_source=openai"
+                      "end_index": 758,
+                      "start_index": 651,
+                      "title": "February 2026 North American blizzard",
+                      "url": "https://en.wikipedia.org/wiki/February_2026_North_American_blizzard?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 898,
-                      "start_index": 719,
+                      "end_index": 1047,
+                      "start_index": 868,
                       "title": "Governor Lamont Urges Connecticut Residents To Prepare for Blizzard Conditions Sunday Night and Monday Morning",
                       "url": "https://portal.ct.gov/governor/news/press-releases/2026/02-2026/governor-lamont-urges-connecticut-residents-to-prepare-for-blizzard-conditions?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1058,
-                      "start_index": 966,
-                      "title": "Trumbull Library System Closed Sunday, February 22, 2026",
-                      "url": "https://www.trumbull-ct.gov/CivicAlerts.aspx?AID=3003&utm_source=openai"
+                      "end_index": 1386,
+                      "start_index": 1278,
+                      "title": "Operating Status for Februrary 23, 2026 | Court of International Trade | United States",
+                      "url": "https://www.cit.uscourts.gov/news/operating-status-februrary-23-2026?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1412,
-                      "start_index": 1292,
-                      "title": "'We\u2019re one shot away': USA duels Canada for first men's hockey gold since 'Miracle on Ice'",
-                      "url": "https://www.nbcolympics.com/news/usa-canada-olympics-mens-hockey-gold-medal-final?utm_source=openai"
+                      "end_index": 1923,
+                      "start_index": 1806,
+                      "title": "2026 United States federal government shutdowns",
+                      "url": "https://en.wikipedia.org/wiki/2026_United_States_federal_government_shutdowns?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1916,
-                      "start_index": 1790,
-                      "title": "Trump news at a glance: President condemns 'anti-American decision' and pursues new tariffs avenue",
-                      "url": "https://www.theguardian.com/us-news/2026/feb/22/trump-administration-news-updates-today?utm_source=openai"
+                      "end_index": 2354,
+                      "start_index": 2260,
+                      "title": "2026 Mar-a-Lago shooting",
+                      "url": "https://en.wikipedia.org/wiki/2026_Mar-a-Lago_shooting?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 2254,
-                      "start_index": 2142,
-                      "title": "List of Falcon 9 and Falcon Heavy launches",
-                      "url": "https://en.wikipedia.org/wiki/List_of_Falcon_9_and_Falcon_Heavy_launches?utm_source=openai"
+                      "end_index": 2697,
+                      "start_index": 2586,
+                      "title": "Feb 23 News Live: Next US-Iran talks on Thursday in Geneva, Oman says",
+                      "url": "https://thefederal.com/category/news/february-23-news-live-updates-231139?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 2764,
-                      "start_index": 2606,
-                      "title": "Breaking news live updates, February 22: Pakistan says it struck militant hideouts along Afghan border after surge in deadly attacks - The Times of India",
-                      "url": "https://timesofindia.indiatimes.com/india/breaking-news-live-updates-february-22/amp_liveblog/128660020.cms?utm_source=openai"
+                      "end_index": 3188,
+                      "start_index": 3025,
+                      "title": "U.S. boosts gold medal tally at Winter Games, led by athletes from handful of states",
+                      "url": "https://www.wxxinews.org/npr-news/2026-02-23/u-s-boosts-gold-medal-tally-at-winter-games-led-by-athletes-from-handful-of-states?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 2989,
-                      "start_index": 2878,
-                      "title": "News Headlines for School Assembly \u2013 22 February 2026",
-                      "url": "https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 3184,
-                      "start_index": 3073,
-                      "title": "News Headlines for School Assembly \u2013 22 February 2026",
-                      "url": "https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 3430,
-                      "start_index": 3319,
-                      "title": "News Headlines for School Assembly \u2013 22 February 2026",
-                      "url": "https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 3961,
-                      "start_index": 3857,
-                      "title": "This week on \"Sunday Morning\" (Feb. 22) - CBS News",
-                      "url": "https://www.cbsnews.com/news/this-week-on-sunday-morning-feb-22-2026/?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 4263,
-                      "start_index": 4121,
-                      "title": "Don Day's Wyoming Weather Forecast: Sunday, February 22, 2026",
-                      "url": "https://cowboystatedaily.com/2026/02/21/don-days-wyoming-weather-forecast-sunday-february-22-2026/?utm_source=openai"
+                      "end_index": 4200,
+                      "start_index": 4107,
+                      "title": "New and existing battles cast a shadow over the coming days",
+                      "url": "https://www.ft.com/content/61e86925-7c8a-44bf-9f68-0ac8b875edf3?utm_source=openai"
                     }
                   ],
                   "logprobs": [],
-                  "text": "Here\u2019s a comprehensive summary of **today\u2019s news\u2014Sunday, February 22, 2026**:\n\nBlizzard and Winter Storm Warnings  \n- A **major nor\u2019easter** is slamming the Northeastern United States today, February 22, bringing *potentially historic* blizzard conditions with expected snowfall of 12\u201324 inches. New York City has been placed under a rare blizzard warning\u2014the first in nearly a decade\u2014and the city\u2019s Department of Sanitation is mobilizing 5,000 workers to combat the storm ([en.wikipedia.org](https://en.wikipedia.org/wiki/February_2026_nor%27easter?utm_source=openai)).  \n- In **Connecticut**, Governor Ned Lamont has issued warnings urging residents to prepare for blizzard conditions tonight and into Monday morning ([portal.ct.gov](https://portal.ct.gov/governor/news/press-releases/2026/02-2026/governor-lamont-urges-connecticut-residents-to-prepare-for-blizzard-conditions?utm_source=openai)). The **Trumbull Library System** is closed today due to heavy snow ([trumbull-ct.gov](https://www.trumbull-ct.gov/CivicAlerts.aspx?AID=3003&utm_source=openai)).\n\nWinter Olympics Highlights  \n- Amid the storm, attention turns to the **Winter Olympics**, where today features the **men\u2019s ice hockey gold medal final**: the United States faces off against Canada in a highly anticipated showdown ([nbcolympics.com](https://www.nbcolympics.com/news/usa-canada-olympics-mens-hockey-gold-medal-final?utm_source=openai)).\n\nMajor U.S. Political and Economic News  \n- Former President **Donald Trump** has publicly denounced a **Supreme Court decision** striking down parts of his tariff program, calling it \u201cextraordinarily anti\u2011American.\u201d In response, he has announced plans to raise global import tariffs to **15%**, citing alternative legal authority and aiming to impose them by **February 24** ([theguardian.com](https://www.theguardian.com/us-news/2026/feb/22/trump-administration-news-updates-today?utm_source=openai)).\n\nSpace and Technology Developments  \n- Meanwhile, **SpaceX** is set to launch **29 Starlink v2 mini satellites** today, February 22, from Cape Canaveral (SLC\u201140) aboard a Falcon 9 rocket to expand its internet constellation ([en.wikipedia.org](https://en.wikipedia.org/wiki/List_of_Falcon_9_and_Falcon_Heavy_launches?utm_source=openai)).\n\nNational Politics & Global Developments (from broader India-focused school headlines)  \n- In India, headlines include:\n  1. Surge in foreign investment due to India\u2019s trade pacts, strengthening the rupee.\n  2. Arrests in Tamil Nadu related to pro-Pakistan terror content.\n  3. A **mass suicide** of a family in Uttar Pradesh amid financial hardship ([timesofindia.indiatimes.com](https://timesofindia.indiatimes.com/india/breaking-news-live-updates-february-22/amp_liveblog/128660020.cms?utm_source=openai)).  \n- Internationally:\n  1. A U.S.\u2013China visit is planned, with Trump to visit China from **March 31 to April 2** ([studmentor.in](https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai)).  \n  2. Iran expects to draft a **nuclear deal proposal** for the U.S. within days ([studmentor.in](https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai)).  \n  3. **Peace talks** involving the U.S., Ukraine, and Russia are underway in Geneva addressing territorial and security safeguards ([studmentor.in](https://studmentor.in/news-headlines-for-school-assembly-22-february-2026/?utm_source=openai)).\n\nAdditional Noteworthy Coverage  \n- **CBS News Sunday Morning**\u2014airing today\u2014focuses on:\n  - The risk of **polio\u2019s resurgence** in the U.S. due to declining vaccination rates.\n  - The recent and symbolic **reopening of the Studio Museum in Harlem**.\n  - A tribute remembering **Rev. Jesse Jackson**, who passed away on **February 17, 2026**, and an over\u2011six\u2011decade retrospective on investigative journalist **Seymour Hersh** ([cbsnews.com](https://www.cbsnews.com/news/this-week-on-sunday-morning-feb-22-2026/?utm_source=openai)).\n\nWeather Elsewhere  \n- In **Wyoming**, February 22 is expected to be mostly **sunny**, with daytime highs in the mid\u201130s to mid\u201140s and clear overnight skies ([cowboystatedaily.com](https://cowboystatedaily.com/2026/02/21/don-days-wyoming-weather-forecast-sunday-february-22-2026/?utm_source=openai)).\n\nSummary of Key Themes Today  \n- A **historic blizzard** disrupts daily life across the Northeast.\n- **Olympic fervor** continues amid extreme weather.\n- **Political drama** unfolds with Trump\u2019s trade policy controversy.\n- **SpaceX advances** global internet infrastructure with a satellite launch.\n- **Public health**, **cultural heritage**, and **investigative journalism** are spotlighted in national media.\n- **Diplomatic and geopolitical movements** remain active between the U.S., China, Iran, and others.\n\nIf you're interested in more details on any of these topics\u2014weather impact, Olympics coverage, Trump\u2019s tariff policy, or the SpaceX launch\u2014I\u2019d be happy to dive deeper."
+                  "text": "Here\u2019s a clear, up-to-date summary of the most important news from **Monday, February 23, 2026**. This overview includes verified developments across the U.S., Europe, the Middle East, and beyond:\n\n---\n\n** 1. Historic Blizzard Strikes the Northeast U.S. **  \nA **major blizzard**, unofficially dubbed \u201cWinter Storm Hernando,\u201d is battering the Northeastern United States\u2014including New York, New Jersey, and New England\u2014on February 22\u201323, 2026. The storm has brought **up to 2 feet of snow**, **blizzard conditions**, strong winds, and coastal flooding. Authorities have issued **states of emergency** and **blizzard warnings** along the I-95 corridor. ([en.wikipedia.org](https://en.wikipedia.org/wiki/February_2026_North_American_blizzard?utm_source=openai))  \nIn response, Connecticut Governor Ned Lamont urged residents to prepare for potentially severe conditions. ([portal.ct.gov](https://portal.ct.gov/governor/news/press-releases/2026/02-2026/governor-lamont-urges-connecticut-residents-to-prepare-for-blizzard-conditions?utm_source=openai))  \nSeveral federal courts are impacted: the U.S. Court of International Trade is closed today due to inclement weather, and the U.S. Court of Appeals for the Federal Circuit is operating with a **two-hour delayed arrival** policy. ([cit.uscourts.gov](https://www.cit.uscourts.gov/news/operating-status-februrary-23-2026?utm_source=openai))\n\n---\n\n** 2. Federal Government Impacts from DHS Shutdown **  \nA second partial shutdown affecting the **Department of Homeland Security (DHS)** began on February 14, 2026. While many services continue, several key operational changes are underway: **TSA PreCheck and Global Entry were briefly suspended**, then PreCheck was restored\u2014though **airport courtesy escorts and non-disaster FEMA responses remain suspended**. ([en.wikipedia.org](https://en.wikipedia.org/wiki/2026_United_States_federal_government_shutdowns?utm_source=openai))\n\n---\n\n** 3. Security Incident at Mar-a-Lago **  \nOn February 22, **Secret Service agents shot and killed a man** who breached the security perimeter of **Mar-a-Lago** with a shotgun and a fuel canister. The incident occurred early in the morning; the property owner, President Trump, was not physically present at the site at the time. ([en.wikipedia.org](https://en.wikipedia.org/wiki/2026_Mar-a-Lago_shooting?utm_source=openai))\n\n---\n\n** 4. U.S.\u2013Iran Nuclear Talks Planned for Geneva **  \nOman confirmed that the **next round of U.S.\u2013Iran nuclear negotiations** will take place on **Thursday, February 26, in Geneva**. The U.S. has made no public comment yet. ([thefederal.com](https://thefederal.com/category/news/february-23-news-live-updates-231139?utm_source=openai))\n\n---\n\n** 5. U.S. Excels at Winter Games in Milan\u2013Cortina **  \nAt the ongoing **Winter Games in Milan\u2013Cortina**, the **United States** has improved its **gold medal tally**, reinforcing its role as a winter sports powerhouse second only to Norway. Most of the U.S. victories come from athletes representing a handful of states. ([wxxinews.org](https://www.wxxinews.org/npr-news/2026-02-23/u-s-boosts-gold-medal-tally-at-winter-games-led-by-athletes-from-handful-of-states?utm_source=openai))\n\n---\n\n** 6. Rising Global Tensions and Political Spotlight **  \nA comprehensive overview of global political and economic developments underscores heightened tensions:\n\n- President Trump is **increasing U.S. military presence in the Middle East**, pressing Iran for a deal within 15 days.\n- His upcoming **State of the Union address** faces a planned **Democratic boycott**.\n- Tuesday marks the **fourth anniversary of Russia\u2019s full-scale invasion of Ukraine**, with ongoing casualties and expectations for new peace talks.\n- The UK is watching closely an **upcoming by-election** in Gorton and Denton that could challenge Labour's dominance.\n- Important **economic data** (inflation, GDP) is due from major economies, accompanied by commentary from central bank leaders.\n- Other events include **Biden-Clinton Congressional testimony**, U.S.\u2013Mauritius talks on Diego Garcia, and cultural events like the BRIT Awards. ([ft.com](https://www.ft.com/content/61e86925-7c8a-44bf-9f68-0ac8b875edf3?utm_source=openai))\n\n---\n\n###  Summary Table\n\n| Topic                          | Key Highlights                                                                 |\n|-------------------------------|---------------------------------------------------------------------------------|\n| Blizzard \u201cHernando\u201d            | Historic snowstorm causing disruptions across Northeast U.S.                    |\n| DHS Shutdown                   | Partial impacts on TSA, FEMA; shuttle services affected                        |\n| Mar-a-Lago Shooting            | Intruder killed by Secret Service                                                |\n| U.S.\u2013Iran Talks                | Next round scheduled in Geneva on Feb 26                                       |\n| Winter Games                   | U.S. boosts gold medals; strong winter sports performance                      |\n| Global Politics & Economy      | Tensions escalate; key geopolitical and economic events imminent                |\n\n---\n\nLet me know if you'd like a deeper dive into any of these developments\u2014I'm happy to provide more detail or context."
                 }
               ],
               "role": "assistant"
@@ -242,18 +214,18 @@ http_interactions:
           "top_p": 1.0,
           "truncation": "disabled",
           "usage": {
-            "input_tokens": 17007,
+            "input_tokens": 16886,
             "input_tokens_details": {
               "cached_tokens": 0
             },
-            "output_tokens": 1018,
+            "output_tokens": 1007,
             "output_tokens_details": {
               "reasoning_tokens": 0
             },
-            "total_tokens": 18025
+            "total_tokens": 17893
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Sun, 22 Feb 2026 02:17:32 GMT
+  recorded_at: Mon, 23 Feb 2026 10:08:30 GMT
 recorded_with: VCR 6.3.1

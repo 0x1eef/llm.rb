@@ -28,7 +28,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sun, 22 Feb 2026 02:17:46 GMT
+      - Mon, 23 Feb 2026 10:08:45 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -40,7 +40,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '277'
+      - '239'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -60,30 +60,30 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 76ms
       X-Request-Id:
-      - req_83046ee5b2ea4f7c975eecee0c996b24
+      - req_bbe0614476c34f1989ba582d4264832b
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=fgJygnm14WzMUXZyfUPHEieSqfaZG9LtgYqz6hPVj5Y-1771726666.0356543-1.0.1.1-h62UK2tQzVeTzheDr_Bs3JqE3oHTUWr_fL2qVKYF3Cmff.KPF4Begn230Hq0cTINEQt5NQN5SAqrEznXWAzD6lTWRty5LuKoktIqOWt1c12.VUzZyjVy.Atv81IpWJsw;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 22 Feb 2026
-        02:47:46 GMT
+      - __cf_bm=mZFcPVP7AxjLeJtJv.TGGCN7SQAA9bbAlJMPeE1HoB4-1771841324.7804575-1.0.1.1-WGF16BMHeU0er54aZcQP6grBxoOR8RiIxAH1J_QIBzCL3w9nILfSI55.hsgfgQkTZwfjSqPuz8HkaIMhnV4nFQz2yZFWgJ.giGkAWaAuRgtpv8HO39Nf_x4zk5WsSuel;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
+        10:38:45 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d1afd2ebdf24f8c-GRU
+      - 9d25ec77dff3f5ce-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |
         {
-          "id": "chatcmpl-DBtKU7CWDug9sObiZLgPFNOBk8kPv",
+          "id": "chatcmpl-DCN9o4INDJb4egBFyv3O5xfj5pbk0",
           "object": "chat.completion",
-          "created": 1771726666,
+          "created": 1771841324,
           "model": "gpt-4.1-2025-04-14",
           "choices": [
             {
@@ -114,7 +114,7 @@ http_interactions:
             }
           },
           "service_tier": "default",
-          "system_fingerprint": "fp_ad13b424f1"
+          "system_fingerprint": "fp_ede5d726d3"
         }
-  recorded_at: Sun, 22 Feb 2026 02:17:46 GMT
+  recorded_at: Mon, 23 Feb 2026 10:08:41 GMT
 recorded_with: VCR 6.3.1
