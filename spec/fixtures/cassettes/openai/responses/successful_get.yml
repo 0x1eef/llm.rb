@@ -7,6 +7,8 @@ http_interactions:
       encoding: UTF-8
       string: '{"input":[{"role":"developer","content":[{"type":"input_text","text":"Hello"}]}],"model":"gpt-4.1"}'
     headers:
+      User-Agent:
+      - llm.rb v4.3.1
       Content-Type:
       - application/json
       Authorization:
@@ -15,8 +17,6 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
       Transfer-Encoding:
       - chunked
   response:
@@ -25,7 +25,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 10:10:16 GMT
+      - Mon, 23 Feb 2026 12:02:02 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -53,36 +53,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_d68f2365b891426c9f1bd124d24aa7a1
+      - req_a340e79cdbb3402c8b169d47d059c92c
       Openai-Processing-Ms:
-      - '497'
+      - '615'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=IBmWgKLdCIbUHHbDpl3l6hgPl02OLWNaN8MwqfVt5OY-1771841415.371892-1.0.1.1-MsB_wkSB1gNe0kmIUWtfvbGGUerafMu2x9KzULX5OB4VO7Hl6H57UjIwd7NdngwjZmDFjUy4hsFIE2hoBDzuXd7lOhsGj8OfYb1pNiOXCL.eKSY6vHlLAxXMtpYKl1p0;
+      - __cf_bm=HIOQByRbe5OA8bono_oEqnCjrhK9_D4z3hPdT9K8UKc-1771848121.1649957-1.0.1.1-ERbhD35JkMXbZFqjm8sNxGXclUraJVKsWFnxkgOY04o4yzslwFf17SC2U_sV.sCtsraDhkK_AZP4f6UocVaI_1qZU5e57zUjuUpF5vIfnhuauTao4kUL7CETyeC3WHxE;
         HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        10:40:16 GMT
+        12:32:02 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d25eeae1b89a454-GRU
+      - 9d26926549844360-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_07bede0246c0aac200699c27877aa88197adecde4273c7bb31",
+          "id": "resp_001f8ab6f372437900699c41b9828c8197b25b3c447f2ddecf",
           "object": "response",
-          "created_at": 1771841415,
+          "created_at": 1771848121,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1771841415,
+          "completed_at": 1771848121,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -92,7 +92,7 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "msg_07bede0246c0aac200699c2787b2188197807b03a8accd4bbc",
+              "id": "msg_001f8ab6f372437900699c41b9e2c08197a3d5d94a23c5fb8e",
               "type": "message",
               "status": "completed",
               "content": [
@@ -144,14 +144,16 @@ http_interactions:
           "user": null,
           "metadata": {}
         }
-  recorded_at: Mon, 23 Feb 2026 10:10:12 GMT
+  recorded_at: Mon, 23 Feb 2026 12:01:58 GMT
 - request:
     method: get
-    uri: https://api.openai.com/v1/responses/resp_07bede0246c0aac200699c27877aa88197adecde4273c7bb31
+    uri: https://api.openai.com/v1/responses/resp_001f8ab6f372437900699c41b9828c8197b25b3c447f2ddecf
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      User-Agent:
+      - llm.rb v4.3.1
       Content-Type:
       - application/json
       Authorization:
@@ -160,15 +162,13 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 10:10:16 GMT
+      - Mon, 23 Feb 2026 12:02:02 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -184,36 +184,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_bdbac3aecf0f46288d504bb1ce9e8a37
+      - req_e31f8bbd50134c4c88fa499b742d33fe
       Openai-Processing-Ms:
-      - '85'
+      - '143'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=1e3v3J72Gx0tZJ4sZmbMYbVO8yl.uaN7XhXs47HxR1Q-1771841416.092763-1.0.1.1-tsLo3gx2PL5BzSbKOGTyph89MDUOYL.IKcgHsDF.449DehweiMo_CERc4MgavsQnFP6pj23ST9yMNdYNMz5oXxl88D6asFxGB.Qnvm8kVQ8Qy9t6xjSDx2vKqUipnaWk;
+      - __cf_bm=GFmoaB3o5q6PFX2M9BzFI2O1EH5LiW9NIgIyW1C_mAc-1771848122.238566-1.0.1.1-ROsl_r3gSjFsuUkmwabbr.JqFvPSIFWr5RhVMMgR4eokWtnON9xJhTSbdVzpHZN.MgOLheXSVHZ8Be5CDy_qvOheekIeYbhdI_sbXLp4TqvIqRYPxIPQtQyMb9M7a19d;
         HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        10:40:16 GMT
+        12:32:02 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d25eeb29aec887b-GRU
+      - 9d26926bfdce622b-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_07bede0246c0aac200699c27877aa88197adecde4273c7bb31",
+          "id": "resp_001f8ab6f372437900699c41b9828c8197b25b3c447f2ddecf",
           "object": "response",
-          "created_at": 1771841415,
+          "created_at": 1771848121,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1771841415,
+          "completed_at": 1771848121,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -223,7 +223,7 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "msg_07bede0246c0aac200699c2787b2188197807b03a8accd4bbc",
+              "id": "msg_001f8ab6f372437900699c41b9e2c08197a3d5d94a23c5fb8e",
               "type": "message",
               "status": "completed",
               "content": [
@@ -275,5 +275,5 @@ http_interactions:
           "user": null,
           "metadata": {}
         }
-  recorded_at: Mon, 23 Feb 2026 10:10:12 GMT
+  recorded_at: Mon, 23 Feb 2026 12:01:58 GMT
 recorded_with: VCR 6.3.1

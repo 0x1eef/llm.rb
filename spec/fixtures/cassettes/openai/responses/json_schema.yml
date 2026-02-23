@@ -8,6 +8,8 @@ http_interactions:
       string: '{"input":[{"role":"user","content":[{"type":"input_text","text":"What
         is the capital of France?"}]}],"model":"gpt-4.1","text":{"format":{"type":"json_schema","name":"JSONSchema","schema":{"type":"object","properties":{"answer":{"type":"string"}},"required":["answer"],"additionalProperties":false}}}}'
     headers:
+      User-Agent:
+      - llm.rb v4.3.1
       Content-Type:
       - application/json
       Authorization:
@@ -16,8 +18,6 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
       Transfer-Encoding:
       - chunked
   response:
@@ -26,7 +26,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 10:10:19 GMT
+      - Mon, 23 Feb 2026 12:02:04 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -54,36 +54,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_32feefcd9a14464095f082e93adbe77d
+      - req_6b564520d328462b9a1c2bde6ab9fcab
       Openai-Processing-Ms:
-      - '680'
+      - '636'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=EKv9L9hCrUHXI06sdBqV6OruSMORcaNNVwC_GHu9i8g-1771841417.9215782-1.0.1.1-05sbWvHhat5tYm7XhpmRpdWas4rOqcLFoImBWLbi_Ekudn_67NcACLiUo7aZJhPxFYSEBaouFGkE6SsnHyWAyici015hc3wpp0PfZaQ4w2q5bGlE4P70VthEgmuzF9te;
+      - __cf_bm=DshcCf_O_y8VFUK6yoN43PkJcSAXHS2nIgWw8T2ZEyw-1771848123.7579012-1.0.1.1-LV1N1GCoMeh63tPgEh3fk3MGpPnR_ZPeiGLtQSiVFJlRd8YPpAiQBh_k.WJ3zAasc0Y_MI8nqWceFIb9AAiEBWUJgSFyVfbbApRY2Lrif7sBt9f5394n6UK8DqPP0Q53;
         HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        10:40:19 GMT
+        12:32:04 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d25eebe0f5bf252-GRU
+      - 9d2692757d2faf70-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_06671cfd6d6ad20100699c278a9e508195b89f73051ba90581",
+          "id": "resp_0735ccd6e13750ec00699c41bc1f2c81939007ed97d73fd761",
           "object": "response",
-          "created_at": 1771841418,
+          "created_at": 1771848124,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1771841419,
+          "completed_at": 1771848124,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -93,7 +93,7 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "msg_06671cfd6d6ad20100699c278b19a8819584220fe94c32d71c",
+              "id": "msg_0735ccd6e13750ec00699c41bc82288193be6b31a7cef24f7a",
               "type": "message",
               "status": "completed",
               "content": [
@@ -160,5 +160,5 @@ http_interactions:
           "user": null,
           "metadata": {}
         }
-  recorded_at: Mon, 23 Feb 2026 10:10:15 GMT
+  recorded_at: Mon, 23 Feb 2026 12:02:00 GMT
 recorded_with: VCR 6.3.1

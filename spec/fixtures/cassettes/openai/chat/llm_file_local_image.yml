@@ -10,6 +10,8 @@ http_interactions:
         in the affirmative"},{"type":"text","text":"Answer with yes or no"},{"type":"text","text":"Nothing
         else"},{"type":"text","text":"spec/fixtures/images/bluebook.png"}]}],"model":"gpt-4.1"}'
     headers:
+      User-Agent:
+      - llm.rb v4.3.1
       Content-Type:
       - application/json
       Authorization:
@@ -18,8 +20,6 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
       Transfer-Encoding:
       - chunked
   response:
@@ -28,7 +28,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 10:08:45 GMT
+      - Mon, 23 Feb 2026 12:00:29 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -40,7 +40,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '239'
+      - '338'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -60,30 +60,30 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 76ms
       X-Request-Id:
-      - req_bbe0614476c34f1989ba582d4264832b
+      - req_a526f511950c46dfb8ef30aa8493d9bb
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=mZFcPVP7AxjLeJtJv.TGGCN7SQAA9bbAlJMPeE1HoB4-1771841324.7804575-1.0.1.1-WGF16BMHeU0er54aZcQP6grBxoOR8RiIxAH1J_QIBzCL3w9nILfSI55.hsgfgQkTZwfjSqPuz8HkaIMhnV4nFQz2yZFWgJ.giGkAWaAuRgtpv8HO39Nf_x4zk5WsSuel;
+      - __cf_bm=aZ6E8dlBvsskCB_Vt9T1tLuuQpcgQfreicr.X8b7pE8-1771848028.2569942-1.0.1.1-SyeWk6zTtU9aNQSJQ0zoDXq78uM8b0SlDhSSgTHKfCe1I1dJbykX6FKY7ONJ0BvdxoQeOEmn96ClUfHnertYqmSAE.zPHP4hLVRJmXXBnVjW0KSbQ4TUwq07jec5l8Sb;
         HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        10:38:45 GMT
+        12:30:29 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d25ec77dff3f5ce-GRU
+      - 9d2690209fbef239-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |
         {
-          "id": "chatcmpl-DCN9o4INDJb4egBFyv3O5xfj5pbk0",
+          "id": "chatcmpl-DCOtw8ZP0MTL4VfR4v5J7vA7w48kB",
           "object": "chat.completion",
-          "created": 1771841324,
+          "created": 1771848028,
           "model": "gpt-4.1-2025-04-14",
           "choices": [
             {
@@ -114,7 +114,7 @@ http_interactions:
             }
           },
           "service_tier": "default",
-          "system_fingerprint": "fp_ede5d726d3"
+          "system_fingerprint": "fp_f3f4254f34"
         }
-  recorded_at: Mon, 23 Feb 2026 10:08:41 GMT
+  recorded_at: Mon, 23 Feb 2026 12:00:25 GMT
 recorded_with: VCR 6.3.1
