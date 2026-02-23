@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=TOKEN
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=TOKEN
     body:
       encoding: UTF-8
       string: '{"contents":[{"role":"user","parts":[{"text":"Your task is to transcribe
@@ -31,7 +31,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 12 Sep 2025 16:17:46 GMT
+      - Mon, 23 Feb 2026 11:40:20 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -41,7 +41,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=983
+      - gfet4t7; dur=1710
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -55,19 +55,19 @@ http_interactions:
               "content": {
                 "parts": [
                   {
-                    "text": "A dog on a rocket to the moon.\n"
+                    "text": "A dog on a rocket to the moon."
                   }
                 ],
                 "role": "model"
               },
               "finishReason": "STOP",
-              "avgLogprobs": -9.5635594334453344e-05
+              "index": 0
             }
           ],
           "usageMetadata": {
-            "promptTokenCount": 47,
-            "candidatesTokenCount": 10,
-            "totalTokenCount": 57,
+            "promptTokenCount": 82,
+            "candidatesTokenCount": 9,
+            "totalTokenCount": 113,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
@@ -75,18 +75,13 @@ http_interactions:
               },
               {
                 "modality": "AUDIO",
-                "tokenCount": 25
+                "tokenCount": 60
               }
             ],
-            "candidatesTokensDetails": [
-              {
-                "modality": "TEXT",
-                "tokenCount": 10
-              }
-            ]
+            "thoughtsTokenCount": 22
           },
-          "modelVersion": "gemini-1.5-flash",
-          "responseId": "qUfEaJDoK9-N_uMP4pf6mAg"
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "ozycacbHFILtz7IPr4KDuQM"
         }
-  recorded_at: Fri, 12 Sep 2025 16:17:33 GMT
+  recorded_at: Mon, 23 Feb 2026 11:40:16 GMT
 recorded_with: VCR 6.3.1

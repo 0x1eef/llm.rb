@@ -31,7 +31,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 12 Sep 2025 16:18:18 GMT
+      - Mon, 23 Feb 2026 11:40:43 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -41,7 +41,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=2338
+      - gfet4t7; dur=1162
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -67,17 +67,17 @@ http_interactions:
           "usageMetadata": {
             "promptTokenCount": 35,
             "candidatesTokenCount": 1,
-            "totalTokenCount": 412,
+            "totalTokenCount": 157,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
                 "tokenCount": 35
               }
             ],
-            "thoughtsTokenCount": 376
+            "thoughtsTokenCount": 121
           },
           "modelVersion": "gemini-2.5-flash",
-          "responseId": "ykfEaK-hBPWq-8YPgpzi6AY"
+          "responseId": "ujycaYWaH9nrz7IP8MDuiQM"
         }
-  recorded_at: Fri, 12 Sep 2025 16:18:05 GMT
+  recorded_at: Mon, 23 Feb 2026 11:40:39 GMT
 recorded_with: VCR 6.3.1

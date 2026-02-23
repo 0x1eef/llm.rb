@@ -36,7 +36,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Wed, 28 Jan 2026 15:48:40 GMT
+      - Mon, 23 Feb 2026 11:40:35 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -46,18 +46,18 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=752
+      - gfet4t7; dur=1496
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
       encoding: UTF-8
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
         {\"name\": \"system\",\"args\": {\"command\": \"date\"}},\"thoughtSignature\":
-        \"CiQBcsjafM1eausINmRBwdqxA2J0U3gd4KjlT3FBoPpQDyyNgjoKaAFyyNp8FO3ZKMuxzpp92QnTooAbYJxLaSRZrlvJ2uv5O9Qx4BGcaMRL7nfzibs1HEPWvq/aIe2GEzxyIMZLmFiv1FND5VufMlYv0GFNInSaF639JF6VGGBRwTqukBVOxaTBd6e9qoAKCqkBAXLI2nzvx4LpvDd/JV/q65CQgFOE5uncWOd3B3FQe2d2oJ8PmNab8enuo6HuamOCj+vWliNJgmRp//Si+Ns6ofoFtDww80fYBj73eS3vyO1wp4yF9NVr3ziP4XW93CosUmjDNlwj0oSsXmp6cN7QwqYmRzLamHlQZX18H+N6lDFCN38elmkpEikNvGbgR75J+SH8+Lye5/LbTWsrjvtMIFXv2IySamPLUw==\"}],\"role\":
+        \"CiQBvj72+//9NGdsNZv8cFTkmt7NjJJhb5INCgcc1pK6BM7J4EIKYwG+Pvb7w0fVR7gMOZ6vOXPsuk3P4Q6p5oK4edc5oWWCIlJxQjW02ULrbbISbH/vf482vidLJDrKnVk2DUmuBtR9R/HBWBW7vrOoit9fC80YzXK7XmwqMtyGEf4HqcUc7eaw/QqNAQG+Pvb7UEDqzLWHZ3o4sCiwCa3Ut/TwDqIlndgSgCCTDsLxE7w9DzBGwht2skM1M2UkXQ+db8s/h3UDuTDhK5IiltSUOiqSb/QAk9y4WvGWDIZmbiX3YlfsvebBzC78JaSo+aCN+bmBfCxRvINUGpQg8nWQatu+H7Pcn/RseTwCdAzBaTf95zB1E0eXTg==\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
         generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
-        53,\"candidatesTokenCount\": 13,\"totalTokenCount\": 119,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 53}],\"thoughtsTokenCount\": 53},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"1y96aZOHK4uX_uMPmqCumQY\"}\r\n\r\n"
-  recorded_at: Wed, 28 Jan 2026 15:47:51 GMT
+        53,\"candidatesTokenCount\": 13,\"totalTokenCount\": 109,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 53}],\"thoughtsTokenCount\": 43},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"szycabKPCOWIqtsPis6o6AE\"}\r\n\r\n"
+  recorded_at: Mon, 23 Feb 2026 11:40:31 GMT
 recorded_with: VCR 6.3.1

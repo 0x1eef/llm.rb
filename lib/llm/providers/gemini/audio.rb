@@ -39,7 +39,7 @@ class LLM::Gemini
     # @param [Hash] params Other parameters (see Gemini docs)
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
-    def create_transcription(file:, model: "gemini-1.5-flash", **params)
+    def create_transcription(file:, model: @provider.default_model, **params)
       res = @provider.complete [
         "Your task is to transcribe the contents of an audio file",
         "Your response should include the transcription, and nothing else",
@@ -61,7 +61,7 @@ class LLM::Gemini
     # @param [Hash] params Other parameters (see Gemini docs)
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
-    def create_translation(file:, model: "gemini-1.5-flash", **params)
+    def create_translation(file:, model: @provider.default_model, **params)
       res = @provider.complete [
         "Your task is to translate the contents of an audio file into English",
         "Your response should include the translation, and nothing else",

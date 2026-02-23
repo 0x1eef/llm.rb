@@ -5,9 +5,9 @@ http_interactions:
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=TOKEN
     body:
       encoding: UTF-8
-      string: '{"contents":[{"role":"user","parts":[{"text":"You are a bot that can
-        run UNIX system commands"}]},{"role":"user","parts":[{"text":"Hey, run the
-        ''date'' command"}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
+      string: '{"contents":[{"role":"user","parts":[{"text":"Hey, run the ''date''
+        command"}]},{"role":"user","parts":[{"text":"You are a bot that can run UNIX
+        system commands"}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       Content-Type:
@@ -36,7 +36,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Sat, 13 Sep 2025 19:32:51 GMT
+      - Mon, 23 Feb 2026 11:40:33 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -46,19 +46,20 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=1384
+      - gfet4t7; dur=1041
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
       encoding: UTF-8
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
         {\"name\": \"system\",\"args\": {\"command\": \"date\"}},\"thoughtSignature\":
-        \"CikB0e2Kbz2u05JOhoR+7i4bLQeKlPzqmXBRbJLbVRHxqqVhGiyDvomtFwpnAdHtim/zkfI9OYtooxaska9RrhgOwL7A8UCrWrM++gEldm5/g09YVahOlhIUkIG5v9tzhZFRKGO21aQVCxIuvQBk99oX2q0y4kPG8RbdfvBEva1MYdq5gKqaKh6VjhqnoOjee3w+Qwp0AdHtim87YqYSETIY2lNj9kLpQZt+kPi+W/G7yH8Z/HD3lfPMNue+xi5YnaOhoq5OanGb2TuoyvHxXUvILoDwfPiSF/guFpPHQOaT+RhTAJdnRIGs7gWiopCsE5mt/GrSfyVgFFDZKHqqIjdYbD+mZw5wUI0=\"}],\"role\":
-        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        53,\"candidatesTokenCount\": 13,\"totalTokenCount\": 108,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 53}],\"thoughtsTokenCount\": 42},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"48bFaJWfA6LXz7IP3tq9yQc\"}\r\n\r\n"
-  recorded_at: Sat, 13 Sep 2025 19:32:35 GMT
+        \"CiQBvj72+7Egb6kH5HNjvOleUVqGt4ST1wcRzidbZ4f3hB/lSCwKYwG+Pvb71v5uA4gqFmsEyQIOjUJVXWkR75mHLuXZFqHDRlsA4+d3B5q7H3VH8cZPPBvFOsoFEuAvmcbYzM973X4LMOqjXoJJMZ0ZMuAmVsEVB5JnjOmDf+ZhOPdnZa7ggwZ/PAqNAQG+Pvb7OgIRtbqWg+OEUkSBMmjXRT+eK98/HV1ioUpatMIlcmPpujyrKfA7n4I00F1KUaMJ/rF9h7Cgd9q9aa4NIx4gvev060neXau3EtJnatfMXnyijspQDYXRF1b9iCzeEILREcmpyJgdQBK/SRA66zOz4AcMpmueDdmCGOAYYX3KyTs0Ld4zD6WFbQ==\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
+        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
+        53,\"candidatesTokenCount\": 13,\"totalTokenCount\": 109,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 53}],\"thoughtsTokenCount\": 43},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"sDycafbGG-K4qtsP_N-7sAw\"}\r\n\r\n"
+  recorded_at: Mon, 23 Feb 2026 11:40:29 GMT
 - request:
     method: post
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=TOKEN
@@ -95,7 +96,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Sat, 13 Sep 2025 19:32:52 GMT
+      - Mon, 23 Feb 2026 11:40:34 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -105,7 +106,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=1123
+      - gfet4t7; dur=603
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
@@ -113,11 +114,16 @@ http_interactions:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"The\"}],\"role\":
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 78,\"candidatesTokenCount\":
         1,\"totalTokenCount\": 79,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        78}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"5MbFaN2lI-LUz7IPkNinyQk\"}\r\n\r\ndata:
-        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \" `date` command
-        was executed.\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
-        0}],\"usageMetadata\": {\"promptTokenCount\": 78,\"candidatesTokenCount\":
-        8,\"totalTokenCount\": 86,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        78}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"5MbFaN2lI-LUz7IPkNinyQk\"}\r\n\r\n"
-  recorded_at: Sat, 13 Sep 2025 19:32:37 GMT
+        78}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"sTycaZq6I7zmqtsPhPT3uAw\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \" current date and
+        time is: Mon Apr 29 15:47\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 78,\"candidatesTokenCount\": 18,\"totalTokenCount\":
+        96,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 78}]},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"sTycaZq6I7zmqtsPhPT3uAw\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \":04 UTC 2024\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        78,\"candidatesTokenCount\": 27,\"totalTokenCount\": 105,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 78}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"sTycaZq6I7zmqtsPhPT3uAw\"}\r\n\r\n"
+  recorded_at: Mon, 23 Feb 2026 11:40:30 GMT
 recorded_with: VCR 6.3.1

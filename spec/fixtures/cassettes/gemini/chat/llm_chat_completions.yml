@@ -5,11 +5,11 @@ http_interactions:
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=TOKEN
     body:
       encoding: UTF-8
-      string: '{"contents":[{"role":"user","parts":[{"text":"Keep your answers short
-        and concise, and provide three answers to the three questionsThere should
-        be one answer per lineAn answer should be a number, for example: 5Nothing
-        else"}]},{"role":"user","parts":[{"text":"What is 3+2 ?"}]},{"role":"user","parts":[{"text":"What
-        is 5+5 ?"}]},{"role":"user","parts":[{"text":"What is 5+7 ?"}]}]}'
+      string: '{"contents":[{"role":"user","parts":[{"text":"What is 3+2 ?"}]},{"role":"user","parts":[{"text":"What
+        is 5+5 ?"}]},{"role":"user","parts":[{"text":"What is 5+7 ?"}]},{"role":"user","parts":[{"text":"Keep
+        your answers short and concise, and provide three answers to the three questionsThere
+        should be one answer per lineAn answer should be a number, for example: 5Nothing
+        else"}]}]}'
     headers:
       Content-Type:
       - application/json
@@ -33,7 +33,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 12 Sep 2025 16:18:00 GMT
+      - Mon, 23 Feb 2026 11:40:30 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -43,7 +43,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=1298
+      - gfet4t7; dur=1072
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -69,17 +69,17 @@ http_interactions:
           "usageMetadata": {
             "promptTokenCount": 61,
             "candidatesTokenCount": 7,
-            "totalTokenCount": 146,
+            "totalTokenCount": 177,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
                 "tokenCount": 61
               }
             ],
-            "thoughtsTokenCount": 78
+            "thoughtsTokenCount": 109
           },
           "modelVersion": "gemini-2.5-flash",
-          "responseId": "uEfEaI-bEI_vjrEPhYGt-AY"
+          "responseId": "rTycaayPGL6Hz7IP77_WmAU"
         }
-  recorded_at: Fri, 12 Sep 2025 16:17:47 GMT
+  recorded_at: Mon, 23 Feb 2026 11:40:26 GMT
 recorded_with: VCR 6.3.1

@@ -5,8 +5,8 @@ http_interactions:
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=TOKEN
     body:
       encoding: UTF-8
-      string: '{"contents":[{"role":"user","parts":[{"text":"You are a bot that can
-        run UNIX commands"}]},{"role":"user","parts":[{"text":"What is the date?"}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
+      string: '{"contents":[{"role":"user","parts":[{"text":"What is the date?"}]},{"role":"user","parts":[{"text":"You
+        are a bot that can run UNIX commands"}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       Content-Type:
@@ -31,7 +31,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 12 Sep 2025 16:18:10 GMT
+      - Mon, 23 Feb 2026 11:40:38 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -41,7 +41,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=1269
+      - gfet4t7; dur=952
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -61,31 +61,32 @@ http_interactions:
                         "command": "date"
                       }
                     },
-                    "thoughtSignature": "CpoDAdHtim+eXyf0iucCz2b2pJQiySxGrINAPzx/JLmeAx0DYK7rThQdSbGIaENTKKUQP5HJqHAlEy2ddkJ/e2STxj5H1LsdhdxmNLrbBHY1Qwi6jcJ7JeDfLpOyg+wZshka9T+GlUmTleBhWxt56QLCVDdrFpFFKGsE8CeWGesLqWDCS5trBJ6mRJIQqC3SPPTeBcPx1HgZqHMS57j+aUETc5CBujasRZqrV66FN5ZyRB3l27ycG28HgGFDlafX+rjzIugnsKNDp3HMs9ykZFgSboxtUCw1CvSqoctB2cSjXU1LKjqzF+6K7t5KIOZn0hq9tdKBv4W7xyU+JyNqO9vGYXMat3j0hqHUvVecal/sKrQcMiotHwqfDzdVsPY1pjN4qC1T8MA1cV3la4XE1HrrHCRqnxz64cUs107dYrjh4fORN3Y1/Ihoz5aBFun+7jUcKwdX0P0vpdWKMXhxpoH0IIrztaNHDODBGEN4F7aY2kBYwvkZ/oeSiYgwucbo9ho8nTQ2mdOVi/XKfPSyR43TECSiqP/HXteSLNU="
+                    "thoughtSignature": "Cv4BAb4+9vvKKw6MlaXXc1kYtNLcTkwhGoS+N0gkd1VP2onWPeCu/d0rYnbwqdalTb88vEJ4EoxYsTj0QJ0mw6NIRfe+pByNXaQj7Rh2bVViteTWd1A8r8aWWibj/UGFWrQU5D1joEw5mhZsAsk27FYOuVPcvklDp6xsGfw+u/JFA7RFGa0vKYFpeR+vfwoNPduJ02eg+Xsfx8BZrSkrcKWUu3MQt1RWXpRvKmAsf4yVcpypSL6tS7/J0tpPoOCMJH86daCjvBLGOZnKbXqWL9TtluY4qb8pSCn4RBb1+cjyfMWbs9Dx400gBc+euvnNkIx0Z8sy/XYd6E5/ycpDCCs="
                   }
                 ],
                 "role": "model"
               },
               "finishReason": "STOP",
-              "index": 0
+              "index": 0,
+              "finishMessage": "Model generated function call(s)."
             }
           ],
           "usageMetadata": {
             "promptTokenCount": 49,
             "candidatesTokenCount": 13,
-            "totalTokenCount": 156,
+            "totalTokenCount": 115,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
                 "tokenCount": 49
               }
             ],
-            "thoughtsTokenCount": 94
+            "thoughtsTokenCount": 53
           },
           "modelVersion": "gemini-2.5-flash",
-          "responseId": "wkfEaKXSBIqR-8YPh5PTkQY"
+          "responseId": "tTycacfIONPoz7IPqrqtkAY"
         }
-  recorded_at: Fri, 12 Sep 2025 16:17:57 GMT
+  recorded_at: Mon, 23 Feb 2026 11:40:34 GMT
 - request:
     method: post
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=TOKEN
@@ -117,7 +118,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 12 Sep 2025 16:18:11 GMT
+      - Mon, 23 Feb 2026 11:40:39 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -127,7 +128,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=664
+      - gfet4t7; dur=704
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -141,7 +142,7 @@ http_interactions:
               "content": {
                 "parts": [
                   {
-                    "text": "Today's date is August 24, 2025."
+                    "text": "The date is August 24, 2025."
                   }
                 ],
                 "role": "model"
@@ -152,8 +153,8 @@ http_interactions:
           ],
           "usageMetadata": {
             "promptTokenCount": 84,
-            "candidatesTokenCount": 16,
-            "totalTokenCount": 100,
+            "candidatesTokenCount": 14,
+            "totalTokenCount": 98,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
@@ -162,7 +163,7 @@ http_interactions:
             ]
           },
           "modelVersion": "gemini-2.5-flash",
-          "responseId": "w0fEaJyOEpn5jrEP6--SgAY"
+          "responseId": "tjycabuZPKjmz7IPlJK4iQg"
         }
-  recorded_at: Fri, 12 Sep 2025 16:17:58 GMT
+  recorded_at: Mon, 23 Feb 2026 11:40:35 GMT
 recorded_with: VCR 6.3.1

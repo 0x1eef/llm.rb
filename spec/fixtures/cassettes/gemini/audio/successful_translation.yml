@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=TOKEN
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=TOKEN
     body:
       encoding: UTF-8
       string: '{"contents":[{"role":"user","parts":[{"text":"Your task is to translate
@@ -31,7 +31,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 12 Sep 2025 16:17:50 GMT
+      - Mon, 23 Feb 2026 11:40:23 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -41,7 +41,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=3112
+      - gfet4t7; dur=2657
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -55,38 +55,33 @@ http_interactions:
               "content": {
                 "parts": [
                   {
-                    "text": "In the name of God, the Most Gracious, the Most Merciful.\n"
+                    "text": "In the name of Allah, the Most Gracious, the Most Merciful."
                   }
                 ],
                 "role": "model"
               },
               "finishReason": "STOP",
-              "avgLogprobs": -0.043359759975882137
+              "index": 0
             }
           ],
           "usageMetadata": {
-            "promptTokenCount": 173,
-            "candidatesTokenCount": 17,
-            "totalTokenCount": 190,
+            "promptTokenCount": 220,
+            "candidatesTokenCount": 16,
+            "totalTokenCount": 351,
             "promptTokensDetails": [
               {
-                "modality": "AUDIO",
-                "tokenCount": 150
+                "modality": "TEXT",
+                "tokenCount": 24
               },
               {
-                "modality": "TEXT",
-                "tokenCount": 23
+                "modality": "AUDIO",
+                "tokenCount": 196
               }
             ],
-            "candidatesTokensDetails": [
-              {
-                "modality": "TEXT",
-                "tokenCount": 17
-              }
-            ]
+            "thoughtsTokenCount": 115
           },
-          "modelVersion": "gemini-1.5-flash",
-          "responseId": "q0fEaLagKZ_QjMcP7bTl8QE"
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "pTycadnaHrvSz7IPnr_nuQU"
         }
-  recorded_at: Fri, 12 Sep 2025 16:17:37 GMT
+  recorded_at: Mon, 23 Feb 2026 11:40:19 GMT
 recorded_with: VCR 6.3.1

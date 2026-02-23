@@ -44,7 +44,7 @@ module LLM
     # @param params (see LLM::Provider#embed)
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
-    def embed(input, model: "text-embedding-004", **params)
+    def embed(input, model: "gemini-embedding-001", **params)
       model = model.respond_to?(:id) ? model.id : model
       path = ["/v1beta/models/#{model}", "embedContent?key=#{@key}"].join(":")
       req = Net::HTTP::Post.new(path, headers)
