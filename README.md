@@ -393,8 +393,8 @@ through a JSON representation of the history encapsulated by
 [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html)
 &ndash; inclusive of tool metadata as well:
 
+* Process 1
 ```ruby
-# Process 1
 #!/usr/bin/env ruby
 require "llm"
 
@@ -403,8 +403,9 @@ ses = LLM::Session.new(llm)
 ses.talk "Howdy partner"
 ses.talk "I'll see you later"
 ses.save(path: "session.json")
-
-# Process 2
+```
+* Process 2
+```ruby
 #!/usr/bin/env ruby
 require "llm"
 require "pp"
