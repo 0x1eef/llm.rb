@@ -12,6 +12,8 @@ http_interactions:
         should be one answer per lineAn answer should be a number, for example: 5Nothing
         else"}]}],"model":"gpt-4.1"}'
     headers:
+      User-Agent:
+      - llm.rb v4.3.1
       Content-Type:
       - application/json
       Authorization:
@@ -20,8 +22,6 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
       Transfer-Encoding:
       - chunked
   response:
@@ -30,7 +30,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 10:08:35 GMT
+      - Mon, 23 Feb 2026 12:00:17 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -42,7 +42,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '245'
+      - '256'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -62,30 +62,30 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 118ms
       X-Request-Id:
-      - req_6f4bae10e39644b68b9ef925febced15
+      - req_bbf03830103046c39a260279dd8287dc
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=7tkRlwKwAhpBVNfgqe0Wd9SamelSkd0rQx8CEuuPjnE-1771841314.7350407-1.0.1.1-VJE25JE2FnkXYGoJWYJG.FrlmcQOAe43k.myCZ705GPj3bjKjJZDhDeGBPsYLWxXddGed8EJKkmkWAQYX29ouXsMZI6FU.1cLcQJMn1CcxQCjCadZ4rsNwDYaZS79GGx;
+      - __cf_bm=xskBpNx8nEL9MCWRcngPX9WHqvCF_Mb.deGLRHDaXuo-1771848016.4828022-1.0.1.1-5EvpvW15a25OORrrivCIKF6yvb7lm9a0QNcVwIxd5c2OmRn8V2FJd65FBG.QOAt5QAggBD_1wEypJXzBCcf_oIC_dtAE2IaHCpKdAuhUvMJAfTfcM9bDaMSwrji8iigO;
         HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        10:38:35 GMT
+        12:30:17 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d25ec391f06a10e-GRU
+      - 9d268fd70a99f24f-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |
         {
-          "id": "chatcmpl-DCN9fOFwtSLwEkWcIklTjYvrgnOqe",
+          "id": "chatcmpl-DCOtljjs7LX14PtbPEXJlLnHFkUxE",
           "object": "chat.completion",
-          "created": 1771841315,
+          "created": 1771848017,
           "model": "gpt-4.1-2025-04-14",
           "choices": [
             {
@@ -118,5 +118,5 @@ http_interactions:
           "service_tier": "default",
           "system_fingerprint": "fp_ede5d726d3"
         }
-  recorded_at: Mon, 23 Feb 2026 10:08:31 GMT
+  recorded_at: Mon, 23 Feb 2026 12:00:13 GMT
 recorded_with: VCR 6.3.1

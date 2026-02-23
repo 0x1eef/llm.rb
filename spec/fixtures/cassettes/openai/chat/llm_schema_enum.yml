@@ -10,6 +10,8 @@ http_interactions:
         favorite fruit is pineapple"}]}],"model":"gpt-4.1","response_format":{"type":"json_schema","json_schema":{"name":"JSONSchema","schema":{"type":"object","properties":{"fruit":{"description":"The
         favorite fruit","enum":["apple","pineapple","orange"],"type":"string"}},"required":["fruit"]}}}}'
     headers:
+      User-Agent:
+      - llm.rb v4.3.1
       Content-Type:
       - application/json
       Authorization:
@@ -18,8 +20,6 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
       Transfer-Encoding:
       - chunked
   response:
@@ -28,7 +28,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 10:08:46 GMT
+      - Mon, 23 Feb 2026 12:00:30 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -40,7 +40,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '340'
+      - '559'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -60,30 +60,30 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 36ms
       X-Request-Id:
-      - req_704f5f1dc8ed49fab952fcda97736b37
+      - req_00fd862c65be4f618734af0d3bef2b78
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=6XgRawrptyOCpH774D26Ny_Sbw8YWcoAWUVyZI1jcS4-1771841325.9731212-1.0.1.1-3mRC3plEwTTyk3tgFyXYhvEaeVhsdaDeyFCVhxxwpD2MQyk2ahA.isWVvHl2prIPcPDYooWDyGt1wwGFWJrRgBueKK7xy.T30TD3r2W5R9tt1vt1ZqpewsszjkptLBKl;
+      - __cf_bm=RIZNrwMKCrlX7gkx7XwTYD31HpGWFJQjHF9_j2NI1HI-1771848030.1125326-1.0.1.1-XtXzejki9riMoAmvrQJhrSEtC605aa6rob4lCr_cYG.FkyAdWFYWlF_C7eATGtpwDN.5tQd20nSMSI0woPnveICQSXwyy74pWtdoqIKqY.wZy9AI7YTyroO44lWkqZPp;
         HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        10:38:46 GMT
+        12:30:30 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d25ec7f59aef214-GRU
+      - 9d26902c3b7cf1b1-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |
         {
-          "id": "chatcmpl-DCN9qZ9QgCWhEcJh3v8v793VkBDDx",
+          "id": "chatcmpl-DCOtyF5vqfFcLZBlV3bpO8ByNtWlT",
           "object": "chat.completion",
-          "created": 1771841326,
+          "created": 1771848030,
           "model": "gpt-4.1-2025-04-14",
           "choices": [
             {
@@ -116,5 +116,5 @@ http_interactions:
           "service_tier": "default",
           "system_fingerprint": "fp_ede5d726d3"
         }
-  recorded_at: Mon, 23 Feb 2026 10:08:42 GMT
+  recorded_at: Mon, 23 Feb 2026 12:00:26 GMT
 recorded_with: VCR 6.3.1

@@ -39,6 +39,7 @@ class LLM::Provider
     @client = persistent ? persistent_client : transient_client
     @tracer = LLM::Tracer::Null.new(self)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
+    @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
   end
 
   ##
@@ -195,7 +196,7 @@ class LLM::Provider
   # @return [LLM::Provider]
   #  Returns self
   def with(headers:)
-    tap { (@headers ||= {}).merge!(headers) }
+    tap { @headers.merge!(headers) }
   end
 
   ##

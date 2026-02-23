@@ -11,6 +11,8 @@ http_interactions:
         that can run UNIX commands"}]}],"model":"gpt-4.1","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
         a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}]}'
     headers:
+      User-Agent:
+      - llm.rb v4.3.1
       Content-Type:
       - application/json
       Authorization:
@@ -19,8 +21,6 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
       Transfer-Encoding:
       - chunked
   response:
@@ -29,7 +29,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 10:08:43 GMT
+      - Mon, 23 Feb 2026 12:00:26 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -41,7 +41,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '647'
+      - '886'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -55,36 +55,36 @@ http_interactions:
       X-Ratelimit-Remaining-Requests:
       - '499'
       X-Ratelimit-Remaining-Tokens:
-      - '29928'
+      - '29963'
       X-Ratelimit-Reset-Requests:
       - 120ms
       X-Ratelimit-Reset-Tokens:
-      - 142ms
+      - 74ms
       X-Request-Id:
-      - req_a9b692d11ed7478283cc507b2b0b11da
+      - req_2ffe9a996d8b4f828b373bc80bc1bd42
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=6WZlZRiWoH7_WTEz1B1Ev4oOTUiNOwvEaOpeBu._Vdg-1771841322.5268486-1.0.1.1-dhLOFt3ekTmxZR6TPhRDdZs9YKRZ9awR8rb8fDopfZ.scfjA_Pagk.vfQj1bF4P8fHyp16HepwJnVf8SRD5IuFeWxUosIs6IQhmUHfRNnLr7VXALXunD.UC16R07on8B;
+      - __cf_bm=reZ9hVZcklvlaGF1bJlJtaINx7W6K0amvqGho9zp3l4-1771848025.1999142-1.0.1.1-lxaxiZ4a6e4z_sD_ZP_fTkXsP1wHbsaH5lsTeQ.6jjqe5qzwLrll5Xs9lTyvYTHBHrmLPxWtnTDh_QtIcsGJ54.6w5epZ5H6dna1OHic.gzjtOnQ_UCmnsf5hRGMEnMU;
         HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        10:38:43 GMT
+        12:30:26 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d25ec69c8caf8bf-GRU
+      - 9d26900d792d2496-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |
         {
-          "id": "chatcmpl-DCN9mWBskA407HnaYJLKQmsriUMT7",
+          "id": "chatcmpl-DCOttr7OYdw0EmDWontdKnC5bA8NM",
           "object": "chat.completion",
-          "created": 1771841322,
+          "created": 1771848025,
           "model": "gpt-4.1-2025-04-14",
           "choices": [
             {
@@ -94,7 +94,7 @@ http_interactions:
                 "content": null,
                 "tool_calls": [
                   {
-                    "id": "call_zbTxluiMx2ML85zyOj5FeSO2",
+                    "id": "call_5dyufoLxW8LZHIDZ6kcouZW7",
                     "type": "function",
                     "function": {
                       "name": "system",
@@ -102,7 +102,7 @@ http_interactions:
                     }
                   },
                   {
-                    "id": "call_qpKuaYGdtthAgLOHW8lRFJIW",
+                    "id": "call_C2lrejhM2ZFfUhKaUsvWuWvQ",
                     "type": "function",
                     "function": {
                       "name": "system",
@@ -110,7 +110,7 @@ http_interactions:
                     }
                   },
                   {
-                    "id": "call_o6OGEiDvrTVvAbezGwijDTP1",
+                    "id": "call_ZO1L8b1OdtTwlpEif4maSJQm",
                     "type": "function",
                     "function": {
                       "name": "system",
@@ -143,7 +143,7 @@ http_interactions:
           "service_tier": "default",
           "system_fingerprint": "fp_ede5d726d3"
         }
-  recorded_at: Mon, 23 Feb 2026 10:08:39 GMT
+  recorded_at: Mon, 23 Feb 2026 12:00:22 GMT
 - request:
     method: post
     uri: https://api.openai.com/v1/chat/completions
@@ -152,13 +152,15 @@ http_interactions:
       string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
         a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"text","text":"Can
         you run the date command ? Can you run the pwd command ? Can you run the whoami
-        command ?"}]},{"role":"assistant","content":null,"tool_calls":[{"id":"call_zbTxluiMx2ML85zyOj5FeSO2","type":"function","function":{"name":"system","arguments":"{\"command\":
-        \"date\"}"}},{"id":"call_qpKuaYGdtthAgLOHW8lRFJIW","type":"function","function":{"name":"system","arguments":"{\"command\":
-        \"pwd\"}"}},{"id":"call_o6OGEiDvrTVvAbezGwijDTP1","type":"function","function":{"name":"system","arguments":"{\"command\":
-        \"whoami\"}"}}]},{"role":"tool","tool_call_id":"call_zbTxluiMx2ML85zyOj5FeSO2","content":"{\"stderr\":\"\",\"stdout\":\"Mon
-        Feb 23 07:08:39 -03 2026\\n\"}"},{"role":"tool","tool_call_id":"call_qpKuaYGdtthAgLOHW8lRFJIW","content":"{\"stderr\":\"\",\"stdout\":\"/usr/home/developer/p/git.home.network/llmrb/llm.rb\\n\"}"},{"role":"tool","tool_call_id":"call_o6OGEiDvrTVvAbezGwijDTP1","content":"{\"stderr\":\"\",\"stdout\":\"developer\\n\"}"}],"model":"gpt-4.1","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
+        command ?"}]},{"role":"assistant","content":null,"tool_calls":[{"id":"call_5dyufoLxW8LZHIDZ6kcouZW7","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"date\"}"}},{"id":"call_C2lrejhM2ZFfUhKaUsvWuWvQ","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"pwd\"}"}},{"id":"call_ZO1L8b1OdtTwlpEif4maSJQm","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"whoami\"}"}}]},{"role":"tool","tool_call_id":"call_5dyufoLxW8LZHIDZ6kcouZW7","content":"{\"stderr\":\"\",\"stdout\":\"Mon
+        Feb 23 09:00:22 -03 2026\\n\"}"},{"role":"tool","tool_call_id":"call_C2lrejhM2ZFfUhKaUsvWuWvQ","content":"{\"stderr\":\"\",\"stdout\":\"/usr/home/developer/p/git.home.network/llmrb/llm.rb\\n\"}"},{"role":"tool","tool_call_id":"call_ZO1L8b1OdtTwlpEif4maSJQm","content":"{\"stderr\":\"\",\"stdout\":\"developer\\n\"}"}],"model":"gpt-4.1","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
         a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}]}'
     headers:
+      User-Agent:
+      - llm.rb v4.3.1
       Content-Type:
       - application/json
       Authorization:
@@ -167,8 +169,6 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
       Transfer-Encoding:
       - chunked
   response:
@@ -177,7 +177,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 10:08:44 GMT
+      - Mon, 23 Feb 2026 12:00:28 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -189,7 +189,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '1222'
+      - '1143'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -209,37 +209,37 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 166ms
       X-Request-Id:
-      - req_524104d301364b7faa4ffe8ff2fed910
+      - req_04e6314b7d2d49c3b8401efa86ae9813
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=Ou.beRc_8IMr36qz_i8cg8M9jqGiZXkeb8QZNZnZIas-1771841323.3682945-1.0.1.1-PhMgNq3kDArl.eShzeZUPGJVar65EIQ8KbDhxcY2OFRtY_Wz9upVr1nABbsxiAeYizJS_hFIOxDS8d4GZZudZCj_H4JPy.iEN2dj4STFxoLg18aGWAtjzQW1DjyqPnn6;
+      - __cf_bm=XBpaR6hjbT_cfGpQWr8d.tgoelltBrbmOpE1Dl5Pz1E-1771848026.8933966-1.0.1.1-6ObvCs81S7ybxoL4q6VaPN9SgmOOrkuxjEJXfeSx_oQBoKv5w5HifiX8AW0duY.c.s1khzN0f4SC2QYy8kcIs9X8m49eD__t.v6DUyyUhJAODcN5giIEe8vGs7Qt2nIM;
         HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        10:38:44 GMT
+        12:30:28 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d25ec6f0ccac250-GRU
+      - 9d2690181b98e8d6-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |
         {
-          "id": "chatcmpl-DCN9nEVDLaC2baSNIQ10bSzi9bqkW",
+          "id": "chatcmpl-DCOtvnf00IK43kPaAW8tXYNg5xc5m",
           "object": "chat.completion",
-          "created": 1771841323,
+          "created": 1771848027,
           "model": "gpt-4.1-2025-04-14",
           "choices": [
             {
               "index": 0,
               "message": {
                 "role": "assistant",
-                "content": "Here are the results of the commands you asked for:\n\n- date: Mon Feb 23 07:08:39 -03 2026\n- pwd: /usr/home/developer/p/git.home.network/llmrb/llm.rb\n- whoami: developer\n\nLet me know if you'd like me to run any other commands!",
+                "content": "Here are the results for the commands you asked about:\n\n- date: Mon Feb 23 09:00:22 -03 2026\n- pwd: /usr/home/developer/p/git.home.network/llmrb/llm.rb\n- whoami: developer\n\nLet me know if you need more commands run!",
                 "refusal": null,
                 "annotations": []
               },
@@ -249,8 +249,8 @@ http_interactions:
           ],
           "usage": {
             "prompt_tokens": 206,
-            "completion_tokens": 71,
-            "total_tokens": 277,
+            "completion_tokens": 68,
+            "total_tokens": 274,
             "prompt_tokens_details": {
               "cached_tokens": 0,
               "audio_tokens": 0
@@ -263,7 +263,7 @@ http_interactions:
             }
           },
           "service_tier": "default",
-          "system_fingerprint": "fp_37b9691560"
+          "system_fingerprint": "fp_ede5d726d3"
         }
-  recorded_at: Mon, 23 Feb 2026 10:08:40 GMT
+  recorded_at: Mon, 23 Feb 2026 12:00:24 GMT
 recorded_with: VCR 6.3.1
