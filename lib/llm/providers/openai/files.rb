@@ -41,9 +41,10 @@ class LLM::OpenAI
     def all(**params)
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/files?#{query}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :enumerable)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     ##
@@ -62,9 +63,10 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/files", headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     ##
@@ -82,9 +84,10 @@ class LLM::OpenAI
       file_id = file.respond_to?(:id) ? file.id : file
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/files/#{file_id}?#{query}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     ##
@@ -104,9 +107,10 @@ class LLM::OpenAI
       file_id = file.respond_to?(:id) ? file.id : file
       req = Net::HTTP::Get.new("/v1/files/#{file_id}/content?#{query}", headers)
       io = StringIO.new("".b)
-      res, span = execute(request: req, operation: "request") { |res| res.read_body { |chunk| io << chunk } }
+      res, span, tracer = execute(request: req, operation: "request") { |res| res.read_body { |chunk| io << chunk } }
       res = LLM::Response.new(res).tap { _1.define_singleton_method(:file) { io } }
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     ##
@@ -122,14 +126,15 @@ class LLM::OpenAI
     def delete(file:)
       file_id = file.respond_to?(:id) ? file.id : file
       req = Net::HTTP::Delete.new("/v1/files/#{file_id}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     private
 
-    [:headers, :execute, :set_body_stream, :finish_trace].each do |m|
+    [:headers, :execute, :set_body_stream].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

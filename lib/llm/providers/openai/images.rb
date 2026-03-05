@@ -50,9 +50,10 @@ class LLM::OpenAI
     def create(prompt:, model: "dall-e-3", **params)
       req = Net::HTTP::Post.new("/v1/images/generations", headers)
       req.body = LLM.json.dump({prompt:, n: 1, model:}.merge!(params))
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
-      finish_trace(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      res
     end
 
     ##
@@ -73,9 +74,10 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/images/variations", headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
-      finish_trace(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      res
     end
 
     ##
@@ -97,14 +99,15 @@ class LLM::OpenAI
       req = Net::HTTP::Post.new("/v1/images/edits", headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
-      finish_trace(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      res
     end
 
     private
 
-    [:headers, :execute, :set_body_stream, :finish_trace].each do |m|
+    [:headers, :execute, :set_body_stream].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

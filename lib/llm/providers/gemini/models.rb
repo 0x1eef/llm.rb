@@ -42,9 +42,10 @@ class LLM::Gemini
     def all(**params)
       query = URI.encode_www_form(params.merge!(key: key))
       req = Net::HTTP::Get.new("/v1beta/models?#{query}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :models)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     private
@@ -53,7 +54,7 @@ class LLM::Gemini
       @provider.instance_variable_get(:@key)
     end
 
-    [:headers, :execute, :finish_trace].each do |m|
+    [:headers, :execute].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

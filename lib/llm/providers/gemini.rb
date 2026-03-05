@@ -49,9 +49,10 @@ module LLM
       path = ["/v1beta/models/#{model}", "embedContent?key=#{@key}"].join(":")
       req = Net::HTTP::Post.new(path, headers)
       req.body = LLM.json.dump({content: {parts: [{text: input}]}})
-      res, span = execute(request: req, operation: "embeddings", model:)
+      res, span, tracer = execute(request: req, operation: "embeddings", model:)
       res = ResponseAdapter.adapt(res, type: :embedding)
-      finish_trace(operation: "embeddings", model:, res:, span:)
+      tracer.on_request_finish(operation: "embeddings", model:, res:, span:)
+      res
     end
 
     ##
@@ -67,10 +68,11 @@ module LLM
     def complete(prompt, params = {})
       params, stream, tools, role, model = normalize_complete_params(params)
       req = build_complete_request(prompt, params, role, model, stream)
-      res, span = execute(request: req, stream: stream, operation: "chat", model:)
+      res, span, tracer = execute(request: req, stream: stream, operation: "chat", model:)
       res = ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
-      finish_trace(operation: "chat", model:, res:, span:)
+      tracer.on_request_finish(operation: "chat", model:, res:, span:)
+      res
     end
 
     ##
@@ -167,9 +169,11 @@ module LLM
     private
 
     def headers
-      (@headers || {}).merge(
-        "Content-Type" => "application/json"
-      )
+      lock do
+        (@headers || {}).merge(
+          "Content-Type" => "application/json"
+        )
+      end
     end
 
     def stream_parser

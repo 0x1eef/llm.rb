@@ -46,9 +46,10 @@ class LLM::Gemini
     def all(**params)
       query = URI.encode_www_form(params.merge!(key: key))
       req = Net::HTTP::Get.new("/v1beta/files?#{query}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :files)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     ##
@@ -69,9 +70,10 @@ class LLM::Gemini
       req["X-Goog-Upload-Command"] = "upload, finalize"
       file.with_io do |io|
         set_body_stream(req, io)
-        res, span = execute(request: req, operation: "request")
+        res, span, tracer = execute(request: req, operation: "request")
         res = ResponseAdapter.adapt(res, type: :file)
-        finish_trace(operation: "request", res:, span:)
+        tracer.on_request_finish(operation: "request", res:, span:)
+        res
       end
     end
 
@@ -90,9 +92,10 @@ class LLM::Gemini
       file_id = file.respond_to?(:name) ? file.name : file.to_s
       query = URI.encode_www_form(params.merge!(key: key))
       req = Net::HTTP::Get.new("/v1beta/#{file_id}?#{query}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     ##
@@ -109,9 +112,10 @@ class LLM::Gemini
       file_id = file.respond_to?(:name) ? file.name : file.to_s
       query = URI.encode_www_form(params.merge!(key: key))
       req = Net::HTTP::Delete.new("/v1beta/#{file_id}?#{query}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     ##
@@ -132,8 +136,9 @@ class LLM::Gemini
       req["X-Goog-Upload-Header-Content-Length"] = file.bytesize
       req["X-Goog-Upload-Header-Content-Type"] = file.mime_type
       req.body = LLM.json.dump({file: {display_name: File.basename(file.path)}})
-      res, span = execute(request: req, operation: "request")
-      finish_trace(operation: "request", res: LLM::Response.new(res), span:)
+      res, span, tracer = execute(request: req, operation: "request")
+      trace_res = LLM::Response.new(res)
+      tracer.on_request_finish(operation: "request", res: trace_res, span:)
       res["x-goog-upload-url"]
     end
 
@@ -141,7 +146,7 @@ class LLM::Gemini
       @provider.instance_variable_get(:@key)
     end
 
-    [:headers, :execute, :set_body_stream, :finish_trace].each do |m|
+    [:headers, :execute, :set_body_stream].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

@@ -44,10 +44,11 @@ class LLM::OpenAI
       messages = [*(params.delete(:input) || []), LLM::Message.new(role, prompt)]
       body = LLM.json.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
-      res, span = execute(request: req, stream:, stream_parser:, operation: "chat", model: params[:model])
+      res, span, tracer = execute(request: req, stream:, stream_parser:, operation: "chat", model: params[:model])
       res = ResponseAdapter.adapt(res, type: :responds)
         .extend(Module.new { define_method(:__tools__) { tools } })
-      finish_trace(operation: "chat", model: params[:model], res:, span:)
+      tracer.on_request_finish(operation: "chat", model: params[:model], res:, span:)
+      res
     end
 
     ##
@@ -60,9 +61,10 @@ class LLM::OpenAI
       response_id = response.respond_to?(:id) ? response.id : response
       query = URI.encode_www_form(params)
       req = Net::HTTP::Get.new("/v1/responses/#{response_id}?#{query}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :responds)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     ##
@@ -74,14 +76,15 @@ class LLM::OpenAI
     def delete(response)
       response_id = response.respond_to?(:id) ? response.id : response
       req = Net::HTTP::Delete.new("/v1/responses/#{response_id}", headers)
-      res, span = execute(request: req, operation: "request")
+      res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      finish_trace(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:)
+      res
     end
 
     private
 
-    [:headers, :execute, :set_body_stream, :resolve_tools, :finish_trace].each do |m|
+    [:headers, :execute, :set_body_stream, :resolve_tools].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
 

@@ -36,10 +36,11 @@ class LLM::Provider
     @port = port
     @timeout = timeout
     @ssl = ssl
-    @client = persistent ? persistent_client : transient_client
+    @client = persistent ? persistent_client : nil
     @tracer = LLM::Tracer::Null.new(self)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
+    @monitor = Monitor.new
   end
 
   ##
@@ -182,7 +183,7 @@ class LLM::Provider
   # Returns an object that can generate a JSON schema
   # @return [LLM::Schema]
   def schema
-    @schema ||= LLM::Schema.new
+    LLM::Schema.new
   end
 
   ##
@@ -196,7 +197,9 @@ class LLM::Provider
   # @return [LLM::Provider]
   #  Returns self
   def with(headers:)
-    tap { @headers.merge!(headers) }
+    lock do
+      tap { @headers.merge!(headers) }
+    end
   end
 
   ##
@@ -277,10 +280,12 @@ class LLM::Provider
   #  A tracer
   # @return [void]
   def tracer=(tracer)
-    @tracer = if tracer.nil?
-      LLM::Tracer::Null.new(self)
-    else
-      tracer
+    lock do
+      @tracer = if tracer.nil?
+        LLM::Tracer::Null.new(self)
+      else
+        tracer
+      end
     end
   end
 
@@ -336,10 +341,12 @@ class LLM::Provider
   #  When there is a network error at the operating system level
   # @return [Net::HTTPResponse]
   def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, &b)
-    span = @tracer.on_request_start(operation:, model:)
-    args = (Net::HTTP === client) ? [request] : [URI.join(base_uri, request.path), request]
+    tracer = @tracer
+    span = tracer.on_request_start(operation:, model:)
+    http = client || transient_client
+    args = (Net::HTTP === http) ? [request] : [URI.join(base_uri, request.path), request]
     res = if stream
-      client.request(*args) do |res|
+      http.request(*args) do |res|
         handler = event_handler.new stream_parser.new(stream)
         parser = LLM::EventStream::Parser.new
         parser.register(handler)
@@ -353,10 +360,10 @@ class LLM::Provider
         parser&.free
       end
     else
-      b ? client.request(*args) { (Net::HTTPSuccess === _1) ? b.call(_1) : _1 } :
-          client.request(*args)
+      b ? http.request(*args) { (Net::HTTPSuccess === _1) ? b.call(_1) : _1 } :
+          http.request(*args)
     end
-    [handle_response(res, span), span]
+    [handle_response(res, tracer, span), span, tracer]
   end
 
   ##
@@ -366,14 +373,18 @@ class LLM::Provider
   # @param [Object, nil] span
   #  The span
   # @return [Net::HTTPResponse]
-  def handle_response(res, span)
+  def handle_response(res, tracer, span)
     case res
     when Net::HTTPOK then res.body = parse_response(res)
-    else error_handler.new(@tracer, span, res).raise_error!
+    else error_handler.new(tracer, span, res).raise_error!
     end
     res
   end
 
+  ##
+  # Parse a HTTP response
+  # @param [Net::HTTPResponse] res
+  # @return [LLM::Object, String]
   def parse_response(res)
     case res["content-type"]
     when %r|\Aapplication/json\s*| then LLM::Object.from(LLM.json.load(res.body))
@@ -418,14 +429,8 @@ class LLM::Provider
   end
 
   ##
-  # Finalizes tracing after a response has been adapted/wrapped.
-  # @param [String] operation
-  # @param [String, nil] model
-  # @param [LLM::Response] res
-  # @param [Object, nil] span
-  # @return [LLM::Response]
-  def finish_trace(operation:, res:, model: nil, span: nil)
-    @tracer.on_request_finish(operation:, model:, res:, span:)
-    res
+  # @api private
+  def lock(&)
+    @monitor.synchronize(&)
   end
 end
