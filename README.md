@@ -177,11 +177,42 @@ end
 ses.talk(prompt)
 ```
 
+#### Threads
+
+llm.rb is designed for threaded environments. A major part of that
+design is making
+[LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
+safe to share across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
+[LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) are
+stateful objects that should be kept local to a single thread. So the
+recommended pattern is to keep one session or agent per thread,
+and share a provider across multiple threads:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"], persistent: true)
+queue = Queue.new
+10.times.map do |i|
+  Thread.new do
+    ses = LLM::Session.new(llm)
+    res = ses.talk "#{i} + 5 = ?"
+    queue << res.messages.find(&:assistant?).content
+  end
+end.each(&:join)
+
+until queue.empty?
+  puts queue.pop
+end
+```
+
 ## Features
 
 #### General
 - ✅  Unified API across providers
 - 📦  Zero runtime deps (stdlib-only)
+- 🧵  Thread-safe providers for multi-threaded workloads
 - 🧩  Pluggable JSON adapters (JSON, Oj, Yajl, etc)
 - 🧱  Builtin tracer API ([LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html))
 
@@ -437,18 +468,6 @@ ses2 = LLM::Session.new(llm)
 ses2.restore(string: json)
 ses2.talk "Howdy partner. I'm back"
 ```
-
-#### Thread Safety
-
-The llm.rb library is thread-safe and can be used in a multi-threaded
-environments but it is important to keep in mind that the
-[LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
-and
-[LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html)
-classes should be instantiated once per thread, and not shared
-between threads. Generally the library tries to avoid global or
-shared state but where it exists reentrant locks are used to
-ensure thread-safety.
 
 ### Tools
 
