@@ -146,7 +146,7 @@ class LLM::Gemini
       @provider.instance_variable_get(:@key)
     end
 
-    [:headers, :execute, :set_body_stream, :tracer].each do |m|
+    [:headers, :execute, :set_body_stream].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end
