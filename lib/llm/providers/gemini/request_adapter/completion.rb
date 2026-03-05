@@ -48,7 +48,7 @@ module LLM::Gemini::RequestAdapter
     def adapt_object(object)
       case object.kind
       when :image_url
-        [{file_data: {mime_type: "image/*", file_uri: object.value.to_s}}]
+        [{file_data: {file_uri: object.value.to_s}}]
       when :local_file
         file = object.value
         [{inline_data: {mime_type: file.mime_type, data: file.to_b64}}]
