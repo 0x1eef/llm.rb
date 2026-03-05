@@ -336,7 +336,8 @@ class LLM::Provider
   #  When there is a network error at the operating system level
   # @return [Net::HTTPResponse]
   def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, &b)
-    span = @tracer.on_request_start(operation:, model:)
+    tracer = @tracer
+    span = tracer.on_request_start(operation:, model:)
     http = client || transient_client
     args = (Net::HTTP === http) ? [request] : [URI.join(base_uri, request.path), request]
     res = if stream
@@ -357,7 +358,7 @@ class LLM::Provider
       b ? http.request(*args) { (Net::HTTPSuccess === _1) ? b.call(_1) : _1 } :
           http.request(*args)
     end
-    [handle_response(res, span), span]
+    [handle_response(res, tracer, span), span, tracer]
   end
 
   ##
@@ -367,14 +368,18 @@ class LLM::Provider
   # @param [Object, nil] span
   #  The span
   # @return [Net::HTTPResponse]
-  def handle_response(res, span)
+  def handle_response(res, tracer, span)
     case res
     when Net::HTTPOK then res.body = parse_response(res)
-    else error_handler.new(@tracer, span, res).raise_error!
+    else error_handler.new(tracer, span, res).raise_error!
     end
     res
   end
 
+  ##
+  # Parse a HTTP response
+  # @param [Net::HTTPResponse] res
+  # @return [LLM::Object, String]
   def parse_response(res)
     case res["content-type"]
     when %r|\Aapplication/json\s*| then LLM::Object.from(LLM.json.load(res.body))
@@ -416,17 +421,5 @@ class LLM::Provider
   # @return [Hash<Symbol, LLM::Tracer>]
   def tracers
     self.class.tracers
-  end
-
-  ##
-  # Finalizes tracing after a response has been adapted/wrapped.
-  # @param [String] operation
-  # @param [String, nil] model
-  # @param [LLM::Response] res
-  # @param [Object, nil] span
-  # @return [LLM::Response]
-  def finish_trace(operation:, res:, model: nil, span: nil)
-    @tracer.on_request_finish(operation:, model:, res:, span:)
-    res
   end
 end
