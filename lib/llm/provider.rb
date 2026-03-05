@@ -40,6 +40,7 @@ class LLM::Provider
     @tracer = LLM::Tracer::Null.new(self)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
+    @monitor = Monitor.new
   end
 
   ##
@@ -196,7 +197,9 @@ class LLM::Provider
   # @return [LLM::Provider]
   #  Returns self
   def with(headers:)
-    tap { @headers.merge!(headers) }
+    lock do
+      tap { @headers.merge!(headers) }
+    end
   end
 
   ##
@@ -277,10 +280,12 @@ class LLM::Provider
   #  A tracer
   # @return [void]
   def tracer=(tracer)
-    @tracer = if tracer.nil?
-      LLM::Tracer::Null.new(self)
-    else
-      tracer
+    lock do
+      @tracer = if tracer.nil?
+        LLM::Tracer::Null.new(self)
+      else
+        tracer
+      end
     end
   end
 
@@ -421,5 +426,11 @@ class LLM::Provider
   # @return [Hash<Symbol, LLM::Tracer>]
   def tracers
     self.class.tracers
+  end
+
+  ##
+  # @api private
+  def lock(&)
+    @monitor.synchronize(&)
   end
 end

@@ -169,9 +169,11 @@ module LLM
     private
 
     def headers
-      (@headers || {}).merge(
-        "Content-Type" => "application/json"
-      )
+      lock do
+        (@headers || {}).merge(
+          "Content-Type" => "application/json"
+        )
+      end
     end
 
     def stream_parser

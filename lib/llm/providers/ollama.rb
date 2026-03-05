@@ -94,10 +94,12 @@ module LLM
     private
 
     def headers
-      (@headers || {}).merge(
-        "Content-Type" => "application/json",
-        "Authorization" => "Bearer #{@key}"
-      )
+      lock do
+        (@headers || {}).merge(
+          "Content-Type" => "application/json",
+          "Authorization" => "Bearer #{@key}"
+        )
+      end
     end
 
     def stream_parser

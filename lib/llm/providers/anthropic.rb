@@ -111,12 +111,14 @@ module LLM
     private
 
     def headers
-      (@headers || {}).merge(
-        "Content-Type" => "application/json",
-        "x-api-key" => @key,
-        "anthropic-version" => "2023-06-01",
-        "anthropic-beta" => "files-api-2025-04-14"
-      )
+      lock do
+        (@headers || {}).merge(
+          "Content-Type" => "application/json",
+          "x-api-key" => @key,
+          "anthropic-version" => "2023-06-01",
+          "anthropic-beta" => "files-api-2025-04-14"
+        )
+      end
     end
 
     def stream_parser
