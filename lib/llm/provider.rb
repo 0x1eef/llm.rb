@@ -36,7 +36,7 @@ class LLM::Provider
     @port = port
     @timeout = timeout
     @ssl = ssl
-    @client = persistent ? persistent_client : transient_client
+    @client = persistent ? persistent_client : nil
     @tracer = LLM::Tracer::Null.new(self)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
@@ -337,9 +337,10 @@ class LLM::Provider
   # @return [Net::HTTPResponse]
   def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, &b)
     span = @tracer.on_request_start(operation:, model:)
-    args = (Net::HTTP === client) ? [request] : [URI.join(base_uri, request.path), request]
+    http = client || transient_client
+    args = (Net::HTTP === http) ? [request] : [URI.join(base_uri, request.path), request]
     res = if stream
-      client.request(*args) do |res|
+      http.request(*args) do |res|
         handler = event_handler.new stream_parser.new(stream)
         parser = LLM::EventStream::Parser.new
         parser.register(handler)
@@ -353,8 +354,8 @@ class LLM::Provider
         parser&.free
       end
     else
-      b ? client.request(*args) { (Net::HTTPSuccess === _1) ? b.call(_1) : _1 } :
-          client.request(*args)
+      b ? http.request(*args) { (Net::HTTPSuccess === _1) ? b.call(_1) : _1 } :
+          http.request(*args)
     end
     [handle_response(res, span), span]
   end
