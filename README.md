@@ -578,6 +578,7 @@ it has been uploaded. The file (a specialized instance of
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
+require "pp"
 
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm)
@@ -776,6 +777,7 @@ release:
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
+require "pp"
 
 ##
 # List all models
