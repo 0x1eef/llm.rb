@@ -45,6 +45,18 @@ module LLM::Gemini::ResponseAdapter
       body.modelVersion
     end
 
+    ##
+    # (see LLM::Contract::Completion#content)
+    def content
+      super
+    end
+
+    ##
+    # (see LLM::Contract::Completion#content!)
+    def content!
+      super
+    end
+
     private
 
     def adapt_choices

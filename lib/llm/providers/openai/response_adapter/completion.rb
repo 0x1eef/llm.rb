@@ -57,6 +57,18 @@ module LLM::OpenAI::ResponseAdapter
       body.model
     end
 
+    ##
+    # (see LLM::Contract::Completion#content)
+    def content
+      super
+    end
+
+    ##
+    # (see LLM::Contract::Completion#content!)
+    def content!
+      super
+    end
+
     private
 
     def adapt_tool_calls(tools)
