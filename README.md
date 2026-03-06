@@ -179,10 +179,16 @@ ses.talk(prompt)
 
 #### Threads
 
-llm.rb is designed for threaded environments. A major part of that
-design is making
+llm.rb is designed for threaded environments with throughput in mind.
+Locks are used selectively, and localized state is preferred wherever
+possible. Blanket locking across every class would help guarantee
+correctness but it would also add contention, reduce throughput,
+and increase complexity.
+
+That's why we decided to optimize for both correctness and throughput
+instead. An important part of that design is guaranteeing that
 [LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
-safe to share across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
+is safe to share across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
 [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) are
 stateful objects that should be kept local to a single thread. So the
 recommended pattern is to keep one session or agent per thread,
@@ -193,18 +199,17 @@ and share a provider across multiple threads:
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"], persistent: true)
-queue = Queue.new
-10.times.map do |i|
-  Thread.new do
-    ses = LLM::Session.new(llm)
-    res = ses.talk "#{i} + 5 = ?"
-    queue << res.messages.find(&:assistant?).content
-  end
-end.each(&:join)
+schema = llm.schema.object(answer: llm.schema.integer.required)
 
-until queue.empty?
-  puts queue.pop
-end
+vals = 10.times.map do |x|
+  Thread.new do
+    ses = LLM::Session.new(llm, schema:)
+    res = ses.talk "#{x} + 5 = ?"
+    res.messages.find(&:assistant?).content!
+  end
+end.map(&:value)
+
+vals.each { |val| puts val }
 ```
 
 ## Features
