@@ -21,7 +21,7 @@ class LLM::Tool
     ##
     # @param name [Symbol]
     #   The name of a parameter
-    # @param type [Class, Symbol]
+    # @param type [LLM::Schema::Leaf, Class]
     #   The parameter type (eg String)
     # @param description [String]
     #   The description of a property
@@ -36,9 +36,8 @@ class LLM::Tool
     def param(name, type, description, options = {})
       lock do
         function.params do |schema|
-          leaf = schema.public_send(Utils.resolve(type))
-          leaf = Utils.setup(leaf, description, options)
-          schema.object(name => leaf)
+          resolved = Utils.resolve(schema, type)
+          schema.object(name => Utils.setup(resolved, description, options))
         end
       end
     end
@@ -48,15 +47,14 @@ class LLM::Tool
     module Utils
       extend self
 
-      def resolve(type)
-        if type == String
-          :string
-        elsif type == Integer
-          :integer
-        elsif type == Float
-          :number
-        else
+      def resolve(schema, type)
+        if LLM::Schema::Leaf === type
           type
+        elsif Class === type && type.respond_to?(:object)
+          type.object
+        else
+          target = type.name.split("::").last.downcase
+          schema.public_send(target)
         end
       end
 

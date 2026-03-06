@@ -21,6 +21,15 @@ class LLM::Tool
   require_relative "tool/param"
   extend LLM::Tool::Param
 
+  types = [
+    :Leaf, :String, :Array,
+    :Object, :Integer, :Number,
+    :Boolean, :Null
+  ]
+  types.each do |constant|
+    const_set constant, LLM::Schema.const_get(constant)
+  end
+
   ##
   # Registers the tool as a function when inherited
   # @param [Class] klass The subclass
