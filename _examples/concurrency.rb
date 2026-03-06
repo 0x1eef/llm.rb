@@ -30,7 +30,7 @@ llm = LLM.openai(key: ENV["KEY"], persistent: true)
 vals = ["ls", "uname", "df"].map do |command|
   Thread.new do
     res = SystemAdmin.new(llm).talk("run #{command}")
-    res.messages.find(&:assistant?).content!
+    res.content!
   end
 end.map(&:value)
 vals.each { puts _1 }

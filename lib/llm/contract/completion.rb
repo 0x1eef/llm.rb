@@ -44,6 +44,20 @@ module LLM::Contract
     end
 
     ##
+    # @return [String]
+    #  Returns the LLM response
+    def content
+      messages.find(&:assistant?).content
+    end
+
+    ##
+    # @return [Hash]
+    #  Returns the LLM response after parsing it as JSON
+    def content!
+      LLM.json.load(content)
+    end
+
+    ##
     # @return [LLM::Usage]
     #  Returns usage information
     def usage

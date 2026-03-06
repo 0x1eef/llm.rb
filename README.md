@@ -66,7 +66,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, schema: Report)
 res = ses.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
-pp res.messages.first(&:assistant?).content!
+pp res.content!
 
 ##
 # {
@@ -205,7 +205,7 @@ vals = 10.times.map do |x|
   Thread.new do
     ses = LLM::Session.new(llm, schema:)
     res = ses.talk "#{x} + 5 = ?"
-    res.messages.find(&:assistant?).content!
+    res.content!
   end
 end.map(&:value)
 
@@ -583,7 +583,7 @@ llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm)
 file = llm.files.create(file: "/tmp/llm-book.pdf")
 res = ses.talk ["Tell me about this file", file]
-res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
+pp res.content
 ```
 
 ### Prompts
@@ -789,7 +789,7 @@ end
 model = llm.models.all.find { |m| m.id == "gpt-3.5-turbo" }
 ses = LLM::Session.new(llm, model: model.id)
 res = ses.talk "Hello #{model.id} :)"
-res.messages.each { |m| puts "[#{m.role}] #{m.content}" }
+pp res.content
 ```
 
 ## Install
