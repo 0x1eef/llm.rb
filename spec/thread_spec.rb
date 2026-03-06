@@ -27,7 +27,7 @@ RSpec.describe LLM::Provider do
         {operation:, model:}
       end
 
-      def on_request_finish(operation:, model: nil, res:, span: nil)
+      def on_request_finish(operation:, res:, model: nil, span: nil)
         @finishes << {operation:, model:, res:, span:}
         nil
       end
