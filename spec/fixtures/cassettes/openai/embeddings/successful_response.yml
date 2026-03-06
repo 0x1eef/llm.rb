@@ -8,7 +8,7 @@ http_interactions:
       string: '{"input":"Hello, world","model":"text-embedding-3-small"}'
     headers:
       User-Agent:
-      - llm.rb v4.3.1
+      - llm.rb v4.4.0
       Content-Type:
       - application/json
       Authorization:
@@ -23,15 +23,27 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 12:00:32 GMT
+      - Fri, 06 Mar 2026 04:04:44 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
+      Cf-Ray:
+      - 9d7e7a5e2d988bdd-GRU
+      Cf-Cache-Status:
+      - DYNAMIC
       Access-Control-Allow-Origin:
       - "*"
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - envoy-router-canary-6cdbcdbbf6-m2bnm
+      X-Content-Type-Options:
+      - nosniff
       Access-Control-Expose-Headers:
       - X-Request-ID
       Openai-Model:
@@ -39,17 +51,13 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '93'
+      - '97'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
       - '2020-10-01'
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Via:
-      - envoy-router-canary-6cdbcdbbf6-m2bnm
+      X-Openai-Proxy-Wasm:
+      - v0.1
       X-Ratelimit-Limit-Requests:
       - '3000'
       X-Ratelimit-Limit-Tokens:
@@ -63,19 +71,11 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 0s
       X-Request-Id:
-      - req_661e040b0a6846dba9b102bfaa7ab0ed
-      X-Openai-Proxy-Wasm:
-      - v0.1
-      Cf-Cache-Status:
-      - DYNAMIC
+      - req_7a2222bce77848b3857551a30a4ccd36
       Set-Cookie:
-      - __cf_bm=OqfI4GAmqglYNec11HC8o2LvZcObiNXBdA.V.clOJwI-1771848031.3921762-1.0.1.1-AYO6ULxpXtGaNX56lGPxcSnaY65VUnRSrE_7vUKCJDN9Mq6L6VwIyNP.BZCOVI2wa.xfe3XGExXYR.mxq1107K_0NFsAqQG4NPREiETDEFH_5Gudto5VLWZcoaQor3Ho;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        12:30:32 GMT
-      X-Content-Type-Options:
-      - nosniff
-      Cf-Ray:
-      - 9d2690343eaa8d97-GRU
+      - __cf_bm=XyUBHrzbwW520ai1P28whiUdan8j4NI2zm5ATwGNf_8-1772769883.8613586-1.0.1.1-.R91Oj1QO1X6Urgx1RafujLhFHGUOCrnegpR_GWs0j2UeVorlNj12KtyYjbJRZK7QqOCYLrMCwAdI3EeaBqtfZ8f0btVlgBxsvEWqiUZoOitMcOyLeI_acdo2cHynG02;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Fri, 06 Mar 2026
+        04:34:44 GMT
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
@@ -1633,5 +1633,5 @@ http_interactions:
             "total_tokens": 3
           }
         }
-  recorded_at: Mon, 23 Feb 2026 12:00:28 GMT
+  recorded_at: Fri, 06 Mar 2026 04:04:32 GMT
 recorded_with: VCR 6.3.1

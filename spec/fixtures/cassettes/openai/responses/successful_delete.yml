@@ -8,7 +8,7 @@ http_interactions:
       string: '{"input":[{"role":"developer","content":[{"type":"input_text","text":"Hello"}]}],"model":"gpt-4.1"}'
     headers:
       User-Agent:
-      - llm.rb v4.3.1
+      - llm.rb v4.4.0
       Content-Type:
       - application/json
       Authorization:
@@ -25,7 +25,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 12:02:03 GMT
+      - Fri, 06 Mar 2026 04:06:10 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -53,36 +53,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_517ab0645ca3492bafc7cdba0dc488f6
+      - req_d4d18be938ff41cebc076e811a80ad2d
       Openai-Processing-Ms:
-      - '637'
+      - '500'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=CQeL.nyE8l4n.tBINiiQdRER1sRsrt67xlUOdF8HxXY-1771848122.6063132-1.0.1.1-lbU8d3Ii4SNGgEtplDYzSXjXdzHBezwC4LrTJOnaW33FDSeAUEMpXZPARavokPyn_pvgxIJ2Xb_tTGZtzm9NOKEwc7gOXzfZECVdmjR1SDXogyHT7Sx0TnoCWjwBEPpm;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        12:32:03 GMT
+      - __cf_bm=SCut6CX.wwOehKbjftBrBRNI92NvG9g_TAhAKoawnO8-1772769970.1265283-1.0.1.1-QQesBvZU93yFsaZq16fTTLb3eFhegi98lnmHFlKXcE8X_ht9_Q6jTpxlRFCzBXuiNY.Bp6vI01edtV.3ZD827EvkKqWo5WAFg_cDmJRCqFvGSQ0SZz1na7su74Mu6UpW;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Fri, 06 Mar 2026
+        04:36:10 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d26926e4e0a0b84-GRU
+      - 9d7e7c794e95623a-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_0dae10939b1ed53000699c41bab4b4819096dbf6ee70ef0960",
+          "id": "resp_0be55ac6526f87250069aa52b23a9081948b39709bd96399f8",
           "object": "response",
-          "created_at": 1771848122,
+          "created_at": 1772769970,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1771848123,
+          "completed_at": 1772769970,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -92,7 +92,7 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "msg_0dae10939b1ed53000699c41bb1c10819090cfb7ef82e5de65",
+              "id": "msg_0be55ac6526f87250069aa52b2797481949f652265fe716492",
               "type": "message",
               "status": "completed",
               "content": [
@@ -100,7 +100,7 @@ http_interactions:
                   "type": "output_text",
                   "annotations": [],
                   "logprobs": [],
-                  "text": "Hello! How can I help you today? \ud83d\ude0a"
+                  "text": "Hello! How can I help you today?"
                 }
               ],
               "role": "assistant"
@@ -135,25 +135,25 @@ http_interactions:
             "input_tokens_details": {
               "cached_tokens": 0
             },
-            "output_tokens": 11,
+            "output_tokens": 10,
             "output_tokens_details": {
               "reasoning_tokens": 0
             },
-            "total_tokens": 19
+            "total_tokens": 18
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Mon, 23 Feb 2026 12:01:59 GMT
+  recorded_at: Fri, 06 Mar 2026 04:05:58 GMT
 - request:
     method: delete
-    uri: https://api.openai.com/v1/responses/resp_0dae10939b1ed53000699c41bab4b4819096dbf6ee70ef0960
+    uri: https://api.openai.com/v1/responses/resp_0be55ac6526f87250069aa52b23a9081948b39709bd96399f8
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - llm.rb v4.3.1
+      - llm.rb v4.4.0
       Content-Type:
       - application/json
       Authorization:
@@ -168,7 +168,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 12:02:03 GMT
+      - Fri, 06 Mar 2026 04:06:11 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -184,30 +184,30 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_78e24cfd113f4582b6231c26d8de5ff6
+      - req_0074686bd17a4844a427459eec220451
       Openai-Processing-Ms:
-      - '87'
+      - '163'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=zJbaQJLdbhHxGdwqxFAcS6yo0C_3wCVB63d9zogAmXM-1771848123.4546297-1.0.1.1-xKhYIj8frN3OWJsqSNtDKQjtVDcTFxNTj9w6ICZcOPvyllmGtiW7xdwH1J1wx6xwobMSRH8oy0Ls59X9tPbXRSa5V3tXoWYpT_Qqs8i7SP_.Tpg1A01Nb0Wq631lvxH9;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        12:32:03 GMT
+      - __cf_bm=aCw43RQTJ89S2U689PeNOBBUsAqZYVPJGT6oAVNNScs-1772769970.8532808-1.0.1.1-AoitWdvfW8zR5zIM07Lop0YIRmr2jyht73HL.YYUMXKHe04r.5m2UEgot6Dwicp5bcKukKW4_pY5o7Qx1hLJN77AnjkOTb2ZQP2dNGon4O2OUzsJnrHl4rvbgo5lHnmS;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Fri, 06 Mar 2026
+        04:36:11 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d2692739a4cf90f-GRU
+      - 9d7e7c7dde80f28c-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_0dae10939b1ed53000699c41bab4b4819096dbf6ee70ef0960",
+          "id": "resp_0be55ac6526f87250069aa52b23a9081948b39709bd96399f8",
           "object": "response.deleted",
           "deleted": true
         }
-  recorded_at: Mon, 23 Feb 2026 12:01:59 GMT
+  recorded_at: Fri, 06 Mar 2026 04:05:58 GMT
 recorded_with: VCR 6.3.1

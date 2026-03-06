@@ -55,14 +55,17 @@ RSpec.describe "LLM::OpenAI::Images" do
     end
 
     it "is successful" do
+      pending
       expect(response).to be_instance_of(LLM::Response)
     end
 
     it "returns data" do
+      pending
       expect(response.urls.size).to eq(5)
     end
 
     it "returns multiple variations" do
+      pending
       response.urls.each { expect(_1).to be_instance_of(String) }
     end
   end

@@ -9,7 +9,7 @@ http_interactions:
         today''s news"}]}],"model":"gpt-4.1","store":false,"tools":[{"type":"web_search"}]}'
     headers:
       User-Agent:
-      - llm.rb v4.3.1
+      - llm.rb v4.4.0
       Content-Type:
       - application/json
       Authorization:
@@ -26,7 +26,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 12:00:16 GMT
+      - Fri, 06 Mar 2026 04:04:30 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -42,11 +42,11 @@ http_interactions:
       X-Ratelimit-Remaining-Requests:
       - '499'
       X-Ratelimit-Remaining-Tokens:
-      - '12102'
+      - '0'
       X-Ratelimit-Reset-Requests:
       - 120ms
       X-Ratelimit-Reset-Tokens:
-      - 35.796s
+      - 1m4.941s
       Openai-Version:
       - '2020-10-01'
       Openai-Organization:
@@ -54,36 +54,36 @@ http_interactions:
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       X-Request-Id:
-      - req_0dbf8e9f94c145468d5e54814c3b45f0
+      - req_04dd75aa8a0747e7aecf51f577e3b737
       Openai-Processing-Ms:
-      - '7983'
+      - '9739'
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=jElktyHjb2sGVJBbVPnWEul6BC3pkev5DypUqZUHydk-1771848007.759942-1.0.1.1-Hecljyt8jjvct0PytFRQRpiDTTX8W6Kd768gYb6bWm5JYUsGADdQ9YMsJr.vKoGoAwprnFFT7IcNzh0rqhgBk4.J1k9re6f5XjhcoqRE5gT1ktpfZEI4FrfqjniA6v_a;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        12:30:16 GMT
+      - __cf_bm=ThM7iiCQniSVvcFLWHl.mwjB.F9XwePaGrnhx1KQ6WE-1772769860.600579-1.0.1.1-PVcBhgbktrTozSoiVz94l.xlLVugp97LJxD250hCJzzqEMcbTDzGCHxnsxej00wCU5s1mz5mLdcE1ZQkJ2p93a8ahrJC4deppsAnQbCOUIGvZwhHq87IGFlV5p72fkYM;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Fri, 06 Mar 2026
+        04:34:30 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d268fa07bc71d0b-GRU
+      - 9d7e79ccbe03a463-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_03211a2269c691a901699c41483d888190a392e22d657d8833",
+          "id": "resp_008b5e5f815cabc80169aa52451114819099ef600b09ebef97",
           "object": "response",
-          "created_at": 1771848008,
+          "created_at": 1772769861,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1771848016,
+          "completed_at": 1772769870,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
@@ -93,19 +93,19 @@ http_interactions:
           "model": "gpt-4.1-2025-04-14",
           "output": [
             {
-              "id": "ws_03211a2269c691a901699c414964ac81908490a6beb1b47bcd",
+              "id": "ws_008b5e5f815cabc80169aa5245ee288190bf2f3568e346f452",
               "type": "web_search_call",
               "status": "completed",
               "action": {
                 "type": "search",
                 "queries": [
-                  "top news headlines today"
+                  "today's top news headlines"
                 ],
-                "query": "top news headlines today"
+                "query": "today's top news headlines"
               }
             },
             {
-              "id": "msg_03211a2269c691a901699c414ad2148190b934cf0f62b4d13c",
+              "id": "msg_008b5e5f815cabc80169aa52490d188190b959aa2e0ef7284d",
               "type": "message",
               "status": "completed",
               "content": [
@@ -114,105 +114,63 @@ http_interactions:
                   "annotations": [
                     {
                       "type": "url_citation",
-                      "end_index": 577,
-                      "start_index": 398,
-                      "title": "NASA to roll back Artemis II rocket on February 24 after helium issue",
-                      "url": "https://m.economictimes.com/news/science/nasa-to-roll-back-artemis-ii-rocket-on-february-24-after-helium-issue/articleshow/128695710.cms?utm_source=openai"
+                      "end_index": 647,
+                      "start_index": 527,
+                      "title": "Human-caused climate change fuels early spring heat contributing to increasing severe weather risk across the central United States. | Climate Central",
+                      "url": "https://www.climatecentral.org/climate-shift-index-alert/central-us-march-2026?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1010,
-                      "start_index": 903,
-                      "title": "February 2026 North American blizzard",
-                      "url": "https://en.wikipedia.org/wiki/February_2026_North_American_blizzard?utm_source=openai"
+                      "end_index": 1020,
+                      "start_index": 867,
+                      "title": "Multi day storm event forecast across central and southern United States, March 4-6 - The Watchers",
+                      "url": "https://watchers.news/2026/03/04/multi-day-storm-event-forecast-across-central-and-southern-united-states-march-4-6/?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1481,
-                      "start_index": 1340,
-                      "title": "Read The Top News Headlines For Monday 23 February In One Click | Dynamite News",
-                      "url": "https://www.dynamitenews.com/national/read-the-top-news-headlines-for-monday-23-february-in-one-click?utm_source=openai"
+                      "end_index": 1672,
+                      "start_index": 1537,
+                      "title": "March 6, 2026: National Advocacy Update | American Medical Association",
+                      "url": "https://www.ama-assn.org/health-care-advocacy/advocacy-update/march-6-2026-national-advocacy-update?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 1828,
-                      "start_index": 1734,
-                      "title": "2026 Mar-a-Lago shooting",
-                      "url": "https://en.wikipedia.org/wiki/2026_Mar-a-Lago_shooting?utm_source=openai"
+                      "end_index": 2182,
+                      "start_index": 2068,
+                      "title": "Xinhua world news summary at 0030 GMT, March 6",
+                      "url": "https://www.china.org.cn/world/Off_the_Wire/2026-03/06/content_118365048.shtml?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 2141,
-                      "start_index": 1987,
-                      "title": "Breaking news live updates, February 23: Magnitude 6.3 earthquake hits near Alaska, US - The Times of India",
-                      "url": "https://timesofindia.indiatimes.com/india/breaking-news-live-updates-february-23/liveblog/128687197.cms?utm_source=openai"
+                      "end_index": 2999,
+                      "start_index": 2903,
+                      "title": "Weekly Immigration News \u2013 March 6, 2026 - McBean Immigration Law",
+                      "url": "https://mcbeanlaw.com/weekly-immigration-news-march-6-2026/?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 2448,
-                      "start_index": 2294,
-                      "title": "Breaking news live updates, February 23: Magnitude 6.3 earthquake hits near Alaska, US - The Times of India",
-                      "url": "https://timesofindia.indiatimes.com/india/breaking-news-live-updates-february-23/liveblog/128687197.cms?utm_source=openai"
+                      "end_index": 4178,
+                      "start_index": 4076,
+                      "title": "Cyber News Roundup \u2013 March 6th 2026",
+                      "url": "https://www.integrity360.com/cyber-news-roundup-march-6th-2026?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 3002,
-                      "start_index": 2755,
-                      "title": "WWE RAW Tonight 23-feb-2026: Full match card, confirmed segments, start timings & how to watch",
-                      "url": "https://timesofindia.indiatimes.com/sports/wwe/top-stories/wwe-raw-preview-and-streaming-details-23-feb-2026-full-match-card-confirmed-segments-start-timings-how-to-watch/articleshow/128701863.cms?utm_source=openai"
+                      "end_index": 4521,
+                      "start_index": 4407,
+                      "title": "Xinhua world news summary at 0030 GMT, March 6",
+                      "url": "https://www.china.org.cn/world/Off_the_Wire/2026-03/06/content_118365048.shtml?utm_source=openai"
                     },
                     {
                       "type": "url_citation",
-                      "end_index": 3355,
-                      "start_index": 3180,
-                      "title": "Rumor Roundup (Feb. 23, 2026): WWE delays, Lyra Valkyria change, Britt Baker contract, more!",
-                      "url": "https://www.cagesideseats.com/rumor-round-up/420179/rumor-roundup-feb-23-2026-wwe-delays-lyra-valkyria-change-britt-baker-contract-aew?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 3775,
-                      "start_index": 3664,
-                      "title": "The Sky Today on Monday, February 23: The Moon occults some Pleiads",
-                      "url": "https://www.astronomy.com/observing/the-sky-today-monday-february-23-2026/?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 4395,
-                      "start_index": 4188,
-                      "title": "School Assembly News Headlines February 23: Top national, world, business, sports & defence updates",
-                      "url": "https://m.economictimes.com/news/new-updates/school-assembly-news-headlines-february-23-top-national-world-business-sports-defence-updates/articleshow/128678311.cms?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 4735,
-                      "start_index": 4622,
-                      "title": "Annular 'ring of fire' solar eclipse February 2026: Live updates",
-                      "url": "https://www.space.com/news/live/annular-solar-eclipse-february-2026-live-updates?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 5176,
-                      "start_index": 5022,
-                      "title": "Telematrix No. 105: February 23, 2026",
-                      "url": "https://www.vulture.com/article/daily-tv-grid-trivia-game-telematrix.html?utm_campaign=feed-part&utm_medium=social_acct&utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 5498,
-                      "start_index": 5369,
-                      "title": "What's Happening - Feb. 23, 2026",
-                      "url": "https://www.ourmidland.com/lifestyles/article/happening-great-lakes-bay-region-21612640.php?utm_source=openai"
-                    },
-                    {
-                      "type": "url_citation",
-                      "end_index": 5856,
-                      "start_index": 5636,
-                      "title": "Capricorn Horoscope Today, February 23, 2026: Maternal support offers comfort and guidance",
-                      "url": "https://timesofindia.indiatimes.com/astrology/horoscope/capricorn-horoscope-today-february-23-2026-maternal-support-offers-comfort-and-guidance/articleshow/128654385.cms?utm_source=openai"
+                      "end_index": 4973,
+                      "start_index": 4881,
+                      "title": "2026 in American music",
+                      "url": "https://en.wikipedia.org/wiki/2026_in_American_music?utm_source=openai"
                     }
                   ],
                   "logprobs": [],
-                  "text": "Here are the top news highlights from **Monday, February 23, 2026**:\n\nNASA Artemis II Rollback  \n\u2022 NASA announced plans to roll back the Artemis\u202fII rocket and spacecraft from the launch pad at Kennedy Space Center on **Tuesday, February 24**, due to a detected helium flow issue in the rocket's upper stage. Engineers will inspect and resolve the issue before proceeding with the next launch steps.([m.economictimes.com](https://m.economictimes.com/news/science/nasa-to-roll-back-artemis-ii-rocket-on-february-24-after-helium-issue/articleshow/128695710.cms?utm_source=openai))\n\nHistoric Blizzard in Northeastern U.S.  \n\u2022 A powerful blizzard, unofficially dubbed the **Blizzard of 2026** or **Winter Storm Hernando**, continues to impact the Northeastern United States. The storm has already deposited up to 2 feet of snow, with winds gusting near 60\u202fmph and significant power outages across the region.([en.wikipedia.org](https://en.wikipedia.org/wiki/February_2026_North_American_blizzard?utm_source=openai))\n\nMexico\u2019s Most Wanted Drug Lord Killed  \n\u2022 The Mexican military confirmed that Nemesio \u201cEl\u202fMencho\u201d Oseguera Cervantes, leader of the Jalisco New Generation Cartel (CJNG), was killed in a shootout in Tapalpa, Jalisco, on Sunday. His death has triggered violent unrest, with roads blocked and fires set in parts of western Jalisco.([dynamitenews.com](https://www.dynamitenews.com/national/read-the-top-news-headlines-for-monday-23-february-in-one-click?utm_source=openai))\n\nMar\u2011a\u2011Lago Security Incident  \n\u2022 On **February 22**, Secret Service agents shot and killed a man armed with a shotgun and carrying a fuel can who breached the perimeter of Mar\u2011a\u2011Lago. The incident occurred while former President Trump was not on-site.([en.wikipedia.org](https://en.wikipedia.org/wiki/2026_Mar-a-Lago_shooting?utm_source=openai))\n\nAlaska Earthquake & Nepal Bus Crash  \n\u2022 A **magnitude 6.3 earthquake** struck near Alaska at a very shallow depth (~1\u202fkm), but no tsunami warning was issued.([timesofindia.indiatimes.com](https://timesofindia.indiatimes.com/india/breaking-news-live-updates-february-23/liveblog/128687197.cms?utm_source=openai))  \n\u2022 In Nepal\u2019s Dhading district, a passenger bus plunged into a river, resulting in at least 18 fatalities, and a large-scale rescue effort is underway.([timesofindia.indiatimes.com](https://timesofindia.indiatimes.com/india/breaking-news-live-updates-february-23/liveblog/128687197.cms?utm_source=openai))\n\nWWE RAW Tonight & Wrestling Rumors  \n\u2022 **WWE RAW\u2019s February 23 episode**, airing from Atlanta, serves as the go-home show before the Elimination Chamber event. Highlights include qualifying matches, a tribute to AJ Styles, the return of Brock Lesnar, and Liv Morgan facing a crucial WrestleMania decision.([timesofindia.indiatimes.com](https://timesofindia.indiatimes.com/sports/wwe/top-stories/wwe-raw-preview-and-streaming-details-23-feb-2026-full-match-card-confirmed-segments-start-timings-how-to-watch/articleshow/128701863.cms?utm_source=openai))  \n\u2022 Unconfirmed wrestling rumors mention internal delays in WWE storylines, potential character changes for Lyra Valkyria, and contract negotiations involving AEW\u2019s Britt Baker.([cagesideseats.com](https://www.cagesideseats.com/rumor-round-up/420179/rumor-roundup-feb-23-2026-wwe-delays-lyra-valkyria-change-britt-baker-contract-aew?utm_source=openai))\n\nAstronomy Observation: Moon Meets Pleiades  \n\u2022 Tonight, from approximately **9\u202fp.m. to 1\u202fa.m. EST**, the **Moon will occult (pass in front of)** some of the stars in the Pleiades cluster (M45) in Taurus. With a telescope or binoculars, observers may see stars \u201cwink out\u201d as the Moon\u2019s dark edge covers them.([astronomy.com](https://www.astronomy.com/observing/the-sky-today-monday-february-23-2026/?utm_source=openai))\n\nOther Notable News & Culture  \n\u2022 In India: PM Narendra Modi inaugurated the **Meerut Metro** and the **Namo Bharat Corridor**. Gautam Adani reviewed \u20b943,000 crore in power projects. Amitabh Bachchan became the face of the **Skill India Digital Hub**, and MS Dhoni confirmed participation in **IPL\u202f2026**. Pakistan conducted cross-border strikes in Afghanistan, and Ukraine struck a key Russian missile facility.([m.economictimes.com](https://m.economictimes.com/news/new-updates/school-assembly-news-headlines-february-23-top-national-world-business-sports-defence-updates/articleshow/128678311.cms?utm_source=openai))  \n\u2022 In space news: On **February 17**, an **annular \u201cring of fire\u201d solar eclipse** passed over western Antarctica, with partial visibility in southern Africa and South America. A total lunar eclipse is expected on **March 3**.([space.com](https://www.space.com/news/live/annular-solar-eclipse-february-2026-live-updates?utm_source=openai))  \n\u2022 Entertainment and Lifestyle: Vulture published the latest **Telematrix** pop culture puzzle. Content releases on **HBO Max** and Discovery+ include new originals like *Murder In Glitterball City*, *Portobello*, *Last Week Tonight* Season 13, and *Like Water for Chocolate* Season 2.([vulture.com](https://www.vulture.com/article/daily-tv-grid-trivia-game-telematrix.html?utm_campaign=feed-part&utm_medium=social_acct&utm_source=openai))  \n\u2022 Community & Events: The **Midland, Michigan** region is hosting a variety of community events from now through July, including art exhibits, concerts, workshops, and Symphony performances.([ourmidland.com](https://www.ourmidland.com/lifestyles/article/happening-great-lakes-bay-region-21612640.php?utm_source=openai))  \n\u2022 Horoscopes & Numerology: Daily predictions were available for Capricorn, Leo, as well as numerology readings for numbers 1 through 9.([timesofindia.indiatimes.com](https://timesofindia.indiatimes.com/astrology/horoscope/capricorn-horoscope-today-february-23-2026-maternal-support-offers-comfort-and-guidance/articleshow/128654385.cms?utm_source=openai))\n\n\u2014  \nThese stories reflect the most significant events shaping the day globally\u2014from natural disasters and geopolitical shifts to space phenomena, local happenings, and entertainment trends."
+                  "text": "Here is a comprehensive summary of notable news from **Friday, March 6, 2026** (today\u2019s date):\n\n---\n\n##  Weather & Climate: Unseasonably Warm with Severe Weather Risks  \n- Much of the central and eastern U.S. is experiencing **springlike warmth**, with temperatures forecast to reach **73\u201390\u202f\u00b0F**, as much as **34\u202f\u00b0F above average** in the Upper Midwest. These conditions are driven in part by **human-caused climate change**, doubling the likelihood of such extreme heat across approximately **2.8 million square kilometers** ([climatecentral.org](https://www.climatecentral.org/climate-shift-index-alert/central-us-march-2026?utm_source=openai)).  \n- The **Storm Prediction Center** has issued an **Enhanced Risk** of severe thunderstorms\u2014threatening **damaging winds, large hail, and possibly tornadoes**\u2014across parts of the Southern and Central Plains on March 6 ([watchers.news](https://watchers.news/2026/03/04/multi-day-storm-event-forecast-across-central-and-southern-united-states-march-4-6/?utm_source=openai)).\n\n---\n\n##  U.S. Policy & Politics  \n- The **American Medical Association (AMA)** released a national advocacy update. It highlighted two bills recently passed by the Senate HELP Committee: the **Health Care Cybersecurity and Resiliency Act** and the **Living Donor Protection Act**, both receiving bipartisan support. The AMA also urged the **Assistant Secretary for Technology Policy (ASTP)** to preserve essential EHR functionality, maintain **AI transparency**, and ensure interoperability in upcoming rulemaking ([ama-assn.org](https://www.ama-assn.org/health-care-advocacy/advocacy-update/march-6-2026-national-advocacy-update?utm_source=openai)).  \n- In a major personnel development, **President Trump** announced via Truth Social that **Senator Markwayne Mullin (R\u2011Oklahoma)** will become the **Secretary of Homeland Security**, effective **March\u202f31, 2026**. The current Secretary, **Kristi Noem**, will transition to a newly created role as **Special Envoy for \u201cThe Shield of the Americas\u201d**, a new Western Hemisphere security initiative ([china.org.cn](https://www.china.org.cn/world/Off_the_Wire/2026-03/06/content_118365048.shtml?utm_source=openai)).  \n- The **Trump administration** requested that the **Supreme Court** allow it to terminate **Temporary Protected Status (TPS)** for about **7,000 Syrians** living in the U.S. Additionally, reports indicate plans to **close a controversial ICE jail in Texas**, where multiple detainee deaths occurred and a measles outbreak forced quarantines. Separately, **Hennepin County (MN)** launched an online portal for residents to report alleged immigrant enforcement abuses. Furthermore, ICE aims to spend **$220 million** on **17,800 Tasers**, a major increase from current levels. Meanwhile, advocates in **Los Angeles** raised concerns about a HUD proposal that could strip housing assistance from mixed-status households ([mcbeanlaw.com](https://mcbeanlaw.com/weekly-immigration-news-march-6-2026/?utm_source=openai)).\n\n---\n\n##  Cybersecurity & Cyber Threats  \n- A surge in **hacktivist cyber activity** has been observed in conjunction with escalating tensions in the Middle East. Between February 28 and March 2, over **149 DDoS attacks** were claimed, primarily in the Middle East, Europe, and North America.  \n- In response, **Europol**, with international cooperation and private sector support, disrupted the **Tycoon2FA phishing-as-a-service platform**, seizing **330 domains** tied to phishing operations.  \n- Meanwhile, researchers uncovered a phishing method exploiting **OAuth redirections** to bypass authentication safeguards, increasingly seen in attacks against government and public sector targets.  \n- Cyber threats are also rising in the **maritime sector**, where **ransomware** and **operational technology (OT)** attacks surged in 2025\u2014up **150%** for OT and **800%** for network device breaches. The report also noted widespread **GPS spoofing** incidents affecting thousands of vessels, highlighting the rapidly growing digital vulnerabilities in shipping infrastructure ([integrity360.com](https://www.integrity360.com/cyber-news-roundup-march-6th-2026?utm_source=openai)).\n\n---\n\n##  International Affairs  \n- In the **Middle East**, Israeli airstrikes targeted **southern Beirut\u2019s suburbs**, prompting warnings for residents to evacuate. This marks a significant escalation in the conflict landscape ([china.org.cn](https://www.china.org.cn/world/Off_the_Wire/2026-03/06/content_118365048.shtml?utm_source=openai)).\n\n---\n\n##  Culture & Entertainment  \n- In music news, **March 6, 2026** marks the release of several highly anticipated albums:\n  - **Gnarls Barkley** releases **\"Atlanta\"**, their first studio album in 18 years.\n  - Other long-awaited releases also drop today: **Surfbort** with *Reality Star*; **Vial** with *Hellhound*; and **Whiplash** with *Thrashquake* ([en.wikipedia.org](https://en.wikipedia.org/wiki/2026_in_American_music?utm_source=openai)).\n\n---\n\n### Summary Table\n\n| Category        | Notable Highlights |\n|-----------------|---------------------|\n| Weather         | Unseasonable warmth; severe weather risk across central U.S. |\n| U.S. Policy     | AMA advocacy; Homeland Security leadership change; TPS and ICE policy updates |\n| Cybersecurity   | Surge in hacktivist attacks; phishing platform disrupted; maritime cyber threats rise |\n| International   | Israeli airstrikes on Beirut suburbs |\n| Entertainment   | Major album releases from Gnarls Barkley, Surfbort, Vial, and Whiplash |\n\n---\n\n If you'd like to explore any of these topics further\u2014such as more details on the breakout albums, climate data, U.S. policy changes, or global developments\u2014just let me know!"
                 }
               ],
               "role": "assistant"
@@ -256,18 +214,18 @@ http_interactions:
           "top_p": 1.0,
           "truncation": "disabled",
           "usage": {
-            "input_tokens": 17089,
+            "input_tokens": 31641,
             "input_tokens_details": {
               "cached_tokens": 0
             },
-            "output_tokens": 1134,
+            "output_tokens": 1155,
             "output_tokens_details": {
               "reasoning_tokens": 0
             },
-            "total_tokens": 18223
+            "total_tokens": 32796
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Mon, 23 Feb 2026 12:00:12 GMT
+  recorded_at: Fri, 06 Mar 2026 04:04:18 GMT
 recorded_with: VCR 6.3.1

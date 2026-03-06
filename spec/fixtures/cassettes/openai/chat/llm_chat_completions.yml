@@ -13,7 +13,7 @@ http_interactions:
         else"}]}],"model":"gpt-4.1"}'
     headers:
       User-Agent:
-      - llm.rb v4.3.1
+      - llm.rb v4.4.0
       Content-Type:
       - application/json
       Authorization:
@@ -30,7 +30,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Feb 2026 12:00:17 GMT
+      - Fri, 06 Mar 2026 04:04:31 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -42,7 +42,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '256'
+      - '262'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -62,30 +62,30 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 118ms
       X-Request-Id:
-      - req_bbf03830103046c39a260279dd8287dc
+      - req_8d769ee75d8f4cb78b0c02db2b5f9042
       X-Openai-Proxy-Wasm:
       - v0.1
       Cf-Cache-Status:
       - DYNAMIC
       Set-Cookie:
-      - __cf_bm=xskBpNx8nEL9MCWRcngPX9WHqvCF_Mb.deGLRHDaXuo-1771848016.4828022-1.0.1.1-5EvpvW15a25OORrrivCIKF6yvb7lm9a0QNcVwIxd5c2OmRn8V2FJd65FBG.QOAt5QAggBD_1wEypJXzBCcf_oIC_dtAE2IaHCpKdAuhUvMJAfTfcM9bDaMSwrji8iigO;
-        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Mon, 23 Feb 2026
-        12:30:17 GMT
+      - __cf_bm=_9x6.RZwFmGjAUczw0XWFRay0d4LxzaewQRaVe3CS8M-1772769870.928221-1.0.1.1-hPUfNemR70v1KU3XCDs3rkwDz8njiSfJVze0gD.0Jl4ifa72XzJ_afHFjMXKneYiUe759BTkpgDuM9kKRglkhqBZAzCyXWqzg4PLlSWpD9_DzQkWrAUDBX7E_BjlYy_Q;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Fri, 06 Mar 2026
+        04:34:31 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       X-Content-Type-Options:
       - nosniff
       Cf-Ray:
-      - 9d268fd70a99f24f-GRU
+      - 9d7e7a0d4cd8e2c4-GRU
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |
         {
-          "id": "chatcmpl-DCOtljjs7LX14PtbPEXJlLnHFkUxE",
+          "id": "chatcmpl-DGGiNhkjLUQfvP7gxdWh1duL78OeQ",
           "object": "chat.completion",
-          "created": 1771848017,
+          "created": 1772769871,
           "model": "gpt-4.1-2025-04-14",
           "choices": [
             {
@@ -116,7 +116,7 @@ http_interactions:
             }
           },
           "service_tier": "default",
-          "system_fingerprint": "fp_ede5d726d3"
+          "system_fingerprint": "fp_a6317c457c"
         }
-  recorded_at: Mon, 23 Feb 2026 12:00:13 GMT
+  recorded_at: Fri, 06 Mar 2026 04:04:19 GMT
 recorded_with: VCR 6.3.1
