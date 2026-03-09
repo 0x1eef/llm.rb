@@ -198,7 +198,7 @@ and share a provider across multiple threads:
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.openai(key: ENV["KEY"], persistent: true)
+llm = LLM.openai(key: ENV["KEY"]).persist!
 schema = llm.schema.object(answer: llm.schema.integer.required)
 
 vals = 10.times.map do |x|
@@ -335,7 +335,7 @@ and the gem should be installed separately:
 #!/usr/bin/env ruby
 require "llm"
 
-llm  = LLM.openai(key: ENV["KEY"], persistent: true)
+llm  = LLM.openai(key: ENV["KEY"]).persist!
 res1 = llm.responses.create "message 1"
 res2 = llm.responses.create "message 2", previous_response_id: res1.response_id
 res3 = llm.responses.create "message 3", previous_response_id: res2.response_id

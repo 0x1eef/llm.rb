@@ -289,6 +289,20 @@ class LLM::Provider
     end
   end
 
+  ##
+  # This method configures a provider to use a persistent connection pool
+  # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
+  # @example
+  #   llm = LLM.openai(key: ENV["KEY"]).persist!
+  #   # do something with 'llm'
+  # @return [LLM::Provider]
+  def persist!
+    client = persistent_client
+    lock do
+      tap { @client = client }
+    end
+  end
+
   private
 
   attr_reader :client, :base_uri, :host, :port, :timeout, :ssl

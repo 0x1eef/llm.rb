@@ -26,7 +26,7 @@ class SystemAdmin < LLM::Agent
   schema Result
 end
 
-llm = LLM.openai(key: ENV["KEY"], persistent: true)
+llm = LLM.openai(key: ENV["KEY"]).persist!
 vals = ["ls", "uname", "df"].map do |command|
   Thread.new do
     res = SystemAdmin.new(llm).talk("run #{command}")
