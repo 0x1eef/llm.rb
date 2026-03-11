@@ -266,7 +266,7 @@ class LLM::Provider
   # @return [LLM::Tracer]
   #  Returns a thread-local tracer
   def tracer
-    thread[thread_tracer_key] ||= LLM::Tracer::Null.new(self)
+    thread[thread_tracer_key] || LLM::Tracer::Null.new(self)
   end
 
   ##
@@ -284,7 +284,11 @@ class LLM::Provider
   #  A tracer
   # @return [void]
   def tracer=(tracer)
-    thread[thread_tracer_key] = tracer.nil? ? LLM::Tracer::Null.new(self) : tracer
+    if tracer.nil?
+      thread[thread_tracer_key] = nil
+    else
+      thread[thread_tracer_key] = tracer
+    end
   end
 
   ##
