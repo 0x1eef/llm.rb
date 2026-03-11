@@ -30,20 +30,16 @@ module LLM
 
     def trace_attributes(span_kind:)
       attributes = {}
-      session_id = thread[thread_langsmith_session_id_key]
-      metadata = thread[thread_langsmith_metadata_key] || {}
-      tags = thread[thread_langsmith_tags_key] || []
-
-      unless session_id.to_s.empty?
-        attributes["langsmith.trace.session_id"] = session_id
+      unless @langsmith_session_id.to_s.empty?
+        attributes["langsmith.trace.session_id"] = @langsmith_session_id
       end
-      metadata.each do |key, value|
+      @langsmith_metadata.each do |key, value|
         next if value.nil?
 
         attributes["langsmith.metadata.#{key}"] = serialize_langsmith_value(value)
       end
-      unless tags.empty?
-        attributes["langsmith.span.tags"] = tags.map(&:to_s).join(",")
+      unless @langsmith_tags.empty?
+        attributes["langsmith.span.tags"] = @langsmith_tags.map(&:to_s).join(",")
       end
       attributes["langsmith.span.kind"] = span_kind
       attributes
@@ -51,14 +47,12 @@ module LLM
 
     def setup_langsmith!(options)
       options ||= {}
-      metadata = options[:metadata] || {}
-      session_id = normalize_langsmith_session_id(
+      @langsmith_metadata = options[:metadata] || {}
+      @langsmith_session_id = normalize_langsmith_session_id(
         options[:session_id],
-        metadata:
+        metadata: @langsmith_metadata
       )
-      thread[thread_langsmith_metadata_key] = metadata
-      thread[thread_langsmith_session_id_key] = session_id
-      thread[thread_langsmith_tags_key] = options[:tags] || []
+      @langsmith_tags = options[:tags] || []
     end
 
     def serialize_langsmith_value(value)
@@ -83,18 +77,6 @@ module LLM
 
     def uuid?(value)
       value.match?(UUID)
-    end
-
-    def thread_langsmith_metadata_key
-      @thread_langsmith_metadata_key ||= :"llm.langsmith.metadata.#{object_id}"
-    end
-
-    def thread_langsmith_session_id_key
-      @thread_langsmith_session_id_key ||= :"llm.langsmith.session_id.#{object_id}"
-    end
-
-    def thread_langsmith_tags_key
-      @thread_langsmith_tags_key ||= :"llm.langsmith.tags.#{object_id}"
     end
   end
 end
