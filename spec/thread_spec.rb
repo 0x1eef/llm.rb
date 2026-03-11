@@ -79,12 +79,6 @@ RSpec.describe LLM::Provider do
     let(:release) { Queue.new }
     let(:tracer1) { tracer.new }
     let(:tracer2) { tracer.new }
-    let(:thread) do
-      Thread.new do
-        req = Net::HTTP::Get.new("/v1/models", provider.headers)
-        provider.execute(request: req, operation: "chat", model: "gpt-test")
-      end
-    end
 
     before do
       stub_request(:get, "https://api.openai.com/v1/models")
@@ -130,35 +124,44 @@ RSpec.describe LLM::Provider do
       end
     end
 
-    context "when tracer changes during a request" do
-      it "returns the tracer captured at request start" do
+    context "when request runs in another thread" do
+      it "uses the request thread tracer" do
         _res, _span, request_tracer = run_in_flight_request
         expect(request_tracer).to equal(tracer1)
       end
 
-      it "finishes on the captured tracer" do
-        _res, span, request_tracer = run_in_flight_request
+      it "ignores tracer changes from other threads" do
+        _res, _span, request_tracer = run_in_flight_request do
+          provider.tracer = tracer2
+        end
+        expect(request_tracer).to equal(tracer1)
+      end
+
+      it "finishes on the request thread tracer" do
+        _res, span, request_tracer = run_in_flight_request do
+          provider.tracer = tracer2
+        end
         request_tracer.on_request_finish(operation: "chat", model: "gpt-test", res: Object.new, span:)
         expect(tracer1.finishes.size).to eq(1)
         expect(tracer2.finishes).to eq([])
       end
     end
 
-    context "when tracer is set to nil during a request" do
-      it "keeps the request tracer and resets provider tracer to null" do
-        _res, span, request_tracer = run_in_flight_request(next_tracer: nil)
-        request_tracer.on_request_finish(operation: "chat", model: "gpt-test", res: Object.new, span:)
-        expect(request_tracer).to equal(tracer1)
-        expect(tracer1.finishes.size).to eq(1)
-        expect(provider.tracer).to be_a(LLM::Tracer::Null)
+    context "when request thread tracer is nil" do
+      it "uses null tracer for that thread" do
+        _res, _span, request_tracer = run_in_flight_request(request_thread_tracer: nil)
+        expect(request_tracer).to be_a(LLM::Tracer::Null)
       end
     end
 
-    def run_in_flight_request(next_tracer: tracer2)
-      provider.tracer = tracer1
-      t = thread
+    def run_in_flight_request(request_thread_tracer: tracer1)
+      t = Thread.new do
+        provider.tracer = request_thread_tracer
+        req = Net::HTTP::Get.new("/v1/models", provider.headers)
+        provider.execute(request: req, operation: "chat", model: "gpt-test")
+      end
       started.pop
-      provider.tracer = next_tracer
+      yield if block_given?
       release << true
       t.value
     end

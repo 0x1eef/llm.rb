@@ -37,7 +37,6 @@ class LLM::Provider
     @timeout = timeout
     @ssl = ssl
     @client = persistent ? persistent_client : nil
-    @tracer = LLM::Tracer::Null.new(self)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
     @monitor = Monitor.new
@@ -48,7 +47,7 @@ class LLM::Provider
   # @return [String]
   # @note The secret key is redacted in inspect for security reasons
   def inspect
-    "#<#{self.class.name}:0x#{object_id.to_s(16)} @key=[REDACTED] @client=#{@client.inspect} @tracer=#{@tracer.inspect}>"
+    "#<#{self.class.name}:0x#{object_id.to_s(16)} @key=[REDACTED] @client=#{@client.inspect} @tracer=#{tracer.inspect}>"
   end
 
   ##
@@ -265,28 +264,27 @@ class LLM::Provider
 
   ##
   # @return [LLM::Tracer]
-  #  Returns an LLM tracer
+  #  Returns a thread-local tracer
   def tracer
-    @tracer
+    thread[thread_tracer_key] ||= LLM::Tracer::Null.new(self)
   end
 
   ##
-  # Set the tracer
+  # Set a thread-local tracer
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   llm.tracer = LLM::Tracer::Logger.new(llm, path: "/path/to/log.txt")
+  #   Thread.new do
+  #     llm.tracer = LLM::Tracer::Logger.new(llm, path: "/path/to/log/1.txt")
+  #   end
+  #   Thread.new do
+  #     llm.tracer = LLM::Tracer::Logger.new(llm, path: "/path/to/log/2.txt")
+  #   end
   #   # ...
   # @param [LLM::Tracer] tracer
   #  A tracer
   # @return [void]
   def tracer=(tracer)
-    lock do
-      @tracer = if tracer.nil?
-        LLM::Tracer::Null.new(self)
-      else
-        tracer
-      end
-    end
+    thread[thread_tracer_key] = tracer.nil? ? LLM::Tracer::Null.new(self) : tracer
   end
 
   ##
@@ -355,7 +353,7 @@ class LLM::Provider
   #  When there is a network error at the operating system level
   # @return [Net::HTTPResponse]
   def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, &b)
-    tracer = @tracer
+    tracer = self.tracer
     span = tracer.on_request_start(operation:, model:)
     http = client || transient_client
     args = (Net::HTTP === http) ? [request] : [URI.join(base_uri, request.path), request]
@@ -437,14 +435,20 @@ class LLM::Provider
   end
 
   ##
-  # @return [Hash<Symbol, LLM::Tracer>]
-  def tracers
-    self.class.tracers
+  # @api private
+  def lock(&)
+    @monitor.synchronize(&)
   end
 
   ##
   # @api private
-  def lock(&)
-    @monitor.synchronize(&)
+  def thread
+    Thread.current
+  end
+
+  ##
+  # @api private
+  def thread_tracer_key
+    @thread_tracer_key ||= :"llm.provider.tracer.#{object_id}"
   end
 end

@@ -192,7 +192,11 @@ is safe to share across threads. [LLM::Session](https://0x1eef.github.io/x/llm.r
 [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) are
 stateful objects that should be kept local to a single thread. So the
 recommended pattern is to keep one session or agent per thread,
-and share a provider across multiple threads:
+and share a provider across multiple threads.
+
+A tracer is also thread-local, which means that `llm.tracer = ...`
+only impacts the current thread, and should be repeated in each
+thread where tracing is required:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -203,6 +207,7 @@ schema = llm.schema.object(answer: llm.schema.integer.required)
 
 vals = 10.times.map do |x|
   Thread.new do
+    llm.tracer = LLM::Tracer::Logger.new(llm, path: "thread#{x}.log")
     ses = LLM::Session.new(llm, schema:)
     res = ses.talk "#{x} + 5 = ?"
     res.content!
@@ -349,6 +354,11 @@ can be used to trace LLM requests. It can be useful for debugging, monitoring,
 and observability. The primary use case in mind is integration with tools like
 [LangSmith](https://www.langsmith.com/).
 
+It is worth mentioning that tracers are local to a thread, and they
+should be configured per thread. That means that `llm.tracer = LLM::Tracer::Telemetry.new(llm)`
+only impacts the current thread, and it should be repeated in each thread where
+tracing is required.
+
 The telemetry implementation uses the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
 and is based on the [gen-ai telemetry spec(s)](https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/).
 This feature is optional, disabled by default, and the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
@@ -406,7 +416,8 @@ The llm.rb library includes simple logging support through its
 tracer API, and Ruby's standard library ([ruby/logger](https://github.com/ruby/logger)).
 This feature is optional, disabled by default, and it can be useful for debugging and/or
 monitoring requests to LLM providers. The `path` or `io` options can be used to choose
-where logs are written to, and by default it is set to `$stdout`:
+where logs are written, and by default it is set to `$stdout`. Like other tracers,
+the logger tracer is local to a thread:
 
 ```ruby
 #!/usr/bin/env ruby
