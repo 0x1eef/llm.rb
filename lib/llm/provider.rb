@@ -266,7 +266,7 @@ class LLM::Provider
   # @return [LLM::Tracer]
   #  Returns a thread-local tracer
   def tracer
-    thread[thread_tracer_key] || LLM::Tracer::Null.new(self)
+    weakmap[self] || LLM::Tracer::Null.new(self)
   end
 
   ##
@@ -285,9 +285,9 @@ class LLM::Provider
   # @return [void]
   def tracer=(tracer)
     if tracer.nil?
-      thread[thread_tracer_key] = nil
+      weakmap.delete(self)
     else
-      thread[thread_tracer_key] = tracer
+      weakmap[self] = tracer
     end
   end
 
@@ -452,7 +452,7 @@ class LLM::Provider
 
   ##
   # @api private
-  def thread_tracer_key
-    @thread_tracer_key ||= :"llm.provider.tracer.#{object_id}"
+  def weakmap
+    thread[:"llm.provider.weakmap"] ||= ObjectSpace::WeakMap.new
   end
 end
