@@ -7,8 +7,7 @@ module LLM
   # The {LLM::Tracer::Telemetry LLM::Tracer::Telemetry} tracer provides
   # telemetry support through the [opentelemetry-ruby](https://github.com/open-telemetry/opentelemetry-ruby)
   # RubyGem. The gem should be installed separately since this feature is opt-in
-  # and disabled by default. This feature exists to support integration with tools
-  # like [LangSmith](https://www.langsmith.com).
+  # and disabled by default.
   #
   # @see https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai Telemetry specs (index)
   # @see https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/openai.md Telemetry specs (OpenAI)
@@ -48,7 +47,6 @@ module LLM
     def initialize(provider, options = {})
       super
       @exporter = options.delete(:exporter)
-      setup_langsmith!(options.delete(:langsmith))
       setup!
     end
 
@@ -133,7 +131,7 @@ module LLM
         "gen_ai.provider.name" => provider_name,
         "server.address" => provider_host,
         "server.port" => provider_port
-      }.merge!(langsmith_attributes(span_kind: "tool")).compact
+      }.merge!(trace_attributes(span_kind: "tool")).compact
       span_name = ["execute_tool", name].compact.join(" ")
       span = create_span(span_name.empty? ? "gen_ai.tool" : span_name, attributes:)
       span.add_event("gen_ai.tool.start")
@@ -289,7 +287,7 @@ module LLM
         "gen_ai.provider.name" => provider_name,
         "server.address" => provider_host,
         "server.port" => provider_port
-      }.merge!(langsmith_attributes(span_kind: "llm")).compact
+      }.merge!(trace_attributes(span_kind: "llm")).compact
       span_name = [operation, model].compact.join(" ")
       span = create_span(span_name.empty? ? "gen_ai.request" : span_name, attributes:)
       span.add_event("gen_ai.request.start")
@@ -302,7 +300,7 @@ module LLM
         "gen_ai.provider.name" => provider_name,
         "server.address" => provider_host,
         "server.port" => provider_port
-      }.merge!(langsmith_attributes(span_kind: "retriever")).compact
+      }.merge!(trace_attributes(span_kind: "retriever")).compact
       span = create_span(operation, attributes:)
       span.add_event("gen_ai.request.start")
       span
@@ -334,52 +332,12 @@ module LLM
       span.tap(&:finish)
     end
 
-    def setup_langsmith!(options)
-      options ||= {}
-      @langsmith_metadata = options[:metadata] || {}
-      @langsmith_session_id = normalize_langsmith_session_id(options[:session_id], metadata: @langsmith_metadata)
-      @langsmith_tags = options[:tags] || []
-    end
-
-    def langsmith_attributes(span_kind:)
-      attributes = {}
-      unless @langsmith_session_id.to_s.empty?
-        attributes["langsmith.trace.session_id"] = @langsmith_session_id
-      end
-      @langsmith_metadata.each do |key, value|
-        next if value.nil?
-
-        attributes["langsmith.metadata.#{key}"] = serialize_langsmith_value(value)
-      end
-      unless @langsmith_tags.empty?
-        attributes["langsmith.span.tags"] = @langsmith_tags.map(&:to_s).join(",")
-      end
-      attributes["langsmith.span.kind"] = span_kind
-      attributes
-    end
-
-    def serialize_langsmith_value(value)
-      case value
-      when String, Numeric, TrueClass, FalseClass
-        value
-      else
-        LLM.json.dump(value)
-      end
-    end
-
-    def normalize_langsmith_session_id(session_id, metadata:)
-      raw = session_id&.to_s
-      return nil if raw.to_s.empty?
-      return raw if uuid?(raw)
-
-      # Keep arbitrary thread identifiers in metadata instead of forcing
-      # them into langsmith.trace.session_id, which expects a known UUID.
-      metadata[:session_id] ||= raw
-      nil
-    end
-
-    def uuid?(value)
-      value.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/i)
+    ##
+    # @api private
+    # Hook for tracer-specific span attributes.
+    # Subclasses can override this to inject provider-agnostic tags.
+    def trace_attributes(span_kind:)
+      {}
     end
   end
 end
