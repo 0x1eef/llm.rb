@@ -72,17 +72,17 @@ module LLM
         attributes: attrs,
         with_parent: parent_ctx
       )
-      thread[thread_root_span_key] = root_span
-      thread[thread_root_context_key] = ::OpenTelemetry::Trace.context_with_span(root_span)
+      @root_span = root_span
+      @root_context = ::OpenTelemetry::Trace.context_with_span(root_span)
       self
     end
 
     ##
     # @return [self]
     def stop_trace
-      thread[thread_root_span_key]&.finish
-      thread[thread_root_span_key] = nil
-      thread[thread_root_context_key] = nil
+      @root_span&.finish
+      @root_span = nil
+      @root_context = nil
       self
     end
 
@@ -195,28 +195,10 @@ module LLM
     ##
     # @api private
     def create_span(name, kind: :client, attributes: {})
-      root_context = thread[thread_root_context_key]
+      root_context = @root_context
       opts = {kind:, attributes:}
       opts[:with_parent] = root_context if root_context
       @tracer.start_span(name, **opts)
-    end
-
-    ##
-    # @api private
-    def thread_root_span_key
-      @thread_root_span_key ||= :"llm.telemetry.root_span.#{object_id}"
-    end
-
-    ##
-    # @api private
-    def thread_root_context_key
-      @thread_root_context_key ||= :"llm.telemetry.root_context.#{object_id}"
-    end
-
-    ##
-    # @api private
-    def thread
-      Thread.current
     end
 
     ##
