@@ -285,7 +285,11 @@ class LLM::Provider
   # @return [void]
   def tracer=(tracer)
     if tracer.nil?
-      weakmap.delete(self)
+      if weakmap.respond_to?(:delete)
+        weakmap.delete(self)
+      else
+        weakmap[self] = nil
+      end
     else
       weakmap[self] = tracer
     end
