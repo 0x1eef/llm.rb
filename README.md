@@ -195,8 +195,10 @@ recommended pattern is to keep one session or agent per thread,
 and share a provider across multiple threads.
 
 A tracer is also thread-local, which means that `llm.tracer = ...`
-only impacts the current thread, and should be repeated in each
-thread where tracing is required:
+only affects the current thread and should be set again in each
+thread where tracing is required. This avoids contention on tracer
+state, keeps tracing isolated per thread, and allows different
+tracers to be used in different threads simultaneously:
 
 ```ruby
 #!/usr/bin/env ruby
