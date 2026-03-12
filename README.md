@@ -181,8 +181,8 @@ ses.talk(prompt)
 
 llm.rb is designed for threaded environments with throughput in mind.
 Locks are used selectively, and localized state is preferred wherever
-possible. Blanket locking across every class would help guarantee
-correctness but it would also add contention, reduce throughput,
+possible. Blanket locking across every class could help guarantee
+correctness but it could also add contention, reduce throughput,
 and increase complexity.
 
 That's why we decided to optimize for both correctness and throughput
