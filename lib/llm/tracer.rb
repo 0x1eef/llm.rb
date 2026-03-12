@@ -11,6 +11,7 @@ module LLM
   class Tracer
     require_relative "tracer/logger"
     require_relative "tracer/telemetry"
+    require_relative "tracer/langsmith"
     require_relative "tracer/null"
 
     ##
