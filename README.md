@@ -188,7 +188,7 @@ and increase complexity.
 That's why we decided to optimize for both correctness and throughput
 instead. An important part of that design is guaranteeing that
 [LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
-is safe to share across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
+is safe to share and use across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
 [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) are
 stateful objects that should be kept local to a single thread. So the
 recommended pattern is to keep one session or agent per thread,
