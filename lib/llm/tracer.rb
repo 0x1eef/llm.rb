@@ -28,19 +28,22 @@ module LLM
     # Called before an LLM provider request is executed.
     # @param [String] operation
     # @param [String] model
+    # @param [Hash, nil] inputs Optional span attributes (e.g. gen_ai.input.messages) from llm.rb or caller.
     # @return [void]
-    def on_request_start(operation:, model: nil)
+    def on_request_start(operation:, model: nil, inputs: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
     ##
     # Called after an LLM provider request succeeds.
     # @param [String] operation
-    # @param [String] model
     # @param [LLM::Response] res
     # @param [Object, nil] span
+    # @param [String] model
+    # @param [Hash, nil] outputs Optional span attributes (e.g. gen_ai.output.messages) from llm.rb or caller.
+    # @param [Hash, nil] metadata Optional metadata (emitted as langsmith.metadata.*) from llm.rb or caller.
     # @return [void]
-    def on_request_finish(operation:, res:, model: nil, span: nil)
+    def on_request_finish(operation:, res:, model: nil, span: nil, outputs: nil, metadata: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
@@ -102,8 +105,11 @@ module LLM
     #  Name for the root span (e.g. "chatbot.turn").
     # @param [Hash] attributes
     #  OpenTelemetry attributes to set on the root span.
+    # @param [Hash, nil] metadata
+    #  Optional. Trace-level metadata merged into the trace (e.g. langsmith.metadata.*).
+    #  Only used by tracers that support it (e.g. {LLM::Tracer::Langsmith}).
     # @return [self]
-    def start_trace(trace_group_id: nil, name: "llm", attributes: {})
+    def start_trace(trace_group_id: nil, name: "llm", attributes: {}, metadata: nil)
       self
     end
 
@@ -137,7 +143,88 @@ module LLM
       nil
     end
 
+    ##
+    # Merges extra attributes for the current trace/span. Used by applications
+    # (e.g. chatbot) to add metadata, span inputs, or span outputs to the next
+    # span or to the trace. No-op by default; {LLM::Tracer::Langsmith} merges
+    # into thread-local storage and emits them as langsmith/GenAI attributes.
+    #
+    # @param [Hash, nil] metadata
+    #  Key-value pairs merged into trace/span metadata (e.g. langsmith.metadata.*).
+    # @param [Hash, nil] inputs
+    #  Key-value pairs set on the next span at start (e.g. gen_ai.input.messages).
+    #  Consumed when the span is created.
+    # @param [Hash, nil] outputs
+    #  Key-value pairs set on the current span at finish (e.g. gen_ai.output.messages).
+    #  Must be set before the request finishes (e.g. in a block passed to the provider).
+    # @return [self]
+    def merge_extra(metadata: nil, inputs: nil, outputs: nil)
+      self
+    end
+
+    ##
+    # Returns the current extra bag (metadata, inputs, outputs) for the current
+    # thread/trace. Used by subclasses; default returns empty hashes.
+    #
+    # @return [Hash] { metadata: {}, inputs: {}, outputs: {} }
+    def current_extra
+      {}
+    end
+
+    ##
+    # Returns and clears extra inputs for the next span. Called by the telemetry
+    # tracer when starting a span. Subclasses (e.g. Langsmith) override to
+    # return thread-local inputs; default returns {}.
+    #
+    # @return [Hash] Attribute key => value to set on the span at start
+    def consume_extra_inputs
+      {}
+    end
+
+    ##
+    # Returns and clears extra outputs for the current span. Called by the
+    # telemetry tracer when finishing a span. Subclasses override to return
+    # thread-local outputs; default returns {}.
+    #
+    # @return [Hash] Attribute key => value to set on the span at finish
+    def consume_extra_outputs
+      {}
+    end
+
+    ##
+    # Store per-request metadata (e.g. user_input) to be consumed by tracers
+    # when starting the next span. Used for plain-text input.value / output.value.
+    #
+    # @param [Hash] metadata e.g. { user_input: "the user question" }
+    # @return [nil]
+    def set_request_metadata(metadata)
+      return nil unless metadata && !metadata.empty?
+      key = thread_request_metadata_key
+      current = thread[key] || {}
+      thread[key] = current.merge(metadata.compact)
+      nil
+    end
+
+    ##
+    # Consume and clear per-request metadata. Called by the telemetry tracer at span start.
+    #
+    # @return [Hash]
+    def consume_request_metadata
+      key = thread_request_metadata_key
+      data = thread[key] || {}
+      thread[key] = nil
+      data
+    end
+
     private
+
+    def thread_request_metadata_key
+      @thread_request_metadata_key ||= :"llm.tracer.request_metadata.#{object_id}"
+    end
+
+    def thread
+      Thread.current
+    end
 
     ##
     # @return [String]

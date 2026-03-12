@@ -360,9 +360,9 @@ class LLM::Provider
   # @raise [SystemCallError]
   #  When there is a network error at the operating system level
   # @return [Net::HTTPResponse]
-  def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, &b)
+  def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, inputs: nil, &b)
     tracer = self.tracer
-    span = tracer.on_request_start(operation:, model:)
+    span = tracer.on_request_start(operation:, model:, inputs:)
     http = client || transient_client
     args = (Net::HTTP === http) ? [request] : [URI.join(base_uri, request.path), request]
     res = if stream
