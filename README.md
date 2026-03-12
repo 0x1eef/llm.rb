@@ -194,10 +194,11 @@ stateful objects that should be kept local to a single thread. So the
 recommended pattern is to keep one session or agent per thread,
 and share a provider across multiple threads.
 
-A tracer is also thread-local, which means that `llm.tracer = ...`
-only affects the current thread and should be set again in each
-thread where tracing is required. This avoids contention on tracer
-state, keeps tracing isolated per thread, and allows different
+[LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html) and its
+subclasses are also designed to be thread-local, which means that
+`llm.tracer = ...` only impacts the current thread and must be set
+again in each thread where a tracer is desired. This avoids contention
+on tracer state, keeps tracing isolated per thread, and allows different
 tracers to be used in different threads simultaneously:
 
 ```ruby
