@@ -181,23 +181,24 @@ ses.talk(prompt)
 
 llm.rb is designed for threaded environments with throughput in mind.
 Locks are used selectively, and localized state is preferred wherever
-possible. Blanket locking across every class would help guarantee
-correctness but it would also add contention, reduce throughput,
+possible. Blanket locking across every class could help guarantee
+correctness but it could also add contention, reduce throughput,
 and increase complexity.
 
 That's why we decided to optimize for both correctness and throughput
 instead. An important part of that design is guaranteeing that
 [LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
-is safe to share across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
+is safe to share and use across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
 [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) are
 stateful objects that should be kept local to a single thread. So the
 recommended pattern is to keep one session or agent per thread,
 and share a provider across multiple threads.
 
-A tracer is also thread-local, which means that `llm.tracer = ...`
-only affects the current thread and should be set again in each
-thread where tracing is required. This avoids contention on tracer
-state, keeps tracing isolated per thread, and allows different
+[LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html) and its
+subclasses are also designed to be thread-local, which means that
+`llm.tracer = ...` only impacts the current thread and must be set
+again in each thread where a tracer is desired. This avoids contention
+on tracer state, keeps tracing isolated per thread, and allows different
 tracers to be used in different threads simultaneously:
 
 ```ruby
