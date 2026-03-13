@@ -23,8 +23,8 @@ RSpec.describe LLM::Provider do
         @finishes = []
       end
 
-      def on_request_start(operation:, model: nil)
-        {operation:, model:}
+      def on_request_start(operation:, model: nil, inputs: nil)
+        {operation:, model:, inputs:}
       end
 
       def on_request_finish(operation:, res:, model: nil, span: nil)
