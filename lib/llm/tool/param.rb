@@ -65,7 +65,7 @@ class LLM::Tool
         leaf.required if required
         leaf.description(description) if description
         leaf.default(default) if default
-        leaf.enum(enum) if enum
+        leaf.enum(*enum) if enum
         leaf
       end
     end
