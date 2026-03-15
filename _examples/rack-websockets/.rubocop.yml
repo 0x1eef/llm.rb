@@ -1,0 +1,11 @@
+require:
+  - standard
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+AllCops:
+  TargetRubyVersion: 3.2

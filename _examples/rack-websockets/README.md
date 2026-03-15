@@ -4,20 +4,63 @@
 
 ## About
 
-The following is a minimal streaming chat application built with
-[llm.rb](https://github.com/llmrb/llm.rb), Rack, and WebSockets.
+A small demo app for [llm.rb](https://github.com/llmrb/llm.rb).
 
-## Stack
+## Features
 
-**Backend**
+- Rack-based server with Falcon
+- Stream chat over WebSockets
+- Tool calls (see [app/tools/](app/tools))
+- Chat with OpenAI, Gemini, and Anthropic
 
-- rack
-- llm.rb
-- falcon
-- async-websocket
+## Usage
 
-**Frontend**
+**Secrets**
 
-- React
-- Webpack
-- Websockets
+Set your secrets in `.env`:
+
+```sh
+OPENAI_SECRET=...
+GEMINI_SECRET=...
+ANTHROPIC_SECRET=...
+```
+
+**Packages**
+
+Install Ruby gems:
+
+```sh
+bundle install
+```
+
+Build the frontend:
+
+```sh
+bundle exec rake build
+```
+
+**Serve**
+
+Start the server:
+
+```sh
+set -a
+. ./.env
+set +a
+bundle exec falcon serve --bind http://localhost:9292
+```
+
+## How It Works
+
+- [config.ru](./config.ru) starts the app and serves [public/](./public/)
+- [app/actions/websocket.rb](./app/actions/websocket.rb) keeps one chat session per WebSocket
+- assistant output is sent as streaming websocket events
+- the provider dropdown reconnects with the selected provider
+
+## Files
+
+- [config.ru](./config.ru)
+- [app/actions/websocket.rb](./app/actions/websocket.rb)
+- [app/tools/create_image.rb](./app/tools/create_image.rb)
+- [public/App.js](./public/App.js)
+- [public/index.html](./public/index.html)

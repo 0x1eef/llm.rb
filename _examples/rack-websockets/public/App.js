@@ -7,16 +7,27 @@ export default function App() {
   const [status, setStatus] = useState("connecting")
   const [message, setMessage] = useState("")
   const [entries, setEntries] = useState([])
+  const [provider, setProvider] = useState("openai")
   const socketRef = useRef(null)
   const streamRef = useRef(null)
 
-  useEffect(() => {
-    const socket = new WebSocket(`${protocol}//${window.location.host}/ws`)
-    socketRef.current = socket
+  const say = (text) => {
+    setEntries((prev) => [...prev, {kind: "text", text}])
+  }
 
-    const say = (text) => {
-      setEntries((prev) => [...prev, {kind: "text", text}])
+  const scrollToBottom = () => {
+    const stream = streamRef.current
+    if (stream) {
+      stream.scrollTop = stream.scrollHeight
     }
+  }
+
+  useEffect(() => {
+    const socket = new WebSocket(
+      `${protocol}//${window.location.host}/ws?provider=${encodeURIComponent(provider)}`
+    )
+    socketRef.current = socket
+    setStatus("connecting")
 
     const stream = (chunk) => {
       setEntries((prev) => {
@@ -32,7 +43,7 @@ export default function App() {
     }
 
     socket.addEventListener("open", () => {
-      setStatus("open")
+      setStatus("ready")
     })
 
     socket.addEventListener("close", () => {
@@ -49,15 +60,19 @@ export default function App() {
         const payload = JSON.parse(event.data)
         switch (payload.event) {
           case "welcome":
-            say("server: connected")
+            say(`server: connected (${payload.provider || provider})`)
+            break
+          case "status":
+            setStatus(payload.message)
             break
           case "delta":
             stream(payload.message)
             break
           case "done":
-            say("server: stream complete")
+            setStatus("ready")
             break
           case "error":
+            setStatus("error")
             say("server: server error")
             break
           default:
@@ -69,27 +84,41 @@ export default function App() {
     })
 
     return () => socket.close()
-  }, [])
+  }, [provider])
 
   useLayoutEffect(() => {
-    const stream = streamRef.current
-    if (stream) {
-      stream.scrollTop = stream.scrollHeight
-    }
+    scrollToBottom()
   }, [entries])
+
+  useEffect(() => {
+    const stream = streamRef.current
+    if (!stream) {
+      return
+    }
+
+    const onLoad = (event) => {
+      if (event.target instanceof HTMLImageElement) {
+        scrollToBottom()
+      }
+    }
+
+    stream.addEventListener("load", onLoad, true)
+    return () => stream.removeEventListener("load", onLoad, true)
+  }, [])
 
   const onSubmit = (event) => {
     event.preventDefault()
     const socket = socketRef.current
     if (!socket || socket.readyState !== WebSocket.OPEN) {
-      setEntries((prev) => [...prev, {kind: "text", text: "client: socket is not open"}])
+      say("client: socket is not open")
       return
     }
     if (!message) {
       return
     }
+    setStatus("waiting")
+    say(`sent: ${message}`)
     socket.send(message)
-    setEntries((prev) => [...prev, {kind: "text", text: `sent: ${message}`}])
     setMessage("")
   }
 
@@ -99,9 +128,6 @@ export default function App() {
         <header className="flex justify-center pt-2">
           <img className="h-16 w-16 object-contain" src="/llm.png" alt="llm.rb logo" />
         </header>
-        <p className="text-center text-sm font-medium text-zinc-500">
-          Status: <span className="font-semibold text-zinc-700">{status}</span>
-        </p>
         <div
           id="stream"
           ref={streamRef}
@@ -114,7 +140,7 @@ export default function App() {
                   key={index}
                   className="mt-3 first:mt-0"
                   dangerouslySetInnerHTML={{
-                    __html: `assistant:<div class="assistant-content mt-1 max-w-none whitespace-normal [&_p]:my-0 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-zinc-100 [&_pre]:p-3 [&_code]:font-mono [&_blockquote]:border-l-4 [&_blockquote]:border-zinc-300 [&_blockquote]:pl-4 [&_blockquote]:text-zinc-600">${marked.parse(entry.markdown)}</div>`
+                    __html: `assistant:<div class="assistant-content mt-1 max-w-none whitespace-normal [&_p]:my-0 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-zinc-100 [&_pre]:p-3 [&_code]:font-mono [&_blockquote]:border-l-4 [&_blockquote]:border-zinc-300 [&_blockquote]:pl-4 [&_blockquote]:text-zinc-600 [&_img]:h-auto [&_img]:max-h-[32rem] [&_img]:w-full [&_img]:max-w-2xl [&_img]:rounded-2xl [&_img]:object-contain">${marked.parse(entry.markdown)}</div>`
                   }}
                 />
               )
@@ -126,6 +152,23 @@ export default function App() {
               </div>
             )
           })}
+        </div>
+        <div className="flex items-center justify-between gap-4 text-sm">
+          <p className="min-w-0 text-zinc-500">
+            Status: <span className="font-semibold text-zinc-700">{status}</span>
+          </p>
+          <label className="flex items-center gap-2 text-zinc-500">
+            <span>Provider</span>
+            <select
+              className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/10"
+              value={provider}
+              onChange={(event) => setProvider(event.target.value)}
+            >
+              <option value="openai">OpenAI</option>
+              <option value="gemini">Gemini</option>
+              <option value="anthropic">Anthropic</option>
+            </select>
+          </label>
         </div>
         <form
           className="sticky bottom-0 flex flex-col gap-2 bg-gradient-to-b from-white/0 via-white/90 to-white pt-3 pb-1"

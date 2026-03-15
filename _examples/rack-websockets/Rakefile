@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+desc "Build the frontend"
+task :build do
+  Dir.chdir File.join(__dir__, "public") do
+    sh "npx webpack build"
+  end
+end
