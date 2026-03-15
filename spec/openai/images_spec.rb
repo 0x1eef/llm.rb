@@ -8,7 +8,12 @@ RSpec.describe "LLM::OpenAI::Images" do
 
   context "when given a successful create operation (urls)",
           vcr: {cassette_name: "openai/images/successful_create_urls"} do
-    subject(:response) { provider.images.create(prompt: "A dog on a rocket to the moon") }
+    subject(:response) do
+      provider.images.create(
+        prompt: "A dog on a rocket to the moon",
+        response_format: "url"
+      )
+    end
 
     it "is successful" do
       expect(response).to be_instance_of(LLM::Response)
@@ -27,8 +32,7 @@ RSpec.describe "LLM::OpenAI::Images" do
           vcr: {cassette_name: "openai/images/successful_create_base64"} do
     subject(:response) do
       provider.images.create(
-        prompt: "A dog on a rocket to the moon",
-        response_format: "b64_json"
+        prompt: "A dog on a rocket to the moon"
       )
     end
 
@@ -75,7 +79,8 @@ RSpec.describe "LLM::OpenAI::Images" do
     subject(:response) do
       provider.images.edit(
         image: "spec/fixtures/images/bluebook.png",
-        prompt: "Add white background"
+        prompt: "Add white background",
+        response_format: "url"
       )
     end
 

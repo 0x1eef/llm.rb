@@ -691,68 +691,53 @@ puts res.text # => "Good morning."
 Some but not all LLM providers implement image generation capabilities that
 can create new images from a prompt, or edit an existing image with a
 prompt. The following example uses the OpenAI provider to create an
-image of a dog on a rocket to the moon. The image is then moved to
+image of a dog on a rocket to the moon. The image is then written to
 `${HOME}/dogonrocket.png` as the final step:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
-require "open-uri"
-require "fileutils"
-
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.images.create(prompt: "a dog on a rocket to the moon")
-res.urls.each do |url|
-  FileUtils.mv OpenURI.open_uri(url).path,
-               File.join(Dir.home, "dogonrocket.png")
-end
+IO.copy_stream res.images[0], File.join(Dir.home, "dogonrocket.png")
 ```
 
 #### Edit
 
 The following example is focused on editing a local image with the aid
 of a prompt. The image (`/tmp/llm-logo.png`) is returned to us with a hat.
-The image is then moved to `${HOME}/logo-with-hat.png` as
+The image is then written to `${HOME}/logo-with-hat.png` as
 the final step:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
-require "open-uri"
-require "fileutils"
-
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.images.edit(
   image: "/tmp/llm-logo.png",
   prompt: "add a hat to the logo",
 )
-res.urls.each do |url|
-  FileUtils.mv OpenURI.open_uri(url).path,
-               File.join(Dir.home, "logo-with-hat.png")
-end
+IO.copy_stream res.images[0], File.join(Dir.home, "logo-with-hat.png")
 ```
 
 #### Variations
 
 The following example is focused on creating variations of a local image.
 The image (`/tmp/llm-logo.png`) is returned to us with five different variations.
-The images are then moved to `${HOME}/logo-variation0.png`, `${HOME}/logo-variation1.png`
+The images are then written to `${HOME}/logo-variation0.png`, `${HOME}/logo-variation1.png`
 and so on as the final step:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
-require "open-uri"
-require "fileutils"
-
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.images.create_variation(
   image: "/tmp/llm-logo.png",
   n: 5
 )
-res.urls.each.with_index do |url, index|
-  FileUtils.mv OpenURI.open_uri(url).path,
-               File.join(Dir.home, "logo-variation#{index}.png")
+res.images.each.with_index do |image, index|
+  IO.copy_stream image,
+                 File.join(Dir.home, "logo-variation#{index}.png")
 end
 ```
 

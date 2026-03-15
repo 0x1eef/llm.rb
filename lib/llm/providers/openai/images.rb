@@ -5,7 +5,7 @@ class LLM::OpenAI
   # The {LLM::OpenAI::Images LLM::OpenAI::Images} class provides an interface
   # for [OpenAI's images API](https://platform.openai.com/docs/api-reference/images).
   # OpenAI supports multiple response formats: temporary URLs, or binary strings
-  # encoded in base64. The default is to return temporary URLs.
+  # encoded in base64. The default is to return base64-encoded image data.
   #
   # @example Temporary URLs
   #   #!/usr/bin/env ruby
@@ -14,7 +14,8 @@ class LLM::OpenAI
   #   require "fileutils"
   #
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   res = llm.images.create prompt: "A dog on a rocket to the moon"
+  #   res = llm.images.create prompt: "A dog on a rocket to the moon",
+  #                           response_format: "url"
   #   FileUtils.mv OpenURI.open_uri(res.urls[0]).path,
   #                "rocket.png"
   #
@@ -40,16 +41,17 @@ class LLM::OpenAI
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
     #   res = llm.images.create prompt: "A dog on a rocket to the moon"
-    #   res.urls.each { print _1, "\n" }
+    #   IO.copy_stream res.images[0], "rocket.png"
     # @see https://platform.openai.com/docs/api-reference/images/create OpenAI docs
     # @param [String] prompt The prompt
     # @param [String] model The model to use
+    # @param [String] response_format The response format ("b64_json" or "url")
     # @param [Hash] params Other parameters (see OpenAI docs)
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
-    def create(prompt:, model: "dall-e-3", **params)
+    def create(prompt:, model: "dall-e-3", response_format: "b64_json", **params)
       req = Net::HTTP::Post.new("/v1/images/generations", headers)
-      req.body = LLM.json.dump({prompt:, n: 1, model:}.merge!(params))
+      req.body = LLM.json.dump({prompt:, n: 1, model:, response_format:}.merge!(params))
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
       tracer.on_request_finish(operation: "request", model:, res:, span:)
@@ -61,16 +63,19 @@ class LLM::OpenAI
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
     #   res = llm.images.create_variation(image: "/images/hat.png", n: 5)
-    #   p res.urls
+    #   res.images.each.with_index do |image, index|
+    #     IO.copy_stream image, "variation#{index}.png"
+    #   end
     # @see https://platform.openai.com/docs/api-reference/images/createVariation OpenAI docs
     # @param [File] image The image to create variations from
     # @param [String] model The model to use
+    # @param [String] response_format The response format ("b64_json" or "url")
     # @param [Hash] params Other parameters (see OpenAI docs)
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
-    def create_variation(image:, model: "dall-e-2", **params)
+    def create_variation(image:, model: "dall-e-2", response_format: "b64_json", **params)
       image = LLM.File(image)
-      multi = LLM::Multipart.new(params.merge!(image:, model:))
+      multi = LLM::Multipart.new(params.merge!(image:, model:, response_format:))
       req = Net::HTTP::Post.new("/v1/images/variations", headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
@@ -85,17 +90,18 @@ class LLM::OpenAI
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
     #   res = llm.images.edit(image: "/images/hat.png", prompt: "A cat wearing this hat")
-    #   p res.urls
+    #   IO.copy_stream res.images[0], "hatoncat.png"
     # @see https://platform.openai.com/docs/api-reference/images/createEdit OpenAI docs
     # @param [File] image The image to edit
     # @param [String] prompt The prompt
     # @param [String] model The model to use
+    # @param [String] response_format The response format ("b64_json" or "url")
     # @param [Hash] params Other parameters (see OpenAI docs)
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
-    def edit(image:, prompt:, model: "dall-e-2", **params)
+    def edit(image:, prompt:, model: "dall-e-2", response_format: "b64_json", **params)
       image = LLM.File(image)
-      multi = LLM::Multipart.new(params.merge!(image:, prompt:, model:))
+      multi = LLM::Multipart.new(params.merge!(image:, prompt:, model:, response_format:))
       req = Net::HTTP::Post.new("/v1/images/edits", headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
