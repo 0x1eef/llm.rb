@@ -35,7 +35,7 @@ class LLM::Gemini
       ex = error
       @tracer.on_request_error(ex:, span:)
     ensure
-      raise(ex)
+      raise(ex) if ex
     end
 
     private
