@@ -1,2 +1,4 @@
 .env
 .bundle/gems
+node_modules/
+bundle.js*

@@ -9,8 +9,15 @@ The following is a minimal streaming chat application built with
 
 ## Stack
 
+**Backend**
+
 - rack
 - llm.rb
 - falcon
 - async-websocket
-- plain HTML, CSS, and JavaScript
+
+**Frontend**
+
+- React
+- Webpack
+- Websockets

@@ -4,23 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>llm.rb demo</title>
-    <link rel="stylesheet" href="/tail.min.css">
-    <link rel="stylesheet" href="/index.css">
   </head>
   <body>
-    <main class="flex w-full max-w-4xl flex-col gap-4 px-4 py-6">
-      <header class="flex justify-center">
-        <img class="h-16 w-16 object-contain" src="/llm.png" alt="llm.rb logo">
-      </header>
-      <p class="status-line">Status: <span id="status">connecting</span></p>
-      <div id="stream" class="flex-1 overflow-y-auto border rounded-3xl p-4"></div>
-      <form class="sticky bottom-0 pt-3">
-        <input class="w-full rounded-2xl border px-4 py-3 outline-none" type="text" placeholder="Type a message" autocomplete="off">
-        <div class="composer-actions">
-          <button class="rounded-2xl px-5 py-3 font-semibold" type="submit">Send</button>
-        </div>
-      </form>
-    </main>
-    <script src="/index.js"></script>
+    <div id="root"></div>
+    <script src="/bundle.js"></script>
   </body>
 </html>
