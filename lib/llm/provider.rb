@@ -371,11 +371,12 @@ class LLM::Provider
         parser = LLM::EventStream::Parser.new
         parser.register(handler)
         res.read_body(parser)
-        # If the handler body is empty, it means the
-        # response was most likely not streamed or
-        # parsing has failed. In that case, we fallback
-        # on the original response body.
-        res.body = LLM::Object.from(handler.body.empty? ? parser.body : handler.body)
+        # If the handler body is empty, the response was
+        # most likely not streamed or parsing failed.
+        # Preserve the raw body in that case so standard
+        # JSON/error handling can parse it later.
+        body = handler.body.empty? ? parser.body : handler.body
+        res.body = Hash === body || Array === body ? LLM::Object.from(body) : body
       ensure
         parser&.free
       end
