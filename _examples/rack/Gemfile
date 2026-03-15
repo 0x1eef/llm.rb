@@ -1,0 +1,7 @@
+source "https://rubygems.org"
+
+gem "rack"
+gem "rackup"
+gem "falcon"
+gem "async-websocket", require: %w[async/websocket/adapters/rack]
+gem "llm.rb", github: "llmrb/llm.rb"
