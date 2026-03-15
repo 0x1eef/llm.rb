@@ -22,7 +22,7 @@ class LLM::Tool
   extend LLM::Tool::Param
 
   types = [
-    :Leaf, :String, :Array,
+    :Leaf, :String, :Enum, :Array,
     :Object, :Integer, :Number,
     :Boolean, :Null
   ]

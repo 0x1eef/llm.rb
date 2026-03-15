@@ -35,6 +35,7 @@ class LLM::Schema
   require_relative "schema/object"
   require_relative "schema/array"
   require_relative "schema/string"
+  require_relative "schema/enum"
   require_relative "schema/number"
   require_relative "schema/integer"
   require_relative "schema/boolean"
