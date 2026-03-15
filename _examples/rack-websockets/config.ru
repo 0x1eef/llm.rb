@@ -9,7 +9,13 @@ Dir[File.join(__dir__, "app", "tools", "*.rb")].sort.each { require(_1) }
 openai    = LLM.openai(key: ENV["OPENAI_SECRET"])
 gemini    = LLM.gemini(key: ENV["GEMINI_SECRET"])
 anthropic = LLM.anthropic(key: ENV["ANTHROPIC_SECRET"])
-llms      = { "openai" => openai, "gemini" => gemini, "anthropic" => anthropic }
+deepseek  = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+llms      = {
+  "openai" => openai,
+  "gemini" => gemini,
+  "anthropic" => anthropic,
+  "deepseek" => deepseek
+}
 files     = Rack::Files.new(File.expand_path("public", __dir__))
 
 run lambda { |env|

@@ -10,8 +10,8 @@ A small demo app for [llm.rb](https://github.com/llmrb/llm.rb).
 
 - Rack-based server with Falcon
 - Stream chat over WebSockets
-- Tool calls (see [app/tool/](app/tool))
-- Chat with OpenAI, Gemini, and Anthropic
+- Tool calls (see [app/tools/](app/tools))
+- Chat with OpenAI, Gemini, Anthropic, and DeepSeek
 
 ## Usage
 
@@ -23,6 +23,7 @@ Set your secrets in `.env`:
 OPENAI_SECRET=...
 GEMINI_SECRET=...
 ANTHROPIC_SECRET=...
+DEEPSEEK_SECRET=...
 ```
 
 **Packages**

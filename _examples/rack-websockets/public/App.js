@@ -201,6 +201,7 @@ export default function App() {
               <option value="openai">OpenAI</option>
               <option value="gemini">Gemini</option>
               <option value="anthropic">Anthropic</option>
+              <option value="deepseek">DeepSeek</option>
             </select>
           </label>
         </div>
