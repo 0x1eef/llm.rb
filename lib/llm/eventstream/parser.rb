@@ -80,11 +80,6 @@ module LLM::EventStream
         @cursor = newline + 1
         yield(line)
       end
-      if @cursor < @buffer.length
-        line = @buffer[@cursor..]
-        @cursor = @buffer.length
-        yield(line)
-      end
       return if @cursor.zero?
       @buffer = @buffer[@cursor..] || +""
       @cursor = 0
