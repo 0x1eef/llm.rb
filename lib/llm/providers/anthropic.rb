@@ -140,7 +140,8 @@ module LLM
 
     def build_complete_request(prompt, params, role)
       messages = [*(params.delete(:messages) || []), Message.new(role, prompt)]
-      body = LLM.json.dump({messages: [adapt(messages)].flatten}.merge!(params))
+      payload = adapt(messages)
+      body = LLM.json.dump(payload.merge!(params))
       req = Net::HTTP::Post.new("/v1/messages", headers)
       set_body_stream(req, StringIO.new(body))
       req
