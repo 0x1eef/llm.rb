@@ -10,11 +10,13 @@ openai    = LLM.openai(key: ENV["OPENAI_SECRET"])
 gemini    = LLM.gemini(key: ENV["GEMINI_SECRET"])
 anthropic = LLM.anthropic(key: ENV["ANTHROPIC_SECRET"])
 deepseek  = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+xai       = LLM.xai(key: ENV["XAI_SECRET"])
 llms      = {
   "openai" => openai,
   "gemini" => gemini,
   "anthropic" => anthropic,
-  "deepseek" => deepseek
+  "deepseek" => deepseek,
+  "xai" => xai
 }
 files     = Rack::Files.new(File.expand_path("public", __dir__))
 

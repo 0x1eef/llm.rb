@@ -2,6 +2,7 @@ import React, {useEffect, useLayoutEffect, useRef, useState} from "react"
 import {marked} from "marked"
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+const origin = window.location.origin
 
 export default function App() {
   const [status, setStatus] = useState("connecting")
@@ -27,6 +28,10 @@ export default function App() {
     if (stream) {
       stream.scrollTop = stream.scrollHeight
     }
+  }
+
+  const render = (markdown) => {
+    return marked.parse(markdown.replaceAll("sandbox:/", `${origin}/`))
   }
 
   useEffect(() => {
@@ -184,7 +189,7 @@ export default function App() {
                   <div
                     className="max-w-[85%] rounded-3xl rounded-bl-lg bg-white px-4 py-3 text-zinc-900 shadow-sm ring-1 ring-zinc-200"
                     dangerouslySetInnerHTML={{
-                      __html: `<div class="assistant-content max-w-none whitespace-normal [&_p]:my-0 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-zinc-100 [&_pre]:p-3 [&_code]:font-mono [&_blockquote]:border-l-4 [&_blockquote]:border-zinc-300 [&_blockquote]:pl-4 [&_blockquote]:text-zinc-600 [&_img]:mt-2 [&_img]:h-auto [&_img]:max-h-[32rem] [&_img]:w-full [&_img]:max-w-2xl [&_img]:rounded-2xl [&_img]:object-contain">${marked.parse(entry.markdown)}</div>`
+                      __html: `<div class="assistant-content max-w-none whitespace-normal [&_p]:my-0 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-zinc-100 [&_pre]:p-3 [&_code]:font-mono [&_blockquote]:border-l-4 [&_blockquote]:border-zinc-300 [&_blockquote]:pl-4 [&_blockquote]:text-zinc-600 [&_img]:mt-2 [&_img]:h-auto [&_img]:max-h-[32rem] [&_img]:w-full [&_img]:max-w-2xl [&_img]:rounded-2xl [&_img]:object-contain">${render(entry.markdown)}</div>`
                     }}
                   />
                 </div>
@@ -224,6 +229,7 @@ export default function App() {
                 <option value="gemini">Gemini</option>
                 <option value="anthropic">Anthropic</option>
                 <option value="deepseek">DeepSeek</option>
+                <option value="xai">xAI</option>
               </select>
             </label>
             <label className="flex items-center gap-2">

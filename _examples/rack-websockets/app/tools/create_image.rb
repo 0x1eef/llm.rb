@@ -5,26 +5,27 @@ module Tool
     name "create-image"
     description "Create a generated image"
     param :prompt, String, "The prompt", required: true
+    param :provider, Enum["openai", "gemini", "xai"], "The provider", default: "gemini"
 
     ##
-    # Returns a HTML link for an image
+    # Returns a link for an image
     # @return [Hash]
-    def call(prompt:)
-      llm = LLM.gemini(key: ENV["GEMINI_SECRET"])
-      res = llm.images.create(prompt:)
-      IO.copy_stream res.images[0], destination
-      { html: }
+    def call(prompt:, provider: "gemini")
+      file = "#{SecureRandom.hex}.png"
+      key  = ENV["#{provider.upcase}_SECRET"]
+      llm  = LLM.method(provider).call(key:)
+      res  = llm.images.create(prompt:)
+      IO.copy_stream res.images[0], File.join(images_dir, file)
+      { url: "/g/#{file}" }
+    rescue LLM::RateLimitError => ex
+      { error: ex.class.to_s, message: "rate limit reached" }
+    rescue => ex
+      { error: ex.class.to_s, message: ex.message }
     end
 
     private
 
     def project_root = File.realpath(File.join(__dir__, "..", ".."))
     def images_dir = File.join(project_root, "public", "g")
-    def destination = File.join(images_dir, filename)
-    def html = "<img src='/g/#{filename}' alt='generated image'>"
-
-    def filename
-      @filename ||= "#{SecureRandom.hex}.png"
-    end
   end
 end

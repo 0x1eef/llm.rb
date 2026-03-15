@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/llmrb/llm.rb.git
-  revision: b3d7567ffe0e6eb4c534cef4f4547a420796ccc8
+  revision: eac41a2e01df9bfd3939855c16ce1521c5b71660
   specs:
     llm.rb (4.7.0)
 
