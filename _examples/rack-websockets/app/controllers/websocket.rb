@@ -1,30 +1,13 @@
 # frozen_string_literal: true
 
-module Actions
-  class Websocket
-    ##
-    # @param [Hash<Symbol, LLM::Provider>] llms
-    #  A hashmap of LLM::Provider objects
-    # @return [Actions::Websocket]
-    def initialize(llms)
-      @llms = llms
-    end
-
-    ##
-    # Maintains a websocket connection with a client
-    # @return [Array]
-    def call(env)
-      params = Rack::Request.new(env).params || {}
-      name = (params["provider"] || :openai).to_sym
-      Async::WebSocket::Adapters::Rack.open(env) do |conn|
-        llm = @llms[name]
-        on_connect conn, llm, LLM::Session.new(llm, tools:)
+module Controller
+  class Websocket < Base
+    def call
+      Async::WebSocket::Adapters::Rack.open(request.env) do |conn|
+        on_connect conn, llm, LLM::Session.new(llm, model:, tools:)
       end || upgrade_required
     end
 
-    ##
-    # Writes to the websocket
-    # @return [void]
     def write(conn, message)
       conn.write(message.to_json)
       conn.flush
@@ -34,7 +17,7 @@ module Actions
 
     def on_connect(conn, llm, sess)
       sess.talk(sess.prompt { _1.system instructions })
-      write(conn, event: "welcome", provider: llm.class.to_s)
+      write(conn, event: "welcome", provider: llm.class.to_s, model: sess.model)
       while (message = conn.read)
         read(conn, sess, message)
       end
@@ -73,7 +56,7 @@ module Actions
     end
 
     def tools
-      [Tools::CreateImage]
+      [Tool::CreateImage]
     end
 
     def instructions
@@ -83,17 +66,11 @@ module Actions
   end
 
   class Websocket::Stream
-    ##
-    # @param [Websocket] sock
-    # @return [Websocket::Stream]
     def initialize(conn, sock)
       @conn = conn
       @sock = sock
     end
 
-    ##
-    # @param [String] chunk
-    # @return void
     def <<(chunk)
       @sock.write(@conn, event: "delta", message: chunk.to_s)
     end

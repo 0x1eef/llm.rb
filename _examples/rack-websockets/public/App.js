@@ -8,6 +8,8 @@ export default function App() {
   const [message, setMessage] = useState("")
   const [entries, setEntries] = useState([])
   const [provider, setProvider] = useState("openai")
+  const [models, setModels] = useState([])
+  const [model, setModel] = useState("")
   const socketRef = useRef(null)
   const streamRef = useRef(null)
 
@@ -23,8 +25,34 @@ export default function App() {
   }
 
   useEffect(() => {
+    const controller = new AbortController()
+    setModels([])
+    setModel("")
+    setStatus("loading models")
+    fetch(`/models?provider=${encodeURIComponent(provider)}`, {signal: controller.signal})
+      .then((response) => response.json())
+      .then((payload) => {
+        setModels(payload)
+        setModel(payload[0]?.id || "")
+        setStatus("ready")
+      })
+      .catch((error) => {
+        if (error.name === "AbortError") {
+          return
+        }
+        setStatus("model error")
+        say("client: failed to load models")
+      })
+
+    return () => controller.abort()
+  }, [provider])
+
+  useEffect(() => {
+    if (!model) {
+      return
+    }
     const socket = new WebSocket(
-      `${protocol}//${window.location.host}/ws?provider=${encodeURIComponent(provider)}`
+      `${protocol}//${window.location.host}/ws?provider=${encodeURIComponent(provider)}&model=${encodeURIComponent(model)}`
     )
     socketRef.current = socket
     setStatus("connecting")
@@ -60,7 +88,7 @@ export default function App() {
         const payload = JSON.parse(event.data)
         switch (payload.event) {
           case "welcome":
-            say(`server: connected (${payload.provider || provider})`)
+            say(`server: connected (${payload.provider || provider}${payload.model ? ` / ${payload.model}` : ""})`)
             break
           case "status":
             setStatus(payload.message)
@@ -84,7 +112,7 @@ export default function App() {
     })
 
     return () => socket.close()
-  }, [provider])
+  }, [provider, model])
 
   useLayoutEffect(() => {
     scrollToBottom()
@@ -120,6 +148,12 @@ export default function App() {
     say(`sent: ${message}`)
     socket.send(message)
     setMessage("")
+  }
+
+  const onProviderChange = (event) => {
+    setModels([])
+    setModel("")
+    setProvider(event.target.value)
   }
 
   return (
@@ -162,11 +196,27 @@ export default function App() {
             <select
               className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/10"
               value={provider}
-              onChange={(event) => setProvider(event.target.value)}
+              onChange={onProviderChange}
             >
               <option value="openai">OpenAI</option>
               <option value="gemini">Gemini</option>
               <option value="anthropic">Anthropic</option>
+            </select>
+          </label>
+        </div>
+        <div className="flex justify-end">
+          <label className="flex items-center gap-2 text-sm text-zinc-500">
+            <span>Model</span>
+            <select
+              className="min-w-72 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/10"
+              value={model}
+              onChange={(event) => setModel(event.target.value)}
+            >
+              {models.map((entry) => (
+                <option key={entry.id} value={entry.id}>
+                  {entry.name || entry.id}
+                </option>
+              ))}
             </select>
           </label>
         </div>

@@ -10,7 +10,7 @@ A small demo app for [llm.rb](https://github.com/llmrb/llm.rb).
 
 - Rack-based server with Falcon
 - Stream chat over WebSockets
-- Tool calls (see [app/tools/](app/tools))
+- Tool calls (see [app/tool/](app/tool))
 - Chat with OpenAI, Gemini, and Anthropic
 
 ## Usage
@@ -53,14 +53,14 @@ bundle exec falcon serve --bind http://localhost:9292
 ## How It Works
 
 - [config.ru](./config.ru) starts the app and serves [public/](./public/)
-- [app/actions/websocket.rb](./app/actions/websocket.rb) keeps one chat session per WebSocket
+- [app/controllers/websocket.rb](./app/controllers/websocket.rb) keeps one chat session per WebSocket
 - assistant output is sent as streaming websocket events
 - the provider dropdown reconnects with the selected provider
 
 ## Files
 
 - [config.ru](./config.ru)
-- [app/actions/websocket.rb](./app/actions/websocket.rb)
+- [app/controllers/websocket.rb](./app/controllers/websocket.rb)
 - [app/tools/create_image.rb](./app/tools/create_image.rb)
 - [public/App.js](./public/App.js)
 - [public/index.html](./public/index.html)
