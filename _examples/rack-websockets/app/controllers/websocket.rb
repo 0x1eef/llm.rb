@@ -16,7 +16,6 @@ module Controller
     private
 
     def on_connect(conn, llm, sess)
-      sess.talk(sess.prompt { _1.system instructions })
       write(conn, event: "welcome", provider: llm.class.to_s, model: sess.model)
       while (message = conn.read)
         read(conn, sess, message)
@@ -26,7 +25,11 @@ module Controller
     def read(conn, sess, message)
       stream = Stream.new(conn, self)
       write(conn, event: "status", message: "Thinking…")
-      sess.talk(message.buffer, stream:)
+      if sess.messages.empty?
+        sess.talk(initial_prompt(message), stream:)
+      else
+        sess.talk(message.buffer, stream:)
+      end
       while sess.functions.any?
         functions = sess.functions
         write(conn, event: "status", message: tool_status(functions))
@@ -34,7 +37,8 @@ module Controller
       end
       write(conn, event: "status", message: "Done")
       write(conn, event: "done")
-    rescue StandardError
+    rescue StandardError => e
+      pp e
       write(conn, event: "status", message: "Error")
       write(conn, event: "error")
     end
@@ -62,6 +66,13 @@ module Controller
     def instructions
       "URLs returned by the create-image tool must be shown inline " \
       "and relative to the current domain instead of sandbox:/"
+    end
+
+    def initial_prompt(message)
+      LLM::Prompt.new(llm) do
+        _1.system instructions
+        _1.user message.buffer
+      end
     end
   end
 
