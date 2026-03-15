@@ -10,11 +10,16 @@ export default function App() {
   const [provider, setProvider] = useState("openai")
   const [models, setModels] = useState([])
   const [model, setModel] = useState("")
+  const [modelsLoading, setModelsLoading] = useState(false)
   const socketRef = useRef(null)
   const streamRef = useRef(null)
 
   const say = (text) => {
-    setEntries((prev) => [...prev, {kind: "text", text}])
+    setEntries((prev) => [...prev, {kind: "system", text}])
+  }
+
+  const tell = (text) => {
+    setEntries((prev) => [...prev, {kind: "user", text}])
   }
 
   const scrollToBottom = () => {
@@ -28,18 +33,21 @@ export default function App() {
     const controller = new AbortController()
     setModels([])
     setModel("")
+    setModelsLoading(true)
     setStatus("loading models")
     fetch(`/models?provider=${encodeURIComponent(provider)}`, {signal: controller.signal})
       .then((response) => response.json())
       .then((payload) => {
         setModels(payload)
         setModel(payload[0]?.id || "")
+        setModelsLoading(false)
         setStatus("ready")
       })
       .catch((error) => {
         if (error.name === "AbortError") {
           return
         }
+        setModelsLoading(false)
         setStatus("model error")
         say("client: failed to load models")
       })
@@ -145,7 +153,7 @@ export default function App() {
       return
     }
     setStatus("waiting")
-    say(`sent: ${message}`)
+    tell(message)
     socket.send(message)
     setMessage("")
   }
@@ -159,8 +167,10 @@ export default function App() {
   return (
     <main className="h-screen bg-white font-sans text-zinc-900">
       <div className="mx-auto flex h-full min-h-0 w-full max-w-4xl flex-col gap-4 px-4 py-6 sm:px-6">
-        <header className="flex justify-center pt-2">
-          <img className="h-16 w-16 object-contain" src="/llm.png" alt="llm.rb logo" />
+        <header className="border-b border-zinc-100 pb-3 text-center">
+          <p className="text-sm font-medium tracking-[0.18em] text-zinc-400 uppercase">
+            easytalk
+          </p>
         </header>
         <div
           id="stream"
@@ -170,56 +180,75 @@ export default function App() {
           {entries.map((entry, index) => {
             if (entry.kind === "assistant") {
               return (
-                <div
-                  key={index}
-                  className="mt-3 first:mt-0"
-                  dangerouslySetInnerHTML={{
-                    __html: `assistant:<div class="assistant-content mt-1 max-w-none whitespace-normal [&_p]:my-0 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-zinc-100 [&_pre]:p-3 [&_code]:font-mono [&_blockquote]:border-l-4 [&_blockquote]:border-zinc-300 [&_blockquote]:pl-4 [&_blockquote]:text-zinc-600 [&_img]:h-auto [&_img]:max-h-[32rem] [&_img]:w-full [&_img]:max-w-2xl [&_img]:rounded-2xl [&_img]:object-contain">${marked.parse(entry.markdown)}</div>`
-                  }}
-                />
+                <div key={index} className="mt-3 flex first:mt-0">
+                  <div
+                    className="max-w-[85%] rounded-3xl rounded-bl-lg bg-white px-4 py-3 text-zinc-900 shadow-sm ring-1 ring-zinc-200"
+                    dangerouslySetInnerHTML={{
+                      __html: `<div class="assistant-content max-w-none whitespace-normal [&_p]:my-0 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-zinc-100 [&_pre]:p-3 [&_code]:font-mono [&_blockquote]:border-l-4 [&_blockquote]:border-zinc-300 [&_blockquote]:pl-4 [&_blockquote]:text-zinc-600 [&_img]:mt-2 [&_img]:h-auto [&_img]:max-h-[32rem] [&_img]:w-full [&_img]:max-w-2xl [&_img]:rounded-2xl [&_img]:object-contain">${marked.parse(entry.markdown)}</div>`
+                    }}
+                  />
+                </div>
+              )
+            }
+
+            if (entry.kind === "user") {
+              return (
+                <div key={index} className="mt-3 flex justify-end first:mt-0">
+                  <div className="max-w-[75%] rounded-3xl rounded-br-lg bg-zinc-900 px-4 py-3 text-white shadow-sm">
+                    {entry.text}
+                  </div>
+                </div>
               )
             }
 
             return (
-              <div key={index} className="mt-3 first:mt-0 whitespace-pre-wrap">
+              <div key={index} className="mt-3 text-center text-xs text-zinc-500 first:mt-0">
                 {entry.text}
               </div>
             )
           })}
         </div>
-        <div className="flex items-center justify-between gap-4 text-sm">
-          <p className="min-w-0 text-zinc-500">
-            Status: <span className="font-semibold text-zinc-700">{status}</span>
-          </p>
-          <label className="flex items-center gap-2 text-zinc-500">
-            <span>Provider</span>
-            <select
-              className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/10"
-              value={provider}
-              onChange={onProviderChange}
-            >
-              <option value="openai">OpenAI</option>
-              <option value="gemini">Gemini</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="deepseek">DeepSeek</option>
-            </select>
-          </label>
-        </div>
-        <div className="flex justify-end">
-          <label className="flex items-center gap-2 text-sm text-zinc-500">
-            <span>Model</span>
-            <select
-              className="min-w-72 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/10"
-              value={model}
-              onChange={(event) => setModel(event.target.value)}
-            >
-              {models.map((entry) => (
-                <option key={entry.id} value={entry.id}>
-                  {entry.name || entry.id}
-                </option>
-              ))}
-            </select>
-          </label>
+        <p className="text-center text-sm text-zinc-500">
+          Status: <span className="font-semibold text-zinc-700">{status}</span>
+        </p>
+        <div className="flex justify-center text-sm">
+          <div className="flex items-center gap-3 text-zinc-500">
+            <label className="flex items-center gap-2">
+              <span>Provider</span>
+              <select
+                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/10"
+                value={provider}
+                onChange={onProviderChange}
+              >
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Gemini</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="deepseek">DeepSeek</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2">
+              <span>Model</span>
+              <select
+                className="min-w-72 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/10 disabled:bg-zinc-100 disabled:text-zinc-400"
+                value={model}
+                disabled={modelsLoading || models.length === 0}
+                onChange={(event) => setModel(event.target.value)}
+              >
+                {modelsLoading ? (
+                  <option value="">Loading models...</option>
+                ) : (
+                  models.map((entry) => (
+                    <option key={entry.id} value={entry.id}>
+                      {entry.name || entry.id}
+                    </option>
+                  ))
+                )}
+              </select>
+            </label>
+            <span className="text-xs text-zinc-400">
+              {modelsLoading ? "..." : `${models.length} models`}
+            </span>
+          </div>
         </div>
         <form
           className="sticky bottom-0 flex flex-col gap-2 bg-gradient-to-b from-white/0 via-white/90 to-white pt-3 pb-1"
