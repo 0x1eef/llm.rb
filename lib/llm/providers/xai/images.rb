@@ -40,19 +40,19 @@ class LLM::XAI
     # @param [Hash] params Other parameters (see xAI docs)
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
-    def create(prompt:, model: "grok-2-image-1212", **params)
+    def create(prompt:, model: "grok-imagine-image", **params)
       super
     end
 
     ##
     # @raise [NotImplementedError]
-    def edit(model: "grok-2-image-1212", **)
+    def edit(model: "grok-imagine-image", **)
       raise NotImplementedError
     end
 
     ##
     # @raise [NotImplementedError]
-    def create_variation(model: "grok-2-image-1212", **)
+    def create_variation(model: "grok-imagine-image", **)
       raise NotImplementedError
     end
   end
