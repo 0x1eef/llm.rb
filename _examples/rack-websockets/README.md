@@ -1,19 +1,28 @@
-<p align="center">
-  <a href="easytalk"><img src="./public/llm.png" width="160" height="160" border="0" alt="llm.rb"></a>
-</p>
-
 ## About
 
-EasyTalk is a demo app for [llm.rb](https://github.com/llmrb/llm.rb).
+EasyTalk is a demo app for [llm.rb](https://github.com/llmrb/llm.rb) that shows
+how to build a complex streaming chat interface with multiple providers and tools.
+It is implemented as a Rack application with Falcon and async-websocket support, and
+the frontend is built with React and webpack. It supports OpenAI, Gemini, Anthropic,
+xAI and DeepSeek, and you can add your own tools by following the example of
+[create_image.rb](./app/tools/create_image.rb). Enjoy :)
 
 ## Features
 
-- Plain Rack app with Falcon and async-websocket
-- Streaming chat over WebSockets
-- Switch providers: OpenAI, Gemini, Anthropic, xAI and DeepSeek
-- Switch models: varies by provider
-- Add your own tools: see [app/tools/](app/tools)
-- Image generation via [app/tools/create_image.rb](./app/tools/create_image.rb) - requires Gemini, OpenAI or xAI but works with any provider
+- ⚙️ Rack application built with Falcon and async-websocket
+- 🌊 Streaming chat over WebSockets
+- 🔀 Switch providers: OpenAI, Gemini, Anthropic, xAI and DeepSeek
+- 🧠 Switch models: varies by provider
+- 🛠️ Add your own tools: see [app/tools/](app/tools)
+- 🖼️ Image generation via [create_image.rb](./app/tools/create_image.rb) - requires Gemini, OpenAI or xAI but works with any provider
+
+## Screencast
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=FsSn7KuWY8o">
+    <img src="https://img.youtube.com/vi/FsSn7KuWY8o/maxresdefault.jpg" alt="Watch the EasyTalk demo on YouTube">
+  </a>
+</p>
 
 ## Usage
 
@@ -26,6 +35,7 @@ OPENAI_SECRET=...
 GEMINI_SECRET=...
 ANTHROPIC_SECRET=...
 DEEPSEEK_SECRET=...
+XAI_SECRET=...
 ```
 
 **Packages**
@@ -53,17 +63,14 @@ set +a
 bundle exec falcon serve --bind http://localhost:9292
 ```
 
-## How It Works
+## Sources
 
-- [config.ru](./config.ru) starts the app and serves [public/](./public/)
-- [app/controllers/websocket.rb](./app/controllers/websocket.rb) keeps one chat session per WebSocket
-- assistant output is sent as streaming websocket events
-- the provider dropdown reconnects with the selected provider
+* [GitHub.com](https://github.com/llmrb/easytalk)
+* [GitLab.com](https://gitlab.com/llmrb/easytalk)
+* [Codeberg.org](https://codeberg.org/llmrb/easytalk)
 
-## Files
+## License
 
-- [config.ru](./config.ru)
-- [app/controllers/websocket.rb](./app/controllers/websocket.rb)
-- [app/tools/create_image.rb](./app/tools/create_image.rb)
-- [public/App.js](./public/App.js)
-- [public/index.html](./public/index.html)
+[BSD Zero Clause](https://choosealicense.com/licenses/0bsd/)
+<br>
+See [LICENSE](./LICENSE)

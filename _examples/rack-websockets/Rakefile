@@ -6,3 +6,9 @@ task :build do
     sh "npx webpack build"
   end
 end
+
+desc "Serve the website"
+task serve: [:build] do
+  sh "env $(cat .env) " \
+     "bundle exec falcon serve --bind http://0.0.0.0:9292"
+end
