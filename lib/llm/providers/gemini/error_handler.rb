@@ -43,7 +43,7 @@ class LLM::Gemini
     ##
     # @return [LLM::Object]
     def body
-      @body ||= LLM.json.load(res.body)
+      @body ||= String === res.body ? LLM.json.load(res.body) : res.body
     end
 
     ##
