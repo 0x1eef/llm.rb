@@ -41,9 +41,9 @@ class LLM::Gemini
     private
 
     ##
-    # @return [LLM::Object]
+    # @return [String, LLM::Object]
     def body
-      @body ||= String === res.body ? LLM.json.load(res.body) : res.body
+      @body ||= parse_body!
     end
 
     ##
@@ -64,6 +64,21 @@ class LLM::Gemini
       else
         LLM::Error.new("Unexpected response").tap { _1.response = res }
       end
+    end
+
+    ##
+    # Tries to parse the response body as a LLM::Object
+    # @return [String, LLM::Object]
+    def parse_body!
+      if String === res.body
+        LLM::Object.from LLM.json.load(res.body)
+      elsif Hash === res.body
+        LLM::Object.from(res.body)
+      else
+        res.body
+      end
+    rescue
+      res.body
     end
   end
 end
