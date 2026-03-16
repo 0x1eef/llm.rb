@@ -65,7 +65,8 @@ module LLM
     # @return (see LLM::Provider#complete)
     def complete(prompt, params = {})
       params, stream, tools, role = normalize_complete_params(params)
-      req = build_complete_request(prompt, params, role)
+      req, messages = build_complete_request(prompt, params, role)
+      tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))
       res, span, tracer = execute(request: req, stream: stream, operation: "chat", model: params[:model])
       res = ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
@@ -216,7 +217,13 @@ module LLM
       body = LLM.json.dump({messages: adapt(messages, mode: :complete).flatten}.merge!(params))
       req = Net::HTTP::Post.new(completions_path, headers)
       set_body_stream(req, StringIO.new(body))
-      req
+      [req, messages]
+    end
+
+    def extract_user_input(messages, fallback:)
+      message = messages.reverse.find(&:user?) || messages.last
+      value = message&.content || fallback
+      value.is_a?(String) ? value : LLM.json.dump(value)
     end
   end
 end

@@ -57,7 +57,7 @@ module LLM
     #
     # @param (see LLM::Tracer#start_trace)
     # @return [self]
-    def start_trace(trace_group_id: nil, name: "llm", attributes: {})
+    def start_trace(trace_group_id: nil, name: "llm", attributes: {}, metadata: nil)
       return self if trace_group_id.to_s.empty?
 
       span_context = span_context_from_trace_group_id(trace_group_id.to_s)
@@ -88,9 +88,9 @@ module LLM
 
     ##
     # @param (see LLM::Tracer#on_request_start)
-    def on_request_start(operation:, model: nil)
+    def on_request_start(operation:, model: nil, inputs: nil)
       case operation
-      when "chat" then start_chat(operation:, model:)
+      when "chat" then start_chat(operation:, model:, inputs:)
       when "retrieval" then start_retrieval(operation:)
       else nil
       end
@@ -98,10 +98,10 @@ module LLM
 
     ##
     # @param (see LLM::Tracer#on_request_finish)
-    def on_request_finish(operation:, res:, model: nil, span: nil)
+    def on_request_finish(operation:, res:, model: nil, span: nil, outputs: nil, metadata: nil)
       return nil unless span
       case operation
-      when "chat" then finish_chat(operation:, model:, res:, span:)
+      when "chat" then finish_chat(operation:, model:, res:, span:, outputs:, metadata:)
       when "retrieval" then finish_retrieval(operation:, res:, span:)
       else nil
       end
@@ -262,16 +262,20 @@ module LLM
     ##
     # start_*
 
-    def start_chat(operation:, model:)
+    def start_chat(operation:, model:, inputs: nil)
+      request_metadata = consume_request_metadata
+      input_value = request_metadata[:user_input]
       attributes = {
         "gen_ai.operation.name" => operation,
         "gen_ai.request.model" => model,
         "gen_ai.provider.name" => provider_name,
         "server.address" => provider_host,
-        "server.port" => provider_port
+        "server.port" => provider_port,
+        "input.value" => serialize_request_value(input_value)
       }.merge!(trace_attributes(span_kind: "llm")).compact
       span_name = [operation, model].compact.join(" ")
       span = create_span(span_name.empty? ? "gen_ai.request" : span_name, attributes:)
+      set_span_attributes(span, consume_extra_inputs.merge(inputs || {}))
       span.add_event("gen_ai.request.start")
       span
     end
@@ -291,16 +295,26 @@ module LLM
     ##
     # finish_*
 
-    def finish_chat(operation:, model:, res:, span:)
+    def finish_chat(operation:, model:, res:, span:, outputs: nil, metadata: nil)
+      output_value = if res.respond_to?(:output_text)
+        res.output_text
+      else
+        (res.respond_to?(:content) ? res.content : nil)
+      end
       attributes = {
         "gen_ai.operation.name" => operation,
         "gen_ai.request.model" => model,
         "gen_ai.response.id" => res.id,
         "gen_ai.response.model" => model,
         "gen_ai.usage.input_tokens" => res.usage.input_tokens,
-        "gen_ai.usage.output_tokens" => res.usage.output_tokens
+        "gen_ai.usage.output_tokens" => res.usage.output_tokens,
+        "output.value" => serialize_request_value(output_value)
       }.merge!(finish_attributes(operation, res)).compact
       attributes.each { span.set_attribute(_1, _2) }
+      set_span_attributes(span, consume_extra_outputs.merge(outputs || {}))
+      finish_metadata = consume_finish_metadata_proc(res)
+      metadata = (metadata || {}).merge(finish_metadata || {})
+      set_span_attributes(span, metadata.transform_keys { "langsmith.metadata.#{_1}" })
       span.add_event("gen_ai.request.finish")
       span.tap(&:finish)
     end
@@ -309,9 +323,38 @@ module LLM
       attributes = {
         "gen_ai.operation.name" => operation
       }.merge!(finish_attributes(operation, res)).compact
+      chunks_json = retrieval_chunks_json(res)
+      attributes["langsmith.metadata.chunks"] = chunks_json if chunks_json
       attributes.each { span.set_attribute(_1, _2) }
       span.add_event("gen_ai.request.finish")
       span.tap(&:finish)
+    end
+
+    ##
+    # @api private
+    # Serialize retrieval response chunks for span attributes (e.g. langsmith.metadata.chunks).
+    # Returns a JSON string or nil when res has no data.
+    def consume_finish_metadata_proc(res)
+      key = LLM::Tracer::FINISH_METADATA_PROC_KEY
+      proc = Thread.current[key]
+      Thread.current[key] = nil
+      return {} unless proc.respond_to?(:call)
+
+      proc.call(res) || {}
+    rescue
+      {}
+    end
+
+    def retrieval_chunks_json(res)
+      return nil unless res.respond_to?(:data)
+
+      data = res.data
+      return nil unless data.is_a?(Array)
+
+      payload = data.map { |c| c.respond_to?(:to_h) ? c.to_h : c }
+      LLM.json.dump(payload)
+    rescue
+      nil
     end
 
     ##
@@ -320,6 +363,43 @@ module LLM
     # Subclasses can override this to inject provider-agnostic tags.
     def trace_attributes(span_kind:)
       {}
+    end
+
+    ##
+    # @api private
+    # Sets attribute key-value pairs on the span, serializing non-primitive values to JSON.
+    def set_span_attributes(span, attrs)
+      return if attrs.nil? || attrs.empty?
+
+      attrs.each do |key, value|
+        span.set_attribute(key.to_s, serialize_span_value(value))
+      end
+    end
+
+    ##
+    # @api private
+    # OpenTelemetry attributes accept String, Numeric, Boolean, or Array of those.
+    # Complex values (hashes, arrays of objects) are serialized to JSON strings.
+    def serialize_span_value(value)
+      case value
+      when String, Numeric, TrueClass, FalseClass
+        value
+      when Array
+        value.all? { |v| v.is_a?(String) || v.is_a?(Numeric) || v == true || v == false } ? value : LLM.json.dump(value)
+      else
+        LLM.json.dump(value)
+      end
+    end
+
+    def serialize_request_value(value)
+      case value
+      when nil
+        nil
+      when String
+        value
+      else
+        LLM.json.dump(value)
+      end
     end
   end
 end

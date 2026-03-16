@@ -42,6 +42,7 @@ class LLM::OpenAI
       params[:stream] = true if stream.respond_to?(:<<) || stream == true
       req = Net::HTTP::Post.new("/v1/responses", headers)
       messages = [*(params.delete(:input) || []), LLM::Message.new(role, prompt)]
+      @provider.tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))
       body = LLM.json.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       res, span, tracer = execute(request: req, stream:, stream_parser:, operation: "chat", model: params[:model])
@@ -98,6 +99,12 @@ class LLM::OpenAI
 
     def stream_parser
       LLM::OpenAI::Responses::StreamParser
+    end
+
+    def extract_user_input(messages, fallback:)
+      message = messages.reverse.find(&:user?) || messages.last
+      value = message&.content || fallback
+      value.is_a?(String) ? value : LLM.json.dump(value)
     end
   end
 end
