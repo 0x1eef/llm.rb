@@ -5,8 +5,8 @@ require_relative "lib/llm/version"
 Gem::Specification.new do |spec|
   spec.name = "llm.rb"
   spec.version = LLM::VERSION
-  spec.authors = ["Antar Azri", "0x1eef"]
-  spec.email = ["azantar@proton.me", "0x1eef@proton.me"]
+  spec.authors = ["Antar Azri", "0x1eef", "Christos Maris", "Rodrigo Serrano"]
+  spec.email = ["azantar@proton.me", "0x1eef@hardenedbsd.org"]
 
   spec.summary = <<~SUMMARY
   llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
