@@ -5,6 +5,7 @@ source "https://rubygems.org"
 gem "async-websocket", require: %w[async/websocket/adapters/rack]
 gem "falcon"
 gem "llm.rb", github: "llmrb/llm.rb"
+gem "net-http-persistent"
 gem "rack"
 gem "rackup"
 

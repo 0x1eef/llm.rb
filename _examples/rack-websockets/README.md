@@ -1,11 +1,17 @@
 ## About
 
-EasyTalk is a demo app for [llm.rb](https://github.com/llmrb/llm.rb) that shows
-how to build a complex streaming chat interface with multiple providers and tools.
-It is implemented as a Rack application with Falcon and async-websocket support, and
-the frontend is built with React and webpack. It supports OpenAI, Gemini, Anthropic,
-xAI and DeepSeek, and you can add your own tools by following the example of
-[create_image.rb](./app/tools/create_image.rb). Enjoy :)
+RealTalk is a small chat app built with [llm.rb](https://github.com/llmrb/llm.rb).
+It demonstrates streaming over WebSockets, tool calls, provider switching, and
+model selection in a simple Rack app with a small React frontend. See the
+[Screencast](#screencast) for a demo.
+
+Enjoy :)
+
+## Screencast
+
+[![Watch the screencast](https://img.youtube.com/vi/PO0GFmSG1uU/maxresdefault.jpg)](https://www.youtube.com/watch?v=PO0GFmSG1uU)
+
+Watch the screencast on [YouTube](https://www.youtube.com/watch?v=PO0GFmSG1uU).
 
 ## Features
 
@@ -15,14 +21,6 @@ xAI and DeepSeek, and you can add your own tools by following the example of
 - 🧠 Switch models: varies by provider
 - 🛠️ Add your own tools: see [app/tools/](app/tools)
 - 🖼️ Image generation via [create_image.rb](./app/tools/create_image.rb) - requires Gemini, OpenAI or xAI but works with any provider
-
-## Screencast
-
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=FsSn7KuWY8o">
-    <img src="https://img.youtube.com/vi/FsSn7KuWY8o/maxresdefault.jpg" alt="Watch the EasyTalk demo on YouTube">
-  </a>
-</p>
 
 ## Usage
 
@@ -57,17 +55,14 @@ bundle exec rake build
 Start the server:
 
 ```sh
-set -a
-. ./.env
-set +a
-bundle exec falcon serve --bind http://localhost:9292
+bundle exec rake serve
 ```
 
 ## Sources
 
-* [GitHub.com](https://github.com/llmrb/easytalk)
-* [GitLab.com](https://gitlab.com/llmrb/easytalk)
-* [Codeberg.org](https://codeberg.org/llmrb/easytalk)
+* [GitHub.com](https://github.com/llmrb/realtalk)
+* [GitLab.com](https://gitlab.com/llmrb/realtalk)
+* [Codeberg.org](https://codeberg.org/llmrb/realtalk)
 
 ## License
 

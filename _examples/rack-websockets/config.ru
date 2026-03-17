@@ -6,6 +6,7 @@ Bundler.require(:default)
 Dir[File.join(__dir__, "app", "controllers", "*.rb")].sort.each { require(_1) }
 Dir[File.join(__dir__, "app", "tools", "*.rb")].sort.each { require(_1) }
 
+files     = Rack::Files.new(File.expand_path("public", __dir__))
 openai    = LLM.openai(key: ENV["OPENAI_SECRET"])
 gemini    = LLM.gemini(key: ENV["GEMINI_SECRET"])
 anthropic = LLM.anthropic(key: ENV["ANTHROPIC_SECRET"])
@@ -17,8 +18,7 @@ llms      = {
   "anthropic" => anthropic,
   "deepseek" => deepseek,
   "xai" => xai
-}
-files     = Rack::Files.new(File.expand_path("public", __dir__))
+}.transform_values(&:persist!)
 
 run lambda { |env|
   case env["PATH_INFO"]

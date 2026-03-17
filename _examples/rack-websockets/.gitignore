@@ -1,5 +1,5 @@
 .env
 .bundle/gems
 node_modules/
-bundle.js*
-public/g/
+public/
+!public/g/.gitkeep
