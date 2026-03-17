@@ -252,7 +252,7 @@ module LLM
     alias_method :restore, :deserialize
 
     ##
-    # @return [BigDecimal]
+    # @return [LLM::Estimate]
     #  Returns an _approximate_ cost for a given session
     #  based on both the provider, and model
     def cost

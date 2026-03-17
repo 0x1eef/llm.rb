@@ -6,8 +6,6 @@
 # provider model prices from per-million-token rates into estimated
 # input and output costs for a given usage object.
 class LLM::Cost
-  require "bigdecimal"
-
   ##
   # @param [LLM::Provider] llm
   #  A subclass of LLM::Provider
@@ -31,8 +29,8 @@ class LLM::Cost
   def compute(model:, usage:)
     cost = @registry.cost(model:)
     LLM::Estimate.new(
-      (BigDecimal(cost.input.to_s) / 1_000_000)  * usage.input_tokens,
-      (BigDecimal(cost.output.to_s) / 1_000_000) * usage.output_tokens
+      (cost.input.to_f / 1_000_000.0)  * usage.input_tokens,
+      (cost.output.to_f / 1_000_000.0) * usage.output_tokens
     )
   end
 end

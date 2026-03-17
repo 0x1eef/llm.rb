@@ -5,13 +5,13 @@
 # cost breakdown for a provider request. It stores the estimated
 # input and output costs separately and can return the total.
 #
-# @attr [BigDecimal] input_costs
+# @attr [Float] input_costs
 #   Returns the estimated input cost
-# @attr [BigDecimal] output_costs
+# @attr [Float] output_costs
 #   Returns the estimated output cost
 class LLM::Estimate < Struct.new(:input_costs, :output_costs)
   ##
-  # @return [BigDecimal]
+  # @return [Float]
   #  Returns the total estimated cost
   def total
     input_costs + output_costs
@@ -21,6 +21,6 @@ class LLM::Estimate < Struct.new(:input_costs, :output_costs)
   # @return [String]
   #  Returns the total estimated cost in a human friendly format
   def to_s
-    total.to_s("F")
+    format("%.12f", total).sub(/\.?0+$/, "")
   end
 end
