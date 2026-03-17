@@ -54,4 +54,8 @@ module LLM
   ##
   # When stuck in a tool call loop
   ToolLoopError = Class.new(Error)
+
+  ##
+  # When {LLM::Registry} can't map a model
+  NoSuchModelError = Class.new(Error)
 end

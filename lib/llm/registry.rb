@@ -45,7 +45,7 @@ class LLM::Registry
       if @models.key?(fallback)
         @models[fallback].cost
       else
-        raise LLM::Error, "unknown model: #{model} (fallback: #{fallback})"
+        raise LLM::NoSuchModelError, "no such model: #{model} (fallback: #{fallback})"
       end
     end
   end
