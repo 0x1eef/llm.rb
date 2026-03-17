@@ -41,6 +41,7 @@ class LLM::Registry
       @models[model].cost
     else
       fallback = model.sub(/-\d{4}-\d{2}-\d{2}$/, "")
+      fallback = fallback.sub(/\A(gpt-.*)-\d{4}$/, '\1') if fallback == model
       if @models.key?(fallback)
         @models[fallback].cost
       else
