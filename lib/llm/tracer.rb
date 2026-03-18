@@ -147,7 +147,7 @@ module LLM
     # Merges extra attributes for the current trace/span. Used by applications
     # (e.g. chatbot) to add metadata, span inputs, or span outputs to the next
     # span or to the trace. No-op by default; {LLM::Tracer::Langsmith} merges
-    # into thread-local storage and emits them as langsmith/GenAI attributes.
+    # into fiber-local storage and emits them as langsmith/GenAI attributes.
     #
     # @param [Hash, nil] metadata
     #  Key-value pairs merged into trace/span metadata (e.g. langsmith.metadata.*).
@@ -190,7 +190,7 @@ module LLM
     ##
     # Returns and clears extra inputs for the next span. Called by the telemetry
     # tracer when starting a span. Subclasses (e.g. Langsmith) override to
-    # return thread-local inputs; default returns {}.
+    # return fiber-local inputs; default returns {}.
     #
     # @return [Hash] Attribute key => value to set on the span at start
     def consume_extra_inputs
@@ -200,7 +200,7 @@ module LLM
     ##
     # Returns and clears extra outputs for the current span. Called by the
     # telemetry tracer when finishing a span. Subclasses override to return
-    # thread-local outputs; default returns {}.
+    # fiber-local outputs; default returns {}.
     #
     # @return [Hash] Attribute key => value to set on the span at finish
     def consume_extra_outputs

@@ -273,13 +273,13 @@ class LLM::Provider
 
   ##
   # @return [LLM::Tracer]
-  #  Returns a thread-local tracer
+  #  Returns a fiber-local tracer
   def tracer
     weakmap[self] || LLM::Tracer::Null.new(self)
   end
 
   ##
-  # Set a thread-local tracer
+  # Set a fiber-local tracer
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
   #   Thread.new do

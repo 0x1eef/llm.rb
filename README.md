@@ -200,28 +200,25 @@ ses.talk(prompt)
 
 #### Threads
 
-llm.rb is designed for threaded environments with throughput in mind.
-Locks are used selectively, and localized state is preferred wherever
-possible. Blanket locking across every class could help guarantee
-correctness but it could also add contention, reduce throughput,
-and increase complexity.
+llm.rb is designed for threaded and fibered environments with throughput
+in mind. Locks are used selectively, and localized state is preferred
+wherever possible to balance correctness, contention, and complexity.
 
-That's why we decided to optimize for both correctness and throughput
-instead. An important part of that design is guaranteeing that
 [LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
-is safe to share and use across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
+is safe to share across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
 [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) are
-stateful objects that should be kept local to a single thread.
+stateful objects and should be kept local to a single thread.
 
 [LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html) and its
-subclasses are also designed to be thread-local, which means that
-`llm.tracer = ...` only impacts the current thread and must be set
-again in each thread where a tracer is desired. This avoids contention
-on tracer state, keeps tracing isolated per thread, and allows different
-tracers to be used in different threads simultaneously.
+subclasses are fiber-local, so `llm.tracer = ...` only affects the
+current fiber and should be set again in each fiber where a tracer is
+desired. Since each thread starts with its own main fiber, tracer state
+also stays isolated across threads by default. See Ruby's docs on
+[Thread variables and scope](https://docs.ruby-lang.org/en/4.0/Thread.html#class-Thread-label-Thread+variables+and+scope)
+for more about the underlying behavior.
 
-So the recommended pattern is to keep one session, tracer or agent per
-thread, and share a provider across multiple threads:
+The recommended pattern is to keep one session, tracer, or agent per
+thread and share a provider across multiple threads:
 
 
 ```ruby
@@ -380,10 +377,13 @@ can be used to trace LLM requests. It can be useful for debugging, monitoring,
 and observability. The primary use case in mind is integration with tools like
 [LangSmith](https://www.langsmith.com/).
 
-It is worth mentioning that tracers are local to a thread, and they
-should be configured per thread. That means that `llm.tracer = LLM::Tracer::Telemetry.new(llm)`
-only impacts the current thread, and it should be repeated in each thread where
-tracing is required.
+It is worth mentioning that tracers are local to a fiber, and they
+should be configured per fiber. That means that `llm.tracer = LLM::Tracer::Telemetry.new(llm)`
+only impacts the current fiber, and it should be repeated in each fiber where
+tracing is required. Since each thread starts with its own main fiber,
+this also keeps tracer configuration isolated across threads by default.
+See Ruby's docs on [Thread variables and scope](https://docs.ruby-lang.org/en/4.0/Thread.html#class-Thread-label-Thread+variables+and+scope)
+for more about the underlying behavior.
 
 The telemetry implementation uses the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
 and is based on the [gen-ai telemetry spec(s)](https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/).
