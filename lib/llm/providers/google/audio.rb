@@ -15,7 +15,7 @@ class LLM::Google
     ##
     # Returns a new Audio object
     # @param provider [LLM::Provider]
-    # @return [LLM::Google::Responses]
+    # @return [LLM::Google::Audio]
     def initialize(provider)
       @provider = provider
     end

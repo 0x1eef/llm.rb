@@ -18,7 +18,7 @@ class LLM::Google
     ##
     # Returns a new Images object
     # @param provider [LLM::Provider]
-    # @return [LLM::Google::Responses]
+    # @return [LLM::Google::Images]
     def initialize(provider)
       @provider = provider
     end
