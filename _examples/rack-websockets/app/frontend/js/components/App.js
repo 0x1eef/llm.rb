@@ -13,17 +13,30 @@ import { ModelSelect, ProviderSelect } from '~/js/components/Select'
 import { useModels, useWebSocket } from '~/js/hooks'
 
 export default function App () {
-  const [cost, setCost] = useState('')
   const [message, setMessage] = useState('')
-  const [provider, setProvider] = useState('deepseek')
-  const { loading: modelsLoading, model, models, setModel } = useModels(provider)
-  const { entries, send, status, streaming } = useWebSocket(provider, model, setModel, setCost)
+  const [session, setSession] = useState({ provider: 'deepseek', model: '', cost: '' })
+  const { loading: modelsLoading, model, models } = useModels({ session, setSession })
+  const { entries, send, status, streaming } = useWebSocket({session, setSession})
   const streamRef = useRef(null)
   const inputRef = useRef(null)
 
   const scrollToBottom = () => {
     const stream = streamRef.current
     if (stream) stream.scrollTop = stream.scrollHeight
+  }
+
+  const onSubmit = (event) => {
+    event.preventDefault()
+    if (!message) return
+    if (send(message)) setMessage('')
+  }
+
+  const onProviderChange = (event) => {
+    setSession((prev) => ({...prev, provider: event.target.value, model: '', cost: ''}))
+  }
+
+  const onModelChange = (event) => {
+    setSession((prev) => ({...prev, model: event.target.value, cost: ''}))
   }
 
   useLayoutEffect(() => {
@@ -44,21 +57,16 @@ export default function App () {
     inputRef.current?.focus()
   }, [])
 
-  const onSubmit = (event) => {
-    event.preventDefault()
-    if (!message) return
-    if (send(message)) setMessage('')
-  }
-
-  const onProviderChange = (event) => {
-    setProvider(event.target.value)
-    setCost('')
-  }
-
-  const onModelChange = (event) => {
-    setModel(event.target.value)
-    setCost('')
-  }
+  useEffect(() => {
+    switch(session.provider) {
+      case 'openai':
+        setSession((prev) => ({...prev, model: 'gpt-5.4'}))
+        break;
+      case 'gemini':
+        setSession((prev) => ({...prev, model: 'gemini-pro-latest'}))
+        break;
+    }
+  }, [session.provider])
 
   return (
     <main className='h-screen bg-white font-sans text-zinc-900'>
@@ -72,7 +80,7 @@ export default function App () {
             />
           </a>
           <div className='flex w-full flex-col gap-3 text-sm text-zinc-500'>
-            <ProviderSelect provider={provider} onChange={onProviderChange} />
+            <ProviderSelect provider={session.provider} onChange={onProviderChange} />
             <ModelSelect
               loading={modelsLoading}
               model={model}
@@ -87,7 +95,7 @@ export default function App () {
                 Session Cost
               </p>
               <p className='mt-1 text-2xl font-semibold text-emerald-950'>
-                {cost || '$0.00'}
+                {session.cost || '$0.00'}
               </p>
             </div>
           </div>
@@ -123,6 +131,7 @@ export default function App () {
           />
           <div className='flex justify-end'>
             <button
+              disabled={status !== 'ready'}
               className='min-w-24 rounded-full bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none'
               type='submit'
             >
