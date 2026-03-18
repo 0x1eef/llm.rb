@@ -23,7 +23,7 @@ module LLM
     ##
     # @param (see LLM::Tracer#on_request_start)
     # @return [void]
-    def on_request_start(operation:, model: nil)
+    def on_request_start(operation:, model: nil, **)
       case operation
       when "chat" then start_chat(operation:, model:)
       when "retrieval" then start_retrieval(operation:)
