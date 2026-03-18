@@ -214,7 +214,7 @@ subclasses are fiber-local, so `llm.tracer = ...` only affects the
 current fiber and should be set again in each fiber where a tracer is
 desired. Since each thread starts with its own main fiber, tracer state
 also stays isolated across threads by default. See Ruby's docs on
-[Thread variables and scope](https://docs.ruby-lang.org/en/4.0/Thread.html#class-Thread-label-Thread+variables+and+scope)
+[Fiber-local vs. Thread-local](https://docs.ruby-lang.org/en/4.0/Thread.html#class-Thread-label-Fiber-local+vs.+Thread-local)
 for more about the underlying behavior.
 
 The recommended pattern is to keep one session, tracer, or agent per
