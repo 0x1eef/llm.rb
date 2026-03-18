@@ -198,7 +198,7 @@ end
 ses.talk(prompt)
 ```
 
-#### Threads
+#### Concurrency
 
 llm.rb is designed for threaded and fibered environments with throughput
 in mind. Locks are used selectively, and localized state is preferred
