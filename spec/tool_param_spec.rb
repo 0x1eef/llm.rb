@@ -8,18 +8,18 @@ RSpec.describe LLM::Tool::Param do
       Class.new(LLM::Tool) do
         name "create-image"
         description "Create a generated image"
-        param :provider, String, "The provider", enum: %w[openai gemini], default: "gemini"
+        param :provider, String, "The provider", enum: %w[openai google], default: "google"
       end
     end
 
     subject(:provider_param) { tool.function.params.properties[:provider] }
 
     it "serializes the enum as a flat array" do
-      expect(provider_param.to_h[:enum]).to eq(%w[openai gemini])
+      expect(provider_param.to_h[:enum]).to eq(%w[openai google])
     end
 
     it "preserves the default value" do
-      expect(provider_param.to_h[:default]).to eq("gemini")
+      expect(provider_param.to_h[:default]).to eq("google")
     end
   end
 
@@ -31,7 +31,7 @@ RSpec.describe LLM::Tool::Param do
         class Tool < LLM::Tool
           name "create-image"
           description "Create a generated image"
-          param :provider, Enum["openai", "gemini"], "The provider"
+          param :provider, Enum["openai", "google"], "The provider"
         end
       RUBY
       EnumTool::Tool
@@ -41,7 +41,7 @@ RSpec.describe LLM::Tool::Param do
 
     it "builds a string param with enum values" do
       expect(provider_param).to be_a(LLM::Schema::String)
-      expect(provider_param.to_h[:enum]).to eq(%w[openai gemini])
+      expect(provider_param.to_h[:enum]).to eq(%w[openai google])
     end
   end
 end

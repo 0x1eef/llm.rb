@@ -17,10 +17,10 @@ Watch the screencast on [YouTube](https://youtu.be/fOvAFq7ITiE).
 
 - ⚙️ Rack application built with Falcon and async-websocket
 - 🌊 Streaming chat over WebSockets
-- 🔀 Switch providers: OpenAI, Gemini, Anthropic, xAI and DeepSeek
+- 🔀 Switch providers: OpenAI, Google, Anthropic, xAI and DeepSeek
 - 🧠 Switch models: varies by provider
 - 🛠️ Add your own tools: see [app/tools/](app/tools)
-- 🖼️ Image generation via [create_image.rb](./app/tools/create_image.rb) - requires Gemini, OpenAI or xAI but works with any provider
+- 🖼️ Image generation via [create_image.rb](./app/tools/create_image.rb) - requires Google, OpenAI or xAI but works with any provider
 
 ## Usage
 

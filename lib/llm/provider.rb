@@ -131,7 +131,7 @@ class LLM::Provider
   end
 
   ##
-  # @return [LLM::OpenAI::Images, LLM::Gemini::Images]
+  # @return [LLM::OpenAI::Images, LLM::Google::Images]
   #  Returns an interface to the images API
   def images
     raise NotImplementedError

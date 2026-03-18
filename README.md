@@ -10,7 +10,7 @@
 ## About
 
 llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
-includes OpenAI, Gemini, Anthropic, xAI (Grok), zAI, DeepSeek, Ollama,
+includes OpenAI, Google (Gemini), Anthropic, xAI (Grok), zAI, DeepSeek, Ollama,
 and LlamaCpp. The toolkit includes full support for chat, streaming,
 tool calling, audio, images, files, and structured outputs.
 
@@ -280,7 +280,7 @@ vals.each { |val| puts val }
 
 ## Matrix
 
-| Feature / Provider                  | OpenAI | Anthropic | Gemini | DeepSeek | xAI (Grok) | zAI    | Ollama | LlamaCpp |
+| Feature / Provider                  | OpenAI | Anthropic | Google | DeepSeek | xAI (Grok) | zAI    | Ollama | LlamaCpp |
 |--------------------------------------|:------:|:---------:|:------:|:--------:|:----------:|:------:|:------:|:--------:|
 | **Chat Completions**                 | ✅     | ✅        | ✅     | ✅       | ✅         | ✅     | ✅     | ✅       |
 | **Streaming**                        | ✅     | ✅        | ✅     | ✅       | ✅         | ✅     | ✅     | ✅       |
@@ -318,7 +318,7 @@ require "llm"
 ##
 # remote providers
 llm = LLM.openai(key: "yourapikey")
-llm = LLM.gemini(key: "yourapikey")
+llm = LLM.google(key: "yourapikey")
 llm = LLM.anthropic(key: "yourapikey")
 llm = LLM.xai(key: "yourapikey")
 llm = LLM.zai(key: "yourapikey")
@@ -605,7 +605,7 @@ ses.talk ses.functions.map(&:call) # report return value to the LLM
 
 #### Create
 
-The OpenAI and Gemini providers provide a Files API where a client can upload files
+The OpenAI and Google providers provide a Files API where a client can upload files
 that can be referenced from a prompt, and with other APIs as well. The following
 example uses the OpenAI provider to describe the contents of a PDF file after
 it has been uploaded. The file (a specialized instance of

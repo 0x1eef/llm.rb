@@ -4,7 +4,7 @@ require "bundler/gem_tasks"
 require "rspec/core/rake_task"
 
 cassettes = File.join(__dir__, "spec", "fixtures", "cassettes")
-remotes = %w[openai gemini anthropic deepseek]
+remotes = %w[openai google anthropic deepseek]
 locals  = %w[ollama llamacpp]
 bundler = ENV["bundler"] || "bundle"
 
@@ -47,7 +47,7 @@ task :console do
   require "dotenv"
   Dotenv.load
   openai = LLM.openai(key: ENV["OPENAI_SECRET"])
-  gemini = LLM.gemini(key: ENV["GEMINI_SECRET"])
+  google = LLM.google(key: ENV["GEMINI_SECRET"])
   anthropic = LLM.anthropic(key: ENV["ANTHROPIC_SECRET"])
   deepseek = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
   xai = LLM.xai(key: ENV["XAI_SECRET"])

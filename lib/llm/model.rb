@@ -34,7 +34,7 @@ class LLM::Model
   # @return [Boolean]
   def chat?
     return true if anthropic?
-    return [*(raw.supportedGenerationMethods || [])].include?("generateContent") if gemini?
+    return [*(raw.supportedGenerationMethods || [])].include?("generateContent") if google?
     openai_compatible_chat?
   end
 
@@ -96,7 +96,7 @@ class LLM::Model
     raw.type == "model" && raw.key?(:display_name) && raw.key?(:created_at)
   end
 
-  def gemini?
+  def google?
     raw.key?(:supportedGenerationMethods)
   end
 

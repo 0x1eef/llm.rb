@@ -94,10 +94,10 @@ module LLM
 
   ##
   # @param (see LLM::Provider#initialize)
-  # @return (see LLM::Gemini#initialize)
-  def gemini(**)
-    lock(:require) { require_relative "llm/providers/gemini" unless defined?(LLM::Gemini) }
-    LLM::Gemini.new(**)
+  # @return (see LLM::Google#initialize)
+  def google(**)
+    lock(:require) { require_relative "llm/providers/google" unless defined?(LLM::Google) }
+    LLM::Google.new(**)
   end
 
   ##

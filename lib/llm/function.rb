@@ -176,7 +176,7 @@ class LLM::Function
   # @return [Hash]
   def adapt(provider)
     case provider.class.to_s
-    when "LLM::Gemini"
+    when "LLM::Google"
       {name: @name, description: @description, parameters: @params}.compact
     when "LLM::Anthropic"
       {name: @name, description: @description, input_schema: @params}.compact

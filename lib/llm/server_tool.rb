@@ -8,7 +8,7 @@
 #
 # @example
 #   #!/usr/bin/env ruby
-#   llm = LLM.gemini ENV["KEY"]
+#   llm = LLM.google ENV["KEY"]
 #   ses = LLM::Session.new(llm, tools: [LLM::ServerTool.new(:google_search)])
 #   ses.talk("Summarize today's news", role: :user)
 #   print ses.messages.find(&:assistant?).content, "\n"
@@ -24,7 +24,7 @@ class LLM::ServerTool < Struct.new(:name, :options, :provider)
   def to_h
     case provider.class.to_s
     when "LLM::Anthropic" then options.merge("name" => name.to_s)
-    when "LLM::Gemini" then {name => options}
+    when "LLM::Google" then {name => options}
     else options.merge("type" => name.to_s)
     end
   end

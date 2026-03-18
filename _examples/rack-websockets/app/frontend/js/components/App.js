@@ -62,7 +62,7 @@ export default function App () {
       case 'openai':
         setSession((prev) => ({...prev, model: 'gpt-5.4'}))
         break;
-      case 'gemini':
+      case 'google':
         setSession((prev) => ({...prev, model: 'gemini-pro-latest'}))
         break;
     }

@@ -10,7 +10,7 @@ export default function ProviderSelect ({ provider, onChange }) {
         onChange={onChange}
       >
         <option value='openai'>OpenAI</option>
-        <option value='gemini'>Gemini</option>
+        <option value='google'>Google</option>
         <option value='anthropic'>Anthropic</option>
         <option value='deepseek'>DeepSeek</option>
         <option value='xai'>xAI</option>
