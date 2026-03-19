@@ -252,11 +252,15 @@ module LLM
     alias_method :restore, :deserialize
 
     ##
-    # @return [LLM::Estimate]
+    # @return [LLM::Cost]
     #  Returns an _approximate_ cost for a given session
     #  based on both the provider, and model
     def cost
-      LLM::Cost.new(@llm).compute(model:, usage:)
+      cost = LLM.registry_for(llm).cost(model:)
+      LLM::Cost.new(
+        (cost.input.to_f / 1_000_000.0)  * usage.input_tokens,
+        (cost.output.to_f / 1_000_000.0) * usage.output_tokens
+      )
     end
 
     private

@@ -7,7 +7,6 @@ module LLM
   require_relative "llm/error"
   require_relative "llm/contract"
   require_relative "llm/registry"
-  require_relative "llm/estimate"
   require_relative "llm/cost"
   require_relative "llm/usage"
   require_relative "llm/prompt"
