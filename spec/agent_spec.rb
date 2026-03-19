@@ -31,7 +31,7 @@ RSpec.describe LLM::Agent do
         it "passes the defaults to the session" do
           expect(LLM::Session).to receive(:new).with(
             provider,
-            {model: "gpt-4.1", tools: [tool], schema:},
+            {model: "gpt-4.1", tools: [tool], schema:}
           ).and_call_original
           agent.new(provider)
         end
