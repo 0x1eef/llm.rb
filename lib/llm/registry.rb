@@ -40,13 +40,24 @@ class LLM::Registry
     if @models.key?(model)
       @models[model].cost
     else
-      fallback = model.sub(/-\d{4}-\d{2}-\d{2}$/, "")
-      fallback = fallback.sub(/\A(gpt-.*)-\d{4}$/, '\1') if fallback == model
+      patterns = {/-\d{4}-\d{2}-\d{2}$/ => "", /\A(gpt-.*)-\d{4}$/ => "\\1"}
+      fallback = find_map(patterns) { model.dup.sub!(_1, _2) } || "none"
       if @models.key?(fallback)
         @models[fallback].cost
       else
         raise LLM::NoSuchModelError, "no such model: #{model} (fallback: #{fallback})"
       end
     end
+  end
+
+  private
+
+  ##
+  # Similar to #{find} but returns the block's return value
+  # @return [Object, nil]
+  def find_map(pair)
+    result = nil
+    pair.each_pair { break if result = yield(_1, _2) }
+    result
   end
 end
