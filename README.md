@@ -230,7 +230,7 @@ schema = llm.schema.object(answer: llm.schema.integer.required)
 
 vals = 10.times.map do |x|
   Thread.new do
-    llm.tracer = LLM::Tracer::Logger.new(llm, path: "thread#{x}.log")
+    llm.tracer = LLM::Tracer::Logger.new(llm, path: "threads.log")
     ses = LLM::Session.new(llm, schema:)
     res = ses.talk "#{x} + 5 = ?"
     res.content!
