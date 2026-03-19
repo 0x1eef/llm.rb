@@ -58,4 +58,8 @@ module LLM
   ##
   # When {LLM::Registry} can't map a model
   NoSuchModelError = Class.new(Error)
+
+  ##
+  # When {LLM::Registry} can't map a registry
+  NoSuchRegistryError = Class.new(Error)
 end

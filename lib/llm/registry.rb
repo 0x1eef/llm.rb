@@ -20,7 +20,7 @@ class LLM::Registry
     if File.file?(path)
       new LLM.json.load(File.binread(path))
     else
-      raise LLM::Error, "no registry found for #{name}"
+      raise LLM::NoSuchRegistryError, "no registry found for #{name}"
     end
   end
 
