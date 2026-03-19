@@ -57,7 +57,7 @@ class LLM::Prompt
   #  The message content
   # @return [void]
   def user(content)
-    chat(content, role: @provider.user_role)
+    talk(content, role: @provider.user_role)
   end
 
   ##
@@ -65,7 +65,7 @@ class LLM::Prompt
   #  The message content
   # @return [void]
   def system(content)
-    chat(content, role: @provider.system_role)
+    talk(content, role: @provider.system_role)
   end
 
   ##
@@ -73,7 +73,7 @@ class LLM::Prompt
   #  The message content
   # @return [void]
   def developer(content)
-    chat(content, role: @provider.developer_role)
+    talk(content, role: @provider.developer_role)
   end
 
   ##
@@ -82,4 +82,10 @@ class LLM::Prompt
   def to_a
     @buffer.dup
   end
+
+  def ==(other)
+    return false unless LLM::Prompt === other
+    @buffer == other.to_a
+  end
+  alias_method :eql?, :==
 end

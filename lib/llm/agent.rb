@@ -24,6 +24,11 @@ module LLM
   #   agent.talk("Run 'date'")
   class Agent
     ##
+    # Returns a provider
+    # @return [LLM::Provider]
+    attr_reader :llm
+
+    ##
     # Set or get the default model
     # @param [String, nil] model
     #  The model identifier
@@ -77,11 +82,10 @@ module LLM
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [#to_json, nil] :schema Defaults to nil
-    def initialize(provider, params = {})
+    def initialize(llm, params = {})
       defaults = {model: self.class.model, tools: self.class.tools, schema: self.class.schema}.compact
-      @provider = provider
-      @ses = LLM::Session.new(provider, defaults.merge(params))
-      @instructions_applied = false
+      @llm = llm
+      @ses = LLM::Session.new(llm, defaults.merge(params))
     end
 
     ##
@@ -105,7 +109,6 @@ module LLM
         res = @ses.talk @ses.functions.map(&:call), params
         i += 1
       end
-      @instructions_applied = true
       res
     end
     alias_method :chat, :talk
@@ -132,7 +135,6 @@ module LLM
         res = @ses.respond @ses.functions.map(&:call), params
         i += 1
       end
-      @instructions_applied = true
       res
     end
 
@@ -222,19 +224,18 @@ module LLM
 
     private
 
-    def apply_instructions(prompt)
+    ##
+    # @return [LLM::Prompt]
+    def apply_instructions(new_prompt)
       instr = self.class.instructions
-      return prompt unless instr
-      if LLM::Prompt === prompt
-        messages = prompt.to_a
-        prompt = LLM::Prompt.new(@provider)
-        prompt.system instr unless @instructions_applied
-        messages.each { |msg| prompt.talk(msg.content, role: msg.role) }
-        prompt
+      return new_prompt unless instr
+      if LLM::Prompt === new_prompt
+        @ses.messages.empty? ? new_prompt.system(instr) : nil
+        new_prompt
       else
         prompt do
-          system instr unless @instructions_applied
-          user prompt
+          @ses.messages.empty? ? _1.system(instr) : nil
+          _1.user(new_prompt)
         end
       end
     end

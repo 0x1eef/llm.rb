@@ -64,7 +64,7 @@ module LLM
     #   res = ses.talk("Hello, what is your name?")
     #   puts res.messages[0].content
     def talk(prompt, params = {})
-      prompt, params, messages = fetch(prompt, params)
+      prompt, params, messages = [prompt, params, []]
       params = params.merge(messages: [*@messages.to_a, *messages])
       params = @params.merge(params)
       res = @llm.complete(prompt, params)
@@ -91,7 +91,7 @@ module LLM
     #   res = ses.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
-      prompt, params, messages = fetch(prompt, params)
+      prompt, params, messages = [prompt, params, []]
       res_id = @messages.find(&:assistant?)&.response&.response_id
       params = params.merge(previous_response_id: res_id, input: messages).compact
       params = @params.merge(params)
@@ -261,16 +261,6 @@ module LLM
         (cost.input.to_f / 1_000_000.0)  * usage.input_tokens,
         (cost.output.to_f / 1_000_000.0) * usage.output_tokens
       )
-    end
-
-    private
-
-    def fetch(prompt, params)
-      return [prompt, params, []] unless LLM::Prompt === prompt
-      messages = prompt.to_a
-      prompt = messages.shift
-      params.merge!(role: prompt.role)
-      [prompt.content, params, messages]
     end
   end
 
