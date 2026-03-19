@@ -146,12 +146,20 @@ module LLM
     end
 
     def build_complete_request(prompt, params, role)
-      messages = [*(params.delete(:messages) || []), Message.new(role, prompt)]
+      messages = build_complete_messages(prompt, params, role)
       payload = adapt(messages)
       body = LLM.json.dump(payload.merge!(params))
       req = Net::HTTP::Post.new("/v1/messages", headers)
       set_body_stream(req, StringIO.new(body))
       req
+    end
+
+    def build_complete_messages(prompt, params, role)
+      if LLM::Prompt === prompt
+        [*(params.delete(:messages) || []), *prompt.to_a]
+      else
+        [*(params.delete(:messages) || []), Message.new(role, prompt)]
+      end
     end
   end
 end

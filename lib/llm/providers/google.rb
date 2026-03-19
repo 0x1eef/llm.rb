@@ -204,10 +204,18 @@ module LLM
       model.respond_to?(:id) ? model.id : model
       path = ["/v1beta/models/#{model}", action].join(":")
       req  = Net::HTTP::Post.new(path, headers)
-      messages = [*(params.delete(:messages) || []), LLM::Message.new(role, prompt)]
+      messages = build_complete_messages(prompt, params, role)
       body = LLM.json.dump({contents: adapt(messages)}.merge!(params))
       set_body_stream(req, StringIO.new(body))
       req
+    end
+
+    def build_complete_messages(prompt, params, role)
+      if LLM::Prompt === prompt
+        [*(params.delete(:messages) || []), *prompt.to_a]
+      else
+        [*(params.delete(:messages) || []), LLM::Message.new(role, prompt)]
+      end
     end
   end
 end
