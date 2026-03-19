@@ -83,6 +83,10 @@ class LLM::Prompt
     @buffer.dup
   end
 
+  ##
+  # Returns true when two prompts have the same buffer
+  # @param [LLM::Prompt] other
+  # @return [Boolean]
   def ==(other)
     return false unless LLM::Prompt === other
     @buffer == other.to_a
