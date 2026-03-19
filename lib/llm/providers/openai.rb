@@ -229,7 +229,7 @@ module LLM
 
     def build_complete_messages(prompt, params, role)
       if LLM::Prompt === prompt
-        [*(params.delete(:messages) || []), *prompt.to_a]
+        [*(params.delete(:messages) || []), *prompt]
       else
         [*(params.delete(:messages) || []), Message.new(role, prompt)]
       end

@@ -41,7 +41,7 @@ class LLM::OpenAI
       role, stream = params.delete(:role), params.delete(:stream)
       params[:stream] = true if stream.respond_to?(:<<) || stream == true
       req = Net::HTTP::Post.new("/v1/responses", headers)
-      messages = [*(params.delete(:input) || []), LLM::Message.new(role, prompt)]
+      messages = build_complete_messages(prompt, params, role)
       @provider.tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))
       body = LLM.json.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
       set_body_stream(req, StringIO.new(body))
@@ -87,6 +87,14 @@ class LLM::OpenAI
 
     [:headers, :execute, :set_body_stream, :resolve_tools].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
+    end
+
+    def build_complete_messages(prompt, params, role)
+      if LLM::Prompt === prompt
+        [*(params.delete(:input) || []), *prompt]
+      else
+        [*(params.delete(:input) || []), LLM::Message.new(role, prompt)]
+      end
     end
 
     def adapt_schema(params)
