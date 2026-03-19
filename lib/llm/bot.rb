@@ -64,14 +64,13 @@ module LLM
     #   res = ses.talk("Hello, what is your name?")
     #   puts res.messages[0].content
     def talk(prompt, params = {})
-      prompt, params, messages = [prompt, params, []]
-      params = params.merge(messages: [*@messages.to_a, *messages])
+      prompt, params = [prompt, params]
+      params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
       res = @llm.complete(prompt, params)
       role = params[:role] || @llm.user_role
       role = @llm.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
-      @messages.concat [LLM::Message.new(role, prompt)]
-      @messages.concat messages
+      @messages.concat LLM::Prompt === prompt ? prompt.to_a : [LLM::Message.new(role, prompt)]
       @messages.concat [res.choices[-1]]
       res
     end
@@ -91,14 +90,13 @@ module LLM
     #   res = ses.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
-      prompt, params, messages = [prompt, params, []]
+      prompt, params = [prompt, params]
       res_id = @messages.find(&:assistant?)&.response&.response_id
-      params = params.merge(previous_response_id: res_id, input: messages).compact
+      params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
       params = @params.merge(params)
       res = @llm.responses.create(prompt, params)
       role = params[:role] || @llm.user_role
-      @messages.concat [LLM::Message.new(role, prompt)]
-      @messages.concat messages
+      @messages.concat LLM::Prompt === prompt ? prompt.to_a : [LLM::Message.new(role, prompt)]
       @messages.concat [res.choices[-1]]
       res
     end
