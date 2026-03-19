@@ -37,20 +37,31 @@ class LLM::Registry
   # @return [LLM::Object]
   #  Returns model costs
   def cost(model:)
+    lookup(model:).cost
+  end
+
+  ##
+  # @return [LLM::Object]
+  #  Returns model modalities
+  def modalities(model:)
+    lookup(model:).modalities
+  end
+
+  private
+
+  def lookup(model:)
     if @models.key?(model)
-      @models[model].cost
+      @models[model]
     else
       patterns = {/-\d{4}-\d{2}-\d{2}$/ => "", /\A(gpt-.*)-\d{4}$/ => "\\1"}
       fallback = find_map(patterns) { model.dup.sub!(_1, _2) } || "none"
       if @models.key?(fallback)
-        @models[fallback].cost
+        @models[fallback]
       else
         raise LLM::NoSuchModelError, "no such model: #{model} (fallback: #{fallback})"
       end
     end
   end
-
-  private
 
   ##
   # Similar to #{find} but returns the block's return value
