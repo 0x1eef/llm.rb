@@ -64,7 +64,6 @@ module LLM
     #   res = ses.talk("Hello, what is your name?")
     #   puts res.messages[0].content
     def talk(prompt, params = {})
-      prompt, params = [prompt, params]
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
       res = @llm.complete(prompt, params)
@@ -90,7 +89,6 @@ module LLM
     #   res = ses.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
-      prompt, params = [prompt, params]
       res_id = @messages.find(&:assistant?)&.response&.response_id
       params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
       params = @params.merge(params)
