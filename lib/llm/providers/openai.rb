@@ -220,11 +220,19 @@ module LLM
     end
 
     def build_complete_request(prompt, params, role)
-      messages = [*(params.delete(:messages) || []), Message.new(role, prompt)]
+      messages = build_complete_messages(prompt, params, role)
       body = LLM.json.dump({messages: adapt(messages, mode: :complete).flatten}.merge!(params))
       req = Net::HTTP::Post.new(completions_path, headers)
       set_body_stream(req, StringIO.new(body))
       [req, messages]
+    end
+
+    def build_complete_messages(prompt, params, role)
+      if LLM::Prompt === prompt
+        prompt.talk(prompt, role:).to_a
+      else
+        [*(params.delete(:messages) || []), Message.new(role, prompt)]
+      end
     end
 
     def extract_user_input(messages, fallback:)
