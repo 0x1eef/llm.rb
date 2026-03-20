@@ -49,10 +49,11 @@ class LLM::Tool
   end
 
   ##
-  # Appends an item to the regsitry
+  # Register a tool in the registry
+  # @param [LLM::Tool] tool
   # @api private
-  def self.append(item)
-    @registry << item
+  def self.register(tool)
+    @registry << tool
   end
 
   ##
@@ -63,7 +64,7 @@ class LLM::Tool
     LLM.lock(:inherited) do
       tool.instance_eval { @__monitor ||= Monitor.new }
       tool.function.register(tool)
-      LLM::Tool.append(tool)
+      LLM::Tool.register(tool)
     end
   end
 
