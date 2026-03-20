@@ -153,6 +153,21 @@ ses.talk "Tell me a joke"
 puts "Estimated cost so far: $#{ses.cost}"
 ```
 
+The registry also makes it possible to determine a model's context
+window size without making an API call. The following example accesses
+the context window through [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html),
+but it can also be accessed through [LLM::Registry](https://0x1eef.github.io/x/llm.rb/LLM/Registry.html)
+directly:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm, model: "gpt-4.1")
+puts "Context window size: #{ses.context_window} tokens"
+```
+
 #### Prompts
 
 The [LLM::Prompt](https://0x1eef.github.io/x/llm.rb/LLM/Prompt.html)
