@@ -47,6 +47,13 @@ class LLM::Registry
     lookup(model:).modalities
   end
 
+  ##
+  # @return [LLM::Object]
+  #  Returns model limits such as the context window size
+  def limit(model:)
+    lookup(model:).limit
+  end
+
   private
 
   def lookup(model:)

@@ -258,6 +258,23 @@ module LLM
         (cost.output.to_f / 1_000_000.0) * usage.output_tokens
       )
     end
+
+    ##
+    # Returns the model's context window.
+    # The context window is the maximum amount of input and output
+    # tokens a model can consider in a single request.
+    # @note
+    #   This method returns 0 when the provider or
+    #   model can't be found within {LLM::Registry}.
+    # @return [Integer]
+    def context_window
+      LLM
+        .registry_for(llm)
+        .limit(model:)
+        .context
+    rescue LLM::NoSuchModelError, LLM::NoSuchProviderError
+      0
+    end
   end
 
   # Backward-compatible alias
