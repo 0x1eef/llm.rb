@@ -31,22 +31,39 @@ class LLM::Tool
   end
 
   ##
-  # Returns all registered subclasses of LLM::Tool
+  # Returns all subclasses of LLM::Tool
+  # @note
+  #  This method excludes tools who haven't defined a name
   # @return [Array<LLM::Tool>]
   def self.registry
-    @registry
+    @registry.select(&:name)
   end
   @registry = []
+
+  ##
+  # Clear the registry
+  # @return [void]
+  def self.clear_registry!
+    @registry.clear
+    nil
+  end
+
+  ##
+  # Appends an item to the regsitry
+  # @api private
+  def self.append(item)
+    @registry << item
+  end
 
   ##
   # Registers the tool as a function when inherited
   # @param [Class] klass The subclass
   # @return [void]
-  def self.inherited(klass)
+  def self.inherited(tool)
     LLM.lock(:inherited) do
-      klass.instance_eval { @__monitor ||= Monitor.new }
-      klass.function.register(klass)
-      klass.superclass.registry << klass
+      tool.instance_eval { @__monitor ||= Monitor.new }
+      tool.function.register(tool)
+      LLM::Tool.append(tool)
     end
   end
 
@@ -84,7 +101,7 @@ class LLM::Tool
   # @api private
   def self.function
     lock do
-      @function ||= LLM::Function.new(self)
+      @function ||= LLM::Function.new(nil)
     end
   end
 
