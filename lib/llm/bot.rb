@@ -272,7 +272,7 @@ module LLM
         .registry_for(llm)
         .limit(model:)
         .context
-    rescue LLM::NoSuchModelError, LLM::NoSuchProviderError
+    rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError
       0
     end
   end
