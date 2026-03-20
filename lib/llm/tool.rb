@@ -31,6 +31,14 @@ class LLM::Tool
   end
 
   ##
+  # Returns all registered subclasses of LLM::Tool
+  # @return [Array<LLM::Tool>]
+  def self.registry
+    @registry
+  end
+  @registry = []
+
+  ##
   # Registers the tool as a function when inherited
   # @param [Class] klass The subclass
   # @return [void]
@@ -38,6 +46,7 @@ class LLM::Tool
     LLM.lock(:inherited) do
       klass.instance_eval { @__monitor ||= Monitor.new }
       klass.function.register(klass)
+      klass.superclass.registry << klass
     end
   end
 
