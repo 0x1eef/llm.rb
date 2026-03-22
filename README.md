@@ -20,6 +20,10 @@ modification, and/or distribution. Attribution is appreciated, but not required
 by the license. Built with [good music](https://www.youtube.com/watch?v=SNvaqwTbn14)
 and a lot of ☕️.
 
+## Screencast
+
+[![Watch the llm.rb screencast](https://img.youtube.com/vi/A52YcO7SSyk/maxresdefault.jpg)](https://www.youtube.com/watch?v=A52YcO7SSyk)
+
 ## Quick start
 
 #### REPL
