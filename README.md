@@ -22,7 +22,7 @@ and a lot of ☕️.
 
 ## Screencast
 
-[![Watch the llm.rb screencast](https://img.youtube.com/vi/tc0Bhu4i5zw/maxresdefault.jpg)](https://www.youtube.com/watch?v=tc0Bhu4i5zw)
+[![Watch the llm.rb screencast](https://img.youtube.com/vi/Ud254n5rnOc/maxresdefault.jpg)](https://www.youtube.com/watch?v=Ud254n5rnOc)
 
 ## Quick start
 
