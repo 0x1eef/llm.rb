@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Tool
-  class CreateImage < LLM::Tool
+module Relay::Tools
+  class CreateImage < Base
     name "create-image"
     description "Create a generated image"
     param :prompt, String, "The prompt", required: true
@@ -10,14 +10,16 @@ module Tool
 
     ##
     # Returns a HTML link for an image
-    # @return [Hash]
+    # @return [Array<Hash>]
     def call(prompt:, provider: "xai", n: 1)
-      file = "#{SecureRandom.hex}.png"
       key  = ENV["#{provider.upcase}_SECRET"]
       llm  = LLM.method(provider).call(key:)
       res  = llm.images.create(prompt:, n:)
-      IO.copy_stream res.images[0], File.join(images_dir, file)
-      { directions: 'embed the html in your response exactly as it appears', html: "<img src='/g/#{file}'>" }
+      res.images.map do |image|
+        file = "#{SecureRandom.hex}.png"
+        IO.copy_stream image, File.join(images_dir, file)
+        { directions: 'embed the html in your response exactly as it appears', html: "<img src='/g/#{file}'>" }
+      end
     rescue LLM::RateLimitError => ex
       { error: ex.class.to_s, message: "rate limit reached" }
     rescue => ex
@@ -26,7 +28,11 @@ module Tool
 
     private
 
-    def project_root = File.realpath(File.join(__dir__, "..", ".."))
-    def images_dir = File.join(project_root, "public", "g")
+    ##
+    # Returns the directory where images are stored
+    # @return [String]
+    def images_dir
+      File.join(root, "public", "g")
+    end
   end
 end

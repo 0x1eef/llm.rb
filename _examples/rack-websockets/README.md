@@ -1,28 +1,35 @@
 ## About
 
-RealTalk is a small chat app built with [llm.rb](https://github.com/llmrb/llm.rb).
-It demonstrates streaming over WebSockets, tool calls, image generation,
-provider switching, and model selection in a simple Rack app with a
-small React frontend. See the [Screencast](#screencast) for a demo.
+Relay is an interactive [llm.rb](https://github.com/llmrb/llm.rb#readme)
+application built with HTMX, Roda, Falcon, and WebSockets. It serves
+as both a demo of [llm.rb](https://github.com/llmrb/llm.rb#readme) and
+an example of a Ruby-first architecture that keeps JavaScript light
+while still supporting background workers and a database-backed app.
 
-Enjoy :)
-
-## Screencast
-
-[![Watch the screencast](https://img.youtube.com/vi/fOvAFq7ITiE/maxresdefault.jpg)](https://youtu.be/fOvAFq7ITiE)
-
-Watch the screencast on [YouTube](https://youtu.be/fOvAFq7ITiE).
+Relay serves as a reference implementation for building real-time,
+tool-enabled LLM applications with llm.rb in a production-style
+environment.
 
 ## Features
 
-- ⚙️ Rack application built with Falcon and async-websocket
 - 🌊 Streaming chat over WebSockets
-- 🔀 Switch providers: OpenAI, Google, Anthropic, xAI and DeepSeek
-- 🧠 Switch models: varies by provider
-- 🛠️ Add your own tools: see [app/tools/](app/tools)
-- 🖼️ Image generation via [create_image.rb](./app/tools/create_image.rb) - requires Google, OpenAI or xAI but works with any provider
+- 🛠️ Custom tool support via [app/tools/](app/tools)
+- 🖼️ Sample image-generation tool in [create_image.rb](./app/tools/create_image.rb)
+- ⚙️ Rack application built with Falcon, Roda, and async-websocket
+- 🗃️ Sequel with built-in migrations
+- 🧵 Sidekiq workers for background jobs
+- 🧰 Built-in task monitor that supervises the full dev environment: web, workers, assets
 
-## Usage
+## Quick start
+
+**Setup**
+
+Redis is required for Sidekiq support.
+SQLite is required for database support.
+
+    bundle install
+    bundle exec rake db:migrate
+    bundle exec rake dev:start
 
 **Secrets**
 
@@ -30,33 +37,39 @@ Set your secrets in `.env`:
 
 ```sh
 OPENAI_SECRET=...
-GEMINI_SECRET=...
+GOOGLE_SECRET=...
 ANTHROPIC_SECRET=...
 DEEPSEEK_SECRET=...
 XAI_SECRET=...
+REDIS_URL=
 ```
+## Architecture
 
-**Packages**
+The architecture is intentionally simple. HTMX keeps the client light,
+while server-rendered HTML keeps the application comfortable for
+Ruby-focused developers. Background work is handled with Sidekiq, and
+development processes are coordinated by Relay's task monitor.
 
-Install Ruby gems:
+Some important notes:
 
-```sh
-bundle install
-```
+* The app boots from `app/init.rb`, which sets up the database,
+  autoloading, and application initialization.
+* HTTP routing is handled by Roda, with templates rendered from
+  `app/views` and static assets served from `public/`.
+* Webpack builds the JavaScript and CSS assets from `app/assets`.
 
-Build the frontend:
+The codebase is organized by responsibility:
 
-```sh
-bundle exec rake build
-```
-
-**Serve**
-
-Start the server:
-
-```sh
-bundle exec rake serve
-```
+- `app/init` contains boot and framework setup
+- `app/tools` contains tools
+- `app/prompts` contains system prompt
+- `app/models` contains Sequel models
+- `app/routes` contains route classes and WebSocket handlers
+- `app/views` contains HTML templates and partials
+- `app/workers` contains Sidekiq workers
+- `db/` contains database configuration and migrations
+- `tasks/` contains rake tasks for development, assets, and database work
+- `lib/relay` contains support code like the task monitor
 
 ## Sources
 

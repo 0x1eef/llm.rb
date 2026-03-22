@@ -2,4 +2,6 @@
 .bundle/gems
 node_modules/
 public/
-!public/g/.gitkeep
+tmp/
+db/*.sqlite3
+!public/.gitkeep
