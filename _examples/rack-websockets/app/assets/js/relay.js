@@ -1,5 +1,6 @@
 import "../css/application.css"
 import htmx from "htmx.org"
+import hljs from "highlight.js"
 import { marked } from "marked"
 
 window.htmx = htmx
@@ -23,11 +24,15 @@ require("htmx-ext-ws")
 
     const markdown = (root = document.body) => {
       root.querySelectorAll("[data-markdown]").forEach((element) => {
-        const template = element.querySelector("template")
-        if (!template) return
-        element.innerHTML = marked.parse(template.innerHTML)
+        element.innerHTML = marked.parse(element.dataset.markdownSource || "")
+        element.querySelectorAll("pre code").forEach((block) => {
+          hljs.highlightElement(block)
+        })
       })
     }
+
+    markdown()
+    follow()
 
     document.body.addEventListener("htmx:afterSwap", (event) => markdown(event.target))
     document.body.addEventListener("htmx:oobAfterSwap", (event) => {
