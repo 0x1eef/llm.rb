@@ -10,6 +10,10 @@ Relay serves as a reference implementation for building real-time,
 tool-enabled LLM applications with llm.rb in a production-style
 environment.
 
+## Screencast
+
+[![Watch the Relay screencast](https://img.youtube.com/vi/Ud254n5rnOc/maxresdefault.jpg)](https://www.youtube.com/watch?v=Ud254n5rnOc)
+
 ## Features
 
 ### Application
@@ -18,10 +22,14 @@ environment.
 - 🛠️ Custom tool support via [app/tools/](app/tools)
 - 🖼️ Sample image-generation tool in [create_image.rb](./app/tools/create_image.rb)
 - 📚 Sample knowledge tool in [relay_knowledge.rb](./app/tools/relay_knowledge.rb)
+- 🎵 Sample jukebox tool in [juke_box.rb](./app/tools/juke_box.rb)
 
 The example tools show two useful patterns: delegating work to external
 providers, and exposing documentation-backed knowledge to the model
 through a tool.
+
+The jukebox tool gives the LLM a small built-in playlist. It can use
+`juke_box.rb` to pick a track and show a playable embed in the chat UI.
 
 ### Architecture
 
@@ -124,10 +132,6 @@ For shared in-process state, Relay exposes `Relay.cache`, which is
 backed by `Relay::Cache::InMemoryCache`. This is useful for small,
 ephemeral caches such as model lists that can be reused across routes
 without treating them as persistent data.
-
-## Screencast
-
-[![Watch the Relay screencast](https://img.youtube.com/vi/A52YcO7SSyk/maxresdefault.jpg)](https://www.youtube.com/watch?v=A52YcO7SSyk)
 
 ## Sources
 
