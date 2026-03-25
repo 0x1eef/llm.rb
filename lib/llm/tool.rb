@@ -43,6 +43,15 @@ class LLM::Tool
       description tool["description"]
       params { tool["inputSchema"] || {type: "object", properties: {}} }
 
+      define_singleton_method(:inspect) do
+        "<LLM::Tool:0x#{object_id.to_s(16)} name=#{tool["name"]} (mcp)>"
+      end
+      singleton_class.alias_method :to_s, :inspect
+
+      define_singleton_method(:mcp?) do
+        true
+      end
+
       define_method(:call) do |**args|
         mcp.call_tool(tool["name"], args)
       end
@@ -53,6 +62,7 @@ class LLM::Tool
   # Returns all subclasses of LLM::Tool
   # @note
   #  This method excludes tools who haven't defined a name
+  #  as well as tools defined via MCP.
   # @return [Array<LLM::Tool>]
   def self.registry
     @registry.select(&:name)
@@ -83,7 +93,7 @@ class LLM::Tool
     LLM.lock(:inherited) do
       tool.instance_eval { @__monitor ||= Monitor.new }
       tool.function.register(tool)
-      LLM::Tool.register(tool)
+      LLM::Tool.register(tool) unless tool.mcp?
     end
   end
 
@@ -129,5 +139,12 @@ class LLM::Tool
   # @api private
   def self.lock(&)
     @__monitor.synchronize(&)
+  end
+
+  ##
+  # Returns true if the tool is an MCP tool
+  # @return [Boolean]
+  def self.mcp?
+    false
   end
 end
