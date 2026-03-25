@@ -31,8 +31,9 @@ class LLM::MCP
         nil
       else
         method == "initialize" ? @request_id = 0 : @request_id += 1
-        transport.write(message.merge(id: request_id))
-        recv transport
+        id = request_id
+        transport.write(message.merge(id:))
+        recv(transport, id)
       end
     end
 
@@ -44,17 +45,22 @@ class LLM::MCP
     # Reads a response from the transport.
     # @param [LLM::MCP::Transport] transport
     #  The transport to read from
+    # @param [Integer] id
+    #  The request id to wait for
     # @raise [LLM::MCP::Error]
     #  When the MCP process returns an error
     # @return [Object, nil]
     #  The result returned by the MCP process
-    def recv(transport)
+    def recv(transport, id)
       poll(timeout:, ex: [IO::WaitReadable]) do
-        res = transport.read_nonblock
-        if res["error"]
-          raise LLM::MCP::Error.from(response: res)
-        else
-          break res["result"]
+        loop do
+          res = transport.read_nonblock
+          next unless res["id"] == id
+          if res["error"]
+            raise LLM::MCP::Error.from(response: res)
+          else
+            break res["result"]
+          end
         end
       end
     end
