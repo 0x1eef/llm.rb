@@ -30,16 +30,14 @@ class LLM::MCP
         transport.write(message)
         nil
       else
-        method == "initialize" ? @request_id = 0 : @request_id += 1
-        id = request_id
+        @request_id = (@request_id || -1) + 1
+        id = @request_id
         transport.write(message.merge(id:))
         recv(transport, id)
       end
     end
 
     private
-
-    attr_reader :request_id
 
     ##
     # Reads a response from the transport.
@@ -92,7 +90,7 @@ class LLM::MCP
     # Returns the maximum amount of time to wait when reading from an MCP process.
     # @return [Integer]
     def timeout
-      @timeout || 5
+      @timeout ||= 5
     end
 
     ##
