@@ -158,7 +158,7 @@ class LLM::Tool
     @__monitor.synchronize(&)
   end
   @__monitor = Monitor.new
-  
+
   ##
   # Returns true if the tool is an MCP tool
   # @return [Boolean]
