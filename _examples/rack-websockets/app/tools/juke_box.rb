@@ -9,7 +9,7 @@ module Relay::Tools
   # file and it can be edited to suit your own tastes.
   class JukeBox < Base
     name "jukebox"
-    description "Provides a list of music videos that can be embedded into the chat"
+    description "Returns a small built-in playlist of playable music videos"
 
     ##
     # @param [String] category
@@ -18,14 +18,14 @@ module Relay::Tools
     #  Returns an iframe with an embed
     def call
       jukebox.map do |j|
-        {directions:, iframe: iframe(j)}
+        {directions:, html: html(j)}
       end
     end
 
     private
 
-    def iframe(j)
-      data = File.read File.join(Relay.fragments_dir, "_jukebox.erb")
+    def html(j)
+      data = File.read File.join(Relay.fragments_dir, "jukebox", "_artist.erb")
       ERB.new(data).result_with_hash(j:)
     end
 
@@ -38,7 +38,12 @@ module Relay::Tools
     end
 
     def directions
-      %w["cache the jukebox", "embed the iframe in your response"]
+      [
+        "To play a track, embed a single `artist` item with the `data-play` attribute.",
+        "Do not embed an iframe.",
+        "When presenting the full list, omit `data-play`.",
+        "Use the full list for display only."
+      ]
     end
   end
 end

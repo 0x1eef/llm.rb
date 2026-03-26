@@ -7,28 +7,76 @@
 }
 
 @layer base {
+  :root,
+  body[data-theme="terminal"] {
+    --theme-bg: #0f1115;
+    --theme-text: #f5f7fa;
+    --theme-muted: #7b8595;
+    --theme-panel: #181d25;
+    --theme-panel-border: #2a313c;
+    --theme-surface: #11161d;
+    --theme-surface-2: #0b0f14;
+    --theme-surface-3: #1e2530;
+    --theme-accent: #34d399;
+    --theme-accent-strong: #6ee7b7;
+    --theme-accent-soft: rgb(52 211 153 / 0.12);
+    --theme-accent-border: rgb(52 211 153 / 0.32);
+    --theme-link: #67e8f9;
+    --theme-link-hover: #a5f3fc;
+    --theme-warn: #fbbf24;
+  }
+
+  body[data-theme="paper"] {
+    --theme-bg: #f6f3ea;
+    --theme-text: #2f261f;
+    --theme-muted: #7b6d61;
+    --theme-panel: #fffdf8;
+    --theme-panel-border: #d8cfc0;
+    --theme-surface: #f3ede1;
+    --theme-surface-2: #ebe4d8;
+    --theme-surface-3: #ffffff;
+    --theme-accent: #a16207;
+    --theme-accent-strong: #c18a1b;
+    --theme-accent-soft: rgb(161 98 7 / 0.10);
+    --theme-accent-border: rgb(161 98 7 / 0.28);
+    --theme-link: #0f766e;
+    --theme-link-hover: #115e59;
+    --theme-warn: #b45309;
+  }
+
   body {
-    @apply min-h-screen bg-stone-100 text-zinc-900 antialiased;
-    background-image:
-      radial-gradient(circle at top left, rgb(219 234 254 / 0.7), transparent 28rem),
-      radial-gradient(circle at top right, rgb(254 243 199 / 0.6), transparent 24rem),
-      linear-gradient(to bottom, rgb(250 250 249), rgb(245 245 244));
+    @apply min-h-screen antialiased;
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
   }
 
   ::selection {
-    @apply bg-sky-200 text-zinc-900;
+    background-color: var(--theme-accent-soft);
+    color: var(--theme-text);
+  }
+
+  option {
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
   }
 }
 
 @layer components {
+  .app-shell {
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+  }
+
   .panel {
-    @apply rounded-3xl border border-stone-200/80 bg-white/85 shadow-sm backdrop-blur-sm;
+    @apply rounded-3xl border shadow-[0_18px_40px_rgba(0,0,0,0.32)] backdrop-blur-sm;
+    border-color: var(--theme-panel-border);
+    background-color: var(--theme-panel);
   }
 
   .scrollbar-chat {
     scrollbar-gutter: stable;
     scrollbar-width: thin;
-    scrollbar-color: #93c5fd transparent;
+    scrollbar-color: var(--theme-accent) transparent;
   }
 
   .scrollbar-chat::-webkit-scrollbar {
@@ -40,16 +88,49 @@
   }
 
   .scrollbar-chat::-webkit-scrollbar-thumb {
-    background: #93c5fd;
+    background: var(--theme-accent);
     border: 1px solid transparent;
     border-radius: 9999px;
     background-clip: content-box;
   }
 
   .scrollbar-chat::-webkit-scrollbar-thumb:hover {
-    background: #60a5fa;
+    background: var(--theme-accent-strong);
     border: 1px solid transparent;
     background-clip: content-box;
+  }
+
+  .chat-stream {
+    @apply rounded-3xl border p-4 text-[15px] leading-7 shadow-[0_18px_40px_rgba(0,0,0,0.28)];
+    border-color: var(--theme-panel-border);
+    background-color: var(--theme-surface-2);
+    color: var(--theme-text);
+  }
+
+  .chat-bubble-user {
+    @apply rounded-3xl rounded-br-lg border px-4 py-3 leading-7 shadow-[0_12px_30px_rgba(0,0,0,0.18)];
+    border-color: var(--theme-accent-border);
+    background-color: var(--theme-accent-soft);
+    color: var(--theme-text);
+  }
+
+  .chat-bubble-assistant {
+    @apply rounded-3xl rounded-bl-lg border px-4 py-3 leading-7 shadow-[0_12px_30px_rgba(0,0,0,0.18)];
+    border-color: var(--theme-panel-border);
+    background-color: var(--theme-panel);
+    color: var(--theme-text);
+  }
+
+  .section-header {
+    @apply border-b px-4 py-3;
+    border-color: var(--theme-panel-border);
+    background-color: var(--theme-panel);
+  }
+
+  .media-body {
+    @apply text-sm;
+    background-color: var(--theme-surface-2);
+    color: var(--theme-muted);
   }
 
   .assistant-content {
@@ -69,11 +150,14 @@
   }
 
   .assistant-content a {
-    @apply font-medium text-blue-600 underline decoration-blue-600 underline-offset-3;
+    @apply font-medium underline underline-offset-3;
+    color: var(--theme-link);
+    text-decoration-color: var(--theme-link);
   }
 
   .assistant-content a:hover {
-    @apply text-blue-700 decoration-blue-700;
+    color: var(--theme-link-hover);
+    text-decoration-color: var(--theme-link-hover);
   }
 
   .assistant-content ul {
@@ -89,7 +173,9 @@
   }
 
   .assistant-content pre {
-    @apply my-4 overflow-x-auto rounded-2xl border border-sky-100 bg-sky-50/80 p-3;
+    @apply my-4 overflow-x-auto rounded-2xl border p-3;
+    border-color: var(--theme-panel-border);
+    background-color: var(--theme-surface-2);
   }
 
   .assistant-content code {
@@ -97,7 +183,9 @@
   }
 
   .assistant-content pre code.hljs {
-    @apply block rounded-xl bg-sky-50/80 p-0 text-[13px] leading-6 text-zinc-800;
+    @apply block rounded-xl p-0 text-[13px] leading-6;
+    background-color: var(--theme-surface-2);
+    color: var(--theme-text);
   }
 
   .assistant-content .hljs-keyword,
@@ -106,30 +194,33 @@
   .assistant-content .hljs-section,
   .assistant-content .hljs-built_in,
   .assistant-content .hljs-type {
-    @apply text-blue-700;
+    color: var(--theme-link);
   }
 
   .assistant-content .hljs-string,
   .assistant-content .hljs-attr,
   .assistant-content .hljs-template-tag,
   .assistant-content .hljs-template-variable {
-    @apply text-emerald-700;
+    color: var(--theme-accent-strong);
   }
 
   .assistant-content .hljs-number,
   .assistant-content .hljs-literal,
   .assistant-content .hljs-symbol,
   .assistant-content .hljs-bullet {
-    @apply text-amber-700;
+    color: var(--theme-warn);
   }
 
   .assistant-content .hljs-comment,
   .assistant-content .hljs-quote {
-    @apply text-stone-500 italic;
+    @apply italic;
+    color: var(--theme-muted);
   }
 
   .assistant-content blockquote {
-    @apply my-4 border-l-4 border-amber-300 pl-4 text-stone-600;
+    @apply my-4 border-l-4 pl-4;
+    border-color: var(--theme-accent-border);
+    color: var(--theme-text);
   }
 
   .assistant-content img {
@@ -137,22 +228,98 @@
   }
 
   .label {
-    @apply block text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500;
+    @apply block text-[11px] font-semibold uppercase tracking-[0.18em];
+    color: color-mix(in srgb, var(--theme-accent) 80%, white 10%);
   }
 
   .field {
-    @apply w-full rounded-2xl border border-stone-200 bg-white/90 px-3 py-3 text-zinc-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-500/10;
+    @apply w-full rounded-2xl border px-3 py-3 outline-none transition focus:ring-4;
+    border-color: var(--theme-panel-border);
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
+    --tw-ring-color: color-mix(in srgb, var(--theme-accent) 12%, transparent);
   }
 
   .select-field {
-    @apply w-full appearance-none border-b border-stone-200 bg-transparent py-1 pr-8 pl-0 font-medium text-zinc-700 outline-none transition hover:border-stone-300 hover:text-zinc-900 focus:border-sky-400 focus:text-zinc-900;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M6 8l4 4 4-4' stroke='%23575569' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    @apply w-full appearance-none border-b bg-transparent py-1 pr-8 pl-0 font-medium outline-none transition;
+    border-color: var(--theme-panel-border);
+    color: var(--theme-text);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M6 8l4 4 4-4' stroke='%2394a3b8' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-position: right 0.1rem center;
     background-repeat: no-repeat;
     background-size: 1rem 1rem;
   }
 
   .select-field:hover {
-    @apply text-zinc-900;
+    color: var(--theme-text);
   }
+
+  .tooltip {
+    @apply text-xs leading-5;
+    color: var(--theme-text);
+  }
+
+  .playing-notice {
+    @apply my-3 rounded-2xl border px-4 py-3 text-sm font-medium shadow-[0_12px_30px_rgba(0,0,0,0.18)];
+    border-color: var(--theme-accent-border);
+    background-color: var(--theme-accent-soft);
+    color: var(--theme-text);
+  }
+
+  .detail-button {
+    @apply rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] transition focus:outline-none;
+    border-color: var(--theme-panel-border);
+    background-color: var(--theme-panel);
+    color: var(--theme-accent-strong);
+  }
+
+  .detail-button:hover,
+  .detail-button:focus {
+    border-color: var(--theme-accent-border);
+    background-color: var(--theme-surface-3);
+    color: var(--theme-accent-strong);
+  }
+
+  .tooltip-card {
+    @apply pointer-events-none absolute right-0 bottom-full z-20 mb-2 hidden w-[17rem] max-w-[17rem] border px-4 py-3 text-left shadow-[0_18px_40px_rgba(0,0,0,0.35)] group-hover:block group-focus-within:block;
+    border-color: var(--theme-accent-border);
+    background-color: var(--theme-surface-2);
+  }
+
+  .theme-accent {
+    color: color-mix(in srgb, var(--theme-accent) 80%, white 10%);
+  }
+
+  .theme-divider {
+    @apply h-px;
+    background-color: var(--theme-panel-border);
+  }
+
+  .theme-strong {
+    color: var(--theme-text);
+  }
+
+  .theme-muted {
+    color: var(--theme-muted);
+  }
+
+  .composer-input {
+    @apply max-h-60 min-h-14 flex-1 resize-none overflow-y-auto rounded-2xl border px-4 py-3 text-[15px] outline-none placeholder:text-zinc-500 focus:ring-4;
+    border-color: var(--theme-panel-border);
+    background-color: var(--theme-surface-3);
+    color: var(--theme-text);
+    --tw-ring-color: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+  }
+
+  .composer-submit {
+    @apply min-w-24 shrink-0 rounded-full px-4 py-3 text-sm font-semibold transition focus:ring-4 focus:outline-none;
+    background-color: var(--theme-panel);
+    color: var(--theme-text);
+    --tw-ring-color: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+  }
+
+  .composer-submit:hover {
+    background-color: var(--theme-surface-3);
+  }
+
 }

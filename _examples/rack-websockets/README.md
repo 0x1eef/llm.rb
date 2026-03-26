@@ -1,18 +1,18 @@
 ## About
 
-Relay is an interactive [llm.rb](https://github.com/llmrb/llm.rb#readme)
-application built with HTMX, Roda, Falcon, and WebSockets. It serves
-as both a demo of [llm.rb](https://github.com/llmrb/llm.rb#readme) and
-an example of a Ruby-first architecture that keeps JavaScript light
-while still supporting background workers and a database-backed app.
+Relay is a developer environment for working with LLMs in real time.
+Built with [llm.rb](https://github.com/llmrb/llm.rb#readme), HTMX,
+Roda, Falcon, and WebSockets, it gives you a Ruby-first interface for
+experimenting with providers, models, tools, MCP servers, streaming
+responses, and background jobs.
 
-Relay serves as a reference implementation for building real-time,
-tool-enabled LLM applications with llm.rb in a production-style
-environment.
+Relay also serves as a reference implementation for building
+production-style, tool-enabled LLM applications with llm.rb while
+keeping the frontend light and the architecture Ruby-centric.
 
 ## Screencast
 
-[![Watch the Relay screencast](https://img.youtube.com/vi/Ud254n5rnOc/maxresdefault.jpg)](https://www.youtube.com/watch?v=Ud254n5rnOc)
+[![Watch the Relay screencast](https://img.youtube.com/vi/Jb7LNUYlCf4/maxresdefault.jpg)](https://www.youtube.com/watch?v=Jb7LNUYlCf4)
 
 ## Features
 
@@ -20,16 +20,10 @@ environment.
 
 - 🌊 Streaming chat over WebSockets
 - 🛠️ Custom tool support via [app/tools/](app/tools)
+- 🔌 MCP server support via [app/config/mcp.yml](app/config/mcp.yml)
 - 🖼️ Sample image-generation tool in [create_image.rb](./app/tools/create_image.rb)
 - 📚 Sample knowledge tool in [relay_knowledge.rb](./app/tools/relay_knowledge.rb)
 - 🎵 Sample jukebox tool in [juke_box.rb](./app/tools/juke_box.rb)
-
-The example tools show two useful patterns: delegating work to external
-providers, and exposing documentation-backed knowledge to the model
-through a tool.
-
-The jukebox tool gives the LLM a small built-in playlist. It can use
-`juke_box.rb` to pick a track and show a playable embed in the chat UI.
 
 ### Architecture
 
@@ -43,13 +37,26 @@ The jukebox tool gives the LLM a small built-in playlist. It can use
 
 ## Quick start
 
+**Requirements**
+
+Relay is easy to start locally. Right now it only requires:
+
+- Ruby
+- a web server, via `bundle exec rake dev:start`
+- Node.js
+- Webpack
+- SQLite
+
+The architecture supports more, including Sidekiq and Redis, but those
+are optional for the current local setup.
+
 **Setup**
 
-Redis is required for Sidekiq support.
-SQLite is required for database support.
+The following commands should get you setup with a local instance of Relay
+once the requirements mentioned above are met:
 
     bundle install
-    bundle exec rake db:migrate
+    bundle exec rake db:setup
     bundle exec rake dev:start
 
 **Secrets**
@@ -65,6 +72,68 @@ XAI_SECRET=...
 SESSION_SECRET=
 REDIS_URL=
 ```
+
+## Customization
+
+**Tools**
+
+Relay ships with a small set of built-in tools in [`app/tools/`](app/tools):
+
+- [`create_image.rb`](./app/tools/create_image.rb) generates images
+- [`relay_knowledge.rb`](./app/tools/relay_knowledge.rb) exposes project documentation
+- [`juke_box.rb`](./app/tools/juke_box.rb) provides a built-in playlist for the chat UI
+
+These tools serve as examples of how to extend Relay's behavior. They
+show common patterns such as calling external providers, returning
+documentation-backed knowledge, and rendering structured tool output in
+the interface.
+
+To add your own behavior, create additional tools under `app/tools/`.
+Relay loads registered tools automatically, so new tools become
+available to the model alongside the built-in ones.
+
+**MCP**
+
+Relay reads MCP server configuration from `app/config/mcp.yml`.
+Use [`app/config/mcp.yml.sample`](app/config/mcp.yml.sample) as the
+starting point.
+
+You can add your own stdio MCP servers by appending entries under
+`stdio`. Each server entry includes:
+
+- `name`: the display name shown in the UI
+- `description`: a short explanation of what the server provides
+- `config`: the stdio launch configuration Relay passes to `LLM.mcp`
+
+The `config` object supports:
+
+- `argv`: the command and arguments used to start the MCP server
+- `env`: environment variables passed to the process
+- `cwd`: optional working directory for the process
+
+Example:
+
+```yml
+stdio:
+  - name: GitHub
+    description: GitHub's MCP server
+    config:
+      argv: ["github-mcp-server", "stdio"]
+      env:
+        GITHUB_PERSONAL_ACCESS_TOKEN: <YOUR_TOKEN>
+```
+
+Setup:
+
+1. Install the MCP server binary you want to use, for example
+   `github-mcp-server`.
+2. Copy `app/config/mcp.yml.sample` to `app/config/mcp.yml`.
+3. Fill in any required environment variables such as API tokens.
+4. Restart Relay.
+
+Once configured, Relay starts the MCP servers for the chat session and
+adds their tools to the available tool list.
+
 ## Architecture
 
 **Overview**

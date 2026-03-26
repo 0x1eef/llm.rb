@@ -8,14 +8,14 @@
   <textarea
     name="message"
     rows="1"
-    class="max-h-60 min-h-14 flex-1 resize-none overflow-y-auto rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-[15px] text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/10"
+    class="composer-input"
     placeholder="Type a message"
     autocomplete="off"
     autofocus
     onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.form.requestSubmit(); }"
   ></textarea>
   <button
-    class="min-w-24 shrink-0 rounded-full bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
+    class="composer-submit"
     type="submit"
   >
     Send
