@@ -38,7 +38,7 @@ class LLM::Tool
   # @return [Class<LLM::Tool>]
   #  Returns a subclass of LLM::Tool
   def self.mcp(mcp, tool)
-    Class.new(LLM::Tool) do
+    tool = Class.new(LLM::Tool) do
       name tool["name"]
       description tool["description"]
       params { tool["inputSchema"] || {type: "object", properties: {}} }
@@ -56,6 +56,7 @@ class LLM::Tool
         mcp.call_tool(tool["name"], args)
       end
     end
+    unregister(tool)
   end
 
   ##
@@ -86,6 +87,14 @@ class LLM::Tool
   end
 
   ##
+  # Unregister a tool from the registry
+  # @param [LLM::Tool] tool
+  # @api private
+  def self.unregister(tool)
+    @registry.delete(tool)
+  end
+
+  ##
   # Registers the tool as a function when inherited
   # @param [Class] klass The subclass
   # @return [void]
@@ -93,7 +102,7 @@ class LLM::Tool
     LLM.lock(:inherited) do
       tool.instance_eval { @__monitor ||= Monitor.new }
       tool.function.register(tool)
-      LLM::Tool.register(tool) unless tool.mcp?
+      LLM::Tool.register(tool)
     end
   end
 

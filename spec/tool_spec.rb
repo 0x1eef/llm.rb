@@ -54,5 +54,45 @@ RSpec.describe LLM::Tool do
         is_expected.to eq([shell])
       end
     end
+
+    context "when given an MCP tool" do
+      let(:mcp) do
+        described_class.mcp(Object.new, {
+          "name" => "list_directory",
+          "description" => "list a directory",
+          "inputSchema" => {type: "object", properties: {}}
+        })
+      end
+
+      before { mcp }
+
+      it "does not include it in the registry" do
+        is_expected.to eq([])
+      end
+    end
+  end
+
+  describe ".unregister" do
+    before { [weather, shell] }
+
+    it "removes a tool from the registry" do
+      described_class.unregister(shell)
+      expect(described_class.registry).to eq([weather])
+    end
+
+    it "does nothing when the tool is not registered" do
+      tool = Class.new(described_class)
+      described_class.unregister(tool)
+      expect(described_class.registry).to eq([weather, shell])
+    end
+
+    it "returns the unregistered tool" do
+      expect(described_class.unregister(shell)).to eq(shell)
+    end
+
+    it "returns the given tool when it is not registered" do
+      tool = Class.new(described_class)
+      expect(described_class.unregister(tool)).to eq(tool)
+    end
   end
 end
