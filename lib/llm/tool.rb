@@ -38,7 +38,7 @@ class LLM::Tool
   # @return [Class<LLM::Tool>]
   #  Returns a subclass of LLM::Tool
   def self.mcp(mcp, tool)
-    tool = Class.new(LLM::Tool) do
+    klass = Class.new(LLM::Tool) do
       name tool["name"]
       description tool["description"]
       params { tool["inputSchema"] || {type: "object", properties: {}} }
@@ -56,7 +56,7 @@ class LLM::Tool
         mcp.call_tool(tool["name"], args)
       end
     end
-    unregister(tool)
+    unregister(klass)
   end
 
   ##
