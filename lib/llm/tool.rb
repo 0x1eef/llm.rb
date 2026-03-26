@@ -66,7 +66,9 @@ class LLM::Tool
   #  as well as tools defined via MCP.
   # @return [Array<LLM::Tool>]
   def self.registry
-    @registry.select(&:name)
+    lock do
+      @registry.select(&:name)
+    end
   end
   @registry = []
 
@@ -74,8 +76,10 @@ class LLM::Tool
   # Clear the registry
   # @return [void]
   def self.clear_registry!
-    @registry.clear
-    nil
+    lock do
+      @registry.clear
+      nil
+    end
   end
 
   ##
@@ -83,7 +87,9 @@ class LLM::Tool
   # @param [LLM::Tool] tool
   # @api private
   def self.register(tool)
-    @registry << tool
+    lock do
+      @registry << tool
+    end
   end
 
   ##
@@ -91,7 +97,9 @@ class LLM::Tool
   # @param [LLM::Tool] tool
   # @api private
   def self.unregister(tool)
-    @registry.delete(tool)
+    lock do
+      @registry.delete(tool)
+    end
   end
 
   ##
