@@ -157,7 +157,8 @@ class LLM::Tool
   def self.lock(&)
     @__monitor.synchronize(&)
   end
-
+  @__monitor = Monitor.new
+  
   ##
   # Returns true if the tool is an MCP tool
   # @return [Boolean]
