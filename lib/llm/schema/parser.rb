@@ -82,9 +82,18 @@ class LLM::Schema
     end
 
     def normalize_schema(schema)
-      schema = schema.to_h if schema.respond_to?(:to_h)
-      raise TypeError, "expected Hash but got #{schema.class}" unless Hash === schema
-      schema.transform_keys(&:to_s)
+      case schema
+      when LLM::Object
+        normalize_schema(schema.to_h)
+      when Hash
+        schema.each_with_object({}) do |(key, value), out|
+          out[key.to_s] = normalize_schema(value)
+        end
+      when Array
+        schema.map { normalize_schema(_1) }
+      else
+        schema
+      end
     end
 
     def resolve_ref(schema, root)
