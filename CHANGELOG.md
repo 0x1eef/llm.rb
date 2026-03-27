@@ -4,35 +4,35 @@
 
 Changes since `v4.8.0`.
 
-### Added
+### Add
 
-- Added stdio MCP client support, including remote tool discovery and invocation through `LLM.mcp`, `LLM::Session`, and existing function/tool APIs.
-- Added model registry support via `LLM::Registry`, including model metadata lookup, pricing, modalities, limits, and cost estimation.
-- Added session access to a model context window via `LLM::Session#context_window`.
-- Added tracking of defined tools in the tool registry.
-- Added `LLM::Schema::Enum`, enabling `Enum[...]` as a schema/tool parameter type.
-- Added top-level Anthropic system instruction support using Anthropic's provider-specific request format.
-- Added richer tracing hooks and extra metadata support for LangSmith/OpenTelemetry-style traces.
-- Added rack/websocket and Relay-related example work, including MCP-focused examples.
+- Add stdio MCP client support, including remote tool discovery and invocation through `LLM.mcp`, `LLM::Session`, and existing function/tool APIs.
+- Add model registry support via `LLM::Registry`, including model metadata lookup, pricing, modalities, limits, and cost estimation.
+- Add session access to a model context window via `LLM::Session#context_window`.
+- Add tracking of defined tools in the tool registry.
+- Add `LLM::Schema::Enum`, enabling `Enum[...]` as a schema/tool parameter type.
+- Add top-level Anthropic system instruction support using Anthropic's provider-specific request format.
+- Add richer tracing hooks and extra metadata support for LangSmith/OpenTelemetry-style traces.
+- Add rack/websocket and Relay-related example work, including MCP-focused examples.
 
-### Changed
+### Change
 
-- Renamed `LLM::Gemini` to `LLM::Google` to better reflect provider naming.
-- Standardized model objects across providers around a smaller common interface.
-- Switched registry cost internals from `LLM::Estimate` to `LLM::Cost`.
-- Updated image generation defaults so OpenAI and xAI consistently return base64-encoded image data by default.
-- Expanded README and screencast documentation for MCP, registry, context windows, enums, prompts, and concurrency.
+- Rename `LLM::Gemini` to `LLM::Google` to better reflect provider naming.
+- Standardize model objects across providers around a smaller common interface.
+- Switch registry cost internals from `LLM::Estimate` to `LLM::Cost`.
+- Update image generation defaults so OpenAI and xAI consistently return base64-encoded image data by default.
+- Expand README and screencast documentation for MCP, registry, context windows, enums, prompts, and concurrency.
 
-### Fixed
+### Fix
 
-- Fixed local schema `$ref` resolution in `LLM::Schema::Parser`.
-- Fixed multiple MCP issues around stdio env handling, request IDs, registry interaction, tool registration, and filtering of MCP tools from the standard tool registry.
-- Fixed stream parsing issues, including chunk-splitting bugs and safer handling of streamed error responses.
-- Fixed prompt handling across sessions, agents, and provider adapters so prompt turns remain consistent in history and completions.
-- Fixed several tool/session issues, including function return wrapping, tool lookup after deserialization, unnamed subclass filtering, and thread-safety around tool registry mutations.
-- Fixed Google tool-call handling to preserve `thoughtSignature`.
-- Fixed `LLM::Tracer::Logger` argument handling.
-- Fixed packaging/docs issues such as registry files in the gemspec and stale provider docs.
+- Fix local schema `$ref` resolution in `LLM::Schema::Parser`.
+- Fix multiple MCP issues around stdio env handling, request IDs, registry interaction, tool registration, and filtering of MCP tools from the standard tool registry.
+- Fix stream parsing issues, including chunk-splitting bugs and safer handling of streamed error responses.
+- Fix prompt handling across sessions, agents, and provider adapters so prompt turns remain consistent in history and completions.
+- Fix several tool/session issues, including function return wrapping, tool lookup after deserialization, unnamed subclass filtering, and thread-safety around tool registry mutations.
+- Fix Google tool-call handling to preserve `thoughtSignature`.
+- Fix `LLM::Tracer::Logger` argument handling.
+- Fix packaging/docs issues such as registry files in the gemspec and stale provider docs.
 
 ### Notes
 
