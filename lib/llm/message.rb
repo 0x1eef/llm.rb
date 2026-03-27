@@ -26,7 +26,7 @@ module LLM
     def initialize(role, content, extra = {})
       @role = role.to_s
       @content = content
-      @extra = extra
+      @extra = LLM::Object.from(extra)
     end
 
     ##
@@ -34,8 +34,10 @@ module LLM
     # @return [Hash]
     def to_h
       {role:, content:,
-       tools: @extra[:tool_calls],
-       original_tool_calls: extra[:original_tool_calls]}.compact
+       tools: extra.tool_calls,
+       usage:,
+       original_tool_calls: extra.original_tool_calls
+      }.compact
     end
 
     ##
@@ -120,7 +122,7 @@ module LLM
     # @return [LLM::Response, nil]
     #  Returns the response associated with the message, or nil
     def response
-      extra[:response]
+      extra.response
     end
 
     ##
@@ -130,7 +132,7 @@ module LLM
     # Returns annotations associated with the message
     # @return [Array<LLM::Object>]
     def annotations
-      @annotations ||= LLM::Object.from(extra["annotations"] || [])
+      @annotations ||= LLM::Object.from(extra.annotations || [])
     end
 
     ##
@@ -140,8 +142,7 @@ module LLM
     # Returns token usage statistics
     # @return [LLM::Object, nil]
     def usage
-      return nil unless response
-      @usage ||= response.usage
+      @usage ||= extra.usage || response&.usage
     end
     alias_method :token_usage, :usage
 
@@ -164,11 +165,11 @@ module LLM
     private
 
     def tool_calls
-      @tool_calls ||= LLM::Object.from(@extra[:tool_calls] || [])
+      @tool_calls ||= LLM::Object.from(extra.tool_calls || [])
     end
 
     def available_tools
-      tools = extra[:tools] || response&.__tools__ || []
+      tools = extra.tools || response&.__tools__ || []
       tools.map { _1.respond_to?(:function) ? _1.function : _1 }
     end
   end

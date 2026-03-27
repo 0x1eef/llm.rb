@@ -126,11 +126,11 @@ module LLM
     # Returns token usage for the conversation
     # @note
     # This method returns token usage for the latest
-    # assistant message, and it returns an empty object
-    # if there are no assistant messages
-    # @return [LLM::Object]
+    # assistant message, and it returns nil for non-assistant
+    # messages.
+    # @return [LLM::Object, nil]
     def usage
-      @messages.find(&:assistant?)&.usage || LLM::Object.from({})
+      @messages.find(&:assistant?)&.usage
     end
 
     ##
@@ -252,6 +252,7 @@ module LLM
     #  Returns an _approximate_ cost for a given session
     #  based on both the provider, and model
     def cost
+      return LLM::Cost.new(0, 0) unless usage
       cost = LLM.registry_for(llm).cost(model:)
       LLM::Cost.new(
         (cost.input.to_f / 1_000_000.0)  * usage.input_tokens,
