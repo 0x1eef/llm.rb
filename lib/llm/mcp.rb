@@ -31,7 +31,7 @@ class LLM::MCP
   #  The working directory for the MCP process
   # @param [Integer] timeout The maximum amount of time to wait when reading from an MCP process
   # @return [LLM::MCP] A new MCP instance
-  def initialize(llm = nil, stdio:, timeout: 5)
+  def initialize(llm = nil, stdio:, timeout: 30)
     @llm = llm
     @command = Command.new(**stdio)
     @monitor = Monitor.new
