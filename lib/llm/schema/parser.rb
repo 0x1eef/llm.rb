@@ -15,13 +15,13 @@ class LLM::Schema
     # @raise [TypeError]
     #  When the schema is not supported
     # @return [LLM::Schema::Leaf]
-    def parse(schema)
-      schema = schema.to_h if schema.respond_to?(:to_h)
-      raise TypeError, "expected Hash but got #{schema.class}" unless Hash === schema
-      schema = schema.transform_keys(&:to_s)
+    def parse(schema, root = nil)
+      schema = normalize_schema(schema)
+      root ||= schema
+      schema = resolve_ref(schema, root)
       case schema["type"]
-      when "object" then apply(parse_object(schema), schema)
-      when "array" then apply(parse_array(schema), schema)
+      when "object" then apply(parse_object(schema, root), schema)
+      when "array" then apply(parse_array(schema, root), schema)
       when "string" then apply(parse_string(schema), schema)
       when "integer" then apply(parse_integer(schema), schema)
       when "number" then apply(parse_number(schema), schema)
@@ -33,8 +33,10 @@ class LLM::Schema
 
     private
 
-    def parse_object(schema)
-      properties = (schema["properties"] || {}).transform_keys(&:to_s).transform_values { parse(_1) }
+    def parse_object(schema, root)
+      properties = (schema["properties"] || {})
+        .transform_keys(&:to_s)
+        .transform_values { parse(_1, root) }
       required = schema["required"] || []
       required.each do |key|
         next unless properties[key]
@@ -43,8 +45,8 @@ class LLM::Schema
       schema().object(properties)
     end
 
-    def parse_array(schema)
-      items = schema["items"] ? parse(schema["items"]) : schema().null
+    def parse_array(schema, root)
+      items = schema["items"] ? parse(schema["items"], root) : schema().null
       schema().array(items)
     end
 
@@ -77,6 +79,22 @@ class LLM::Schema
       leaf.enum(*schema["enum"]) if schema.key?("enum")
       leaf.const(schema["const"]) if schema.key?("const")
       leaf
+    end
+
+    def normalize_schema(schema)
+      schema = schema.to_h if schema.respond_to?(:to_h)
+      raise TypeError, "expected Hash but got #{schema.class}" unless Hash === schema
+      schema.transform_keys(&:to_s)
+    end
+
+    def resolve_ref(schema, root)
+      return schema unless schema.key?("$ref")
+      ref = schema["$ref"]
+      raise TypeError, "unsupported schema ref #{ref.inspect}" unless ref.start_with?("#/")
+      target = ref.delete_prefix("#/").split("/").reduce(root) { |node, key| node.fetch(key) }
+      normalize_schema(target).merge(schema.reject { |key, _| key == "$ref" })
+    rescue KeyError
+      raise TypeError, "unresolvable schema ref #{ref.inspect}"
     end
   end
 end

@@ -105,6 +105,25 @@ RSpec.describe LLM::Schema::Parser do
       end
     end
 
+    context "when given local refs" do
+      let(:schema) do
+        {
+          type: "object",
+          properties: {
+            owner: {type: "string", description: "owner"},
+            collaborator: {"$ref" => "#/properties/owner", description: "collaborator"}
+          },
+          required: ["collaborator"]
+        }
+      end
+
+      it "resolves the ref against the root schema" do
+        expect(parse["collaborator"]).to be_a(LLM::Schema::String)
+        expect(parse["collaborator"].description).to eq("collaborator")
+        expect(parse["collaborator"]).to be_required
+      end
+    end
+
     context "when given an unsupported schema type" do
       let(:schema) { {type: "nope"} }
 
