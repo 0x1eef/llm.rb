@@ -111,7 +111,7 @@ RSpec.describe LLM::Schema::Parser do
           type: "object",
           properties: {
             owner: {type: "string", description: "owner"},
-            collaborator: {"$ref" => "#/properties/owner", description: "collaborator"}
+            collaborator: {"$ref" => "#/properties/owner", :description => "collaborator"}
           },
           required: ["collaborator"]
         }

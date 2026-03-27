@@ -36,8 +36,7 @@ module LLM
       {role:, content:,
        tools: extra.tool_calls,
        usage:,
-       original_tool_calls: extra.original_tool_calls
-      }.compact
+       original_tool_calls: extra.original_tool_calls}.compact
     end
 
     ##
