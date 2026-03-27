@@ -28,7 +28,7 @@ class LLM::Session
       returns = [*items].filter_map do |item|
         next unless Hash === item
         id, name, value = item.values_at("id", "name", "value")
-        next if id.nil? || name.nil? || value.nil?
+        next if name.nil? || value.nil?
         LLM::Function::Return.new(id, name, value)
       end
       returns.empty? ? nil : returns
