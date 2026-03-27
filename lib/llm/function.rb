@@ -135,6 +135,8 @@ class LLM::Function
   def call
     runner = ((Class === @runner) ? @runner.new : @runner)
     Return.new(id, name, runner.call(**arguments))
+  rescue => ex
+    Return.new(id, name,  {error: true, type: ex.class.name, message: ex.message})
   ensure
     @called = true
   end
