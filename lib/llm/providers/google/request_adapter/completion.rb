@@ -37,7 +37,7 @@ module LLM::Google::RequestAdapter
       when LLM::Message
         adapt_content(content.content)
       when LLM::Function::Return
-        [{functionResponse: {name: content.name, response: content.value}}]
+        [{functionResponse: {name: content.name, response: adapt_function_response(content.value)}}]
       when LLM::Object
         adapt_object(content)
       else
@@ -62,6 +62,10 @@ module LLM::Google::RequestAdapter
     def adapt_remote_file(file)
       return prompt_error!(file) unless file.file?
       [{file_data: {mime_type: file.mime_type, file_uri: file.uri}}]
+    end
+
+    def adapt_function_response(value)
+      Hash === value ? value : {result: value}
     end
 
     def prompt_error!(object)
