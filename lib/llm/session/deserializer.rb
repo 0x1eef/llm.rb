@@ -11,7 +11,7 @@ class LLM::Session
       tool_calls = deserialize_tool_calls(payload["tools"])
       returns = deserialize_returns(payload["content"]) if returns.nil?
       original_tool_calls = payload["original_tool_calls"]
-      extra = {tool_calls:, original_tool_calls:}.compact
+      extra = {tool_calls:, original_tool_calls:, tools: @params[:tools]}.compact
       content = returns.nil? ? payload["content"] : returns
       LLM::Message.new(payload["role"], content, extra)
     end

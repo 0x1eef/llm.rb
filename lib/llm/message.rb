@@ -168,7 +168,8 @@ module LLM
     end
 
     def available_tools
-      response&.__tools__ || []
+      tools = extra[:tools] || response&.__tools__ || []
+      tools.map { _1.respond_to?(:function) ? _1.function : _1 }
     end
   end
 end
