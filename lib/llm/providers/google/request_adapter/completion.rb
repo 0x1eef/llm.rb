@@ -19,7 +19,7 @@ module LLM::Google::RequestAdapter
         if Hash === message
           {role: message[:role], parts: adapt_content(message[:content])}
         elsif message.tool_call?
-          {role: message.role, parts: message.extra[:original_tool_calls].map { {"functionCall" => _1} }}
+          {role: message.role, parts: message.extra.original_tool_calls}
         else
           {role: message.role, parts: adapt_content(message.content)}
         end

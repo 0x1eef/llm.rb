@@ -64,17 +64,17 @@ module LLM::Google::ResponseAdapter
         content = choice.content || LLM::Object.new
         role = content.role || "model"
         parts = content.parts || [{"text" => choice.finishReason}]
-        text  = parts.filter_map { _1["text"] }.join
-        tools = parts.filter_map { _1["functionCall"] }
+        text = parts.filter_map { _1["text"] }.join
+        tools = parts.select { _1["functionCall"] }
         extra = {index:, response: self, tool_calls: adapt_tool_calls(tools), original_tool_calls: tools}
         LLM::Message.new(role, text, extra)
       end
     end
 
-    def adapt_tool_calls(tools)
-      (tools || []).map do |tool|
-        function = {name: tool.name, arguments: tool.args}
-        function
+    def adapt_tool_calls(parts)
+      (parts || []).map do |part|
+        tool = part["functionCall"]
+        {name: tool.name, arguments: tool.args}
       end
     end
 
