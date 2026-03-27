@@ -376,16 +376,22 @@ class LLM::Provider
     args = (Net::HTTP === http) ? [request] : [URI.join(base_uri, request.path), request]
     res = if stream
       http.request(*args) do |res|
-        handler = event_handler.new stream_parser.new(stream)
-        parser = LLM::EventStream::Parser.new
-        parser.register(handler)
-        res.read_body(parser)
-        # If the handler body is empty, the response was
-        # most likely not streamed or parsing failed.
-        # Preserve the raw body in that case so standard
-        # JSON/error handling can parse it later.
-        body = handler.body.empty? ? parser.body : handler.body
-        res.body = Hash === body || Array === body ? LLM::Object.from(body) : body
+        if Net::HTTPSuccess === res
+          handler = event_handler.new stream_parser.new(stream)
+          parser = LLM::EventStream::Parser.new
+          parser.register(handler)
+          res.read_body(parser)
+          # If the handler body is empty, the response was
+          # most likely not streamed or parsing failed.
+          # Preserve the raw body in that case so standard
+          # JSON/error handling can parse it later.
+          body = handler.body.empty? ? parser.body : handler.body
+          res.body = Hash === body || Array === body ? LLM::Object.from(body) : body
+        else
+          body = +""
+          res.read_body { body << _1 }
+          res.body = body
+        end
       ensure
         parser&.free
       end
