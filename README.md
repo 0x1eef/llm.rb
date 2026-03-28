@@ -9,16 +9,58 @@
 
 ## About
 
-llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
-includes OpenAI, Google (Gemini), Anthropic, xAI (Grok), zAI, DeepSeek, Ollama,
-and LlamaCpp. The toolkit includes full support for chat, streaming, MCP,
-tool calling, audio, images, files, and structured outputs.
+llm.rb is a zero-dependency Ruby toolkit for building applications with
+Large Language Models.
 
-And it is licensed under the [0BSD License](https://choosealicense.com/licenses/0bsd/) &ndash;
-one of the most permissive open source licenses, with minimal conditions for use,
-modification, and/or distribution. Attribution is appreciated, but not required
-by the license. Built with [good music](https://www.youtube.com/watch?v=SNvaqwTbn14)
-and a lot of ☕️.
+It provides a unified, Ruby-first interface for OpenAI, Google,
+Anthropic, xAI, zAI, DeepSeek, Ollama, and LlamaCpp, with support for
+chat, streaming, tool calling, MCP, structured outputs, audio, images,
+files, and multimodal prompts.
+
+llm.rb is designed for real applications, not just single prompts. It
+keeps the core interface small while still exposing provider-specific
+capabilities when needed.
+
+## Why llm.rb?
+
+- Unified API across hosted and local model providers
+- Zero runtime dependencies
+- Ruby-native sessions, prompts, tools, and schemas
+- Built-in support for streaming, MCP, and structured output
+- Designed for threaded and fibered application workloads
+
+## Install
+
+llm.rb can be installed via rubygems.org:
+
+	gem install llm.rb
+
+Requires Ruby 3.2+.
+
+## Quick start
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["OPENAI_SECRET"])
+ses = LLM::Session.new(llm, stream: $stdout)
+ses.talk "Write a haiku about Ruby"
+puts
+```
+
+## Choose your abstraction
+
+Use the layer that fits your app:
+
+- `LLM::Provider` for raw provider APIs such as models, files, images,
+  audio, and embeddings
+- `LLM::Session` for stateful conversations with message history
+- `LLM::Agent` for preconfigured assistants with automatic tool
+  execution
+- `LLM::Tool` and `LLM::Function` for local tools the model can call
+- `LLM::Schema` for structured outputs with a Ruby DSL
+- `LLM::MCP` for connecting to MCP servers and using their tools
 
 ## Screencast
 
@@ -254,7 +296,7 @@ stateful objects and should be kept local to a single thread.
 
 [LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html) and its
 subclasses are fiber-local, so `llm.tracer = ...` only affects the
-current fiber and should be set again in each fiber where a tracer is
+current fiber, and it should be set again in each fiber where a tracer is
 desired. Since each thread starts with its own main fiber, tracer state
 also stays isolated across threads by default. See Ruby's docs on
 [Fiber-local vs. Thread-local](https://docs.ruby-lang.org/en/4.0/Thread.html#class-Thread-label-Fiber-local+vs.+Thread-local)
@@ -858,12 +900,6 @@ ses = LLM::Session.new(llm, model: model.id)
 res = ses.talk "Hello #{model.id} :)"
 pp res.content
 ```
-
-## Install
-
-llm.rb can be installed via rubygems.org:
-
-	gem install llm.rb
 
 ## Sources
 
