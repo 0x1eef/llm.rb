@@ -9,11 +9,17 @@
 
 ## About
 
-llm.rb is a Ruby-native toolkit for building real LLM-powered systems — where LLMs are part of your architecture, not just API calls. It gives you explicit control over contexts, tools, concurrency, and providers, so you can compose reliable, production-ready workflows without hidden abstractions.
+llm.rb is a Ruby-native toolkit for building real LLM-powered systems — where
+LLMs are part of your architecture, not just API calls. It gives you explicit
+control over contexts, tools, concurrency, and providers, so you can compose
+reliable, production-ready workflows without hidden abstractions.
 
-Built for engineers who want to understand and control their LLM systems. No frameworks, no hidden magic — just composable primitives for building real applications, from scripts to full systems like [Relay](https://github.com/llmrb/relay).
+Built for engineers who want to understand and control their LLM systems. No
+frameworks, no hidden magic — just composable primitives for building real
+applications, from scripts to full systems like [Relay](https://github.com/llmrb/relay).
 
-Rails gives you conventions for building web apps. llm.rb gives you primitives for building LLM systems.
+Rails gives you conventions for building web apps. llm.rb gives you primitives
+for building LLM systems.
 
 ## What Makes It Different
 
@@ -39,6 +45,10 @@ llm.rb treats LLM interactions as workflows:
 
 ### Run multiple tools concurrently
 
+llm.rb supports concurrent tool execution using threads, fibers, or async
+tasks. Here's how to execute multiple independent tools concurrently with
+threads:
+
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
@@ -51,18 +61,12 @@ ctx.talk("Summarize the weather, headlines, and stock price.")
 ctx.talk(ctx.functions.wait(:thread))
 ```
 
-### Basic Context
+### Context
 
-`LLM::Context` represents a stateful interaction with an LLM — including
-conversation history, tools, execution state, and cost tracking. It evolves
-over time as the system runs.
-
-Context is the stateful environment in which an LLM operates.
-
-This is not just prompt context — it is an active, evolving execution
-boundary for LLM workflows.
-
-In practice, that means one object holds the running interaction:
+A context is a single conversation with an LLM that keeps track of everything:
+the messages exchanged, any tools you've given it access to, and the costs
+incurred. As you interact with the LLM, the context accumulates this
+information so you can maintain a coherent conversation or workflow:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -135,7 +139,8 @@ ctx.talk(ctx.functions.call) # report return value to the LLM
 ## Supported Providers
 
 llm.rb supports multiple LLM providers with a unified API.
-All providers share the same context, tool, and concurrency interfaces, making it easy to switch between cloud and local models:
+All providers share the same context, tool, and concurrency interfaces, making
+it easy to switch between cloud and local models:
 
 - **OpenAI** (`LLM.openai`)
 - **Anthropic** (`LLM.anthropic`)
@@ -306,7 +311,9 @@ llm.rb is designed for engineers who want to *understand* their LLM systems, not
 
 ## Real-World Example: Relay
 
-See how these pieces come together in a complete application architecture with [Relay](https://github.com/llmrb/relay), a production-ready LLM application built on llm.rb that demonstrates:
+See how these pieces come together in a complete application architecture with
+[Relay](https://github.com/llmrb/relay), a production-ready LLM application
+built on llm.rb that demonstrates:
 
 - Session management across requests
 - Tool composition and execution
