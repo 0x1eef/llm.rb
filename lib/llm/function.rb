@@ -32,10 +32,12 @@ class LLM::Function
   require_relative "function/tracing"
   require_relative "function/array"
   require_relative "function/thread_group"
+  require_relative "function/fiber_group"
+  require_relative "function/task_group"
 
   prepend LLM::Function::Tracing
 
-  class Return < Struct.new(:id, :name, :value)
+  Return = Struct.new(:id, :name, :value) do
     ##
     # Returns a Hash representation of {LLM::Function::Return}
     # @return [Hash]
@@ -136,10 +138,7 @@ class LLM::Function
   # Call the function
   # @return [LLM::Function::Return] The result of the function call
   def call
-    runner = ((Class === @runner) ? @runner.new : @runner)
-    Return.new(id, name, runner.call(**arguments))
-  rescue => ex
-    Return.new(id, name,  {error: true, type: ex.class.name, message: ex.message})
+    call_function
   ensure
     @called = true
   end
@@ -160,14 +159,29 @@ class LLM::Function
   #   thread = tool.spawn
   #   result = thread.value
   #
-  # @return [Thread]
-  #   Returns a thread whose {Thread#value} is an {LLM::Function::Return}.
-  def spawn
-    Thread.new do
-      runner = ((Class === @runner) ? @runner.new : @runner)
-      Return.new(id, name, runner.call(**arguments))
-    rescue => ex
-      Return.new(id, name,  {error: true, type: ex.class.name, message: ex.message})
+  # @param [Symbol] strategy
+  #   Controls concurrency strategy:
+  #   - `:thread`: Use threads
+  #   - `:task`: Use async tasks (requires async gem)
+  #   - `:fiber`: Use raw fibers
+  #
+  # @return [Thread, Async::Task, Fiber]
+  #   Returns a thread, async task, or fiber whose `#value` is an {LLM::Function::Return}.
+  def spawn(strategy)
+    case strategy
+    when :task
+      require "async" unless defined?(::Async)
+      Async { call_function }
+    when :thread
+      Thread.new { call_function }
+    when :fiber
+      Fiber.new do
+        call_function
+      ensure
+        Fiber.yield
+      end.tap(&:resume)
+    else
+      raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, or :fiber"
     end
   ensure
     @called = true
@@ -221,6 +235,8 @@ class LLM::Function
     end
   end
 
+  private
+
   def format_openai(provider)
     case provider.class.to_s
     when "LLM::OpenAI::Responses"
@@ -234,5 +250,18 @@ class LLM::Function
         function: {name: @name, description: @description, parameters: @params}
       }.compact
     end
+  end
+
+  ##
+  # Internal method that calls the function and returns a Return object.
+  # Handles both class-based and proc-based runners, and rescues exceptions.
+  #
+  # @return [LLM::Function::Return]
+  #   Returns a Return object with either the function result or error information.
+  def call_function
+    runner = ((Class === @runner) ? @runner.new : @runner)
+    Return.new(id, name, runner.call(**arguments))
+  rescue => ex
+    Return.new(id, name,  {error: true, type: ex.class.name, message: ex.message})
   end
 end
