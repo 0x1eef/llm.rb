@@ -16,6 +16,7 @@ Changes since `v4.8.0`.
 - Add rack/websocket and Relay-related example work, including MCP-focused examples.
 - Add concurrent tool execution with `LLM::Function#spawn`, `LLM::Function::Array` (`call`, `wait`, `spawn`), and `LLM::Function::ThreadGroup`.
 - Add `LLM::Function::ThreadGroup#alive?` method for non-blocking monitoring of concurrent tool execution.
+- Add `LLM::Function::ThreadGroup#value` alias for `ThreadGroup#wait` for consistency with Ruby's `Thread#value`.
 
 ### Change
 
@@ -49,6 +50,7 @@ Notable merged work in this range includes:
 - `Consistent model objects across providers (#131)`
 - `Add rack + websocket example (#130)`
 - `feat(gemspec): add changelog URI (#136)`
+- `feat(function): alias ThreadGroup#wait as ThreadGroup#value (#62)`
 
 Comparison base:
 - Latest tag: `v4.8.0` (`6468f2426ee125823b7ae43b4af507b125f96ffc`)
