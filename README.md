@@ -12,7 +12,9 @@
 llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
 includes OpenAI, Google (Gemini), Anthropic, xAI (Grok), zAI, DeepSeek, Ollama,
 and LlamaCpp. The toolkit includes full support for chat, streaming, MCP,
-tool calling, audio, images, files, and structured outputs.
+tool calling, audio, images, files, and structured outputs. It also includes
+built-in concurrent tool execution for threaded and async Ruby environments,
+with support for threads, async tasks, and raw fibers.
 
 And it is licensed under the [0BSD License](https://choosealicense.com/licenses/0bsd/) &ndash;
 one of the most permissive open source licenses, with minimal conditions for use,
@@ -89,7 +91,7 @@ it can invoke to fetch information or perform an action. The model decides when 
 call tools based on the conversation; when it does, llm.rb runs the tool and sends
 the result back on the next request. For concurrent tool execution and more
 details on [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method),
-see [Advanced tool execution](#tool-execution).
+see [Concurrent tool execution](#concurrent-tool-execution).
 
 The following example implements a simple tool that runs shell commands:
 
@@ -291,6 +293,7 @@ vals.each { |val| puts val }
 - ✅  Unified API across providers
 - 📦  Zero runtime deps (stdlib-only)
 - 🧵  Thread-safe providers for multi-threaded workloads
+- ⚡  Concurrent tool execution with threads, async tasks, and raw fibers
 - 🧩  Pluggable JSON adapters (JSON, Oj, Yajl, etc)
 - 🧱  Builtin tracer API ([LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html))
 
@@ -648,20 +651,38 @@ ses.talk ses.functions.map(&:call) # report return value to the LLM
 # {stderr: "", stdout: "FreeBSD"}
 ```
 
-#### Tool execution
+#### Concurrent tool execution
 
 The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
 method returns an ordinary array of pending functions that is extended with
-`call`, `spawn`, and `wait` methods:
+`call`, `spawn`, and `wait` methods.
 
-* `ses.functions.call` runs tools one after another
-* `ses.functions.wait` runs tools concurrently and waits for them all to finish
-* `ses.functions.spawn` runs tools concurrently and returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html)
+This is one of the core tooling features in llm.rb: when a model requests
+multiple independent tools, the library can execute them sequentially or
+concurrently without making you build the orchestration layer yourself.
+
+`ses.functions.call` runs tools one after another and returns an array of
+[LLM::Function::Return](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
+objects.
+
+`ses.functions.wait(strategy)` runs tools concurrently and waits for them all
+to finish. `ses.functions.spawn(strategy)` starts the concurrent work and
+returns a group object that can be waited on later.
+
+The `strategy` argument controls the concurrency model:
+
+* `:thread` uses threads and returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html)
+* `:task` uses async tasks and returns an [LLM::Function::TaskGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/TaskGroup.html)
+* `:fiber` uses raw fibers and returns an [LLM::Function::FiberGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/FiberGroup.html)
+
+The `:task` strategy depends on the
+[async](https://github.com/socketry/async) gem, which is optional and
+lazy-loaded by llm.rb. If you want to use `:task`, install the gem
+separately.
 
 When an LLM asks for multiple independent tools, you can choose the execution
-style that best fits the work.
-
-Use `ses.functions.wait` when you want the shortest concurrent path:
+style that best fits the work. Use `wait` when you want the shortest path from
+tool calls to tool results:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -670,10 +691,12 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
 ses.talk("Summarize the weather, headlines, and stock price.")
-ses.talk(ses.functions.wait)
+ses.talk(ses.functions.wait(:thread))
 ```
 
-Use `spawn` when you want to start the tool calls now and wait on them later:
+Use `spawn` when you want to start the tool calls now and wait on them later.
+The returned group exposes `wait` so you can decide when to collect the
+results:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -682,17 +705,29 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
 ses.talk("Summarize the weather, headlines, and stock price.")
-grp = ses.functions.spawn
+grp = ses.functions.spawn(:thread)
 # do other stuff while tools run...
 # finally, collect tool results and report back to the LLM:
 ses.talk(grp.wait)
 ```
 
+For async environments, use `:task` or `:fiber` instead of `:thread`:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+ses.talk("Summarize the weather, headlines, and stock price.")
+ses.talk(ses.functions.wait(:fiber))
+```
+
 Something to keep in mind:
 
 Tool concurrency is the tool's responsibility. Each tool is initialized on a
-separate thread, so tools are thread-safe by default when they keep state local
-to that thread. Take care when a tool uses shared resources such as files,
+separate execution context, so they are safest when they keep state local to
+that context. Take care when a tool uses shared resources such as files,
 network clients, caches, database connections, or other mutable global state.
 
 ### Files
