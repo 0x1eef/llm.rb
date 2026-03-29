@@ -66,7 +66,8 @@ ctx.talk(ctx.functions.wait(:thread))
 A context is a single conversation with an LLM that keeps track of everything:
 the messages exchanged, any tools you've given it access to, and the costs
 incurred. As you interact with the LLM, the context accumulates this
-information so you can maintain a coherent conversation or workflow:
+information so you can maintain a coherent conversation or workflow. As the
+program runs, `ctx` accumulates messages, tool state, usage, and cost:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -80,8 +81,6 @@ loop do
   puts
 end
 ```
-
-As the program runs, `ctx` accumulates messages, tool state, usage, and cost.
 
 ### Structured Outputs
 
