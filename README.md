@@ -87,8 +87,11 @@ The [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) class lets you
 define callable tools for the model. Each tool is described to the LLM as a function
 it can invoke to fetch information or perform an action. The model decides when to
 call tools based on the conversation; when it does, llm.rb runs the tool and sends
-the result back on the next request. The following example implements a simple tool
-that runs shell commands:
+the result back on the next request. For concurrent tool execution and more
+details on [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method),
+see [Advanced tool execution](#tool-execution).
+
+The following example implements a simple tool that runs shell commands:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -107,7 +110,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ses = LLM::Session.new(llm, tools: [System])
 ses.talk("Run `date`.")
-ses.talk(ses.functions.map(&:call)) # report return value to the LLM
+ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
 #### MCP
@@ -254,7 +257,7 @@ stateful objects and should be kept local to a single thread.
 
 [LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html) and its
 subclasses are fiber-local, so `llm.tracer = ...` only affects the
-current fiber and should be set again in each fiber where a tracer is
+current fiber, and it should be set again in each fiber where a tracer is
 desired. Since each thread starts with its own main fiber, tracer state
 also stays isolated across threads by default. See Ruby's docs on
 [Fiber-local vs. Thread-local](https://docs.ruby-lang.org/en/4.0/Thread.html#class-Thread-label-Fiber-local+vs.+Thread-local)
@@ -262,7 +265,6 @@ for more about the underlying behavior.
 
 The recommended pattern is to keep one session, tracer, or agent per
 thread and share a provider across multiple threads:
-
 
 ```ruby
 #!/usr/bin/env ruby
@@ -302,6 +304,7 @@ vals.each { |val| puts val }
 - 🧠  Stateless + stateful chat (completions + responses)
 - 💾  Save and restore sessions across processes
 - 🤖  Tool calling / function execution
+- ⚡ Concurrent execution of independent tool calls
 - 🔁  Agent tool-call auto-execution (bounded)
 - 🗂️  JSON Schema structured output
 - 📡  Streaming responses
@@ -341,7 +344,6 @@ vals.each { |val| puts val }
 | **Moderations**                      | ✅     | ❌        | ❌     | ❌       | ❌         | ❌     | ❌     | ❌       |
 
 \* JSON Schema support in Ollama/LlamaCpp depends on the model, not the API.
-
 
 ## Examples
 
@@ -478,6 +480,8 @@ the exporter before they exit &ndash; otherwise some telemetry data could be los
    ses.tracer.flush!
  end
  ```
+
+## Advanced
 
 #### Logger
 
@@ -643,6 +647,53 @@ ses.talk ses.functions.map(&:call) # report return value to the LLM
 # {stderr: "", stdout: "Thu May  1 10:01:02 UTC 2025"}
 # {stderr: "", stdout: "FreeBSD"}
 ```
+
+#### Tool execution
+
+The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
+method returns an ordinary array of pending functions that is extended with
+`call`, `spawn`, and `wait` methods:
+
+* `ses.functions.call` runs tools one after another
+* `ses.functions.wait` runs tools concurrently and waits for them all to finish
+* `ses.functions.spawn` runs tools concurrently and returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html)
+
+When an LLM asks for multiple independent tools, you can choose the execution
+style that best fits the work.
+
+Use `ses.functions.wait` when you want the shortest concurrent path:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+ses.talk("Summarize the weather, headlines, and stock price.")
+ses.talk(ses.functions.wait)
+```
+
+Use `spawn` when you want to start the tool calls now and wait on them later:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+ses.talk("Summarize the weather, headlines, and stock price.")
+grp = ses.functions.spawn
+# do other stuff while tools run...
+# finally, collect tool results and report back to the LLM:
+ses.talk(grp.wait)
+```
+
+Something to keep in mind:
+
+Tool concurrency is the tool's responsibility. Each tool is initialized on a
+separate thread, so tools are thread-safe by default when they keep state local
+to that thread. Take care when a tool uses shared resources such as files,
+network clients, caches, database connections, or other mutable global state.
 
 ### Files
 
