@@ -28,7 +28,7 @@ state and execution model around them.
 
 - **Contexts are first-class** — state, history, tools, and cost all live in one object
 - **Tools are part of the runtime** — tool calls can be run sequentially or concurrently
-- **Providers share one API** — switch between OpenAI, Anthropic, Google, Ollama, and others without rewriting your app
+- **Providers share one API** — switch between OpenAI, Anthropic, Google, etc.
 - **Built for inspection** — tracing, usage, and cost tracking are available from the same objects you already use
 - **Minimal by default** — stdlib-only at runtime; optional features are lazy-loaded when needed
 
