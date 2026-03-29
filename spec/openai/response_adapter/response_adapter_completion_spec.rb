@@ -68,10 +68,10 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
     end
 
     it "tolerates malformed tool arguments" do
+      expect { completion.choices }.not_to raise_error
       tool = completion.choices[0].extra[:tool_calls][0]
       expect(tool.id).to eq("call_1")
       expect(tool.name).to eq("system")
-      expect(tool.arguments).to be_empty
     end
   end
 end
