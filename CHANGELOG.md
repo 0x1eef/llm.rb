@@ -51,4 +51,4 @@ Notable merged work in this range includes:
 
 Comparison base:
 - Latest tag: `v4.8.0` (`6468f2426ee125823b7ae43b4af507b125f96ffc`)
-- HEAD used for this changelog: `612ce8fc40cae4050d9beb3948d37f5b90d95a1b`
+- HEAD used for this changelog: `39a073e0b5b40b4bd094b03b8267219817b50e22`
