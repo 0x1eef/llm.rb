@@ -57,7 +57,7 @@ class LLM::Function
     #   Returns true if any task in the group is still alive,
     #   false otherwise.
     def alive?
-      @tasks.any? { |task| task.status != :finished }
+      @tasks.any?(&:alive?)
     end
 
     ##
