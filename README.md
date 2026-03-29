@@ -24,7 +24,7 @@ and a lot of ☕️.
 
 ## Screencast
 
-[![Watch the llm.rb screencast](https://img.youtube.com/vi/Jb7LNUYlCf4/maxresdefault.jpg)](https://www.youtube.com/watch?v=BfuN-2pnN8I)
+[![Watch the llm.rb screencast](https://img.youtube.com/vi/Jb7LNUYlCf4/maxresdefault.jpg)](https://www.youtube.com/watch?v=x1K4wMeO_QA)
 
 ## Quick start
 
