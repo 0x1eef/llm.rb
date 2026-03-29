@@ -32,15 +32,6 @@ state and execution model around them.
 - **Built for inspection** — tracing, usage, and cost tracking are available from the same objects you already use
 - **Minimal by default** — stdlib-only at runtime; optional features are lazy-loaded when needed
 
-## Runtime & Execution
-
-llm.rb treats LLM interactions as workflows:
-
-- **Context** manages state and history
-- **Tools** define execution boundaries
-- **Functions** run within the context
-- **Results** are composed back into the system
-
 ## Quick Start
 
 ### Concurrent tools
