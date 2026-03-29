@@ -43,7 +43,8 @@ module LLM::OpenAI::ResponseAdapter
 
     def parse_tool_arguments(arguments)
       return {} if arguments.to_s.empty?
-      LLM.json.load(arguments)
+      parsed = LLM.json.load(arguments)
+      Hash === parsed ? parsed : {}
     rescue *LLM.json.parser_error
       {}
     end
