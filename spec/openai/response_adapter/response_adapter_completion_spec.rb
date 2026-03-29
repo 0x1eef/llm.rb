@@ -71,7 +71,7 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
       tool = completion.choices[0].extra[:tool_calls][0]
       expect(tool.id).to eq("call_1")
       expect(tool.name).to eq("system")
-      expect(tool.arguments.to_h).to eq({})
+      expect(tool.arguments).to be_empty
     end
   end
 end
