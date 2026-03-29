@@ -135,7 +135,7 @@ ctx.talk("Run `date`.")
 ctx.talk(ctx.functions.call) # report return value to the LLM
 ```
 
-## Supported Providers
+## Providers
 
 llm.rb supports multiple LLM providers with a unified API.
 All providers share the same context, tool, and concurrency interfaces, making
