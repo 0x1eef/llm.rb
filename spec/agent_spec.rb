@@ -28,8 +28,8 @@ RSpec.describe LLM::Agent do
       end
 
       describe "DSL defaults" do
-        it "passes the defaults to the session" do
-          expect(LLM::Session).to receive(:new).with(
+        it "passes the defaults to the context" do
+          expect(LLM::Context).to receive(:new).with(
             provider,
             {model: "gpt-4.1", tools: [tool], schema:}
           ).and_call_original

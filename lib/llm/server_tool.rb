@@ -9,9 +9,9 @@
 # @example
 #   #!/usr/bin/env ruby
 #   llm = LLM.google ENV["KEY"]
-#   ses = LLM::Session.new(llm, tools: [LLM::ServerTool.new(:google_search)])
-#   ses.talk("Summarize today's news", role: :user)
-#   print ses.messages.find(&:assistant?).content, "\n"
+#   ctx = LLM::Context.new(llm, tools: [LLM::ServerTool.new(:google_search)])
+#   ctx.talk("Summarize today's news", role: :user)
+#   print ctx.messages.find(&:assistant?).content, "\n"
 class LLM::ServerTool < Struct.new(:name, :options, :provider)
   ##
   # @return [String]

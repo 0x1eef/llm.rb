@@ -9,7 +9,7 @@
 
 ## About
 
-llm.rb is a Ruby-native toolkit for building real LLM-powered systems — where LLMs are part of your architecture, not just API calls. It gives you explicit control over sessions, tools, concurrency, and providers, so you can compose reliable, production-ready workflows without hidden abstractions.
+llm.rb is a Ruby-native toolkit for building real LLM-powered systems — where LLMs are part of your architecture, not just API calls. It gives you explicit control over contexts, tools, concurrency, and providers, so you can compose reliable, production-ready workflows without hidden abstractions.
 
 Built for engineers who want to understand and control their LLM systems. No frameworks, no hidden magic — just composable primitives for building real applications, from scripts to full systems like [Relay](https://github.com/llmrb/relay).
 
@@ -17,24 +17,23 @@ Rails gives you conventions for building web apps. llm.rb gives you primitives f
 
 ## What Makes It Different
 
-Most AI libraries treat LLMs as request/response APIs. llm.rb treats them as **components in a system**.
+Most LLM libraries focus on request/response calls. llm.rb gives you the
+state and execution model around them.
 
-- **Explicit over implicit** — Sessions, tools, and concurrency are first-class objects you control
-- **Composable over monolithic** — Build workflows from simple primitives, not complex frameworks
-- **Observable over opaque** — Built-in tracing and cost tracking for production systems
-- **Provider-agnostic over vendor-locked** — Switch between OpenAI, Anthropic, Ollama, etc. without rewriting
-- **Minimal by default** — stdlib-only with zero runtime dependencies; optional features are lazy-loaded when needed
+- **Contexts are first-class** — state, history, tools, and cost all live in one object
+- **Tools are part of the runtime** — tool calls can be run sequentially or concurrently
+- **Providers share one API** — switch between OpenAI, Anthropic, Google, Ollama, and others without rewriting your app
+- **Built for inspection** — tracing, usage, and cost tracking are available from the same objects you already use
+- **Minimal by default** — stdlib-only at runtime; optional features are lazy-loaded when needed
 
-## Who It's For
+## Runtime & Execution
 
-llm.rb is built for:
+llm.rb treats LLM interactions as workflows:
 
-- **Solo builders & indie hackers** who care about control, cost, and flexibility
-- **Systems engineers moving into AI** who understand threads, processes, and architecture
-- **Backend engineers building internal tools** who need reliability, observability, and cost tracking
-- **Developers burned by over-engineered frameworks** who want something they can reason about
-
-Build things like internal copilots, automation tools, or self-hosted AI services — with explicit control over every component.
+- **Context** manages state and history
+- **Tools** define execution boundaries
+- **Functions** run within the context
+- **Results** are composed back into the system
 
 ## Quick Start
 
@@ -45,29 +44,40 @@ Build things like internal copilots, automation tools, or self-hosted AI service
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+ctx = LLM::Context.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
 
 # Execute multiple independent tools concurrently
-ses.talk("Summarize the weather, headlines, and stock price.")
-ses.talk(ses.functions.wait(:thread))
+ctx.talk("Summarize the weather, headlines, and stock price.")
+ctx.talk(ctx.functions.wait(:thread))
 ```
 
-### Basic Session
+### Basic Context
 
-The `LLM::Session` class provides a session with an LLM provider that maintains conversation history and context across multiple requests:
+`LLM::Context` represents a stateful interaction with an LLM — including
+conversation history, tools, execution state, and cost tracking. It evolves
+over time as the system runs.
+
+Context is the stateful environment in which an LLM operates.
+
+This is not just prompt context — it is an active, evolving execution
+boundary for LLM workflows.
+
+In practice, that means one object holds the running interaction:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, stream: $stdout)
+ctx = LLM::Context.new(llm, stream: $stdout)
 loop do
   print "> "
-  ses.talk(STDIN.gets || break)
+  ctx.talk(STDIN.gets || break)
   puts
 end
 ```
+
+As the program runs, `ctx` accumulates messages, tool state, usage, and cost.
 
 ### Structured Outputs
 
@@ -86,8 +96,8 @@ class Report < LLM::Schema
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, schema: Report)
-res = ses.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
+ctx = LLM::Context.new(llm, schema: Report)
+res = ctx.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
 pp res.content!
 
 # {
@@ -117,15 +127,15 @@ class System < LLM::Tool
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, tools: [System])
-ses.talk("Run `date`.")
-ses.talk(ses.functions.call) # report return value to the LLM
+ctx = LLM::Context.new(llm, tools: [System])
+ctx.talk("Run `date`.")
+ctx.talk(ctx.functions.call) # report return value to the LLM
 ```
 
 ## Supported Providers
 
 llm.rb supports multiple LLM providers with a unified API.
-All providers share the same session, tool, and concurrency interfaces, making it easy to switch between cloud and local models:
+All providers share the same context, tool, and concurrency interfaces, making it easy to switch between cloud and local models:
 
 - **OpenAI** (`LLM.openai`)
 - **Anthropic** (`LLM.anthropic`)
@@ -151,7 +161,7 @@ llm.rb provides a complete runtime for LLM workflows:
 
 llm.rb provides a complete set of primitives for building LLM-powered systems:
 
-- **Chat & Sessions** — stateless and stateful conversations with persistence
+- **Chat & Contexts** — stateless and stateful interactions with persistence
 - **Streaming** — real-time responses across providers
 - **Tool Calling** — define and execute functions with automatic orchestration
 - **Concurrent Execution** — threads, async tasks, and fibers
@@ -172,8 +182,8 @@ llm.rb provides a complete set of primitives for building LLM-powered systems:
 
 For more advanced use cases, llm.rb also provides:
 
-- **Session persistence** — save and restore conversations across processes (`#save`, `#restore`)
-- **Prompt composition** — build reusable prompts independent of sessions
+- **Context persistence** — save and restore interactions across processes (`#save`, `#restore`)
+- **Prompt composition** — build reusable prompts independent of contexts
 - **HTTP connection pooling** — optional persistent connections for performance
 - **Telemetry integration** — OpenTelemetry support with exporters and tracing
 - **Provider capabilities** — support varies by provider (audio, images, files, etc.)
@@ -184,7 +194,7 @@ For more advanced use cases, llm.rb also provides:
 
 ### MCP (Model Context Protocol)
 
-Start an MCP server over stdio and use its tools in a session:
+Start an MCP server over stdio and use its tools in a context:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -195,9 +205,9 @@ mcp = LLM.mcp(stdio: {argv: ["npx", "-y", "@modelcontextprotocol/server-filesyst
 
 begin
   mcp.start
-  ses = LLM::Session.new(llm, stream: $stdout, tools: mcp.tools)
-  ses.talk("List the directories in this project.")
-  ses.talk(ses.functions.map(&:call)) while ses.functions.any?
+  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
+  ctx.talk("List the directories in this project.")
+  ctx.talk(ctx.functions.map(&:call)) while ctx.functions.any?
 ensure
   mcp.stop
 end
@@ -232,11 +242,11 @@ Estimate costs without making additional API calls:
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm)
-ses.talk "Hello"
-puts "Estimated cost so far: $#{ses.cost}"
-ses.talk "Tell me a joke"
-puts "Estimated cost so far: $#{ses.cost}"
+ctx = LLM::Context.new(llm)
+ctx.talk "Hello"
+puts "Estimated cost so far: $#{ctx.cost}"
+ctx.talk "Tell me a joke"
+puts "Estimated cost so far: $#{ctx.cost}"
 ```
 
 ### Audio Generation
@@ -289,7 +299,7 @@ puts res.embeddings[0].size
 llm.rb is designed for engineers who want to *understand* their LLM systems, not just use them:
 
 - **Thread-safe providers** — Share connections across your application, not per-request overhead
-- **Stateful sessions** — Keep conversation context local to workflows, not global state
+- **Stateful contexts** — Keep interaction state local to workflows, not global state
 - **Composable tools** — Define once, reuse everywhere with clear execution boundaries
 - **Explicit concurrency** — Choose threads, async tasks, or fibers based on your workload
 - **Trackable costs** — Know what you're spending before the bill arrives

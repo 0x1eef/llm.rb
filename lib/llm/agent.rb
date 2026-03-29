@@ -8,7 +8,7 @@ module LLM
   #
   # **Notes:**
   # * Instructions are injected only on the first request.
-  # * An agent will automatically execute tool calls (unlike {LLM::Session LLM::Session}).
+  # * An agent will automatically execute tool calls (unlike {LLM::Context LLM::Context}).
   # * The idea originally came from RubyLLM and was adapted to llm.rb.
   #
   # @example
@@ -85,7 +85,7 @@ module LLM
     def initialize(llm, params = {})
       defaults = {model: self.class.model, tools: self.class.tools, schema: self.class.schema}.compact
       @llm = llm
-      @ses = LLM::Session.new(llm, defaults.merge(params))
+      @ctx = LLM::Context.new(llm, defaults.merge(params))
     end
 
     ##
@@ -103,10 +103,10 @@ module LLM
     #   puts response.choices[0].content
     def talk(prompt, params = {})
       i, max = 0, Integer(params.delete(:max_tool_rounds) || 10)
-      res = @ses.talk(apply_instructions(prompt), params)
-      until @ses.functions.empty?
+      res = @ctx.talk(apply_instructions(prompt), params)
+      until @ctx.functions.empty?
         raise LLM::ToolLoopError, "pending tool calls remain" if i >= max
-        res = @ses.talk @ses.functions.map(&:call), params
+        res = @ctx.talk @ctx.functions.map(&:call), params
         i += 1
       end
       res
@@ -129,10 +129,10 @@ module LLM
     #   puts res.output_text
     def respond(prompt, params = {})
       i, max = 0, Integer(params.delete(:max_tool_rounds) || 10)
-      res = @ses.respond(apply_instructions(prompt), params)
-      until @ses.functions.empty?
+      res = @ctx.respond(apply_instructions(prompt), params)
+      until @ctx.functions.empty?
         raise LLM::ToolLoopError, "pending tool calls remain" if i >= max
-        res = @ses.respond @ses.functions.map(&:call), params
+        res = @ctx.respond @ctx.functions.map(&:call), params
         i += 1
       end
       res
@@ -141,27 +141,27 @@ module LLM
     ##
     # @return [LLM::Buffer<LLM::Message>]
     def messages
-      @ses.messages
+      @ctx.messages
     end
 
     ##
     # @return [Array<LLM::Function>]
     def functions
-      @ses.functions
+      @ctx.functions
     end
 
     ##
     # @return [LLM::Object]
     def usage
-      @ses.usage
+      @ctx.usage
     end
 
     ##
-    # @param (see LLM::Session#prompt)
-    # @return (see LLM::Session#prompt)
-    # @see LLM::Session#prompt
+    # @param (see LLM::Context#prompt)
+    # @return (see LLM::Context#prompt)
+    # @see LLM::Context#prompt
     def prompt(&b)
-      @ses.prompt(&b)
+      @ctx.prompt(&b)
     end
     alias_method :build_prompt, :prompt
 
@@ -171,7 +171,7 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def image_url(url)
-      @ses.image_url(url)
+      @ctx.image_url(url)
     end
 
     ##
@@ -180,7 +180,7 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def local_file(path)
-      @ses.local_file(path)
+      @ctx.local_file(path)
     end
 
     ##
@@ -189,36 +189,36 @@ module LLM
     # @return [LLM::Object]
     #  Returns a tagged object
     def remote_file(res)
-      @ses.remote_file(res)
+      @ctx.remote_file(res)
     end
 
     ##
     # @return [LLM::Tracer]
     #  Returns an LLM tracer
     def tracer
-      @ses.tracer
+      @ctx.tracer
     end
 
     ##
     # Returns the model an Agent is actively using
     # @return [String]
     def model
-      @ses.model
+      @ctx.model
     end
 
     ##
-    # @param (see LLM::Session#serialize)
-    # @return (see LLM::Session#serialize)
+    # @param (see LLM::Context#serialize)
+    # @return (see LLM::Context#serialize)
     def serialize(**kw)
-      @ses.serialize(**kw)
+      @ctx.serialize(**kw)
     end
     alias_method :save, :serialize
 
     ##
-    # @param (see LLM::Session#deserialize)
-    # @return (see LLM::Session#deserialize)
+    # @param (see LLM::Context#deserialize)
+    # @return (see LLM::Context#deserialize)
     def deserialize(**kw)
-      @ses.deserialize(**kw)
+      @ctx.deserialize(**kw)
     end
     alias_method :restore, :deserialize
 
@@ -230,11 +230,11 @@ module LLM
       instr = self.class.instructions
       return new_prompt unless instr
       if LLM::Prompt === new_prompt
-        @ses.messages.empty? ? new_prompt.system(instr) : nil
+        @ctx.messages.empty? ? new_prompt.system(instr) : nil
         new_prompt
       else
         prompt do
-          @ses.messages.empty? ? _1.system(instr) : nil
+          @ctx.messages.empty? ? _1.system(instr) : nil
           _1.user(new_prompt)
         end
       end

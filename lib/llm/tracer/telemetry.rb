@@ -20,10 +20,10 @@ module LLM
   #   llm = LLM.openai(key: ENV["KEY"])
   #   llm.tracer = LLM::Tracer::Telemetry.new(llm)
   #
-  #   ses = LLM::Session.new(llm)
-  #   ses.talk "hello"
-  #   ses.talk "how are you?"
-  #   ses.tracer.spans.each { |span| pp span }
+  #   ctx = LLM::Context.new(llm)
+  #   ctx.talk "hello"
+  #   ctx.talk "how are you?"
+  #   ctx.tracer.spans.each { |span| pp span }
   #
   # @example OTLP export
   #   #!/usr/bin/env ruby
@@ -36,9 +36,9 @@ module LLM
   #   llm = LLM.openai(key: ENV["KEY"])
   #   llm.tracer = LLM::Tracer::Telemetry.new(llm, exporter:)
   #
-  #   ses = LLM::Session.new(llm)
-  #   ses.talk "hello"
-  #   ses.talk "how are you?"
+  #   ctx = LLM::Context.new(llm)
+  #   ctx.talk "hello"
+  #   ctx.talk "how are you?"
   class Tracer::Telemetry < Tracer
     ##
     # param [LLM::Provider] provider

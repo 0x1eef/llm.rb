@@ -102,10 +102,10 @@ class LLM::Provider
   # Starts a new chat powered by the chat completions API
   # @param prompt (see LLM::Provider#complete)
   # @param params (see LLM::Provider#complete)
-  # @return [LLM::Session]
+  # @return [LLM::Context]
   def chat(prompt, params = {})
     role = params.delete(:role)
-    LLM::Session.new(self, params).talk(prompt, role:)
+    LLM::Context.new(self, params).talk(prompt, role:)
   end
 
   ##
@@ -113,10 +113,10 @@ class LLM::Provider
   # @param prompt (see LLM::Provider#complete)
   # @param params (see LLM::Provider#complete)
   # @raise (see LLM::Provider#complete)
-  # @return [LLM::Session]
+  # @return [LLM::Context]
   def respond(prompt, params = {})
     role = params.delete(:role)
-    LLM::Session.new(self, params).respond(prompt, role:)
+    LLM::Context.new(self, params).respond(prompt, role:)
   end
 
   ##

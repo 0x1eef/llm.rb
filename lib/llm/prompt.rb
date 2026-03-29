@@ -5,20 +5,20 @@
 # a single request from multiple role-aware messages.
 # A prompt is not just a string. It is an ordered chain of
 # messages with explicit roles (for example `system` and `user`).
-# Use {LLM::Session#prompt} when building a prompt inside a session.
+# Use {LLM::Context#prompt} when building a prompt inside a session.
 # Use `LLM::Prompt.new(provider)` directly when you want to construct
 # or pass prompt objects around explicitly.
 #
 # @example
 #   llm = LLM.openai(key: ENV["KEY"])
-#   ses = LLM::Session.new(llm)
+#   ctx = LLM::Context.new(llm)
 #
-#   prompt = ses.prompt do
+#   prompt = ctx.prompt do
 #     system "Your task is to assist the user"
 #     user "Hello. Can you assist me?"
 #   end
 #
-#   res = ses.talk(prompt)
+#   res = ctx.talk(prompt)
 class LLM::Prompt
   ##
   # @param [LLM::Provider] provider

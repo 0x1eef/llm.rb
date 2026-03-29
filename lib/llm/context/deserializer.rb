@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class LLM::Session
+class LLM::Context
   ##
   # @api private
   module Deserializer

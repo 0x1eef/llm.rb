@@ -8,7 +8,7 @@
 #
 # In llm.rb, {LLM::MCP LLM::MCP} currently supports stdio servers and
 # focuses on discovering tools that can be used through
-# {LLM::Session LLM::Session} and {LLM::Agent LLM::Agent}.
+# {LLM::Context LLM::Context} and {LLM::Agent LLM::Agent}.
 class LLM::MCP
   require "monitor"
   require_relative "mcp/error"

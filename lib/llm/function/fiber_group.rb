@@ -11,11 +11,11 @@ class LLM::Function
   #
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   ses = LLM::Session.new(llm, tools: [Weather, News, Stocks])
-  #   ses.talk "Summarize the weather, headlines, and stock price."
-  #   grp = ses.functions.spawn(:fiber)
+  #   ctx = LLM::Context.new(llm, tools: [Weather, News, Stocks])
+  #   ctx.talk "Summarize the weather, headlines, and stock price."
+  #   grp = ctx.functions.spawn(:fiber)
   #   # do other work while tools run...
-  #   ses.talk(grp.wait)
+  #   ctx.talk(grp.wait)
   #
   # @see LLM::Function::Array#spawn
   # @see LLM::Function::ThreadGroup
@@ -43,14 +43,14 @@ class LLM::Function
     #
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
-    #   ses = LLM::Session.new(llm, tools: [Weather, News, Stocks])
-    #   ses.talk "Summarize the weather, headlines, and stock price."
-    #   grp = ses.functions.spawn(:fiber)
+    #   ctx = LLM::Context.new(llm, tools: [Weather, News, Stocks])
+    #   ctx.talk "Summarize the weather, headlines, and stock price."
+    #   grp = ctx.functions.spawn(:fiber)
     #   while grp.alive?
     #     puts "Tools are still running..."
     #     sleep 1
     #   end
-    #   ses.talk(grp.wait)
+    #   ctx.talk(grp.wait)
     #
     # @return [Boolean]
     #   Returns true if any fiber in the group is still alive,
@@ -70,12 +70,12 @@ class LLM::Function
     #
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
-    #   ses = LLM::Session.new(llm, tools: [Weather, News, Stocks])
-    #   ses.talk "Summarize the weather, headlines, and stock price."
-    #   grp = ses.functions.spawn(:fiber)
+    #   ctx = LLM::Context.new(llm, tools: [Weather, News, Stocks])
+    #   ctx.talk "Summarize the weather, headlines, and stock price."
+    #   grp = ctx.functions.spawn(:fiber)
     #   returns = grp.wait
     #   # returns is now an array of LLM::Function::Return objects
-    #   ses.talk(returns)
+    #   ctx.talk(returns)
     #
     # @return [Array<LLM::Function::Return>]
     #   Returns an array of function return values, in the same

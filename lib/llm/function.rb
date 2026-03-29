@@ -147,13 +147,13 @@ class LLM::Function
   # Calls the function in a separate thread.
   #
   # This is the low-level method that powers concurrent tool execution.
-  # Prefer the collection methods on {LLM::Session#functions} for most
+  # Prefer the collection methods on {LLM::Context#functions} for most
   # use cases: {LLM::Function::Array#call}, {LLM::Function::Array#wait},
   # or {LLM::Function::Array#spawn}.
   #
   # @example
   #   # Normal usage (via collection)
-  #   ses.talk(ses.functions.wait)
+  #   ctx.talk(ctx.functions.wait)
   #
   #   # Direct usage (uncommon)
   #   thread = tool.spawn
@@ -191,9 +191,9 @@ class LLM::Function
   # Returns a value that communicates that the function call was cancelled
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   ses = LLM::Session.new(llm, tools: [fn1, fn2])
-  #   ses.talk "I want to run the functions"
-  #   ses.talk ses.functions.map(&:cancel)
+  #   ctx = LLM::Context.new(llm, tools: [fn1, fn2])
+  #   ctx.talk "I want to run the functions"
+  #   ctx.talk ctx.functions.map(&:cancel)
   # @return [LLM::Function::Return]
   def cancel(reason: "function call cancelled")
     Return.new(id, name, {cancelled: true, reason:})

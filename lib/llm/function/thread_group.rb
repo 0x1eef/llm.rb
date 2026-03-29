@@ -9,18 +9,18 @@ class LLM::Function
   # threads.
   #
   # This class is returned by {LLM::Function::Array#spawn}
-  # when you call `ses.functions.spawn` on the collection
-  # returned by {LLM::Session#functions}. It is a lightweight
+  # when you call `ctx.functions.spawn` on the collection
+  # returned by {LLM::Context#functions}. It is a lightweight
   # wrapper that does not inherit from Ruby's built-in
   # {::ThreadGroup}.
   #
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   ses = LLM::Session.new(llm, tools: [Weather, News, Stocks])
-  #   ses.talk "Summarize the weather, headlines, and stock price."
-  #   grp = ses.functions.spawn
+  #   ctx = LLM::Context.new(llm, tools: [Weather, News, Stocks])
+  #   ctx.talk "Summarize the weather, headlines, and stock price."
+  #   grp = ctx.functions.spawn
   #   # do other work while tools run...
-  #   ses.talk(grp.wait)
+  #   ctx.talk(grp.wait)
   #
   # @see LLM::Function::Array#spawn
   # @see LLM::Function::Array#wait
@@ -49,14 +49,14 @@ class LLM::Function
     #
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
-    #   ses = LLM::Session.new(llm, tools: [Weather, News, Stocks])
-    #   ses.talk "Summarize the weather, headlines, and stock price."
-    #   grp = ses.functions.spawn
+    #   ctx = LLM::Context.new(llm, tools: [Weather, News, Stocks])
+    #   ctx.talk "Summarize the weather, headlines, and stock price."
+    #   grp = ctx.functions.spawn
     #   while grp.alive?
     #     puts "Tools are still running..."
     #     sleep 1
     #   end
-    #   ses.talk(grp.wait)
+    #   ctx.talk(grp.wait)
     #
     # @return [Boolean]
     #   Returns true if any thread in the group is still alive,
@@ -76,12 +76,12 @@ class LLM::Function
     #
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
-    #   ses = LLM::Session.new(llm, tools: [Weather, News, Stocks])
-    #   ses.talk "Summarize the weather, headlines, and stock price."
-    #   grp = ses.functions.spawn
+    #   ctx = LLM::Context.new(llm, tools: [Weather, News, Stocks])
+    #   ctx.talk "Summarize the weather, headlines, and stock price."
+    #   grp = ctx.functions.spawn
     #   returns = grp.wait
     #   # returns is now an array of LLM::Function::Return objects
-    #   ses.talk(returns)
+    #   ctx.talk(returns)
     #
     # @return [Array<LLM::Function::Return>]
     #   Returns an array of function return values, in the same

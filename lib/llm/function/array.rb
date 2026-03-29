@@ -3,7 +3,7 @@
 class LLM::Function
   ##
   # The {LLM::Function::Array} module extends the array
-  # returned by {LLM::Session#functions} with methods
+  # returned by {LLM::Context#functions} with methods
   # that can call all pending functions sequentially or
   # concurrently. The return values can be reported back
   # to the LLM on the next turn.

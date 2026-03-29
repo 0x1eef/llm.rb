@@ -14,9 +14,9 @@ module LLM
   #   require "llm"
   #
   #   llm = LLM.google(key: ENV["KEY"])
-  #   ses = LLM::Session.new(llm)
-  #   ses.talk ["Tell me about this photo", ses.local_file("/images/photo.png")]
-  #   ses.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
+  #   ctx = LLM::Context.new(llm)
+  #   ctx.talk ["Tell me about this photo", ctx.local_file("/images/photo.png")]
+  #   ctx.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Google < Provider
     require_relative "google/error_handler"
     require_relative "google/request_adapter"

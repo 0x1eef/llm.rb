@@ -10,9 +10,9 @@ module LLM
   #   require "llm"
   #
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   ses = LLM::Session.new(llm)
-  #   ses.talk ["Tell me about this photo", ses.local_file("/images/photo.png")]
-  #   ses.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
+  #   ctx = LLM::Context.new(llm)
+  #   ctx.talk ["Tell me about this photo", ctx.local_file("/images/photo.png")]
+  #   ctx.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class OpenAI < Provider
     require_relative "openai/error_handler"
     require_relative "openai/request_adapter"

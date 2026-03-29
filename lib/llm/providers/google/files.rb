@@ -18,10 +18,10 @@ class LLM::Google
   #   require "llm"
   #
   #   llm = LLM.google(key: ENV["KEY"])
-  #   ses = LLM::Session.new(llm)
+  #   ctx = LLM::Context.new(llm)
   #   file = llm.files.create(file: "/audio/haiku.mp3")
-  #   ses.talk ["Tell me about this file", file]
-  #   ses.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
+  #   ctx.talk ["Tell me about this file", file]
+  #   ctx.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Files
     ##
     # Returns a new Files object

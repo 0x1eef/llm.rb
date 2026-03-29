@@ -13,10 +13,10 @@ class LLM::OpenAI
   #   require "llm"
   #
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   ses = LLM::Session.new(llm)
+  #   ctx = LLM::Context.new(llm)
   #   file = llm.files.create file: "/books/goodread.pdf"
-  #   ses.talk ["Tell me about this PDF", file]
-  #   ses.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
+  #   ctx.talk ["Tell me about this PDF", file]
+  #   ctx.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Files
     ##
     # Returns a new Files object

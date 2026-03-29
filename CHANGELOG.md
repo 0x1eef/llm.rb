@@ -11,12 +11,12 @@ Changes since `v4.8.0`.
 - Add `:thread`, `:task`, and `:fiber` strategy parameter to
   `LLM::Function#spawn` for explicit concurrency control.
 - Add stdio MCP client support, including remote tool discovery and
-  invocation through `LLM.mcp`, `LLM::Session`, and existing function/tool
+  invocation through `LLM.mcp`, `LLM::Context`, and existing function/tool
   APIs.
 - Add model registry support via `LLM::Registry`, including model
   metadata lookup, pricing, modalities, limits, and cost estimation.
-- Add session access to a model context window via
-  `LLM::Session#context_window`.
+- Add context access to a model context window via
+  `LLM::Context#context_window`.
 - Add tracking of defined tools in the tool registry.
 - Add `LLM::Schema::Enum`, enabling `Enum[...]` as a schema/tool
   parameter type.
@@ -36,6 +36,8 @@ Changes since `v4.8.0`.
 
 ### Change
 
+- Rename `LLM::Session` to `LLM::Context` throughout the codebase to better
+  reflect the concept of a stateful interaction environment.
 - Rename `LLM::Gemini` to `LLM::Google` to better reflect provider naming.
 - Standardize model objects across providers around a smaller common
   interface.
@@ -45,7 +47,7 @@ Changes since `v4.8.0`.
 - Expand README and screencast documentation for MCP, registry, context
   windows, enums, prompts, concurrency, and concurrent tool execution.
 - Update `LLM::Bot` deprecation warning from v5.0 to v6.0, giving users
-  more time to migrate to `LLM::Session`.
+  more time to migrate to `LLM::Context`.
 - Rewrite README with more focused, marketing-oriented approach that
   better communicates llm.rb's value proposition and target audience.
 - Add comprehensive "Supported Providers" section to README after Quick
@@ -60,16 +62,16 @@ Changes since `v4.8.0`.
   standard tool registry.
 - Fix stream parsing issues, including chunk-splitting bugs and safer
   handling of streamed error responses.
-- Fix prompt handling across sessions, agents, and provider adapters so
+- Fix prompt handling across contexts, agents, and provider adapters so
   prompt turns remain consistent in history and completions.
-- Fix several tool/session issues, including function return wrapping,
+- Fix several tool/context issues, including function return wrapping,
   tool lookup after deserialization, unnamed subclass filtering, and
   thread-safety around tool registry mutations.
 - Fix Google tool-call handling to preserve `thoughtSignature`.
 - Fix `LLM::Tracer::Logger` argument handling.
 - Fix packaging/docs issues such as registry files in the gemspec and
   stale provider docs.
-- Fix Google provider handling of `nil` function IDs during session
+- Fix Google provider handling of `nil` function IDs during context
   deserialization.
 - Fix MCP stdio transport by increasing poll timeout for better
   reliability.
@@ -98,6 +100,7 @@ Notable merged work in this range includes:
 - `docs(readme): update screencast video link (#66)`
 - `chore(bot): update deprecation warning from v5.0 to v6.0`
 - `fix(deepseek): tolerate malformed tool arguments`
+- `refactor(context): Rename Session as Context (#70)`
 
 Comparison base:
 - Latest tag: `v4.8.0` (`6468f2426ee125823b7ae43b4af507b125f96ffc`)
