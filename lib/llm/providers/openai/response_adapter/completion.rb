@@ -74,8 +74,15 @@ module LLM::OpenAI::ResponseAdapter
     def adapt_tool_calls(tools)
       (tools || []).filter_map do |tool|
         next unless tool.function
-        {id: tool.id, name: tool.function.name, arguments: LLM.json.load(tool.function.arguments)}
+        {id: tool.id, name: tool.function.name, arguments: parse_tool_arguments(tool.function.arguments)}
       end
+    end
+
+    def parse_tool_arguments(arguments)
+      return {} if arguments.to_s.empty?
+      LLM.json.load(arguments)
+    rescue *LLM.json.parser_error
+      {}
     end
 
     include LLM::Contract::Completion

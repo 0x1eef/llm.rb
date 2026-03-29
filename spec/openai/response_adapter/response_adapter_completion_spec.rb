@@ -3,6 +3,7 @@
 require "setup"
 
 RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
+  let!(:provider) { LLM.openai(key: "test") }
   let(:body) { LLM::Object.from(choices: [], usage:, model: "test-model") }
   let(:http_response) { Struct.new(:body).new(body) }
   let(:response) { LLM::Response.new(http_response) }
@@ -37,6 +38,40 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
 
     it "returns correct total tokens" do
       expect(completion.total_tokens).to eq(30)
+    end
+  end
+
+  context "when a tool call has malformed json arguments" do
+    let(:usage) { nil }
+    let(:body) do
+      LLM::Object.from(
+        choices: [
+          {
+            message: {
+              role: "assistant",
+              content: "",
+              tool_calls: [
+                {
+                  id: "call_1",
+                  function: {
+                    name: "system",
+                    arguments: "{\"command\":\"date"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        usage:,
+        model: "test-model"
+      )
+    end
+
+    it "tolerates malformed tool arguments" do
+      tool = completion.choices[0].extra[:tool_calls][0]
+      expect(tool.id).to eq("call_1")
+      expect(tool.name).to eq("system")
+      expect(tool.arguments.to_h).to eq({})
     end
   end
 end

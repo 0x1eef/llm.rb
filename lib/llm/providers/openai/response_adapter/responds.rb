@@ -38,7 +38,14 @@ module LLM::OpenAI::ResponseAdapter
     end
 
     def adapt_tool(tool)
-      {id: tool.call_id, name: tool.name, arguments: LLM.json.load(tool.arguments)}
+      {id: tool.call_id, name: tool.name, arguments: parse_tool_arguments(tool.arguments)}
+    end
+
+    def parse_tool_arguments(arguments)
+      return {} if arguments.to_s.empty?
+      LLM.json.load(arguments)
+    rescue *LLM.json.parser_error
+      {}
     end
   end
 end
