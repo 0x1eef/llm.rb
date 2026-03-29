@@ -27,38 +27,51 @@ Most LLM libraries focus on request/response calls. llm.rb gives you the
 state and execution model around them.
 
 - **Contexts are first-class** — state, history, tools, and cost all live in one object
-- **Tools are part of the runtime** — tool calls can be run sequentially or concurrently
-- **Providers share one API** — switch between OpenAI, Anthropic, Google, etc.
-- **Built for inspection** — tracing, usage, and cost tracking are available from the same objects you already use
-- **Minimal by default** — stdlib-only at runtime; optional features are lazy-loaded when needed
+- **Explicit concurrency** — Choose threads, fibers, or async tasks for tool execution
+- **Unified provider API** — Same interface across 8+ providers (OpenAI, Anthropic, Google, etc.)
+- **Thread-safe by design** — Safe for concurrent use with clear boundaries
+- **Minimal by default** — stdlib-only at runtime; optional features are lazy-loaded
+- **Performance optimized** — Optional HTTP connection pooling with net-http-persistent
+
+## Architecture & Execution Model
+
+llm.rb is built in layers, each providing explicit control:
+
+```
+┌─────────────────────────────────────────┐
+│          Your Application               │
+├─────────────────────────────────────────┤
+│         Contexts & Agents               │ ← Stateful workflows
+├─────────────────────────────────────────┤
+│           Tools & Functions             │ ← Concurrent execution
+├─────────────────────────────────────────┤
+│   Unified Provider API (OpenAI, etc.)   │ ← Provider abstraction
+├─────────────────────────────────────────┤
+│      HTTP, JSON, Thread Safety          │ ← Infrastructure
+└─────────────────────────────────────────┘
+```
+
+### Key Design Decisions
+
+- **Thread-safe providers** - `LLM::Provider` instances are safe to share across threads
+- **Thread-local contexts** - `LLM::Context` should generally be kept thread-local
+- **JSON adapter system** - Swap JSON libraries (JSON/Oj/Yajl) for performance
+- **Registry system** - Local metadata for model capabilities, limits, and pricing
+- **Provider adaptation** - Normalizes differences between OpenAI, Anthropic, Google, and other providers
+- **Structured tool execution** - Errors are captured and returned as data, not raised unpredictably
+- **Function vs Tool APIs** - Choose between class-based tools and closure-based functions
 
 ## Quick Start
 
-### Concurrent tools
+#### Streaming Chat
 
-llm.rb supports concurrent tool execution using threads, fibers, or async
-tasks. Here's how to execute multiple independent tools concurrently with
-threads:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
-
-# Execute multiple independent tools concurrently
-ctx.talk("Summarize the weather, headlines, and stock price.")
-ctx.talk(ctx.functions.wait(:thread))
-```
-
-### Context
-
-A context is a single conversation with an LLM that keeps track of everything:
-the messages exchanged, any tools you've given it access to, and the costs
-incurred. As you interact with the LLM, the context accumulates this
-information so you can maintain a coherent conversation or workflow. As the
-program runs, `ctx` accumulates messages, tool state, usage, and cost:
+This example demonstrates llm.rb's streaming support. The `stream: $stdout`
+parameter tells the context to write responses incrementally as they arrive
+from the LLM. The `Context` object manages the conversation history, and
+`talk()` sends your input while automatically appending both your message and
+the LLM's response to the context. Streams accept any object with `#<<`,
+giving you flexibility to pipe output to files, network sockets, or custom
+buffers:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -73,9 +86,66 @@ loop do
 end
 ```
 
-### Structured Outputs
+#### Tool Calling
 
-Define JSON schemas for structured responses:
+Tools in llm.rb can be defined as classes inheriting from `LLM::Tool` or as
+closures using `LLM.function`. When the LLM requests a tool call, the context
+stores `Function` objects in `ctx.functions`. The `call()` method executes all
+pending functions and returns their results to the LLM. Tools support
+structured parameters with JSON Schema validation and automatically adapt to
+each provider's API format (OpenAI, Anthropic, Google, etc.):
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class System < LLM::Tool
+  name "system"
+  description "Run a shell command"
+  param :command, String, "Command to execute", required: true
+
+  def call(command:)
+    {success: system(command)}
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: [System])
+ctx.talk("Run `date`.")
+ctx.talk(ctx.functions.call) # report return value to the LLM
+```
+
+#### Concurrent Tools
+
+llm.rb provides explicit concurrency control for tool execution. The
+`wait(:thread)` method spawns each pending function in its own thread and waits
+for all to complete. You can also use `:fiber` for cooperative multitasking or
+`:task` for async/await patterns (requires the `async` gem). The context
+automatically collects all results and reports them back to the LLM in a
+single turn, maintaining conversation flow while parallelizing independent
+operations:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+
+# Execute multiple independent tools concurrently
+ctx.talk("Summarize the weather, headlines, and stock price.")
+ctx.talk(ctx.functions.wait(:thread))
+```
+
+#### Structured Outputs
+
+The `LLM::Schema` system lets you define JSON schemas that LLMs must follow.
+Schemas can be defined as classes with `property` declarations or built
+programmatically using a fluent interface. When you pass a schema to a context,
+llm.rb automatically configures the provider's JSON mode and validates
+responses against your schema. The `content!` method returns the parsed JSON
+object, while errors are captured as structured data rather than raising
+exceptions:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -102,30 +172,6 @@ pp res.content!
 # }
 ```
 
-### Tool Calling
-
-Define callable tools that the model can invoke:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-class System < LLM::Tool
-  name "system"
-  description "Run a shell command"
-  param :command, String, "Command to execute", required: true
-
-  def call(command:)
-    {success: system(command)}
-  end
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, tools: [System])
-ctx.talk("Run `date`.")
-ctx.talk(ctx.functions.call) # report return value to the LLM
-```
-
 ## Providers
 
 llm.rb supports multiple LLM providers with a unified API.
@@ -141,16 +187,73 @@ it easy to switch between cloud and local models:
 - **Ollama** (`LLM.ollama`)
 - **Llama.cpp** (`LLM.llamacpp`)
 
-## Execution Model
+## Production Features
 
-llm.rb provides a complete runtime for LLM workflows:
+llm.rb is designed for production use from the ground up:
 
-- **Flexible tool definitions** — Define tools as classes or closures depending on your use case
-- **Explicit concurrency model** — Execute tools with threads, async tasks, or fibers using a unified API
-- **Provider adaptation** — Normalizes differences between OpenAI, Anthropic, Google, and other providers
-- **Structured tool execution** — Errors are captured and returned as data, not raised unpredictably
-- **Thread-safe by design** — Internal synchronization ensures safe use across threads
-- **Function vs Tool APIs** — Choose between class-based tools and closure-based functions
+- **Thread-safe providers** - Share `LLM::Provider` instances across your application
+- **Thread-local contexts** - Keep `LLM::Context` instances thread-local for state isolation
+- **Cost tracking** - Know your spend before the bill arrives
+- **Observability** - Built-in tracing with OpenTelemetry support
+- **Persistence** - Save and restore contexts across processes
+- **Performance** - Swap JSON adapters and enable HTTP connection pooling
+- **Error handling** - Structured errors, not unpredictable exceptions
+
+### Example: Thread Safety
+
+llm.rb uses Ruby's `Monitor` class to ensure thread safety at the provider
+level, allowing you to share a single provider instance across multiple threads
+while maintaining state isolation through thread-local contexts. This design
+enables efficient resource sharing while preventing race conditions in
+concurrent applications:
+
+```ruby
+# Thread-safe providers - create once, use everywhere
+llm = LLM.openai(key: ENV["KEY"])
+
+# Each thread should have its own context for state isolation
+Thread.new do
+  ctx = LLM::Context.new(llm)  # Thread-local context
+  ctx.talk("Hello from thread 1")
+end
+
+Thread.new do
+  ctx = LLM::Context.new(llm)  # Thread-local context  
+  ctx.talk("Hello from thread 2")
+end
+```
+
+### Example: Performance Tuning
+
+llm.rb's JSON adapter system lets you swap JSON libraries for better
+performance in high-throughput applications. The library supports stdlib JSON,
+Oj, and Yajl, with Oj typically offering the best performance. Additionally,
+you can enable HTTP connection pooling using the optional `net-http-persistent`
+gem to reduce connection overhead in production environments:
+
+```ruby
+# Swap JSON libraries for better performance
+LLM.json = :oj  # Use Oj for faster JSON parsing
+
+# Enable HTTP connection pooling for high-throughput applications
+llm = LLM.openai(key: ENV["KEY"]).persist!  # Uses net-http-persistent when available
+```
+
+### Example: Model Registry
+
+llm.rb includes a local model registry that provides metadata about model
+capabilities, pricing, and limits without requiring API calls. The registry is
+shipped with the gem and sourced from https://models.dev, giving you access to
+up-to-date information about context windows, token costs, and supported
+modalities for each provider:
+
+```ruby
+# Access model metadata, capabilities, and pricing
+registry = LLM.registry_for(:openai)
+model_info = registry.limit(model: "gpt-4.1")
+puts "Context window: #{model_info.context} tokens"
+puts "Cost: $#{model_info.cost.input}/1M input tokens"
+```
 
 ## Capabilities
 
@@ -173,23 +276,14 @@ llm.rb provides a complete set of primitives for building LLM-powered systems:
 - **Observability** — tracing, logging, telemetry
 - **Model Registry** — local metadata for capabilities, limits, pricing
 
-## Advanced Capabilities
-
-For more advanced use cases, llm.rb also provides:
-
-- **Context persistence** — save and restore interactions across processes (`#save`, `#restore`)
-- **Prompt composition** — build reusable prompts independent of contexts
-- **HTTP connection pooling** — optional persistent connections for performance
-- **Telemetry integration** — OpenTelemetry support with exporters and tracing
-- **Provider capabilities** — support varies by provider (audio, images, files, etc.)
-- **Execution control** — spawn and manage concurrent tool execution explicitly
-- **Multimodal inputs** — structured handling of images, files, and URLs
-
 ## More Examples
 
 ### MCP (Model Context Protocol)
 
-Start an MCP server over stdio and use its tools in a context:
+llm.rb integrates with the Model Context Protocol (MCP) to dynamically discover
+and use tools from external servers. This example starts a filesystem MCP
+server over stdio and makes its tools available to a context, enabling the LLM
+to interact with the local file system through a standardized interface:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -210,7 +304,11 @@ end
 
 ### Agents
 
-Define reusable, preconfigured assistants with defaults for model, tools, schema, and instructions:
+Agents in llm.rb are reusable, preconfigured assistants that automatically
+execute tool calls and maintain conversation state. Unlike contexts which
+require manual tool execution, agents automatically handle the tool call loop,
+making them ideal for autonomous workflows where you want the LLM to
+independently use available tools to accomplish tasks:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -230,7 +328,11 @@ res = agent.talk("Run 'date'")
 
 ### Cost Tracking
 
-Estimate costs without making additional API calls:
+llm.rb provides built-in cost estimation that works without making additional
+API calls. The cost tracking system uses the local model registry to calculate
+estimated costs based on token usage, giving you visibility into spending
+before bills arrive. This is particularly useful for monitoring usage in
+production applications and setting budget alerts:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -246,7 +348,10 @@ puts "Estimated cost so far: $#{ctx.cost}"
 
 ### Audio Generation
 
-Create speech from text:
+llm.rb supports OpenAI's audio API for text-to-speech generation, allowing you
+to create speech from text with configurable voices and output formats. The
+audio API returns binary audio data that can be streamed directly to files or
+other IO objects, enabling integration with multimedia applications:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -259,7 +364,10 @@ IO.copy_stream res.audio, File.join(Dir.home, "hello.mp3")
 
 ### Image Generation
 
-Create images from prompts:
+llm.rb provides access to OpenAI's DALL-E image generation API through a
+unified interface. The API supports multiple response formats including
+base64-encoded images and temporary URLs, with automatic handling of binary
+data streaming for efficient file operations:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -272,7 +380,10 @@ IO.copy_stream res.images[0], File.join(Dir.home, "dogonrocket.png")
 
 ### Embeddings
 
-Get vector embeddings for semantic search:
+llm.rb's embedding API generates vector representations of text for semantic
+search and retrieval-augmented generation (RAG) workflows. The API supports
+batch processing of multiple inputs and returns normalized vectors suitable for
+vector similarity operations, with consistent dimensionality across providers:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -289,23 +400,13 @@ puts res.embeddings[0].size
 # 1536
 ```
 
-## Architecture: Systems, Not Magic
-
-llm.rb is designed for engineers who want to *understand* their LLM systems, not just use them:
-
-- **Thread-safe providers** — Share connections across your application, not per-request overhead
-- **Stateful contexts** — Keep interaction state local to workflows, not global state
-- **Composable tools** — Define once, reuse everywhere with clear execution boundaries
-- **Explicit concurrency** — Choose threads, async tasks, or fibers based on your workload
-- **Trackable costs** — Know what you're spending before the bill arrives
-
 ## Real-World Example: Relay
 
 See how these pieces come together in a complete application architecture with
 [Relay](https://github.com/llmrb/relay), a production-ready LLM application
 built on llm.rb that demonstrates:
 
-- Session management across requests
+- Context management across requests
 - Tool composition and execution
 - Concurrent workflows
 - Cost tracking and observability
