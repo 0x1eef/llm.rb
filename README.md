@@ -122,6 +122,20 @@ ses.talk("Run `date`.")
 ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
+## Supported Providers
+
+llm.rb supports multiple LLM providers with a unified API.
+All providers share the same session, tool, and concurrency interfaces, making it easy to switch between cloud and local models:
+
+- **OpenAI** (`LLM.openai`)
+- **Anthropic** (`LLM.anthropic`)
+- **Google** (`LLM.google`)
+- **DeepSeek** (`LLM.deepseek`)
+- **xAI** (`LLM.xai`)
+- **zAI** (`LLM.zai`)
+- **Ollama** (`LLM.ollama`)
+- **Llama.cpp** (`LLM.llamacpp`)
+
 ## Execution Model
 
 llm.rb provides a complete runtime for LLM workflows:
