@@ -90,12 +90,5 @@ class LLM::Function
       @threads.map(&:value)
     end
     alias_method :value, :wait
-
-    ##
-    # Returns true when one or more threads in the group are alive.
-    # @return [Boolean]
-    def alive?
-      @threads.any?(&:alive?)
-    end
   end
 end
