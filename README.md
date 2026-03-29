@@ -43,7 +43,7 @@ llm.rb treats LLM interactions as workflows:
 
 ## Quick Start
 
-### Run multiple tools concurrently
+### Concurrent tools
 
 llm.rb supports concurrent tool execution using threads, fibers, or async
 tasks. Here's how to execute multiple independent tools concurrently with
