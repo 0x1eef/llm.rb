@@ -122,6 +122,17 @@ ses.talk("Run `date`.")
 ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
+## Execution Model
+
+llm.rb provides a complete runtime for LLM workflows:
+
+- **Flexible tool definitions** — Define tools as classes or closures depending on your use case
+- **Explicit concurrency model** — Execute tools with threads, async tasks, or fibers using a unified API
+- **Provider adaptation** — Normalizes differences between OpenAI, Anthropic, Google, and other providers
+- **Structured tool execution** — Errors are captured and returned as data, not raised unpredictably
+- **Thread-safe by design** — Internal synchronization ensures safe use across threads
+- **Function vs Tool APIs** — Choose between class-based tools and closure-based functions
+
 ## Capabilities
 
 llm.rb provides a complete set of primitives for building LLM-powered systems:
@@ -149,7 +160,6 @@ For more advanced use cases, llm.rb also provides:
 
 - **Session persistence** — save and restore conversations across processes (`#save`, `#restore`)
 - **Prompt composition** — build reusable prompts independent of sessions
-- **Function vs Tool APIs** — define tools as closures or classes depending on your needs
 - **HTTP connection pooling** — optional persistent connections for performance
 - **Telemetry integration** — OpenTelemetry support with exporters and tracing
 - **Provider capabilities** — support varies by provider (audio, images, files, etc.)
