@@ -9,33 +9,52 @@
 
 ## About
 
-llm.rb is a zero-dependency Ruby toolkit for Large Language Models that
-includes OpenAI, Google (Gemini), Anthropic, xAI (Grok), zAI, DeepSeek, Ollama,
-and LlamaCpp. The toolkit includes full support for chat, streaming, MCP,
-tool calling, audio, images, files, and structured outputs. It also includes
-built-in concurrent tool execution for threaded and async Ruby environments,
-with support for threads, async tasks, and raw fibers.
+llm.rb is a Ruby-native toolkit for building real LLM-powered systems — where LLMs are part of your architecture, not just API calls. It gives you explicit control over sessions, tools, concurrency, and providers, so you can compose reliable, production-ready workflows without hidden abstractions.
 
-And it is licensed under the [0BSD License](https://choosealicense.com/licenses/0bsd/) &ndash;
-one of the most permissive open source licenses, with minimal conditions for use,
-modification, and/or distribution. Attribution is appreciated, but not required
-by the license. Built with [good music](https://www.youtube.com/watch?v=SNvaqwTbn14)
-and a lot of ☕️.
+Built for engineers who want to understand and control their LLM systems. No frameworks, no hidden magic — just composable primitives for building real applications, from scripts to full systems like [Relay](https://github.com/llmrb/relay).
 
-## Screencast
+Rails gives you conventions for building web apps. llm.rb gives you primitives for building LLM systems.
 
-[![Watch the llm.rb screencast](https://img.youtube.com/vi/Jb7LNUYlCf4/maxresdefault.jpg)](https://www.youtube.com/watch?v=x1K4wMeO_QA)
+## What Makes It Different
 
-## Quick start
+Most AI libraries treat LLMs as request/response APIs. llm.rb treats them as **components in a system**.
 
-#### REPL
+- **Explicit over implicit** — Sessions, tools, and concurrency are first-class objects you control
+- **Composable over monolithic** — Build workflows from simple primitives, not complex frameworks
+- **Observable over opaque** — Built-in tracing and cost tracking for production systems
+- **Provider-agnostic over vendor-locked** — Switch between OpenAI, Anthropic, Ollama, etc. without rewriting
+- **Minimal by default** — stdlib-only with zero runtime dependencies; optional features are lazy-loaded when needed
 
-The [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) class provides
-a session with an LLM provider that maintains conversation history and context across
-multiple requests. The following example implements a simple REPL loop, and the response
-is streamed to the terminal in real-time as it arrives from the provider. The provider
-happens to be OpenAI in this case but it could be any other provider, and `$stdout`
-could be any object that implements the `#<<` method:
+## Who It's For
+
+llm.rb is built for:
+
+- **Solo builders & indie hackers** who care about control, cost, and flexibility
+- **Systems engineers moving into AI** who understand threads, processes, and architecture
+- **Backend engineers building internal tools** who need reliability, observability, and cost tracking
+- **Developers burned by over-engineered frameworks** who want something they can reason about
+
+Build things like internal copilots, automation tools, or self-hosted AI services — with explicit control over every component.
+
+## Quick Start
+
+### Run multiple tools concurrently
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+
+# Execute multiple independent tools concurrently
+ses.talk("Summarize the weather, headlines, and stock price.")
+ses.talk(ses.functions.wait(:thread))
+```
+
+### Basic Session
+
+The `LLM::Session` class provides a session with an LLM provider that maintains conversation history and context across multiple requests:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -50,12 +69,9 @@ loop do
 end
 ```
 
-#### Schema
+### Structured Outputs
 
-The [LLM::Schema](https://0x1eef.github.io/x/llm.rb/LLM/Schema.html) class provides
-a simple DSL for describing the structure of a response that an LLM emits according
-to a JSON schema. The schema lets a client describe what JSON object an LLM should
-emit, and the LLM will abide by the schema to the best of its ability:
+Define JSON schemas for structured responses:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -74,7 +90,6 @@ ses = LLM::Session.new(llm, schema: Report)
 res = ses.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
 pp res.content!
 
-##
 # {
 #   "category" => "performance",
 #   "summary" => "Database latency spiked, causing 5% request timeouts for 12 minutes.",
@@ -83,17 +98,9 @@ pp res.content!
 # }
 ```
 
-#### Tools
+### Tool Calling
 
-The [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) class lets you
-define callable tools for the model. Each tool is described to the LLM as a function
-it can invoke to fetch information or perform an action. The model decides when to
-call tools based on the conversation; when it does, llm.rb runs the tool and sends
-the result back on the next request. For concurrent tool execution and more
-details on [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method),
-see [Concurrent tool execution](#concurrent-tool-execution).
-
-The following example implements a simple tool that runs shell commands:
+Define callable tools that the model can invoke:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -115,12 +122,45 @@ ses.talk("Run `date`.")
 ses.talk(ses.functions.call) # report return value to the LLM
 ```
 
-#### MCP
+## Capabilities
 
-The [LLM::MCP](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) class provides
-support for the Model Context Protocol (MCP). The following example starts an
-MCP server over stdio, uses the tools it provides in a session, and reports tool
-results back to the LLM on the next request:
+llm.rb provides a complete set of primitives for building LLM-powered systems:
+
+- **Chat & Sessions** — stateless and stateful conversations with persistence
+- **Streaming** — real-time responses across providers
+- **Tool Calling** — define and execute functions with automatic orchestration
+- **Concurrent Execution** — threads, async tasks, and fibers
+- **Agents** — reusable, preconfigured assistants with tool auto-execution
+- **Structured Outputs** — JSON schema-based responses
+- **MCP Support** — integrate external tool servers dynamically
+- **Multimodal Inputs** — text, images, audio, documents, URLs
+- **Audio** — text-to-speech, transcription, translation
+- **Images** — generation and editing
+- **Files API** — upload and reference files in prompts
+- **Embeddings** — vector generation for search and RAG
+- **Vector Stores** — OpenAI-based retrieval workflows
+- **Cost Tracking** — estimate usage without API calls
+- **Observability** — tracing, logging, telemetry
+- **Model Registry** — local metadata for capabilities, limits, pricing
+
+## Advanced Capabilities
+
+For more advanced use cases, llm.rb also provides:
+
+- **Session persistence** — save and restore conversations across processes (`#save`, `#restore`)
+- **Prompt composition** — build reusable prompts independent of sessions
+- **Function vs Tool APIs** — define tools as closures or classes depending on your needs
+- **HTTP connection pooling** — optional persistent connections for performance
+- **Telemetry integration** — OpenTelemetry support with exporters and tracing
+- **Provider capabilities** — support varies by provider (audio, images, files, etc.)
+- **Execution control** — spawn and manage concurrent tool execution explicitly
+- **Multimodal inputs** — structured handling of images, files, and URLs
+
+## More Examples
+
+### MCP (Model Context Protocol)
+
+Start an MCP server over stdio and use its tools in a session:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -139,15 +179,9 @@ ensure
 end
 ```
 
-#### Agents
+### Agents
 
-The [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html)
-class provides a class-level DSL for defining reusable, preconfigured
-assistants with defaults for model, tools, schema, and instructions.
-Instructions are injected only on the first request, and unlike
-[LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html),
-an [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html)
-will automatically call tools when needed:
+Define reusable, preconfigured assistants with defaults for model, tools, schema, and instructions:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -165,14 +199,9 @@ agent = SystemAdmin.new(llm)
 res = agent.talk("Run 'date'")
 ```
 
-#### Registry
+### Cost Tracking
 
-The [LLM::Registry](https://0x1eef.github.io/x/llm.rb/LLM/Registry.html) class
-provides access to a local model registry maintained by [models.dev](https://models.dev).
-It is loaded on demand for the active provider and cached in memory to avoid
-repeated disk reads. The registry includes model metadata such as capabilities, pricing,
-modalities, limits, and more. The registry is used to estimate costs without
-making additional API calls. See [data/](data) for the registry contents:
+Estimate costs without making additional API calls:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -186,608 +215,9 @@ ses.talk "Tell me a joke"
 puts "Estimated cost so far: $#{ses.cost}"
 ```
 
-The registry also makes it possible to determine a model's context
-window size without making an API call. The following example accesses
-the context window through [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html),
-but it can also be accessed through [LLM::Registry](https://0x1eef.github.io/x/llm.rb/LLM/Registry.html)
-directly:
+### Audio Generation
 
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, model: "gpt-4.1")
-puts "Context window size: #{ses.context_window} tokens"
-```
-
-#### Prompts
-
-The [LLM::Prompt](https://0x1eef.github.io/x/llm.rb/LLM/Prompt.html)
-class represents a single request composed of multiple messages.
-It is useful when a single turn needs more than one message, for example:
-system instructions plus one or more user messages, or a replay of
-prior context:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm)
-
-prompt = ses.prompt do
-  system "Be concise and show your reasoning briefly."
-  user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
-  user "Now double the speed for the same time."
-end
-
-ses.talk(prompt)
-```
-
-But prompts are not session-scoped. [LLM::Prompt](https://0x1eef.github.io/x/llm.rb/LLM/Prompt.html)
-is a first-class object that you can build and pass around independently of a session.
-This enables patterns where you compose a prompt in one part of your code,
-and execute it through a session elsewhere:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm)
-
-prompt = LLM::Prompt.new(llm) do
-  system "Be concise and show your reasoning briefly."
-  user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
-  user "Now double the speed for the same time."
-end
-
-ses.talk(prompt)
-```
-
-#### Concurrency
-
-llm.rb is designed for threaded and fibered environments with throughput
-in mind. Locks are used selectively, and localized state is preferred
-wherever possible to balance correctness, contention, and complexity.
-
-[LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
-is safe to share across threads. [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) and
-[LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) are
-stateful objects and should be kept local to a single thread.
-
-[LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html) and its
-subclasses are fiber-local, so `llm.tracer = ...` only affects the
-current fiber, and it should be set again in each fiber where a tracer is
-desired. Since each thread starts with its own main fiber, tracer state
-also stays isolated across threads by default. See Ruby's docs on
-[Fiber-local vs. Thread-local](https://docs.ruby-lang.org/en/4.0/Thread.html#class-Thread-label-Fiber-local+vs.+Thread-local)
-for more about the underlying behavior.
-
-The recommended pattern is to keep one session, tracer, or agent per
-thread and share a provider across multiple threads:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"]).persist!
-schema = llm.schema.object(answer: llm.schema.integer.required)
-
-vals = 10.times.map do |x|
-  Thread.new do
-    llm.tracer = LLM::Tracer::Logger.new(llm, path: "threads.log")
-    ses = LLM::Session.new(llm, schema:)
-    res = ses.talk "#{x} + 5 = ?"
-    res.content!
-  end
-end.map(&:value)
-
-vals.each { |val| puts val }
-```
-
-## Features
-
-#### General
-- ✅  Unified API across providers
-- 📦  Zero runtime deps (stdlib-only)
-- 🧵  Thread-safe providers for multi-threaded workloads
-- ⚡  Concurrent tool execution with threads, async tasks, and raw fibers
-- 🧩  Pluggable JSON adapters (JSON, Oj, Yajl, etc)
-- 🧱  Builtin tracer API ([LLM::Tracer](https://0x1eef.github.io/x/llm.rb/LLM/Tracer.html))
-
-#### Optionals
-
-- ♻️  Optional persistent HTTP pool via net-http-persistent ([net-http-persistent](https://github.com/drbrain/net-http-persistent))
-- 📈  Optional telemetry support via OpenTelemetry ([opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby))
-- 🪵  Optional logging support via Ruby's standard library ([ruby/logger](https://github.com/ruby/logger))
-
-#### Chat, Agents
-- 🧠  Stateless + stateful chat (completions + responses)
-- 💾  Save and restore sessions across processes
-- 🤖  Tool calling / function execution
-- ⚡ Concurrent execution of independent tool calls
-- 🔁  Agent tool-call auto-execution (bounded)
-- 🗂️  JSON Schema structured output
-- 📡  Streaming responses
-
-#### Media
-- 🗣️  TTS, transcription, translation
-- 🖼️  Image generation + editing
-- 📎  Files API + prompt-aware file inputs
-- 📦  Streaming multipart uploads (no full buffering)
-- 💡  Multimodal prompts (text, documents, audio, images, video, URLs)
-
-#### Embeddings
-- 🧮  Embeddings
-- 🧱  OpenAI vector stores (RAG)
-
-#### Miscellaneous
-- 📜  Models API
-- 🔧  OpenAI responses + moderations
-
-## Matrix
-
-| Feature / Provider                  | OpenAI | Anthropic | Google | DeepSeek | xAI (Grok) | zAI    | Ollama | LlamaCpp |
-|--------------------------------------|:------:|:---------:|:------:|:--------:|:----------:|:------:|:------:|:--------:|
-| **Chat Completions**                 | ✅     | ✅        | ✅     | ✅       | ✅         | ✅     | ✅     | ✅       |
-| **Streaming**                        | ✅     | ✅        | ✅     | ✅       | ✅         | ✅     | ✅     | ✅       |
-| **Tool Calling**                     | ✅     | ✅        | ✅     | ✅       | ✅         | ✅     | ✅     | ✅       |
-| **JSON Schema / Structured Output**  | ✅     | ❌        | ✅     | ❌       | ✅         | ❌     | ✅*    | ✅*      |
-| **Embeddings**                       | ✅     | ✅        | ✅     | ✅       | ❌         | ❌     | ✅     | ✅       |
-| **Multimodal Prompts** *(text, documents, audio, images, videos, URLs, etc)* | ✅     | ✅        | ✅     | ✅       | ✅         | ❌     | ✅     | ✅       |
-| **Files API**                        | ✅     | ✅        | ✅     | ❌       | ❌         | ❌     | ❌     | ❌       |
-| **Models API**                       | ✅     | ✅        | ✅     | ✅       | ✅         | ❌     | ✅     | ✅       |
-| **Audio (TTS / Transcribe / Translate)** | ✅  | ❌        | ✅     | ❌       | ❌         | ❌     | ❌     | ❌       |
-| **Image Generation & Editing**       | ✅     | ❌        | ✅     | ❌       | ✅         | ❌     | ❌     | ❌       |
-| **Local Model Support**              | ❌     | ❌        | ❌     | ❌       | ❌         | ❌     | ✅     | ✅       |
-| **Vector Stores (RAG)**               | ✅     | ❌        | ❌     | ❌       | ❌         | ❌     | ❌     | ❌       |
-| **Responses**                        | ✅     | ❌        | ❌     | ❌       | ❌         | ❌     | ❌     | ❌       |
-| **Moderations**                      | ✅     | ❌        | ❌     | ❌       | ❌         | ❌     | ❌     | ❌       |
-
-\* JSON Schema support in Ollama/LlamaCpp depends on the model, not the API.
-
-## Examples
-
-### Providers
-
-#### LLM::Provider
-
-All providers inherit from [LLM::Provider](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html) &ndash;
-they share a common interface and set of functionality. Each provider can be instantiated
-using an API key (if required) and an optional set of configuration options via
-[the singleton methods of LLM](https://0x1eef.github.io/x/llm.rb/LLM.html). For example:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-##
-# remote providers
-llm = LLM.openai(key: "yourapikey")
-llm = LLM.google(key: "yourapikey")
-llm = LLM.anthropic(key: "yourapikey")
-llm = LLM.xai(key: "yourapikey")
-llm = LLM.zai(key: "yourapikey")
-llm = LLM.deepseek(key: "yourapikey")
-
-##
-# local providers
-llm = LLM.ollama(key: nil)
-llm = LLM.llamacpp(key: nil)
-```
-
-#### LLM::Response
-
-All provider methods that perform requests return an
-[LLM::Response](https://0x1eef.github.io/x/llm.rb/LLM/Response.html).
-If the HTTP response is JSON (`content-type: application/json`),
-`response.body` is parsed into an
-[LLM::Object](https://0x1eef.github.io/x/llm.rb/LLM/Object.html) for
-dot-access. For non-JSON responses, `response.body` is a raw string.
-It is also possible to access top-level keys directly on the response
-(eg: `res.object` instead of `res.body.object`):
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-res = llm.models.all
-puts res.object
-puts res.data.first.id
-```
-
-#### Persistence
-
-The llm.rb library can maintain a process-wide connection pool
-for each provider that is instantiated. This feature can improve
-performance but it is optional, the implementation depends on
-[net-http-persistent](https://github.com/drbrain/net-http-persistent),
-and the gem should be installed separately:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm  = LLM.openai(key: ENV["KEY"]).persist!
-res1 = llm.responses.create "message 1"
-res2 = llm.responses.create "message 2", previous_response_id: res1.response_id
-res3 = llm.responses.create "message 3", previous_response_id: res2.response_id
-puts res3.output_text
-```
-
-#### Telemetry
-
-The llm.rb library includes telemetry support through its tracer API, and it
-can be used to trace LLM requests. It can be useful for debugging, monitoring,
-and observability. The primary use case in mind is integration with tools like
-[LangSmith](https://www.langsmith.com/).
-
-It is worth mentioning that tracers are local to a fiber, and they
-should be configured per fiber. That means that `llm.tracer = LLM::Tracer::Telemetry.new(llm)`
-only impacts the current fiber, and it should be repeated in each fiber where
-tracing is required. Since each thread starts with its own main fiber,
-this also keeps tracer configuration isolated across threads by default.
-See Ruby's docs on [Thread variables and scope](https://docs.ruby-lang.org/en/4.0/Thread.html#class-Thread-label-Thread+variables+and+scope)
-for more about the underlying behavior.
-
-The telemetry implementation uses the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
-and is based on the [gen-ai telemetry spec(s)](https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/).
-This feature is optional, disabled by default, and the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
-gem should be installed separately. Please also note that llm.rb will take care of
-loading and configuring the [opentelemetry-sdk](https://github.com/open-telemetry/opentelemetry-ruby)
-library for you, and llm.rb configures an in-memory exporter that doesn't have
-external dependencies by default:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-require "pp"
-
-llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Telemetry.new(llm)
-
-ses = LLM::Session.new(llm)
-ses.talk "Hello world!"
-ses.talk "Adios."
-ses.tracer.spans.each { |span| pp span }
-```
-
-The llm.rb library also supports export through the OpenTelemetry Protocol (OTLP).
-OTLP is a standard protocol for exporting telemetry data, and it is supported by
-multiple observability tools. By default the export is batched in the background,
-and happens automatically but short lived scripts might need to
-[explicitly flush](https://0x1eef.github.io/x/llm.rb/LLM/Tracer/Telemetry#flush!-instance_method)
-the exporter before they exit &ndash; otherwise some telemetry data could be lost:
-
-```ruby
- #!/usr/bin/env ruby
- require "llm"
- require "opentelemetry-exporter-otlp"
-
- endpoint = "https://api.smith.langchain.com/otel/v1/traces"
- exporter = OpenTelemetry::Exporter::OTLP::Exporter.new(endpoint:)
-
- llm = LLM.openai(key: ENV["KEY"])
- llm.tracer = LLM::Tracer::Telemetry.new(llm, exporter:)
-
- ses = LLM::Session.new(llm)
- ses.talk "hello"
- ses.talk "how are you?"
-
- at_exit do
-   # Helpful for short-lived scripts, otherwise the exporter
-   # might not have time to flush pending telemetry data
-   ses.tracer.flush!
- end
- ```
-
-## Advanced
-
-#### Logger
-
-The llm.rb library includes simple logging support through its
-tracer API, and Ruby's standard library ([ruby/logger](https://github.com/ruby/logger)).
-This feature is optional, disabled by default, and it can be useful for debugging and/or
-monitoring requests to LLM providers. The `path` or `io` options can be used to choose
-where logs are written, and by default it is set to `$stdout`. Like other tracers,
-the logger tracer is local to a thread:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
-
-ses = LLM::Session.new(llm)
-ses.talk "Hello world!"
-ses.talk "Adios."
-```
-
-#### Serialization
-
-[LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html) can be
-serialized and deserialized across process boundaries and persisted to
-storage such as files, a `jsonb` column (PostgreSQL), or other backends
-through a JSON representation of the history encapsulated by
-[LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html)
-&ndash; inclusive of tool metadata as well:
-
-* Process 1
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm)
-ses.talk "Howdy partner"
-ses.talk "I'll see you later"
-ses.save(path: "session.json")
-```
-* Process 2
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-require "pp"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm)
-ses.restore(path: "session.json")
-ses.talk "Howdy partner. I'm back"
-pp ses.messages
-```
-
-But how does it work without a file ? The [LLM::Session](https://0x1eef.github.io/x/llm.rb/LLM/Session.html)
-class implements `#to_json` and it can be used to obtain a JSON representation
-of a session that can be stored in a `jsonb` column in PostgreSQL, or any
-other storage backend. The session can then be restored from the JSON
-representation via the restore method and its `string` argument:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses1 = LLM::Session.new(llm)
-ses1.talk "Howdy partner"
-ses1.talk "I'll see you later"
-
-json = ses1.to_json
-ses2 = LLM::Session.new(llm)
-ses2.restore(string: json)
-ses2.talk "Howdy partner. I'm back"
-```
-
-### Tools
-
-#### LLM::Function
-
-The following example demonstrates [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-and how it can define a local function (which happens to be a tool), and how
-a provider (such as OpenAI) can then detect when we should call the function.
-Its most notable feature is that it can act as a closure and has access to
-its surrounding scope, which can be useful in some situations:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm  = LLM.openai(key: ENV["KEY"])
-tool = LLM.function(:system) do |fn|
-  fn.description "Run a shell command"
-  fn.params do |schema|
-    schema.object(command: schema.string.required)
-  end
-  fn.define do |command:|
-    ro, wo = IO.pipe
-    re, we = IO.pipe
-    Process.wait Process.spawn(command, out: wo, err: we)
-    [wo,we].each(&:close)
-    {stderr: re.read, stdout: ro.read}
-  end
-end
-
-ses = LLM::Session.new(llm, tools: [tool])
-ses.talk "Your task is to run shell commands via a tool.", role: :user
-
-ses.talk "What is the current date?", role: :user
-ses.talk ses.functions.map(&:call) # report return value to the LLM
-
-ses.talk "What operating system am I running?", role: :user
-ses.talk ses.functions.map(&:call) # report return value to the LLM
-
-##
-# {stderr: "", stdout: "Thu May  1 10:01:02 UTC 2025"}
-# {stderr: "", stdout: "FreeBSD"}
-```
-
-#### LLM::Tool
-
-The [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) class can be used
-to implement a [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-as a class. Under the hood, a subclass of [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html)
-wraps an instance of [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-and delegates to it.
-
-The choice between [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-and [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) is often a matter of
-preference but each carry their own benefits. For example, [LLM::Function](https://0x1eef.github.io/x/llm.rb/LLM/Function.html)
-has the benefit of being a closure that has access to its surrounding context and
-sometimes that is useful:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-class System < LLM::Tool
-  name "system"
-  description "Run a shell command"
-  param :command, String, "The command to execute", required: true
-
-  def call(command:)
-    ro, wo = IO.pipe
-    re, we = IO.pipe
-    Process.wait Process.spawn(command, out: wo, err: we)
-    [wo,we].each(&:close)
-    {stderr: re.read, stdout: ro.read}
-  end
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, tools: [System])
-ses.talk "Your task is to run shell commands via a tool.", role: :user
-
-ses.talk "What is the current date?", role: :user
-ses.talk ses.functions.map(&:call) # report return value to the LLM
-
-ses.talk "What operating system am I running?", role: :user
-ses.talk ses.functions.map(&:call) # report return value to the LLM
-
-##
-# {stderr: "", stdout: "Thu May  1 10:01:02 UTC 2025"}
-# {stderr: "", stdout: "FreeBSD"}
-```
-
-#### Concurrent tool execution
-
-The [LLM::Session#functions](https://0x1eef.github.io/x/llm.rb/LLM/Session.html#functions-instance_method)
-method returns an ordinary array of pending functions that is extended with
-`call`, `spawn`, and `wait` methods.
-
-This is one of the core tooling features in llm.rb: when a model requests
-multiple independent tools, the library can execute them sequentially or
-concurrently without making you build the orchestration layer yourself.
-
-`ses.functions.call` runs tools one after another and returns an array of
-[LLM::Function::Return](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
-objects.
-
-`ses.functions.wait(strategy)` runs tools concurrently and waits for them all
-to finish. `ses.functions.spawn(strategy)` starts the concurrent work and
-returns a group object that can be waited on later.
-
-The `strategy` argument controls the concurrency model:
-
-* `:thread` uses threads and returns an [LLM::Function::ThreadGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/ThreadGroup.html)
-* `:task` uses async tasks and returns an [LLM::Function::TaskGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/TaskGroup.html)
-* `:fiber` uses raw fibers and returns an [LLM::Function::FiberGroup](https://0x1eef.github.io/x/llm.rb/LLM/Function/FiberGroup.html)
-
-The `:task` strategy depends on the
-[async](https://github.com/socketry/async) gem, which is optional and
-lazy-loaded by llm.rb. If you want to use `:task`, install the gem
-separately.
-
-When an LLM asks for multiple independent tools, you can choose the execution
-style that best fits the work. Use `wait` when you want the shortest path from
-tool calls to tool results:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
-ses.talk("Summarize the weather, headlines, and stock price.")
-ses.talk(ses.functions.wait(:thread))
-```
-
-Use `spawn` when you want to start the tool calls now and wait on them later.
-The returned group exposes `wait` so you can decide when to collect the
-results:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
-ses.talk("Summarize the weather, headlines, and stock price.")
-grp = ses.functions.spawn(:thread)
-# do other stuff while tools run...
-# finally, collect tool results and report back to the LLM:
-ses.talk(grp.wait)
-```
-
-For async environments, use `:task` or `:fiber` instead of `:thread`:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
-ses.talk("Summarize the weather, headlines, and stock price.")
-ses.talk(ses.functions.wait(:fiber))
-```
-
-Something to keep in mind:
-
-Tool concurrency is the tool's responsibility. Each tool is initialized on a
-separate execution context, so they are safest when they keep state local to
-that context. Take care when a tool uses shared resources such as files,
-network clients, caches, database connections, or other mutable global state.
-
-### Files
-
-#### Create
-
-The OpenAI and Google providers provide a Files API where a client can upload files
-that can be referenced from a prompt, and with other APIs as well. The following
-example uses the OpenAI provider to describe the contents of a PDF file after
-it has been uploaded. The file (a specialized instance of
-[LLM::Response](https://0x1eef.github.io/x/llm.rb/LLM/Response.html)
-) is given as part of a prompt that is understood by llm.rb:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-require "pp"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm)
-file = llm.files.create(file: "/tmp/llm-book.pdf")
-res = ses.talk ["Tell me about this file", file]
-pp res.content
-```
-
-### Prompts
-
-#### Multimodal
-
-LLMs are great with text, but many can also handle images, audio, video,
-and URLs. With llm.rb you pass those inputs by tagging them with one of
-the following methods. And for multipart prompts, we can pass an array
-where each element is a part of the input. See the example below for
-details, in the meantime here are the methods to know for multimodal
-inputs:
-
-* `ses.image_url` for an image URL
-* `ses.local_file` for a local file
-* `ses.remote_file` for a file already uploaded via the provider's Files API
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ses = LLM::Session.new(llm)
-res = ses.talk ["Tell me about this image URL", ses.image_url(url)]
-res = ses.talk ["Tell me about this PDF", ses.remote_file(file)]
-res = ses.talk ["Tell me about this image", ses.local_file(path)]
-```
-
-### Audio
-
-#### Speech
-
-Some but not all providers implement audio generation capabilities that
-can create speech from text, transcribe audio to text, or translate
-audio to text (usually English). The following example uses the OpenAI provider
-to create an audio file from a text prompt. The audio is then moved to
-`${HOME}/hello.mp3` as the final step:
+Create speech from text:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -798,107 +228,22 @@ res = llm.audio.create_speech(input: "Hello world")
 IO.copy_stream res.audio, File.join(Dir.home, "hello.mp3")
 ```
 
-#### Transcribe
+### Image Generation
 
-The following example transcribes an audio file to text. The audio file
-(`${HOME}/hello.mp3`) was theoretically created in the previous example,
-and the result is printed to the console. The example uses the OpenAI
-provider to transcribe the audio file:
+Create images from prompts:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.openai(key: ENV["KEY"])
-res = llm.audio.create_transcription(
-  file: File.join(Dir.home, "hello.mp3")
-)
-puts res.text # => "Hello world."
-```
-
-#### Translate
-
-The following example translates an audio file to text. In this example
-the audio file (`${HOME}/bomdia.mp3`) is theoretically in Portuguese,
-and it is translated to English. The example uses the OpenAI provider,
-and at the time of writing, it can only translate to English:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-res = llm.audio.create_translation(
-  file: File.join(Dir.home, "bomdia.mp3")
-)
-puts res.text # => "Good morning."
-```
-
-### Images
-
-#### Create
-
-Some but not all LLM providers implement image generation capabilities that
-can create new images from a prompt, or edit an existing image with a
-prompt. The following example uses the OpenAI provider to create an
-image of a dog on a rocket to the moon. The image is then written to
-`${HOME}/dogonrocket.png` as the final step:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.images.create(prompt: "a dog on a rocket to the moon")
 IO.copy_stream res.images[0], File.join(Dir.home, "dogonrocket.png")
 ```
 
-#### Edit
-
-The following example is focused on editing a local image with the aid
-of a prompt. The image (`/tmp/llm-logo.png`) is returned to us with a hat.
-The image is then written to `${HOME}/logo-with-hat.png` as
-the final step:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-llm = LLM.openai(key: ENV["KEY"])
-res = llm.images.edit(
-  image: "/tmp/llm-logo.png",
-  prompt: "add a hat to the logo",
-)
-IO.copy_stream res.images[0], File.join(Dir.home, "logo-with-hat.png")
-```
-
-#### Variations
-
-The following example is focused on creating variations of a local image.
-The image (`/tmp/llm-logo.png`) is returned to us with five different variations.
-The images are then written to `${HOME}/logo-variation0.png`, `${HOME}/logo-variation1.png`
-and so on as the final step:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-llm = LLM.openai(key: ENV["KEY"])
-res = llm.images.create_variation(
-  image: "/tmp/llm-logo.png",
-  n: 5
-)
-res.images.each.with_index do |image, index|
-  IO.copy_stream image,
-                 File.join(Dir.home, "logo-variation#{index}.png")
-end
-```
-
 ### Embeddings
 
-#### Text
-
-The
-[`LLM::Provider#embed`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html#embed-instance_method)
-method returns vector embeddings for one or more text inputs. A common
-use is semantic search (store vectors, then query for similar text):
+Get vector embeddings for semantic search:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -910,52 +255,40 @@ puts res.class
 puts res.embeddings.size
 puts res.embeddings[0].size
 
-##
 # LLM::Response
 # 3
 # 1536
 ```
 
-### Models
+## Architecture: Systems, Not Magic
 
-#### List
+llm.rb is designed for engineers who want to *understand* their LLM systems, not just use them:
 
-Almost all LLM providers provide a models endpoint that allows a client to
-query the list of models that are available to use. The list is dynamic,
-maintained by LLM providers, and it is independent of a specific llm.rb
-release:
+- **Thread-safe providers** — Share connections across your application, not per-request overhead
+- **Stateful sessions** — Keep conversation context local to workflows, not global state
+- **Composable tools** — Define once, reuse everywhere with clear execution boundaries
+- **Explicit concurrency** — Choose threads, async tasks, or fibers based on your workload
+- **Trackable costs** — Know what you're spending before the bill arrives
 
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-require "pp"
+## Real-World Example: Relay
 
-##
-# List all models
-llm = LLM.openai(key: ENV["KEY"])
-llm.models.all.each do |model|
-  puts "model: #{model.id}"
-end
+See how these pieces come together in a complete application architecture with [Relay](https://github.com/llmrb/relay), a production-ready LLM application built on llm.rb that demonstrates:
 
-##
-# Select a model
-model = llm.models.all.find { |m| m.id == "gpt-3.5-turbo" }
-ses = LLM::Session.new(llm, model: model.id)
-res = ses.talk "Hello #{model.id} :)"
-pp res.content
+- Session management across requests
+- Tool composition and execution
+- Concurrent workflows
+- Cost tracking and observability
+- Production deployment patterns
+
+Watch the screencast:
+
+[![Watch the llm.rb screencast](https://img.youtube.com/vi/Jb7LNUYlCf4/maxresdefault.jpg)](https://www.youtube.com/watch?v=x1K4wMeO_QA)
+
+## Installation
+
+```bash
+gem install llm.rb
 ```
-
-## Install
-
-llm.rb can be installed via rubygems.org:
-
-	gem install llm.rb
-
-## Sources
-
-* [GitHub.com](https://github.com/llmrb/llm.rb)
-* [GitLab.com](https://gitlab.com/llmrb/llm.rb)
-* [Codeberg.org](https://codeberg.org/llmrb/llm.rb)
 
 ## License
 
