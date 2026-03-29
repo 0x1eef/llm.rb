@@ -44,6 +44,13 @@ Changes since `v4.8.0`.
   base64-encoded image data by default.
 - Expand README and screencast documentation for MCP, registry, context
   windows, enums, prompts, concurrency, and concurrent tool execution.
+- Update `LLM::Bot` deprecation warning from v5.0 to v6.0, giving users
+  more time to migrate to `LLM::Session`.
+- Rewrite README with more focused, marketing-oriented approach that
+  better communicates llm.rb's value proposition and target audience.
+- Add comprehensive "Supported Providers" section to README after Quick
+  Start examples.
+- Highlight engineering depth in README with clearer positioning statement.
 
 ### Fix
 
@@ -70,6 +77,10 @@ Changes since `v4.8.0`.
   format for API compatibility.
 - Fix schema parser to support recursive normalization of `Array`,
   `LLM::Object`, and nested structures.
+- Fix DeepSeek provider to tolerate malformed tool arguments.
+- Fix `LLM::Function::TaskGroup#alive?` to properly delegate to
+  `Async::Task#alive?`.
+- Fix various RuboCop errors across the codebase.
 
 ### Notes
 
@@ -82,7 +93,12 @@ Notable merged work in this range includes:
 - `Add rack + websocket example (#130)`
 - `feat(gemspec): add changelog URI (#136)`
 - `feat(function): alias ThreadGroup#wait as ThreadGroup#value (#62)`
+- `feat(docs): rewrite README (#67)`
+- `feat(docs): add supported providers list to README (#68)`
+- `docs(readme): update screencast video link (#66)`
+- `chore(bot): update deprecation warning from v5.0 to v6.0`
+- `fix(deepseek): tolerate malformed tool arguments`
 
 Comparison base:
 - Latest tag: `v4.8.0` (`6468f2426ee125823b7ae43b4af507b125f96ffc`)
-- HEAD used for this changelog: `39a073e0b5b40b4bd094b03b8267219817b50e22`
+- HEAD used for this changelog: `106efef46b35126636033a3dcbf00e71298c9c3d`
