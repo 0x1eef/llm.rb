@@ -25,8 +25,8 @@ and capabilities of llm.rb.
 
 ## What Makes It Different
 
-Most LLM libraries stop at requests and responses. llm.rb is built around the
-state and execution model around them:
+Most LLM libraries stop at requests and responses. <br>
+llm.rb is built around the state and execution model around them:
 
 - **Contexts are central** <br>
   They hold history, tools, schema, usage, cost, persistence, and execution state.
@@ -132,7 +132,7 @@ begin
   mcp.start
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the directories in this project.")
-  ctx.talk(ctx.functions.map(&:call)) while ctx.functions.any?
+  ctx.talk(ctx.functions.call) while ctx.functions.any?
 ensure
   mcp.stop
 end
