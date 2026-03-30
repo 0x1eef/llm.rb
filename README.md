@@ -92,6 +92,52 @@ llm.rb provides a complete set of primitives for building LLM-powered systems:
 
 ## Quick Start
 
+#### Concurrent Tools
+
+llm.rb provides explicit concurrency control for tool execution. The
+`wait(:thread)` method spawns each pending function in its own thread and waits
+for all to complete. You can also use `:fiber` for cooperative multitasking or
+`:task` for async/await patterns (requires the `async` gem). The context
+automatically collects all results and reports them back to the LLM in a
+single turn, maintaining conversation flow while parallelizing independent
+operations:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+
+# Execute multiple independent tools concurrently
+ctx.talk("Summarize the weather, headlines, and stock price.")
+ctx.talk(ctx.functions.wait(:thread))
+```
+
+#### MCP
+
+llm.rb integrates with the Model Context Protocol (MCP) to dynamically discover
+and use tools from external servers. This example starts a filesystem MCP
+server over stdio and makes its tools available to a context, enabling the LLM
+to interact with the local file system through a standardized interface:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM.mcp(stdio: {argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd]})
+
+begin
+  mcp.start
+  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
+  ctx.talk("List the directories in this project.")
+  ctx.talk(ctx.functions.map(&:call)) while ctx.functions.any?
+ensure
+  mcp.stop
+end
+```
+
 #### Streaming Chat
 
 This example demonstrates llm.rb's streaming support. The `stream: $stdout`
@@ -142,28 +188,6 @@ llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, tools: [System])
 ctx.talk("Run `date`.")
 ctx.talk(ctx.functions.call) # report return value to the LLM
-```
-
-#### Concurrent Tools
-
-llm.rb provides explicit concurrency control for tool execution. The
-`wait(:thread)` method spawns each pending function in its own thread and waits
-for all to complete. You can also use `:fiber` for cooperative multitasking or
-`:task` for async/await patterns (requires the `async` gem). The context
-automatically collects all results and reports them back to the LLM in a
-single turn, maintaining conversation flow while parallelizing independent
-operations:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
-
-# Execute multiple independent tools concurrently
-ctx.talk("Summarize the weather, headlines, and stock price.")
-ctx.talk(ctx.functions.wait(:thread))
 ```
 
 #### Structured Outputs
@@ -313,30 +337,6 @@ ctx = LLM::Context.new(llm)
 ctx.respond("Your task is to answer the user's questions", role: :developer)
 res = ctx.respond("What is the capital of France?")
 puts res.output_text
-```
-
-#### MCP (Model Context Protocol)
-
-llm.rb integrates with the Model Context Protocol (MCP) to dynamically discover
-and use tools from external servers. This example starts a filesystem MCP
-server over stdio and makes its tools available to a context, enabling the LLM
-to interact with the local file system through a standardized interface:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-mcp = LLM.mcp(stdio: {argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd]})
-
-begin
-  mcp.start
-  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
-  ctx.talk("List the directories in this project.")
-  ctx.talk(ctx.functions.map(&:call)) while ctx.functions.any?
-ensure
-  mcp.stop
-end
 ```
 
 #### Context Persistence
