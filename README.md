@@ -28,17 +28,17 @@ and capabilities of llm.rb.
 Most LLM libraries stop at requests and responses. llm.rb is built around the
 state and execution model around them:
 
-- **Contexts are first-class**  
+- **Contexts are central**
   They hold history, tools, schema, usage, cost, persistence, and execution state.
-- **Tool execution is explicit**  
+- **Tool execution is explicit**
   Run local, provider-native, and MCP tools sequentially or concurrently with threads, fibers, or async tasks.
-- **One API across providers and capabilities**  
+- **One API across providers and capabilities**
   The same model covers chat, files, images, audio, embeddings, vector stores, and more.
-- **Thread-safe where it matters**  
+- **Thread-safe where it matters**
   Providers are shareable, while contexts stay isolated and stateful.
-- **Local metadata, fewer extra API calls**  
+- **Local metadata, fewer extra API calls**
   A built-in registry provides model capabilities, limits, pricing, and cost estimation.
-- **Stdlib-only by default**  
+- **Stdlib-only by default**
   llm.rb runs on the Ruby standard library by default, with providers lazy-loaded and optional adapters only when you want them.
 
 ## Architecture & Execution Model
