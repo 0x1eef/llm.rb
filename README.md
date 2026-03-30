@@ -38,8 +38,8 @@ state and execution model around them:
   Providers are shareable, while contexts stay isolated and stateful.
 - **Local metadata, fewer extra API calls**  
   A built-in registry provides model capabilities, limits, pricing, and cost estimation.
-- **Lazy-loaded and stdlib-only**  
-  Providers load on demand, with built-in MCP and tracing, plus optional adapters when needed.
+- **Stdlib-only by default**  
+  llm.rb runs on the Ruby standard library by default, with providers lazy-loaded and optional adapters only when you want them.
 
 ## Architecture & Execution Model
 
