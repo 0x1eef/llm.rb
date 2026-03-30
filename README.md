@@ -188,9 +188,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
 ctx.talk("Run `date`.")
-while ctx.functions.any?
-  ctx.talk(ctx.functions.call)
-end
+ctx.talk(ctx.functions.call) while ctx.functions.any?
 ```
 
 #### Structured Outputs
@@ -441,7 +439,6 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 agent = SystemAdmin.new(llm)
 res = agent.talk("Run 'date'")
-ctx.talk(ctx.functions.call) while ctx.functions.any?
 ```
 
 #### Cost Tracking
