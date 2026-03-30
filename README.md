@@ -107,7 +107,7 @@ operations:
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
+ctx = LLM::Context.new(llm, stream: $stdout, tools: [FetchWeather, FetchNews, FetchStock])
 
 # Execute multiple independent tools concurrently
 ctx.talk("Summarize the weather, headlines, and stock price.")
@@ -189,7 +189,7 @@ class System < LLM::Tool
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, tools: [System])
+ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
 ctx.talk("Run `date`.")
 while ctx.functions.any?
   ctx.talk(ctx.functions.call)
