@@ -9,7 +9,7 @@
 
 ## About
 
-llm.rb is a Ruby-native toolkit for building real LLM-powered systems — where
+llm.rb is a Ruby-centric toolkit for building real LLM-powered systems — where
 LLMs are part of your architecture, not just API calls. It gives you explicit
 control over contexts, tools, concurrency, and providers, so you can compose
 reliable, production-ready workflows without hidden abstractions.
@@ -18,20 +18,28 @@ Built for engineers who want to understand and control their LLM systems. No
 frameworks, no hidden magic — just composable primitives for building real
 applications, from scripts to full systems like [Relay](https://github.com/llmrb/relay).
 
-Rails gives you conventions for building web apps. llm.rb gives you primitives
-for building LLM systems.
+Jump to [Quick start](#quick-start), discover its [capabilities](#capabilities), read about
+its [architecture](#architecture--execution-model) or watch the
+[Screencast](https://www.youtube.com/watch?v=x1K4wMeO_QA) for a deep dive into the design
+and capabilities of llm.rb.
 
 ## What Makes It Different
 
-Most LLM libraries focus on request/response calls. llm.rb gives you the
-state and execution model around them.
+Most LLM libraries stop at requests and responses. llm.rb is built around the
+state and execution model around them:
 
-- **Contexts are first-class** — state, history, tools, and cost all live in one object
-- **Explicit concurrency** — Choose threads, fibers, or async tasks for tool execution
-- **Unified provider API** — Same interface across 8+ providers (OpenAI, Anthropic, Google, etc.)
-- **Thread-safe by design** — Safe for concurrent use with clear boundaries
-- **Minimal by default** — stdlib-only at runtime; optional features are lazy-loaded
-- **Performance optimized** — Optional HTTP connection pooling with net-http-persistent
+- **Contexts are first-class**  
+  They hold history, tools, schema, usage, cost, persistence, and execution state.
+- **Tool execution is explicit**  
+  Run local, provider-native, and MCP tools sequentially or concurrently with threads, fibers, or async tasks.
+- **One API across providers and capabilities**  
+  The same model covers chat, files, images, audio, embeddings, vector stores, and more.
+- **Thread-safe where it matters**  
+  Providers are shareable, while contexts stay isolated and stateful.
+- **Local metadata, fewer extra API calls**  
+  A built-in registry provides model capabilities, limits, pricing, and cost estimation.
+- **Lazy-loaded and stdlib-only**  
+  Providers load on demand, with built-in MCP and tracing, plus optional adapters when needed.
 
 ## Architecture & Execution Model
 
@@ -60,6 +68,27 @@ llm.rb is built in layers, each providing explicit control:
 - **Provider adaptation** - Normalizes differences between OpenAI, Anthropic, Google, and other providers
 - **Structured tool execution** - Errors are captured and returned as data, not raised unpredictably
 - **Function vs Tool APIs** - Choose between class-based tools and closure-based functions
+
+## Capabilities
+
+llm.rb provides a complete set of primitives for building LLM-powered systems:
+
+- **Chat & Contexts** — stateless and stateful interactions with persistence
+- **Streaming** — real-time responses across providers
+- **Tool Calling** — define and execute functions with automatic orchestration
+- **Concurrent Execution** — threads, async tasks, and fibers
+- **Agents** — reusable, preconfigured assistants with tool auto-execution
+- **Structured Outputs** — JSON schema-based responses
+- **MCP Support** — integrate external tool servers dynamically
+- **Multimodal Inputs** — text, images, audio, documents, URLs
+- **Audio** — text-to-speech, transcription, translation
+- **Images** — generation and editing
+- **Files API** — upload and reference files in prompts
+- **Embeddings** — vector generation for search and RAG
+- **Vector Stores** — OpenAI-based retrieval workflows
+- **Cost Tracking** — estimate usage without API calls
+- **Observability** — tracing, logging, telemetry
+- **Model Registry** — local metadata for capabilities, limits, pricing
 
 ## Quick Start
 
@@ -187,7 +216,9 @@ it easy to switch between cloud and local models:
 - **Ollama** (`LLM.ollama`)
 - **Llama.cpp** (`LLM.llamacpp`)
 
-## Production Features
+## Production
+
+#### Ready for production
 
 llm.rb is designed for production use from the ground up:
 
@@ -199,7 +230,7 @@ llm.rb is designed for production use from the ground up:
 - **Performance** - Swap JSON adapters and enable HTTP connection pooling
 - **Error handling** - Structured errors, not unpredictable exceptions
 
-### Example: Thread Safety
+#### Example: Thread Safety
 
 llm.rb uses Ruby's `Monitor` class to ensure thread safety at the provider
 level, allowing you to share a single provider instance across multiple threads
@@ -208,6 +239,9 @@ enables efficient resource sharing while preventing race conditions in
 concurrent applications:
 
 ```ruby
+#!/usr/bin/env ruby
+require "llm"
+
 # Thread-safe providers - create once, use everywhere
 llm = LLM.openai(key: ENV["KEY"])
 
@@ -218,12 +252,12 @@ Thread.new do
 end
 
 Thread.new do
-  ctx = LLM::Context.new(llm)  # Thread-local context  
+  ctx = LLM::Context.new(llm)  # Thread-local context
   ctx.talk("Hello from thread 2")
 end
 ```
 
-### Example: Performance Tuning
+#### Example: Performance Tuning
 
 llm.rb's JSON adapter system lets you swap JSON libraries for better
 performance in high-throughput applications. The library supports stdlib JSON,
@@ -232,6 +266,9 @@ you can enable HTTP connection pooling using the optional `net-http-persistent`
 gem to reduce connection overhead in production environments:
 
 ```ruby
+#!/usr/bin/env ruby
+require "llm"
+
 # Swap JSON libraries for better performance
 LLM.json = :oj  # Use Oj for faster JSON parsing
 
@@ -239,7 +276,7 @@ LLM.json = :oj  # Use Oj for faster JSON parsing
 llm = LLM.openai(key: ENV["KEY"]).persist!  # Uses net-http-persistent when available
 ```
 
-### Example: Model Registry
+#### Example: Model Registry
 
 llm.rb includes a local model registry that provides metadata about model
 capabilities, pricing, and limits without requiring API calls. The registry is
@@ -248,6 +285,9 @@ up-to-date information about context windows, token costs, and supported
 modalities for each provider:
 
 ```ruby
+#!/usr/bin/env ruby
+require "llm"
+
 # Access model metadata, capabilities, and pricing
 registry = LLM.registry_for(:openai)
 model_info = registry.limit(model: "gpt-4.1")
@@ -255,30 +295,27 @@ puts "Context window: #{model_info.context} tokens"
 puts "Cost: $#{model_info.cost.input}/1M input tokens"
 ```
 
-## Capabilities
-
-llm.rb provides a complete set of primitives for building LLM-powered systems:
-
-- **Chat & Contexts** — stateless and stateful interactions with persistence
-- **Streaming** — real-time responses across providers
-- **Tool Calling** — define and execute functions with automatic orchestration
-- **Concurrent Execution** — threads, async tasks, and fibers
-- **Agents** — reusable, preconfigured assistants with tool auto-execution
-- **Structured Outputs** — JSON schema-based responses
-- **MCP Support** — integrate external tool servers dynamically
-- **Multimodal Inputs** — text, images, audio, documents, URLs
-- **Audio** — text-to-speech, transcription, translation
-- **Images** — generation and editing
-- **Files API** — upload and reference files in prompts
-- **Embeddings** — vector generation for search and RAG
-- **Vector Stores** — OpenAI-based retrieval workflows
-- **Cost Tracking** — estimate usage without API calls
-- **Observability** — tracing, logging, telemetry
-- **Model Registry** — local metadata for capabilities, limits, pricing
-
 ## More Examples
 
-### MCP (Model Context Protocol)
+#### Responses API
+
+llm.rb also supports OpenAI's Responses API through `llm.responses` and
+`ctx.respond`. This API can maintain response state server-side and can reduce
+how much conversation state needs to be sent on each turn:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+ctx.respond("Your task is to answer the user's questions", role: :developer)
+res = ctx.respond("What is the capital of France?")
+puts res.output_text
+```
+
+#### MCP (Model Context Protocol)
 
 llm.rb integrates with the Model Context Protocol (MCP) to dynamically discover
 and use tools from external servers. This example starts a filesystem MCP
@@ -302,7 +339,29 @@ ensure
 end
 ```
 
-### Agents
+#### Context Persistence
+
+Contexts can be serialized and restored across process boundaries. This makes
+it possible to persist conversation state in a file, database, or queue and
+resume work later:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk("Hello")
+ctx.talk("Remember that my favorite language is Ruby")
+ctx.save(path: "context.json")
+
+restored = LLM::Context.new(llm)
+restored.restore(path: "context.json")
+res = restored.talk("What is my favorite language?")
+puts res.content
+```
+
+#### Agents
 
 Agents in llm.rb are reusable, preconfigured assistants that automatically
 execute tool calls and maintain conversation state. Unlike contexts which
@@ -326,7 +385,7 @@ agent = SystemAdmin.new(llm)
 res = agent.talk("Run 'date'")
 ```
 
-### Cost Tracking
+#### Cost Tracking
 
 llm.rb provides built-in cost estimation that works without making additional
 API calls. The cost tracking system uses the local model registry to calculate
@@ -346,7 +405,24 @@ ctx.talk "Tell me a joke"
 puts "Estimated cost so far: $#{ctx.cost}"
 ```
 
-### Audio Generation
+#### Multimodal Prompts
+
+Contexts provide helpers for composing multimodal prompts from URLs, local
+files, and provider-managed remote files. These tagged objects let providers
+adapt the input into the format they expect:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+res = ctx.talk ["Describe this image", ctx.image_url("https://example.com/cat.jpg")]
+puts res.content
+```
+
+#### Audio Generation
 
 llm.rb supports OpenAI's audio API for text-to-speech generation, allowing you
 to create speech from text with configurable voices and output formats. The
@@ -362,7 +438,7 @@ res = llm.audio.create_speech(input: "Hello world")
 IO.copy_stream res.audio, File.join(Dir.home, "hello.mp3")
 ```
 
-### Image Generation
+#### Image Generation
 
 llm.rb provides access to OpenAI's DALL-E image generation API through a
 unified interface. The API supports multiple response formats including
@@ -378,7 +454,7 @@ res = llm.images.create(prompt: "a dog on a rocket to the moon")
 IO.copy_stream res.images[0], File.join(Dir.home, "dogonrocket.png")
 ```
 
-### Embeddings
+#### Embeddings
 
 llm.rb's embedding API generates vector representations of text for semantic
 search and retrieval-augmented generation (RAG) workflows. The API supports
