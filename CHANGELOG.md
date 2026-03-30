@@ -44,23 +44,12 @@ Changes since `v4.8.0`.
 - Switch registry cost internals from `LLM::Estimate` to `LLM::Cost`.
 - Update image generation defaults so OpenAI and xAI consistently return
   base64-encoded image data by default.
-- Expand README and screencast documentation for MCP, registry, context
-  windows, enums, prompts, concurrency, and concurrent tool execution.
 - Update `LLM::Bot` deprecation warning from v5.0 to v6.0, giving users
   more time to migrate to `LLM::Context`.
-- Rewrite README with more focused, marketing-oriented approach that
-  better communicates llm.rb's value proposition and target audience.
-- Add comprehensive "Supported Providers" section to README after Quick
-  Start examples.
-- Highlight engineering depth in README with clearer positioning statement.
-- Improve README with architecture, production features, and comprehensive
-  example descriptions.
-- Reorder examples in README for better flow and readability.
-- Rename "Supported Providers" section to "Providers" for brevity.
-- Rename "Runtime & Execution" section to "Concurrent tools" for clarity.
-- Shorten provider API descriptions in README for better readability.
-- Move explanatory text above code examples in README for improved flow.
-- Mention stdlib-only nature of llm.rb in README.
+- Rework the README and screencast documentation to better cover MCP,
+  registry, contexts, prompts, concurrency, providers, and example flow.
+- Expand the README with architecture, production, and provider guidance
+  while improving readability and example ordering.
 
 ### Fix
 
@@ -104,14 +93,11 @@ Notable merged work in this range includes:
 - `Add rack + websocket example (#130)`
 - `feat(gemspec): add changelog URI (#136)`
 - `feat(function): alias ThreadGroup#wait as ThreadGroup#value (#62)`
-- `feat(docs): rewrite README (#67)`
-- `feat(docs): add supported providers list to README (#68)`
-- `docs(readme): update screencast video link (#66)`
+- README and screencast refresh across `#66`, `#67`, `#68`, `#71`, and
+  `#72`
 - `chore(bot): update deprecation warning from v5.0 to v6.0`
 - `fix(deepseek): tolerate malformed tool arguments`
 - `refactor(context): Rename Session as Context (#70)`
-- `feat(docs): improve README (#71)`
-- `docs: improve README with architecture, production features, and example descriptions (#72)`
 
 Comparison base:
 - Latest tag: `v4.8.0` (`6468f2426ee125823b7ae43b4af507b125f96ffc`)
