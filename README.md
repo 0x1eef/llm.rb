@@ -112,7 +112,7 @@ ctx = LLM::Context.new(llm, tools: [FetchWeather, FetchNews, FetchStock])
 # Execute multiple independent tools concurrently
 ctx.talk("Summarize the weather, headlines, and stock price.")
 while ctx.functions.any?
-  ctx.chat(ctx.functions.wait(:thread))
+  ctx.talk(ctx.functions.wait(:thread))
 end
 ```
 
@@ -135,7 +135,7 @@ begin
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the directories in this project.")
   while ctx.functions.any?
-    ctx.chat(ctx.functions.call)
+    ctx.talk(ctx.functions.call)
   end
 ensure
   mcp.stop
@@ -192,7 +192,7 @@ llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, tools: [System])
 ctx.talk("Run `date`.")
 while ctx.functions.any?
-  ctx.chat(ctx.functions.call)
+  ctx.talk(ctx.functions.call)
 end
 ```
 
