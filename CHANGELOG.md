@@ -53,6 +53,14 @@ Changes since `v4.8.0`.
 - Add comprehensive "Supported Providers" section to README after Quick
   Start examples.
 - Highlight engineering depth in README with clearer positioning statement.
+- Improve README with architecture, production features, and comprehensive
+  example descriptions.
+- Reorder examples in README for better flow and readability.
+- Rename "Supported Providers" section to "Providers" for brevity.
+- Rename "Runtime & Execution" section to "Concurrent tools" for clarity.
+- Shorten provider API descriptions in README for better readability.
+- Move explanatory text above code examples in README for improved flow.
+- Mention stdlib-only nature of llm.rb in README.
 
 ### Fix
 
@@ -83,6 +91,7 @@ Changes since `v4.8.0`.
 - Fix `LLM::Function::TaskGroup#alive?` to properly delegate to
   `Async::Task#alive?`.
 - Fix various RuboCop errors across the codebase.
+- Fix DeepSeek provider to handle JSON that might be valid but unexpected.
 
 ### Notes
 
@@ -101,7 +110,9 @@ Notable merged work in this range includes:
 - `chore(bot): update deprecation warning from v5.0 to v6.0`
 - `fix(deepseek): tolerate malformed tool arguments`
 - `refactor(context): Rename Session as Context (#70)`
+- `feat(docs): improve README (#71)`
+- `docs: improve README with architecture, production features, and example descriptions (#72)`
 
 Comparison base:
 - Latest tag: `v4.8.0` (`6468f2426ee125823b7ae43b4af507b125f96ffc`)
-- HEAD used for this changelog: `106efef46b35126636033a3dcbf00e71298c9c3d`
+- HEAD used for this changelog: `915c48da6fda9bef1554ff613947a6ce26d382e3`
