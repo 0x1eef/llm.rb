@@ -39,7 +39,7 @@ llm.rb is built around the state and execution model around them:
 - **Local metadata, fewer extra API calls** <br>
   A built-in registry provides model capabilities, limits, pricing, and cost estimation.
 - **Stdlib-only by default** <br>
-  llm.rb runs on the Ruby standard library by default, with providers lazy-loaded and optional adapters only when you want them.
+  llm.rb runs on the Ruby standard library by default, with providers, optional features, and the model registry loaded only when you use them.
 
 ## Architecture & Execution Model
 
@@ -63,6 +63,7 @@ llm.rb is built in layers, each providing explicit control:
 
 - **Thread-safe providers** - `LLM::Provider` instances are safe to share across threads
 - **Thread-local contexts** - `LLM::Context` should generally be kept thread-local
+- **Lazy loading** - Providers, optional features, and the model registry load on demand
 - **JSON adapter system** - Swap JSON libraries (JSON/Oj/Yajl) for performance
 - **Registry system** - Local metadata for model capabilities, limits, and pricing
 - **Provider adaptation** - Normalizes differences between OpenAI, Anthropic, Google, and other providers
