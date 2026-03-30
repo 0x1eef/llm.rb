@@ -254,7 +254,62 @@ llm.rb is designed for production use from the ground up:
 - **Performance** - Swap JSON adapters and enable HTTP connection pooling
 - **Error handling** - Structured errors, not unpredictable exceptions
 
-#### Example: Thread Safety
+#### Tracing
+
+llm.rb includes built-in tracers for local logging, OpenTelemetry, and
+LangSmith. Assign a tracer to a provider and all context requests and tool
+calls made through that provider will be instrumented. Tracers are local to
+the current fiber, so the same provider can use different tracers in different
+concurrent tasks without interfering with each other.
+
+Use the logger tracer when you want structured logs through Ruby's standard
+library:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
+
+ctx = LLM::Context.new(llm)
+ctx.talk("Hello")
+```
+
+Use the telemetry tracer when you want OpenTelemetry spans. This requires the
+`opentelemetry-sdk` gem, and exporters such as OTLP can be added separately:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Telemetry.new(llm)
+
+ctx = LLM::Context.new(llm)
+ctx.talk("Hello")
+pp llm.tracer.spans
+```
+
+Use the LangSmith tracer when you want LangSmith-compatible metadata and trace
+grouping on top of the telemetry tracer:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Langsmith.new(
+  llm,
+  metadata: {env: "dev"},
+  tags: ["chatbot"]
+)
+
+ctx = LLM::Context.new(llm)
+ctx.talk("Hello")
+```
+
+#### Thread Safety
 
 llm.rb uses Ruby's `Monitor` class to ensure thread safety at the provider
 level, allowing you to share a single provider instance across multiple threads
@@ -281,7 +336,7 @@ Thread.new do
 end
 ```
 
-#### Example: Performance Tuning
+#### Performance Tuning
 
 llm.rb's JSON adapter system lets you swap JSON libraries for better
 performance in high-throughput applications. The library supports stdlib JSON,
@@ -300,7 +355,7 @@ LLM.json = :oj  # Use Oj for faster JSON parsing
 llm = LLM.openai(key: ENV["KEY"]).persist!  # Uses net-http-persistent when available
 ```
 
-#### Example: Model Registry
+#### Model Registry
 
 llm.rb includes a local model registry that provides metadata about model
 capabilities, pricing, and limits without requiring API calls. The registry is
