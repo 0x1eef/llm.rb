@@ -6,8 +6,8 @@
 # clients and servers to exchange capabilities such as tools, prompts,
 # resources, and other structured interactions.
 #
-# In llm.rb, {LLM::MCP LLM::MCP} currently supports stdio servers and
-# focuses on discovering tools that can be used through
+# In llm.rb, {LLM::MCP LLM::MCP} currently supports stdio and HTTP
+# transports and focuses on discovering tools that can be used through
 # {LLM::Context LLM::Context} and {LLM::Agent LLM::Agent}.
 class LLM::MCP
   require "monitor"
@@ -15,6 +15,7 @@ class LLM::MCP
   require_relative "mcp/command"
   require_relative "mcp/rpc"
   require_relative "mcp/pipe"
+  require_relative "mcp/transport/http"
   require_relative "mcp/transport/stdio"
 
   include RPC
@@ -22,21 +23,34 @@ class LLM::MCP
   ##
   # @param [LLM::Provider, nil] llm
   #  The provider to use for MCP transports that need one
-  # @param [Hash] stdio The configuration for the stdio transport
+  # @param [Hash, nil] stdio The configuration for the stdio transport
   # @option stdio [Array<String>] :argv
   #  The command to run for the MCP process
   # @option stdio [Hash] :env
   #  The environment variables to set for the MCP process
   # @option stdio [String, nil] :cwd
   #  The working directory for the MCP process
+  # @param [Hash, nil] http The configuration for the HTTP transport
+  # @option http [String] :url
+  #  The URL for the MCP HTTP endpoint
+  # @option http [Hash] :headers
+  #  Extra headers for requests
   # @param [Integer] timeout The maximum amount of time to wait when reading from an MCP process
   # @return [LLM::MCP] A new MCP instance
-  def initialize(llm = nil, stdio:, timeout: 30)
+  def initialize(llm = nil, stdio: nil, http: nil, timeout: 30)
     @llm = llm
-    @command = Command.new(**stdio)
     @monitor = Monitor.new
-    @transport = Transport::Stdio.new(command:)
     @timeout = timeout
+    if stdio && http
+      raise ArgumentError, "stdio and http are mutually exclusive"
+    elsif stdio
+      @command = Command.new(**stdio)
+      @transport = Transport::Stdio.new(command:)
+    elsif http
+      @transport = Transport::HTTP.new(**http, timeout:)
+    else
+      raise ArgumentError, "stdio or http is required"
+    end
   end
 
   ##

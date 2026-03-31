@@ -27,6 +27,7 @@ class LLM::Schema
       when "number" then apply(parse_number(schema), schema)
       when "boolean" then apply(schema().boolean, schema)
       when "null" then apply(schema().null, schema)
+      when nil then parse_union(schema, root)
       else raise TypeError, "unsupported schema type #{schema["type"].inspect}"
       end
     end
@@ -48,6 +49,13 @@ class LLM::Schema
     def parse_array(schema, root)
       items = schema["items"] ? parse(schema["items"], root) : schema().null
       schema().array(items)
+    end
+
+    def parse_union(schema, root)
+      return apply(schema().any_of(*schema["anyOf"].map { parse(_1, root) }), schema) if schema.key?("anyOf")
+      return apply(schema().one_of(*schema["oneOf"].map { parse(_1, root) }), schema) if schema.key?("oneOf")
+      return apply(schema().all_of(*schema["allOf"].map { parse(_1, root) }), schema) if schema.key?("allOf")
+      raise TypeError, "unsupported schema type #{schema["type"].inspect}"
     end
 
     def parse_string(schema)

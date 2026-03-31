@@ -81,6 +81,84 @@ RSpec.describe LLM::Schema::Parser do
       end
     end
 
+    context "when given an anyOf union" do
+      let(:schema) do
+        {
+          anyOf: [
+            {type: "string", minLength: 1},
+            {type: "array", items: {type: "string"}}
+          ],
+          description: "input"
+        }
+      end
+
+      it "returns an anyOf schema" do
+        expect(parse).to be_a(LLM::Schema::AnyOf)
+      end
+
+      it "parses each branch recursively" do
+        expect(parse.to_h).to eq(
+          description: "input",
+          anyOf: [
+            LLM::Schema.new.string.min(1),
+            LLM::Schema.new.array(LLM::Schema.new.string)
+          ]
+        )
+      end
+    end
+
+    context "when given a oneOf union" do
+      let(:schema) do
+        {
+          oneOf: [
+            {type: "string"},
+            {type: "integer", minimum: 1}
+          ],
+          description: "choice"
+        }
+      end
+
+      it "returns a oneOf schema" do
+        expect(parse).to be_a(LLM::Schema::OneOf)
+      end
+
+      it "parses each branch recursively" do
+        expect(parse.to_h).to eq(
+          description: "choice",
+          oneOf: [
+            LLM::Schema.new.string,
+            LLM::Schema.new.integer.min(1)
+          ]
+        )
+      end
+    end
+
+    context "when given an allOf union" do
+      let(:schema) do
+        {
+          allOf: [
+            {type: "string", minLength: 1},
+            {type: "string", maxLength: 10}
+          ],
+          description: "constrained"
+        }
+      end
+
+      it "returns an allOf schema" do
+        expect(parse).to be_a(LLM::Schema::AllOf)
+      end
+
+      it "parses each branch recursively" do
+        expect(parse.to_h).to eq(
+          description: "constrained",
+          allOf: [
+            LLM::Schema.new.string.min(1),
+            LLM::Schema.new.string.max(10)
+          ]
+        )
+      end
+    end
+
     context "when given scalar metadata" do
       let(:schema) do
         {

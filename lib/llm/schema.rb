@@ -35,6 +35,9 @@ class LLM::Schema
   require_relative "schema/leaf"
   require_relative "schema/object"
   require_relative "schema/array"
+  require_relative "schema/all_of"
+  require_relative "schema/any_of"
+  require_relative "schema/one_of"
   require_relative "schema/string"
   require_relative "schema/enum"
   require_relative "schema/number"
@@ -118,6 +121,30 @@ class LLM::Schema
   # @return [LLM::Schema::Array]
   def array(*items)
     Array.new(*items)
+  end
+
+  ##
+  # Returns an anyOf union
+  # @param [Array<LLM::Schema::Leaf>] values The union values
+  # @return [LLM::Schema::AnyOf]
+  def any_of(*values)
+    AnyOf.new(values)
+  end
+
+  ##
+  # Returns an allOf union
+  # @param [Array<LLM::Schema::Leaf>] values The union values
+  # @return [LLM::Schema::AllOf]
+  def all_of(*values)
+    AllOf.new(values)
+  end
+
+  ##
+  # Returns a oneOf union
+  # @param [Array<LLM::Schema::Leaf>] values The union values
+  # @return [LLM::Schema::OneOf]
+  def one_of(*values)
+    OneOf.new(values)
   end
 
   ##

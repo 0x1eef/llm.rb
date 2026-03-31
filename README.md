@@ -139,6 +139,30 @@ ensure
 end
 ```
 
+You can also connect to a hosted MCP server over HTTP. This is useful when the
+server already runs remotely and exposes MCP through a URL instead of a local
+process:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM.mcp(http: {
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+})
+
+begin
+  mcp.start
+  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
+  ctx.talk("List the available GitHub MCP toolsets.")
+  ctx.talk(ctx.functions.call) while ctx.functions.any?
+ensure
+  mcp.stop
+end
+```
+
 #### Streaming Chat
 
 This example demonstrates llm.rb's streaming support. The `stream: $stdout`

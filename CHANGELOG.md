@@ -4,6 +4,16 @@
 
 Changes since `v4.9.0`.
 
+### Add
+
+- HTTP transport for MCP with `LLM::MCP::Transport::HTTP` for remote servers
+- JSON Schema union types (`any_of`, `all_of`, `one_of`) with parser integration
+
+### Change
+
+- Update `LLM::MCP` constructor for exclusive `http:` or `stdio:` transport
+- Update `LLM::MCP` documentation for HTTP transport support
+
 ## v4.9.0
 
 Changes since `v4.8.0`.

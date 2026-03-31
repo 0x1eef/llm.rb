@@ -22,9 +22,10 @@ class LLM::Tool
   extend LLM::Tool::Param
 
   types = [
-    :Leaf, :String, :Enum, :Array,
+    :Leaf, :String, :Enum,
+    :AllOf, :AnyOf, :OneOf,
     :Object, :Integer, :Number,
-    :Boolean, :Null
+    :Array, :Boolean, :Null
   ]
   types.each do |constant|
     const_set constant, LLM::Schema.const_get(constant)
