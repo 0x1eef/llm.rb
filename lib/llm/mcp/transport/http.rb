@@ -114,7 +114,7 @@ module LLM::MCP::Transport
         enqueue(LLM.json.load(body)) unless body.empty?
       end
     end
-    
+
     def lock(&)
       @monitor.synchronize(&)
     end
