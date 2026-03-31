@@ -107,6 +107,48 @@ RSpec.describe LLM::Schema::Parser do
       end
     end
 
+    context "when given a type array union" do
+      let(:schema) do
+        {
+          type: ["object", "null"],
+          description: "maybe object",
+          properties: {
+            id: {type: "string"}
+          },
+          required: ["id"]
+        }
+      end
+
+      it "returns an anyOf schema" do
+        expect(parse).to be_a(LLM::Schema::AnyOf)
+      end
+
+      it "parses each branch recursively" do
+        expect(parse.to_h).to eq(
+          description: "maybe object",
+          anyOf: [
+            LLM::Schema.new.object("id" => LLM::Schema.new.string.required),
+            LLM::Schema.new.null
+          ]
+        )
+      end
+    end
+
+    context "when type is omitted but const implies a primitive" do
+      let(:schema) do
+        {
+          const: "workspace",
+          description: "kind"
+        }
+      end
+
+      it "infers the primitive type" do
+        expect(parse).to eq(
+          LLM::Schema.new.string.const("workspace").description("kind")
+        )
+      end
+    end
+
     context "when given a oneOf union" do
       let(:schema) do
         {

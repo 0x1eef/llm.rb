@@ -8,6 +8,8 @@ class LLM::Schema
   # external JSON schema definitions into the schema objects used
   # throughout llm.rb.
   module Parser
+    METADATA_KEYS = %w[description default enum const].freeze
+
     ##
     # Parses a JSON schema into an {LLM::Schema::Leaf}.
     # @param [Hash] schema
@@ -27,6 +29,7 @@ class LLM::Schema
       when "number" then apply(parse_number(schema), schema)
       when "boolean" then apply(schema().boolean, schema)
       when "null" then apply(schema().null, schema)
+      when ::Array then apply(schema().any_of(*schema["type"].map { parse(schema.except("type", *METADATA_KEYS).merge("type" => _1), root) }), schema.except("type"))
       when nil then parse_union(schema, root)
       else raise TypeError, "unsupported schema type #{schema["type"].inspect}"
       end
@@ -55,6 +58,7 @@ class LLM::Schema
       return apply(schema().any_of(*schema["anyOf"].map { parse(_1, root) }), schema) if schema.key?("anyOf")
       return apply(schema().one_of(*schema["oneOf"].map { parse(_1, root) }), schema) if schema.key?("oneOf")
       return apply(schema().all_of(*schema["allOf"].map { parse(_1, root) }), schema) if schema.key?("allOf")
+      return parse(infer_type(schema), root) if infer_type(schema)
       raise TypeError, "unsupported schema type #{schema["type"].inspect}"
     end
 
@@ -112,6 +116,30 @@ class LLM::Schema
       normalize_schema(target).merge(schema.except("$ref"))
     rescue KeyError
       raise TypeError, "unresolvable schema ref #{ref.inspect}"
+    end
+
+    def infer_type(schema)
+      if schema.key?("const")
+        schema.merge("type" => type_of(schema["const"]))
+      elsif schema.key?("enum")
+        type = type_of(schema["enum"].first)
+        return unless type && schema["enum"].all? { type_of(_1) == type }
+        schema.merge("type" => type)
+      elsif schema.key?("default")
+        schema.merge("type" => type_of(schema["default"]))
+      end
+    end
+
+    def type_of(value)
+      case value
+      when ::Hash then "object"
+      when ::Array then "array"
+      when ::String then "string"
+      when ::Integer then "integer"
+      when ::Float then "number"
+      when ::TrueClass, ::FalseClass then "boolean"
+      when ::NilClass then "null"
+      end
     end
   end
 end
