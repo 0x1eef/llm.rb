@@ -8,6 +8,8 @@ Changes since `v4.9.0`.
 
 - HTTP transport for MCP with `LLM::MCP::Transport::HTTP` for remote servers
 - JSON Schema union types (`any_of`, `all_of`, `one_of`) with parser integration
+- JSON Schema type array union support (e.g., `"type": ["object", "null"]`)
+- JSON Schema type inference from `const`, `enum`, or `default` fields
 
 ### Change
 
