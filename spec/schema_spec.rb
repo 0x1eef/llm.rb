@@ -80,4 +80,64 @@ RSpec.describe LLM::Schema do
       expect(object["address"].to_h[:required]).to eq(["street"])
     end
   end
+
+  context "when given a oneOf property type" do
+    let(:schema) do
+      eval(<<~RUBY)
+        class ResultSchema < LLM::Schema
+          property :result, OneOf[String, Integer], "result description", required: true
+        end
+        ResultSchema
+      RUBY
+    end
+
+    subject(:result) { schema.object["result"] }
+
+    it "configures the property as a oneOf union" do
+      expect(result).to be_a(LLM::Schema::OneOf)
+      expect(result.description).to eq("result description")
+      expect(result).to be_required
+      expect(result.to_h[:oneOf].map(&:class)).to eq([LLM::Schema::String, LLM::Schema::Integer])
+    end
+  end
+
+  context "when given an anyOf property type" do
+    let(:schema) do
+      eval(<<~RUBY)
+        class AnyResultSchema < LLM::Schema
+          property :result, AnyOf[String, Integer], "result description", required: true
+        end
+        AnyResultSchema
+      RUBY
+    end
+
+    subject(:result) { schema.object["result"] }
+
+    it "configures the property as an anyOf union" do
+      expect(result).to be_a(LLM::Schema::AnyOf)
+      expect(result.description).to eq("result description")
+      expect(result).to be_required
+      expect(result.to_h[:anyOf].map(&:class)).to eq([LLM::Schema::String, LLM::Schema::Integer])
+    end
+  end
+
+  context "when given an allOf property type" do
+    let(:schema) do
+      eval(<<~RUBY)
+        class AllResultSchema < LLM::Schema
+          property :result, AllOf[String, Integer], "result description", required: true
+        end
+        AllResultSchema
+      RUBY
+    end
+
+    subject(:result) { schema.object["result"] }
+
+    it "configures the property as an allOf union" do
+      expect(result).to be_a(LLM::Schema::AllOf)
+      expect(result.description).to eq("result description")
+      expect(result).to be_required
+      expect(result.to_h[:allOf].map(&:class)).to eq([LLM::Schema::String, LLM::Schema::Integer])
+    end
+  end
 end

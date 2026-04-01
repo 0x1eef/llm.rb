@@ -233,6 +233,7 @@ require "pp"
 class Report < LLM::Schema
   property :category, Enum["performance", "security", "outage"], "Report category", required: true
   property :summary, String, "Short summary", required: true
+  property :impact, OneOf[String, Integer], "Primary impact, as text or a count", required: true
   property :services, Array[String], "Impacted services", required: true
   property :timestamp, String, "When it happened", optional: true
 end
@@ -245,6 +246,7 @@ pp res.content!
 # {
 #   "category" => "performance",
 #   "summary" => "Database latency spiked, causing 5% request timeouts for 12 minutes.",
+#   "impact" => "5% request timeouts",
 #   "services" => ["Database"],
 #   "timestamp" => "2024-06-05T10:42:00Z"
 # }

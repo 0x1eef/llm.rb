@@ -7,6 +7,14 @@ class LLM::Schema
   # {LLM::Schema::Leaf LLM::Schema::Leaf}.
   class AnyOf < Leaf
     ##
+    # Returns an anyOf union for the given types.
+    # @return [LLM::Schema::AnyOf]
+    def self.[](*types)
+      schema = LLM::Schema.new
+      new(types.map { LLM::Schema::Utils.resolve(schema, _1) })
+    end
+
+    ##
     # @param [Array<LLM::Schema::Leaf>] values
     #  The values allowed by the union
     # @return [LLM::Schema::AnyOf]

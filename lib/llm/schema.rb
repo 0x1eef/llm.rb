@@ -49,6 +49,23 @@ class LLM::Schema
   extend LLM::Schema::Parser
 
   ##
+  # @api private
+  module Utils
+    extend self
+
+    def resolve(schema, type)
+      if LLM::Schema::Leaf === type
+        type
+      elsif Class === type && type.respond_to?(:object)
+        type.object
+      else
+        target = type.name.split("::").last.downcase
+        schema.public_send(target)
+      end
+    end
+  end
+
+  ##
   # Configures a monitor for a subclass
   # @return [void]
   def self.inherited(klass)
@@ -68,14 +85,7 @@ class LLM::Schema
   #  A hash of options
   def self.property(name, type, description, options = {})
     lock do
-      if LLM::Schema::Leaf === type
-        prop = type
-      elsif Class === type && type.respond_to?(:object)
-        prop = type.object
-      else
-        target = type.name.split("::").last.downcase
-        prop = schema.public_send(target)
-      end
+      prop = Utils.resolve(schema, type)
       options = {description:}.merge(options)
       options.each { (_2 == true) ? prop.public_send(_1) : prop.public_send(_1, *_2) }
       object[name] = prop
