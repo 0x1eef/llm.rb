@@ -83,7 +83,7 @@ RSpec.describe LLM::Schema do
 
   context "when given a oneOf property type" do
     let(:schema) do
-      eval(<<~RUBY)
+      eval(<<~RUBY, binding, __FILE__, __LINE__ + 1)
         class ResultSchema < LLM::Schema
           property :result, OneOf[String, Integer], "result description", required: true
         end
@@ -103,7 +103,7 @@ RSpec.describe LLM::Schema do
 
   context "when given an anyOf property type" do
     let(:schema) do
-      eval(<<~RUBY)
+      eval(<<~RUBY, binding, __FILE__, __LINE__ + 1)
         class AnyResultSchema < LLM::Schema
           property :result, AnyOf[String, Integer], "result description", required: true
         end
@@ -123,7 +123,7 @@ RSpec.describe LLM::Schema do
 
   context "when given an allOf property type" do
     let(:schema) do
-      eval(<<~RUBY)
+      eval(<<~RUBY, binding, __FILE__, __LINE__ + 1)
         class AllResultSchema < LLM::Schema
           property :result, AllOf[String, Integer], "result description", required: true
         end
