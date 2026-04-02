@@ -29,6 +29,7 @@ module LLM
   require_relative "llm/eventhandler"
   require_relative "llm/tool"
   require_relative "llm/server_tool"
+  require_relative "llm/mcp"
 
   ##
   # Thread-safe monitors for different contexts
@@ -161,7 +162,6 @@ module LLM
   #  The working directory for the MCP process
   # @return [LLM::MCP]
   def mcp(llm = nil, **)
-    lock(:require) { require_relative "llm/mcp" unless defined?(LLM::MCP) }
     LLM::MCP.new(llm, **)
   end
 
