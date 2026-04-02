@@ -12,7 +12,8 @@ class LLM::Context
       returns = deserialize_returns(payload["content"]) if returns.nil?
       original_tool_calls = payload["original_tool_calls"]
       usage = payload["usage"]
-      extra = {tool_calls:, original_tool_calls:, tools: @params[:tools], usage:}.compact
+      reasoning_content = payload["reasoning_content"]
+      extra = {tool_calls:, original_tool_calls:, tools: @params[:tools], usage:, reasoning_content:}.compact
       content = returns.nil? ? payload["content"] : returns
       LLM::Message.new(payload["role"], content, extra)
     end

@@ -318,6 +318,15 @@ class LLM::Provider
     end
   end
 
+  ##
+  # @param [Object] stream
+  # @return [Boolean]
+  def streamable?(stream)
+    stream.respond_to?(:on_content) ||
+      stream.respond_to?(:on_reasoning_content) ||
+      stream.respond_to?(:<<)
+  end
+
   private
 
   attr_reader :client, :base_uri, :host, :port, :timeout, :ssl

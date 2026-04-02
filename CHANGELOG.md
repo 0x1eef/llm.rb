@@ -8,6 +8,7 @@ Changes since `v4.10.0`.
 
 - Persistent HTTP connection pooling for repeated MCP tool calls via `LLM.mcp(http: ...).persist!`
 - Explicit MCP transport constructors via `LLM::MCP.stdio(...)` and `LLM::MCP.http(...)`
+- Reasoning support across streams, messages, and responses when providers expose it
 
 ## v4.10.0
 

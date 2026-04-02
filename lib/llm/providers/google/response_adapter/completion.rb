@@ -52,6 +52,12 @@ module LLM::Google::ResponseAdapter
     end
 
     ##
+    # (see LLM::Contract::Completion#reasoning_content)
+    def reasoning_content
+      super
+    end
+
+    ##
     # (see LLM::Contract::Completion#content!)
     def content!
       super

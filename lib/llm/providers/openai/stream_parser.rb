@@ -47,7 +47,11 @@ class LLM::OpenAI
             if key == "content"
               target_message[key] ||= +""
               target_message[key] << value
-              @io << value if @io.respond_to?(:<<)
+              emit_content(value)
+            elsif key == "reasoning_content"
+              target_message[key] ||= +""
+              target_message[key] << value
+              emit_reasoning_content(value)
             elsif key == "tool_calls"
               merge_tools!(target_message, value)
             else
@@ -60,7 +64,10 @@ class LLM::OpenAI
           (choice["delta"] || {}).each do |key, value|
             next if value.nil?
             if key == "content"
-              @io << value if @io.respond_to?(:<<)
+              emit_content(value)
+              message_hash[key] = value
+            elsif key == "reasoning_content"
+              emit_reasoning_content(value)
               message_hash[key] = value
             else
               message_hash[key] = value
@@ -85,6 +92,20 @@ class LLM::OpenAI
         else
           target["tool_calls"][tindex] = toola
         end
+      end
+    end
+
+    def emit_content(value)
+      if @io.respond_to?(:on_content)
+        @io.on_content(value)
+      elsif @io.respond_to?(:<<)
+        @io << value
+      end
+    end
+
+    def emit_reasoning_content(value)
+      if @io.respond_to?(:on_reasoning_content)
+        @io.on_reasoning_content(value)
       end
     end
   end

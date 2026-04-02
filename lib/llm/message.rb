@@ -33,7 +33,7 @@ module LLM
     # Returns a Hash representation of the message.
     # @return [Hash]
     def to_h
-      {role:, content:,
+      {role:, content:, reasoning_content:,
        tools: extra.tool_calls,
        usage:,
        original_tool_calls: extra.original_tool_calls}.compact
@@ -65,6 +65,13 @@ module LLM
     #  Returns the parsed content as a Hash
     def content!
       LLM.json.load(content)
+    end
+
+    ##
+    # Returns reasoning content associated with the message
+    # @return [String, nil]
+    def reasoning_content
+      extra.reasoning_content
     end
 
     ##
@@ -158,7 +165,7 @@ module LLM
     def inspect
       "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
       "tool_call=#{tool_calls.any?} role=#{role.inspect} " \
-      "content=#{content.inspect}>"
+      "content=#{content.inspect} reasoning_content=#{reasoning_content.inspect}>"
     end
 
     private

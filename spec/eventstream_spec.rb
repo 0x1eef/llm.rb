@@ -50,5 +50,43 @@ RSpec.describe LLM::EventStream::Parser do
         expect(handler.body.dig("choices", 0, "message", "content")).to eq("Hey there")
       end
     end
+
+    context "when given reasoning content" do
+      let(:stream) do
+        Class.new do
+          attr_reader :content, :reasoning_content
+
+          def initialize
+            @content = +""
+            @reasoning_content = +""
+          end
+
+          def on_content(value)
+            @content << value
+          end
+
+          def on_reasoning_content(value)
+            @reasoning_content << value
+          end
+        end.new
+      end
+
+      before do
+        parser << %(data: {"choices":[{"index":0,"delta":{"reasoning_content":"Think"}}]}\n)
+        parser << %(data: {"choices":[{"index":0,"delta":{"content":"Answer"}}]}\n)
+      end
+
+      it "emits assistant content through on_content" do
+        expect(stream.content).to eq("Answer")
+      end
+
+      it "emits reasoning content through on_reasoning_content" do
+        expect(stream.reasoning_content).to eq("Think")
+      end
+
+      it "preserves streamed reasoning content in the parsed body" do
+        expect(handler.body.dig("choices", 0, "message", "reasoning_content")).to eq("Think")
+      end
+    end
   end
 end

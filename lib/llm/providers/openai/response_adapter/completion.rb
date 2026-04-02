@@ -10,6 +10,7 @@ module LLM::OpenAI::ResponseAdapter
         extra = {
           index:, response: self,
           logprobs: choice.logprobs,
+          reasoning_content: message.reasoning_content,
           tool_calls: adapt_tool_calls(message.tool_calls),
           original_tool_calls: message.tool_calls
         }
@@ -60,6 +61,12 @@ module LLM::OpenAI::ResponseAdapter
     ##
     # (see LLM::Contract::Completion#content)
     def content
+      super
+    end
+
+    ##
+    # (see LLM::Contract::Completion#reasoning_content)
+    def reasoning_content
       super
     end
 

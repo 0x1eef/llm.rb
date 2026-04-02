@@ -39,7 +39,7 @@ class LLM::OpenAI
       tools  = resolve_tools(params.delete(:tools))
       params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
       role, stream = params.delete(:role), params.delete(:stream)
-      params[:stream] = true if stream.respond_to?(:<<) || stream == true
+      params[:stream] = true if @provider.streamable?(stream) || stream == true
       req = Net::HTTP::Post.new("/v1/responses", headers)
       messages = build_complete_messages(prompt, params, role)
       @provider.tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))

@@ -74,4 +74,27 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Completion" do
       expect(tool.name).to eq("system")
     end
   end
+
+  context "when the assistant message has reasoning content" do
+    let(:usage) { nil }
+    let(:body) do
+      LLM::Object.from(
+        choices: [
+          {
+            message: {
+              role: "assistant",
+              content: "323",
+              reasoning_content: "17 times 19 is 17 times 20 minus 17."
+            }
+          }
+        ],
+        usage:,
+        model: "test-model"
+      )
+    end
+
+    it "returns reasoning content from the assistant message" do
+      expect(completion.reasoning_content).to eq("17 times 19 is 17 times 20 minus 17.")
+    end
+  end
 end

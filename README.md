@@ -78,6 +78,7 @@ llm.rb provides a complete set of primitives for building LLM-powered systems:
 
 - **Chat & Contexts** — stateless and stateful interactions with persistence
 - **Streaming** — real-time responses across providers
+- **Reasoning Support** — full stream, message, and response support when providers expose reasoning
 - **Tool Calling** — define and execute functions with automatic orchestration
 - **Concurrent Execution** — threads, async tasks, and fibers
 - **Agents** — reusable, preconfigured assistants with tool auto-execution
@@ -191,6 +192,43 @@ loop do
   ctx.talk(STDIN.gets || break)
   puts
 end
+```
+
+#### Reasoning
+
+Some providers also expose reasoning separately from visible output. In that
+case, streams can implement `on_content` and `on_reasoning_content`, and the
+final response also exposes `reasoning_content`:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class Stream
+  attr_reader :content, :reasoning_content
+
+  def initialize
+    @content = +""
+    @reasoning_content = +""
+  end
+
+  def on_content(value)
+    @content << value
+  end
+
+  def on_reasoning_content(value)
+    @reasoning_content << value
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+stream = Stream.new
+ctx = LLM::Context.new(llm, model: "deepseek-reasoner", stream:)
+res = ctx.talk("What is 17 * 19?")
+
+puts "answer: #{res.content}"
+puts "streamed reasoning: #{stream.reasoning_content}"
+puts "final reasoning: #{res.reasoning_content}"
 ```
 
 #### Tool Calling

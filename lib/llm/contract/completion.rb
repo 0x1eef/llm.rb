@@ -51,6 +51,13 @@ module LLM::Contract
     end
 
     ##
+    # @return [String, nil]
+    #  Returns the reasoning content when the provider exposes it
+    def reasoning_content
+      messages.find(&:assistant?)&.reasoning_content
+    end
+
+    ##
     # @return [Hash]
     #  Returns the LLM response after parsing it as JSON
     def content!
