@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+Changes since `v4.10.0`.
+
+## v4.10.0
+
 Changes since `v4.9.0`.
 
 ### Add
