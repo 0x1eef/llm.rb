@@ -20,6 +20,12 @@ class LLM::MCP
 
   include RPC
 
+  @@clients = {}
+
+  ##
+  # @api private
+  def self.clients = @@clients
+
   ##
   # @param [LLM::Provider, nil] llm
   #  The provider to use for MCP transports that need one
@@ -71,6 +77,20 @@ class LLM::MCP
     lock do
       transport.stop
       nil
+    end
+  end
+
+  ##
+  # Configures an HTTP MCP transport to use a persistent connection pool
+  # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
+  # @example
+  #   mcp = LLM.mcp(http: {url: "https://example.com/mcp"}).persist!
+  #   # do something with 'mcp'
+  # @return [LLM::MCP]
+  def persist!
+    lock do
+      transport.persist!
+      self
     end
   end
 

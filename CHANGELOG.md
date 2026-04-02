@@ -4,6 +4,10 @@
 
 Changes since `v4.10.0`.
 
+### Add
+
+- Persistent HTTP connection pooling for repeated MCP tool calls via `LLM.mcp(http: ...).persist!`
+
 ## v4.10.0
 
 Changes since `v4.9.0`.

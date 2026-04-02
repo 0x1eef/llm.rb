@@ -61,10 +61,16 @@ module LLM::MCP::Transport
     # @return [void]
     def write(message)
       raise LLM::MCP::Error, "MCP transport is not running" unless running?
-      http = Net::HTTP.start(uri.host, uri.port, use_ssl:, open_timeout: timeout, read_timeout: timeout)
       req = Net::HTTP::Post.new(uri.path, headers.merge("content-type" => "application/json"))
       req.body = LLM.json.dump(message)
-      http.request(req) do |res|
+      if persistent_client.nil?
+        http = Net::HTTP.start(uri.host, uri.port, use_ssl:, open_timeout: timeout, read_timeout: timeout)
+        args = [req]
+      else
+        http = persistent_client
+        args = [uri, req]
+      end
+      http.request(*args) do |res|
         unless Net::HTTPSuccess === res
           raise LLM::MCP::Error, "MCP transport write failed with HTTP #{res.code}"
         end
@@ -94,13 +100,29 @@ module LLM::MCP::Transport
       @running
     end
 
+    ##
+    # Configures the transport to use a persistent HTTP connection pool
+    # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
+    # @example
+    #   mcp = LLM.mcp(http: {url: "https://example.com/mcp"}).persist!
+    #   # do something with 'mcp'
+    # @return [LLM::MCP::Transport::HTTP]
+    def persist!
+      LLM.lock(:mcp) do
+        require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
+        unless LLM::MCP.clients.key?(key)
+          http = Net::HTTP::Persistent.new(name: self.class.name)
+          http.read_timeout = timeout
+          http.open_timeout = timeout
+          LLM::MCP.clients[key] ||= http
+        end
+      end
+      self
+    end
+
     private
 
     attr_reader :uri, :use_ssl, :headers, :timeout
-
-    def enqueue(message)
-      lock { @queue << message }
-    end
 
     def read(res)
       if res["content-type"].to_s.include?("text/event-stream")
@@ -113,6 +135,18 @@ module LLM::MCP::Transport
         res.read_body { body << _1 }
         enqueue(LLM.json.load(body)) unless body.empty?
       end
+    end
+
+    def enqueue(message)
+      lock { @queue << message }
+    end
+
+    def persistent_client
+      LLM::MCP.clients[key]
+    end
+
+    def key
+      "#{uri.scheme}:#{uri.host}:#{uri.port}:#{timeout}"
     end
 
     def lock(&)

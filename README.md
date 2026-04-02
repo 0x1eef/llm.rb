@@ -32,6 +32,8 @@ llm.rb is built around the state and execution model around them:
   They hold history, tools, schema, usage, cost, persistence, and execution state.
 - **Tool execution is explicit** <br>
   Run local, provider-native, and MCP tools sequentially or concurrently with threads, fibers, or async tasks.
+- **HTTP MCP can reuse connections** <br>
+  Opt into persistent HTTP pooling for repeated remote MCP tool calls with `persist!`.
 - **One API across providers and capabilities** <br>
   The same model covers chat, files, images, audio, embeddings, vector stores, and more.
 - **Thread-safe where it matters** <br>
@@ -80,7 +82,7 @@ llm.rb provides a complete set of primitives for building LLM-powered systems:
 - **Concurrent Execution** — threads, async tasks, and fibers
 - **Agents** — reusable, preconfigured assistants with tool auto-execution
 - **Structured Outputs** — JSON schema-based responses
-- **MCP Support** — integrate external tool servers dynamically
+- **MCP Support** — integrate external tool servers dynamically over stdio or HTTP
 - **Multimodal Inputs** — text, images, audio, documents, URLs
 - **Audio** — text-to-speech, transcription, translation
 - **Images** — generation and editing
@@ -139,9 +141,11 @@ ensure
 end
 ```
 
-You can also connect to a hosted MCP server over HTTP. This is useful when the
+You can also connect to an MCP server over HTTP. This is useful when the
 server already runs remotely and exposes MCP through a URL instead of a local
-process:
+process. If you expect repeated tool calls, use `persist!` to reuse a
+process-wide HTTP connection pool. This requires the optional
+`net-http-persistent` gem:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -151,7 +155,7 @@ llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM.mcp(http: {
   url: "https://api.githubcopilot.com/mcp/",
   headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
-})
+}).persist!
 
 begin
   mcp.start
