@@ -63,7 +63,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir[
     "README.md", "LICENSE",
     "lib/*.rb", "lib/**/*.rb",
-    "data/*.json",
+    "data/*.json", "CHANGELOG.md",
     "llm.gemspec"
   ]
   spec.require_paths = ["lib"]

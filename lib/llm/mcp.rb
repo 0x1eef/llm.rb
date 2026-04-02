@@ -27,6 +27,28 @@ class LLM::MCP
   def self.clients = @@clients
 
   ##
+  # Builds an MCP client that uses the stdio transport.
+  # @param [LLM::Provider, nil] llm
+  #  An instance of LLM::Provider. Optional.
+  # @param [Hash] stdio
+  #  The stdio transport configuration
+  # @return [LLM::MCP]
+  def self.stdio(llm = nil, **stdio)
+    new(llm, stdio:)
+  end
+
+  ##
+  # Builds an MCP client that uses the HTTP transport.
+  # @param [LLM::Provider, nil] llm
+  #  An instance of LLM::Provider. Optional.
+  # @param [Hash] http
+  #  The HTTP transport configuration
+  # @return [LLM::MCP]
+  def self.http(llm = nil, **http)
+    new(llm, http:)
+  end
+
+  ##
   # @param [LLM::Provider, nil] llm
   #  The provider to use for MCP transports that need one
   # @param [Hash, nil] stdio The configuration for the stdio transport

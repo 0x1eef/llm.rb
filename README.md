@@ -122,14 +122,16 @@ ctx.talk(ctx.functions.wait(:thread)) while ctx.functions.any?
 llm.rb integrates with the Model Context Protocol (MCP) to dynamically discover
 and use tools from external servers. This example starts a filesystem MCP
 server over stdio and makes its tools available to a context, enabling the LLM
-to interact with the local file system through a standardized interface:
+to interact with the local file system through a standardized interface.
+Use `LLM::MCP.stdio` or `LLM::MCP.http` when you want to make the transport
+explicit:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-mcp = LLM.mcp(stdio: {argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd]})
+mcp = LLM::MCP.stdio(argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd])
 
 begin
   mcp.start
@@ -152,10 +154,10 @@ process-wide HTTP connection pool. This requires the optional
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-mcp = LLM.mcp(http: {
+mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
   headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
-}).persist!
+).persist!
 
 begin
   mcp.start
