@@ -124,7 +124,8 @@ and use tools from external servers. This example starts a filesystem MCP
 server over stdio and makes its tools available to a context, enabling the LLM
 to interact with the local file system through a standardized interface.
 Use `LLM::MCP.stdio` or `LLM::MCP.http` when you want to make the transport
-explicit:
+explicit. Like `LLM::Context`, an MCP client is stateful and should remain
+isolated to a single thread:
 
 ```ruby
 #!/usr/bin/env ruby

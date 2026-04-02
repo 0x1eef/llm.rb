@@ -9,8 +9,10 @@
 # In llm.rb, {LLM::MCP LLM::MCP} currently supports stdio and HTTP
 # transports and focuses on discovering tools that can be used through
 # {LLM::Context LLM::Context} and {LLM::Agent LLM::Agent}.
+#
+# Like {LLM::Context LLM::Context}, an MCP client is stateful and is
+# expected to remain isolated to a single thread.
 class LLM::MCP
-  require "monitor"
   require_relative "mcp/error"
   require_relative "mcp/command"
   require_relative "mcp/rpc"
@@ -63,11 +65,11 @@ class LLM::MCP
   #  The URL for the MCP HTTP endpoint
   # @option http [Hash] :headers
   #  Extra headers for requests
-  # @param [Integer] timeout The maximum amount of time to wait when reading from an MCP process
+  # @param [Integer] timeout
+  #  The maximum amount of time to wait when reading from an MCP process
   # @return [LLM::MCP] A new MCP instance
   def initialize(llm = nil, stdio: nil, http: nil, timeout: 30)
     @llm = llm
-    @monitor = Monitor.new
     @timeout = timeout
     if stdio && http
       raise ArgumentError, "stdio and http are mutually exclusive"
@@ -85,21 +87,17 @@ class LLM::MCP
   # Starts the MCP process.
   # @return [void]
   def start
-    lock do
-      transport.start
-      call(transport, "initialize", {clientInfo: {name: "llm.rb", version: LLM::VERSION}})
-      call(transport, "notifications/initialized")
-    end
+    transport.start
+    call(transport, "initialize", {clientInfo: {name: "llm.rb", version: LLM::VERSION}})
+    call(transport, "notifications/initialized")
   end
 
   ##
   # Stops the MCP process.
   # @return [void]
   def stop
-    lock do
-      transport.stop
-      nil
-    end
+    transport.stop
+    nil
   end
 
   ##
@@ -110,20 +108,16 @@ class LLM::MCP
   #   # do something with 'mcp'
   # @return [LLM::MCP]
   def persist!
-    lock do
-      transport.persist!
-      self
-    end
+    transport.persist!
+    self
   end
 
   ##
   # Returns the tools provided by the MCP process.
   # @return [Array<Class<LLM::Tool>>]
   def tools
-    lock do
-      res = call(transport, "tools/list")
-      res["tools"].map { LLM::Tool.mcp(self, _1) }
-    end
+    res = call(transport, "tools/list")
+    res["tools"].map { LLM::Tool.mcp(self, _1) }
   end
 
   ##
@@ -132,10 +126,8 @@ class LLM::MCP
   # @param [Hash] arguments The arguments to pass to the tool
   # @return [Object] The result of the tool call
   def call_tool(name, arguments = {})
-    lock do
-      res = call(transport, "tools/call", {name:, arguments:})
-      adapt_tool_result(res)
-    end
+    res = call(transport, "tools/call", {name:, arguments:})
+    adapt_tool_result(res)
   end
 
   private
@@ -150,9 +142,5 @@ class LLM::MCP
     else
       result
     end
-  end
-
-  def lock(&)
-    @monitor.synchronize(&)
   end
 end
