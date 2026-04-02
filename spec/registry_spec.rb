@@ -63,7 +63,7 @@ RSpec.describe LLM::Registry do
     let(:provider) { :xai }
 
     include_examples "model exists", "grok-2"
-    include_examples "model exists", "grok-4.20-beta-latest-non-reasoning"
+    include_examples "model exists", "grok-4.20-0309-non-reasoning"
   end
 
   context "when given zai" do
