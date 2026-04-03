@@ -236,9 +236,9 @@ puts "final reasoning: #{res.reasoning_content}"
 Tools in llm.rb can be defined as classes inheriting from `LLM::Tool` or as
 closures using `LLM.function`. When the LLM requests a tool call, the context
 stores `Function` objects in `ctx.functions`. The `call()` method executes all
-pending functions and returns their results to the LLM. Tools support
-structured parameters with JSON Schema validation and automatically adapt to
-each provider's API format (OpenAI, Anthropic, Google, etc.):
+pending functions and returns their results to the LLM. Tools describe
+structured parameters with JSON Schema and adapt those definitions to each
+provider's tool-calling format (OpenAI, Anthropic, Google, etc.):
 
 ```ruby
 #!/usr/bin/env ruby
