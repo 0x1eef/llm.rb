@@ -262,13 +262,12 @@ ctx.talk(ctx.functions.call) while ctx.functions.any?
 
 #### Structured Outputs
 
-The `LLM::Schema` system lets you define JSON schemas that LLMs must follow.
+The `LLM::Schema` system lets you define JSON schemas for structured outputs.
 Schemas can be defined as classes with `property` declarations or built
 programmatically using a fluent interface. When you pass a schema to a context,
-llm.rb automatically configures the provider's JSON mode and validates
-responses against your schema. The `content!` method returns the parsed JSON
-object, while errors are captured as structured data rather than raising
-exceptions:
+llm.rb adapts it into the provider's structured-output format when that
+provider supports one. The `content!` method then parses the assistant's JSON
+response into a Ruby object:
 
 ```ruby
 #!/usr/bin/env ruby
