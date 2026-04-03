@@ -145,18 +145,18 @@ RSpec.describe "LLM::OpenAI::Files" do
 
   context "when asked to describe the contents of a file",
           vcr: {cassette_name: "openai/files/describe_freebsd.sysctl.pdf"} do
-    subject { bot.messages.find(&:assistant?).content.downcase[0..2] }
-    let(:bot) { LLM::Bot.new(provider) }
+    subject { ctx.messages.find(&:assistant?).content.downcase[0..2] }
+    let(:ctx) { LLM::Context.new(provider) }
     let(:file) { provider.files.create(file: "spec/fixtures/documents/freebsd.sysctl.pdf") }
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.user(file)
         _1.user("Is this PDF document about FreeBSD?")
         _1.user("Answer with yes or no. Nothing else.")
       end
     end
 
-    before { bot.respond(prompt) }
+    before { ctx.respond(prompt) }
 
     it "describes the document" do
       is_expected.to eq("yes")
@@ -167,12 +167,12 @@ RSpec.describe "LLM::OpenAI::Files" do
 
   context "when asked to describe the contents of a file",
           vcr: {cassette_name: "openai/files/describe_freebsd.sysctl_2.pdf"} do
-    subject { bot.messages.find(&:assistant?).content.downcase[0..2] }
-    let(:bot) { LLM::Bot.new(provider) }
+    subject { ctx.messages.find(&:assistant?).content.downcase[0..2] }
+    let(:ctx) { LLM::Context.new(provider) }
     let(:file) { provider.files.create(file: "spec/fixtures/documents/freebsd.sysctl.pdf") }
 
     before do
-      bot.respond([
+      ctx.respond([
         "Is this PDF document about FreeBSD?",
         "Answer with yes or no. Nothing else.",
         file
@@ -188,18 +188,18 @@ RSpec.describe "LLM::OpenAI::Files" do
 
   context "when asked to describe the contents of a file",
           vcr: {cassette_name: "openai/files/describe_freebsd.sysctl_3.pdf"} do
-    subject { bot.messages.find(&:assistant?).content.downcase[0..2] }
-    let(:bot) { LLM::Bot.new(provider) }
+    subject { ctx.messages.find(&:assistant?).content.downcase[0..2] }
+    let(:ctx) { LLM::Context.new(provider) }
     let(:file) { provider.files.create(file: "spec/fixtures/documents/freebsd.sysctl.pdf") }
     let(:prompt) do
-      bot.build_prompt do
-        _1.chat(bot.remote_file(file))
-        _1.chat("Is this PDF document about FreeBSD?")
-        _1.chat("Answer with yes or no. Nothing else.")
+      ctx.build_prompt do
+        _1.talk(ctx.remote_file(file))
+        _1.talk("Is this PDF document about FreeBSD?")
+        _1.talk("Answer with yes or no. Nothing else.")
       end
     end
 
-    before { bot.chat(prompt) }
+    before { ctx.talk(prompt) }
 
     it "describes the document" do
       is_expected.to eq("yes")
@@ -210,15 +210,15 @@ RSpec.describe "LLM::OpenAI::Files" do
 
   context "when asked to describe the contents of a file",
           vcr: {cassette_name: "openai/files/describe_freebsd.sysctl_4.pdf"} do
-    subject { bot.messages.find(&:assistant?).content.downcase[0..2] }
-    let(:bot) { LLM::Bot.new(provider) }
+    subject { ctx.messages.find(&:assistant?).content.downcase[0..2] }
+    let(:ctx) { LLM::Context.new(provider) }
     let(:file) { provider.files.create(file: "spec/fixtures/documents/freebsd.sysctl.pdf") }
 
     before do
-      bot.chat([
+      ctx.talk([
         "Is this PDF document about FreeBSD?",
         "Answer with yes or no. Nothing else.",
-        bot.remote_file(file)
+        ctx.remote_file(file)
       ])
     end
 

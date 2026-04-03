@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "LLM::Bot: text stream" do |dirname, options = {}|
+RSpec.shared_examples "LLM::Context: text stream" do |dirname, options = {}|
   vcr = lambda do |basename|
     {vcr: {cassette_name: "#{dirname}/chat/#{basename}"}.merge(options)}
   end
@@ -15,7 +15,7 @@ RSpec.shared_examples "LLM::Bot: text stream" do |dirname, options = {}|
       "Nothing else"
     end
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.user system_prompt
         _1.user "What is 3+2 ?"
         _1.user "What is 5+5 ?"
@@ -23,7 +23,7 @@ RSpec.shared_examples "LLM::Bot: text stream" do |dirname, options = {}|
       end
     end
 
-    before { bot.chat(prompt) }
+    before { ctx.talk(prompt) }
 
     context "with the contents of the IO" do
       subject { stream.string }
@@ -31,12 +31,12 @@ RSpec.shared_examples "LLM::Bot: text stream" do |dirname, options = {}|
     end
 
     context "with the contents of the message" do
-      subject { bot.messages.find(&:assistant?) }
+      subject { ctx.messages.find(&:assistant?) }
       it { is_expected.to have_attributes(role: %r_(assistant|model)_, content: %r_5\s*\n10\s*\n12\s*_ ) }
     end
 
     context "with usage" do
-      subject(:usage) { bot.messages.find(&:assistant?)&.usage }
+      subject(:usage) { ctx.messages.find(&:assistant?)&.usage }
       it { expect(usage.input_tokens).to be > 0 }
       it { expect(usage.output_tokens).to be > 0 }
       it { expect(usage.total_tokens).to be > 0 }
@@ -44,7 +44,7 @@ RSpec.shared_examples "LLM::Bot: text stream" do |dirname, options = {}|
   end
 end
 
-RSpec.shared_examples "LLM::Bot: tool stream" do |dirname, options = {}|
+RSpec.shared_examples "LLM::Context: tool stream" do |dirname, options = {}|
   vcr = lambda do |basename|
     {vcr: {cassette_name: "#{dirname}/chat/#{basename}"}.merge(options)}
   end
@@ -59,18 +59,18 @@ RSpec.shared_examples "LLM::Bot: tool stream" do |dirname, options = {}|
       end
     end
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.user "You are a bot that can run UNIX system commands"
         _1.user "Hey, run the 'date' command"
       end
     end
 
-    before { bot.chat(prompt) }
+    before { ctx.talk(prompt) }
 
     it "calls the function(s)" do
       expect(Kernel).to receive(:system).with("date").and_return(true)
-      bot.chat bot.functions.map(&:call)
-      expect(bot.functions).to be_empty
+      ctx.talk ctx.functions.map(&:call)
+      expect(ctx.functions).to be_empty
     end
   end
 end

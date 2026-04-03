@@ -77,7 +77,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
 
   context "when given a function call",
           vcr: {cassette_name: "openai/responses/function_call"} do
-    let(:bot) { LLM::Bot.new(provider, tools: [tool]) }
+    let(:ctx) { LLM::Context.new(provider, tools: [tool]) }
     let(:tool) do
       LLM.function(:system) do |fn|
         fn.description "Runs system commands"
@@ -86,7 +86,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
       end
     end
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.system "You are a bot that can run UNIX commands"
         _1.user "What is the date?"
       end
@@ -97,10 +97,10 @@ RSpec.describe "LLM::OpenAI::Responses" do
     end
 
     it "calls a function" do
-      bot.respond(prompt)
-      expect(bot.functions).not_to be_empty
-      bot.respond bot.functions.map(&:call)
-      expect(bot.functions).to be_empty
+      ctx.respond(prompt)
+      expect(ctx.functions).not_to be_empty
+      ctx.respond ctx.functions.map(&:call)
+      expect(ctx.functions).to be_empty
     end
   end
 
@@ -132,11 +132,11 @@ RSpec.describe "LLM::OpenAI::Responses" do
     end
   end
 
-  context "when given a chat bot and an IO stream for responses",
+  context "when given a context and an IO stream for responses",
           vcr: {cassette_name: "openai/responses/bot_text_stream"} do
     let(:params) { {stream:} }
     let(:stream) { StringIO.new }
-    let(:bot) { LLM::Bot.new(provider, params) }
+    let(:ctx) { LLM::Context.new(provider, params) }
     let(:system_prompt) do
       "Keep your answers short and concise, and provide three answers to the three questions. " \
       "There should be one answer per line. " \
@@ -144,7 +144,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
       "Nothing else"
     end
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.user system_prompt
         _1.user "What is 3+2 ?"
         _1.user "What is 5+5 ?"
@@ -152,7 +152,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
       end
     end
 
-    before { bot.respond(prompt) }
+    before { ctx.respond(prompt) }
 
     context "with the contents of the IO" do
       subject { stream.string }
@@ -160,15 +160,15 @@ RSpec.describe "LLM::OpenAI::Responses" do
     end
 
     context "with the contents of the message" do
-      subject { bot.messages.find(&:assistant?) }
+      subject { ctx.messages.find(&:assistant?) }
       it { is_expected.to have_attributes(role: %r_(assistant|model)_, content: %r_5\s*\n10\s*\n12\s*_) }
     end
   end
 
-  context "when given a chat bot and a tool stream for responses",
+  context "when given a context and a tool stream for responses",
           vcr: {cassette_name: "openai/responses/bot_tool_stream"} do
     let(:params) { {stream: true, tools: [tool]} }
-    let(:bot) { LLM::Bot.new(provider, params) }
+    let(:ctx) { LLM::Context.new(provider, params) }
     let(:tool) do
       LLM.function(:system) do |fn|
         fn.description "Runs system commands"
@@ -177,18 +177,18 @@ RSpec.describe "LLM::OpenAI::Responses" do
       end
     end
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.system "You are a bot that can run UNIX commands"
         _1.user "What is the date?"
       end
     end
 
-    before { bot.respond(prompt) }
+    before { ctx.respond(prompt) }
 
     it "calls the function(s)" do
       expect(Kernel).to receive(:system).with("date").and_return("2024-01-01")
-      bot.respond bot.functions.map(&:call)
-      expect(bot.functions).to be_empty
+      ctx.respond ctx.functions.map(&:call)
+      expect(ctx.functions).to be_empty
     end
   end
 

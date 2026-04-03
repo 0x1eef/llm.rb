@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "LLM::Bot: files" do |dirname, options = {}|
+RSpec.shared_examples "LLM::Context: files" do |dirname, options = {}|
   vcr = lambda do |basename|
     {vcr: {cassette_name: "#{dirname}/chat/#{basename}"}.merge(options)}
   end
 
   context "with a local image", vcr.call("llm_file_local_image") do
-    subject { bot.messages.find(&:assistant?).content.downcase[0..2] }
+    subject { ctx.messages.find(&:assistant?).content.downcase[0..2] }
 
     let(:params) { super().merge!({}) }
     let(:image) { "spec/fixtures/images/bluebook.png" }
@@ -20,13 +20,13 @@ RSpec.shared_examples "LLM::Bot: files" do |dirname, options = {}|
       ]
     end
     let(:prompt) do
-      bot.build_prompt do |p|
-        prompts.each { p.chat(_1, role: :user) }
+      ctx.build_prompt do |p|
+        prompts.each { p.talk(_1, role: :user) }
       end
     end
 
     context "when given as an array of messages" do
-      before { bot.chat(prompts) }
+      before { ctx.talk(prompts) }
 
       it "affirms the image description" do
         is_expected.to eq("yes")
@@ -34,7 +34,7 @@ RSpec.shared_examples "LLM::Bot: files" do |dirname, options = {}|
     end
 
     context "when given as individual messages" do
-      before { bot.chat(prompt) }
+      before { ctx.talk(prompt) }
 
       it "affirms the image description" do
         is_expected.to eq("yes")

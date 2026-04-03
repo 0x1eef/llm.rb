@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "LLM::Bot: schema" do |dirname, options = {}|
+RSpec.shared_examples "LLM::Context: schema" do |dirname, options = {}|
   vcr = lambda do |basename|
     {vcr: options.merge({cassette_name: "#{dirname}/chat/#{basename}"})}
   end
@@ -10,10 +10,10 @@ RSpec.shared_examples "LLM::Bot: schema" do |dirname, options = {}|
       let(:params) { {schema:} }
       let(:llm) { provider }
 
-      subject { bot.messages.find(&:assistant?).content! }
+      subject { ctx.messages.find(&:assistant?).content! }
 
       before do
-        bot.chat "Does the earth orbit the sun?"
+        ctx.talk "Does the earth orbit the sun?"
       end
 
       it "returns the probability" do
@@ -29,16 +29,16 @@ RSpec.shared_examples "LLM::Bot: schema" do |dirname, options = {}|
       let(:params) { {schema:} }
       let(:llm) { provider }
 
-      subject { bot.messages.find(&:assistant?).content!  }
+      subject { ctx.messages.find(&:assistant?).content!  }
 
       let(:prompt) do
-        bot.build_prompt do |prompt|
+        ctx.build_prompt do |prompt|
           prompt.user "Your favorite fruit is pineapple"
           prompt.user "What fruit is your favorite?"
         end
       end
 
-      before { bot.chat(prompt) }
+      before { ctx.talk(prompt) }
 
       it "returns the favorite fruit" do
         is_expected.to match(
@@ -53,17 +53,17 @@ RSpec.shared_examples "LLM::Bot: schema" do |dirname, options = {}|
       let(:params) { {schema:} }
       let(:llm) { provider }
 
-      subject { bot.messages.find(&:assistant?).content! }
+      subject { ctx.messages.find(&:assistant?).content! }
 
       let(:prompt) do
-        bot.build_prompt do |prompt|
+        ctx.build_prompt do |prompt|
           prompt.user "Answer all of my questions"
           prompt.user "Tell me the answer to 5 + 5"
           prompt.user "Tell me the answer to 5 + 7"
         end
       end
 
-      before { bot.chat(prompt) }
+      before { ctx.talk(prompt) }
 
       it "returns the answers" do
         is_expected.to match(

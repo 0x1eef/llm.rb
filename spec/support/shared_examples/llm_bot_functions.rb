@@ -1,37 +1,37 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "LLM::Bot: functions" do |dirname, options = {}|
+RSpec.shared_examples "LLM::Context: functions" do |dirname, options = {}|
   vcr = lambda do |basename|
     {vcr: {cassette_name: "#{dirname}/chat/#{basename}"}.merge(options)}
   end
 
   shared_examples "system" do |request|
     let(:params) { {tools: [tool]} }
-    let(:returns) { bot.messages.select(&:tool_return?) }
+    let(:returns) { ctx.messages.select(&:tool_return?) }
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.user "You are a bot that can run UNIX commands"
         _1.user request
       end
     end
 
-    before { bot.chat(prompt) }
+    before { ctx.talk(prompt) }
 
     it "calls the function" do
       expect(Kernel).to receive(:system).with("date").and_return("2025-08-24")
-      bot.chat bot.functions[0].call
-      expect(bot.functions).to be_empty
+      ctx.talk ctx.functions[0].call
+      expect(ctx.functions).to be_empty
     end
 
     it "calls the function" do
       expect(Kernel).to receive(:system).with("date").and_return("2025-08-24")
-      bot.chat bot.functions.map(&:call)
-      expect(bot.functions).to be_empty
+      ctx.talk ctx.functions.map(&:call)
+      expect(ctx.functions).to be_empty
     end
 
     it "includes a message with a return value" do
       allow(Kernel).to receive(:system).with("date").and_return("2025-08-24")
-      bot.chat bot.functions.map(&:call)
+      ctx.talk ctx.functions.map(&:call)
       expect(returns.size).to be(1)
     end
   end
@@ -53,24 +53,24 @@ RSpec.shared_examples "LLM::Bot: functions" do |dirname, options = {}|
       end
     end
     let(:params) { {tools: [tool]} }
-    let(:returns) { bot.messages.select(&:tool_return?) }
+    let(:returns) { ctx.messages.select(&:tool_return?) }
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.user "You are a bot that can run UNIX commands"
         _1.user request
       end
     end
 
-    before { bot.chat(prompt) }
+    before { ctx.talk(prompt) }
 
     it "calls the functions" do
       i = 0
-      until bot.functions.empty?
+      until ctx.functions.empty?
         raise "Too many iterations, something is wrong" if i == 3
-        bot.chat bot.functions.map(&:call)
+        ctx.talk ctx.functions.map(&:call)
         i += 1
       end
-      expect(bot.functions).to be_empty
+      expect(ctx.functions).to be_empty
     end
   end
 

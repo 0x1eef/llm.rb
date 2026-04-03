@@ -161,19 +161,19 @@ RSpec.describe "LLM::Anthropic::Files" do
 
   context "when asked to describe the contents of a file",
           vcr: {cassette_name: "anthropic/files/describe_freebsd.sysctl_3.pdf"} do
-    subject { bot.messages.find(&:assistant?).content.downcase[0..2] }
+    subject { ctx.messages.find(&:assistant?).content.downcase[0..2] }
 
-    let(:bot) { LLM::Bot.new(provider) }
+    let(:ctx) { LLM::Context.new(provider) }
     let(:file) { provider.files.create(file: "spec/fixtures/documents/freebsd.sysctl.pdf") }
     let(:prompt) do
-      bot.build_prompt do
+      ctx.build_prompt do
         _1.user(file)
         _1.user("Is this PDF document about FreeBSD?")
         _1.user("Answer with yes or no. Nothing else.")
       end
     end
 
-    before { bot.chat(prompt) }
+    before { ctx.talk(prompt) }
 
     it "describes the document" do
       is_expected.to eq("yes")
@@ -184,12 +184,12 @@ RSpec.describe "LLM::Anthropic::Files" do
 
   context "when asked to describe the contents of a file",
           vcr: {cassette_name: "anthropic/files/describe_freebsd.sysctl_4.pdf"} do
-    subject { bot.messages.find(&:assistant?).content.downcase[0..2] }
-    let(:bot) { LLM::Bot.new(provider) }
+    subject { ctx.messages.find(&:assistant?).content.downcase[0..2] }
+    let(:ctx) { LLM::Context.new(provider) }
     let(:file) { provider.files.create(file: "spec/fixtures/documents/freebsd.sysctl.pdf") }
 
     before do
-      bot.chat([
+      ctx.talk([
         "Is this PDF document about FreeBSD?",
         "Answer with yes or no. Nothing else.",
         file

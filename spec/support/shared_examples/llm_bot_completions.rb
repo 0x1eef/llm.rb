@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "LLM::Bot: completions" do |dirname, options = {}|
+RSpec.shared_examples "LLM::Context: completions" do |dirname, options = {}|
   vcr = lambda do |basename|
     {vcr: {cassette_name: "#{dirname}/chat/#{basename}"}.merge(options)}
   end
@@ -13,18 +13,18 @@ RSpec.shared_examples "LLM::Bot: completions" do |dirname, options = {}|
       "Nothing else"
     end
 
-    let(:messages) { bot.messages }
+    let(:messages) { ctx.messages }
     let(:message) { messages.to_a[-1] }
     let(:prompt) do
-      bot.build_prompt do
-        _1.chat system_prompt
-        _1.chat "What is 3+2 ?"
-        _1.chat "What is 5+5 ?"
-        _1.chat "What is 5+7 ?"
+      ctx.build_prompt do
+        _1.talk system_prompt
+        _1.talk "What is 3+2 ?"
+        _1.talk "What is 5+5 ?"
+        _1.talk "What is 5+7 ?"
       end
     end
 
-    before { bot.chat(prompt) }
+    before { ctx.talk(prompt) }
 
     it "provides a response" do
       expect(message).to have_attributes(
@@ -52,7 +52,7 @@ RSpec.shared_examples "LLM::Bot: completions" do |dirname, options = {}|
 
   context "when given a prompt that is not recognized" do
     it "raises an error" do
-      expect { bot.chat(Object.new) }.to raise_error(LLM::PromptError)
+      expect { ctx.talk(Object.new) }.to raise_error(LLM::PromptError)
     end
   end
 end
