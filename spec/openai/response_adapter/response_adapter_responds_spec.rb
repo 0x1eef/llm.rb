@@ -10,6 +10,12 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Responds" do
       usage: nil,
       output: [
         {
+          type: "message",
+          content: [
+            {type: "output_text", text: "hello"}
+          ]
+        },
+        {
           type: "function_call",
           call_id: "call_1",
           name: "system",
@@ -26,5 +32,9 @@ RSpec.describe "LLM::OpenAI::ResponseAdapter::Responds" do
     expect(responds.choices[0].extra[:tool_calls]).to eq(
       [{id: "call_1", name: "system", arguments: {}}]
     )
+  end
+
+  it "exposes content like a completion response" do
+    expect(responds.content).to eq("hello\n")
   end
 end

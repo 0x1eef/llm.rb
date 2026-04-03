@@ -59,10 +59,12 @@ RSpec.describe LLM::Context do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
     let(:ctx) { LLM::Context.new(provider, model:, mode: :responses) }
-    let(:response) { instance_double(LLM::Response, choices: [LLM::Message.new("assistant", "Paris")]) }
+    let(:responses) { double }
+    let(:response) { double(choices: [LLM::Message.new("assistant", "Paris")]) }
 
     it "routes talk through the responses API" do
-      expect(provider.responses).to receive(:create).with("What is the capital of France?", hash_including(model:))
+      allow(provider).to receive(:responses).and_return(responses)
+      expect(responses).to receive(:create).with("What is the capital of France?", hash_including(model:))
         .and_return(response)
       expect(ctx.talk("What is the capital of France?")).to eq(response)
     end

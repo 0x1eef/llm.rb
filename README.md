@@ -449,19 +449,19 @@ puts "Cost: $#{model_info.cost.input}/1M input tokens"
 
 #### Responses API
 
-llm.rb also supports OpenAI's Responses API through `llm.responses` and
-`ctx.respond`. This API can maintain response state server-side and can reduce
-how much conversation state needs to be sent on each turn:
+llm.rb also supports OpenAI's Responses API through `LLM::Context` with
+`mode: :responses`. This API can maintain response state server-side and can
+reduce how much conversation state needs to be sent on each turn:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm)
+ctx = LLM::Context.new(llm, mode: :responses)
 
-ctx.respond("Your task is to answer the user's questions", role: :developer)
-res = ctx.respond("What is the capital of France?")
+ctx.talk("Your task is to answer the user's questions", role: :developer)
+res = ctx.talk("What is the capital of France?")
 puts res.content
 ```
 

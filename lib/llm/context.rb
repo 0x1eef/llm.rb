@@ -43,16 +43,23 @@ module LLM
     attr_reader :llm
 
     ##
+    # Returns the context mode
+    # @return [Symbol]
+    attr_reader :mode
+
+    ##
     # @param [LLM::Provider] llm
     #  A provider
     # @param [Hash] params
     #  The parameters to maintain throughout the conversation.
     #  Any parameter the provider supports can be included and
     #  not only those listed here.
+    # @option params [Symbol] :mode Defaults to :completions
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     def initialize(llm, params = {})
       @llm = llm
+      @mode = params.delete(:mode) || :completions
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @messages = LLM::Buffer.new(llm)
     end
@@ -70,6 +77,7 @@ module LLM
     #   res = ctx.talk("Hello, what is your name?")
     #   puts res.messages[0].content
     def talk(prompt, params = {})
+      return respond(prompt, params) if mode == :responses
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
       res = @llm.complete(prompt, params)
@@ -109,7 +117,7 @@ module LLM
     # @return [String]
     def inspect
       "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
-      "@llm=#{@llm.class}, @params=#{@params.inspect}, " \
+      "@llm=#{@llm.class}, @mode=#{@mode.inspect}, @params=#{@params.inspect}, " \
       "@messages=#{@messages.inspect}>"
     end
 
