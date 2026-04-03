@@ -462,7 +462,7 @@ ctx = LLM::Context.new(llm)
 
 ctx.respond("Your task is to answer the user's questions", role: :developer)
 res = ctx.respond("What is the capital of France?")
-puts res.output_text
+puts res.content
 ```
 
 #### Context Persistence
