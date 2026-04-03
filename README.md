@@ -450,15 +450,19 @@ puts "Cost: $#{model_info.cost.input}/1M input tokens"
 #### Responses API
 
 llm.rb also supports OpenAI's Responses API through `LLM::Context` with
-`mode: :responses`. This API can maintain response state server-side and can
-reduce how much conversation state needs to be sent on each turn:
+`mode: :responses`. The important switch is `store:`. With `store: false`, the
+Responses API stays stateless while still using the Responses endpoint, which
+is useful for models or features that are only available through the Responses
+API. With `store: true`, OpenAI can keep
+response state server-side and reduce how much conversation state needs to be
+sent on each turn:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, mode: :responses)
+ctx = LLM::Context.new(llm, mode: :responses, store: false)
 
 ctx.talk("Your task is to answer the user's questions", role: :developer)
 res = ctx.talk("What is the capital of France?")
