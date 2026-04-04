@@ -296,8 +296,7 @@ class Stream < LLM::Stream
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-stream = Stream.new
-ctx = LLM::Context.new(llm, stream:, tools: [System])
+ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
 
 ctx.talk("Run `date` and `uname -a`.")
 while ctx.functions.any?
