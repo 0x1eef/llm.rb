@@ -10,11 +10,13 @@ class LLM::OpenAI
     attr_reader :body
 
     ##
-    # @param [#<<] io An IO-like object
+    # @param [#<<, LLM::Stream] stream
+    #  A stream sink that implements {#<<} or the {LLM::Stream} interface
     # @return [LLM::OpenAI::Responses::StreamParser]
-    def initialize(io)
+    def initialize(stream)
       @body = {"output" => []}
-      @io = io
+      @stream = stream
+      @emits = {tools: []}
     end
 
     ##
@@ -28,6 +30,7 @@ class LLM::OpenAI
     # Frees internal parser state used during streaming.
     # @return [void]
     def free
+      @emits.clear
     end
 
     private
@@ -62,8 +65,20 @@ class LLM::OpenAI
           if content_part && content_part["type"] == "output_text"
             content_part["text"] ||= ""
             content_part["text"] << delta_text
-            @io << delta_text if @io.respond_to?(:<<)
+            emit_content(delta_text)
           end
+        end
+      when "response.function_call_arguments.delta"
+        output_item = @body["output"][chunk["output_index"]]
+        if output_item && output_item["type"] == "function_call"
+          output_item["arguments"] ||= +""
+          output_item["arguments"] << chunk["delta"]
+        end
+      when "response.function_call_arguments.done"
+        output_item = @body["output"][chunk["output_index"]]
+        if output_item && output_item["type"] == "function_call"
+          output_item["arguments"] = chunk["arguments"]
+          emit_tool(chunk["output_index"], output_item)
         end
       when "response.output_item.done"
         output_index = chunk["output_index"]
@@ -77,6 +92,44 @@ class LLM::OpenAI
         @body["output"][output_index]["content"] ||= []
         @body["output"][output_index]["content"][content_index] = part
       end
+    end
+
+    def emit_content(value)
+      if @stream.respond_to?(:on_content)
+        @stream.on_content(value)
+      elsif @stream.respond_to?(:<<)
+        @stream << value
+      end
+    end
+
+    def emit_tool(index, tool)
+      return unless @stream.respond_to?(:on_tool_call)
+      return unless complete_tool?(tool)
+      return if @emits[:tools].include?(index)
+      function, error = resolve_tool(tool)
+      @emits[:tools] << index
+      @stream.on_tool_call(function, error)
+    end
+
+    def complete_tool?(tool)
+      tool["call_id"] && tool["name"] && parse_arguments(tool["arguments"])
+    end
+
+    def resolve_tool(tool)
+      registered = LLM::Function.find_by_name(tool["name"])
+      fn = (registered || LLM::Function.new(tool["name"])).dup.tap do |fn|
+        fn.id = tool["call_id"]
+        fn.arguments = parse_arguments(tool["arguments"])
+      end
+      [fn, (registered ? nil : @stream.tool_not_found(fn))]
+    end
+
+    def parse_arguments(arguments)
+      return nil if arguments.to_s.empty?
+      parsed = LLM.json.load(arguments)
+      Hash === parsed ? parsed : nil
+    rescue *LLM.json.parser_error
+      nil
     end
   end
 end

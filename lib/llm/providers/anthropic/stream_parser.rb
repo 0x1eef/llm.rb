@@ -10,11 +10,12 @@ class LLM::Anthropic
     attr_reader :body
 
     ##
-    # @param [#<<] io An IO-like object
+    # @param [#<<, LLM::Stream] stream
+    #  A stream sink that implements {#<<} or the {LLM::Stream} interface
     # @return [LLM::Anthropic::StreamParser]
-    def initialize(io)
+    def initialize(stream)
       @body = {"role" => "assistant", "content" => []}
-      @io = io
+      @stream = stream
     end
 
     ##
@@ -40,7 +41,7 @@ class LLM::Anthropic
       elsif chunk["type"] == "content_block_delta"
         if chunk["delta"]["type"] == "text_delta"
           @body["content"][chunk["index"]]["text"] << chunk["delta"]["text"]
-          @io << chunk["delta"]["text"] if @io.respond_to?(:<<)
+          emit_content(chunk["delta"]["text"])
         elsif chunk["delta"]["type"] == "input_json_delta"
           content = @body["content"][chunk["index"]]
           if Hash === content["input"]
@@ -58,6 +59,9 @@ class LLM::Anthropic
         content = @body["content"][chunk["index"]]
         if content["input"]
           content["input"] = LLM.json.load(content["input"])
+        end
+        if content["type"] == "tool_use"
+          emit_tool(content)
         end
       end
     end
@@ -81,6 +85,29 @@ class LLM::Anthropic
           target[key] = value
         end
       end
+    end
+
+    def emit_content(value)
+      if @stream.respond_to?(:on_content)
+        @stream.on_content(value)
+      elsif @stream.respond_to?(:<<)
+        @stream << value
+      end
+    end
+
+    def emit_tool(tool)
+      return unless @stream.respond_to?(:on_tool_call)
+      function, error = resolve_tool(tool)
+      @stream.on_tool_call(function, error)
+    end
+
+    def resolve_tool(tool)
+      registered = LLM::Function.find_by_name(tool["name"])
+      fn = (registered || LLM::Function.new(tool["name"])).dup.tap do |fn|
+        fn.id = tool["id"]
+        fn.arguments = tool["input"]
+      end
+      [fn, (registered ? nil : @stream.tool_not_found(fn))]
     end
   end
 end

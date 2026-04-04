@@ -32,6 +32,8 @@ llm.rb is built around the state and execution model around them:
   They hold history, tools, schema, usage, cost, persistence, and execution state.
 - **Tool execution is explicit** <br>
   Run local, provider-native, and MCP tools sequentially or concurrently with threads, fibers, or async tasks.
+- **Run tools while streaming** <br>
+  Start tool work while a response is still streaming instead of waiting for the turn to finish.
 - **HTTP MCP can reuse connections** <br>
   Opt into persistent HTTP pooling for repeated remote MCP tool calls with `persist!`.
 - **One API across providers and capabilities** <br>

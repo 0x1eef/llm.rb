@@ -11,9 +11,9 @@ class LLM::Ollama
 
     ##
     # @return [LLM::OpenAI::Chunk]
-    def initialize(io)
+    def initialize(stream)
       @body = {}
-      @io = io
+      @stream = stream
     end
 
     ##
@@ -36,10 +36,10 @@ class LLM::Ollama
         if key == "message"
           if @body[key]
             @body[key]["content"] << value["content"]
-            @io << value["content"] if @io.respond_to?(:<<)
+            @stream << value["content"] if @stream.respond_to?(:<<)
           else
             @body[key] = value
-            @io << value["content"] if @io.respond_to?(:<<)
+            @stream << value["content"] if @stream.respond_to?(:<<)
           end
         else
           @body[key] = value

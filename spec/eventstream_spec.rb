@@ -176,5 +176,128 @@ RSpec.describe LLM::EventStream::Parser do
         )
       end
     end
+
+    context "when given a streamed Google tool call" do
+      let(:provider) { LLM.google(key: "test") }
+      let(:system) do
+        Class.new(LLM::Tool) do
+          name "system"
+          description "run shell commands"
+        end
+      end
+
+      let(:stream) do
+        Class.new(LLM::Stream) do
+          attr_reader :calls
+
+          def initialize
+            @calls = []
+          end
+
+          def on_tool_call(fn, error)
+            @calls << [fn, error]
+          end
+        end.new
+      end
+
+      before { LLM::Tool.clear_registry! }
+      before { system }
+
+      before do
+        parser << %(data: {"candidates":[{"content":{"parts":[{"functionCall":{"name":"system","args":{"command":"date"}}}],"role":"model"},"index":0}]}\n)
+      end
+
+      it "emits a resolved function through on_tool_call" do
+        fn, error = stream.calls.fetch(0)
+        expect(fn).to be_a(LLM::Function)
+        expect(fn.name).to eq("system")
+        expect(fn.arguments).to eq({"command" => "date"})
+        expect(error).to be_nil
+      end
+    end
+
+    context "when given a streamed Anthropic tool call" do
+      let(:provider) { LLM.anthropic(key: "test") }
+      let(:system) do
+        Class.new(LLM::Tool) do
+          name "system"
+          description "run shell commands"
+        end
+      end
+
+      let(:stream) do
+        Class.new(LLM::Stream) do
+          attr_reader :calls
+
+          def initialize
+            @calls = []
+          end
+
+          def on_tool_call(fn, error)
+            @calls << [fn, error]
+          end
+        end.new
+      end
+
+      before { LLM::Tool.clear_registry! }
+      before { system }
+
+      before do
+        parser << %(event: content_block_start\ndata: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_1","name":"system","input":{}}}\n\n)
+        parser << %(event: content_block_delta\ndata: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"{\\"command\\": \\"date\\"}"}}\n\n)
+        parser << %(event: content_block_stop\ndata: {"type":"content_block_stop","index":0}\n\n)
+      end
+
+      it "emits a resolved function through on_tool_call" do
+        fn, error = stream.calls.fetch(0)
+        expect(fn).to be_a(LLM::Function)
+        expect(fn.id).to eq("toolu_1")
+        expect(fn.name).to eq("system")
+        expect(fn.arguments).to eq({"command" => "date"})
+        expect(error).to be_nil
+      end
+    end
+
+    context "when given a streamed OpenAI Responses tool call" do
+      let(:handler) { LLM::EventHandler.new(LLM::OpenAI::Responses::StreamParser.new(stream)) }
+      let(:system) do
+        Class.new(LLM::Tool) do
+          name "system"
+          description "run shell commands"
+        end
+      end
+
+      let(:stream) do
+        Class.new(LLM::Stream) do
+          attr_reader :calls
+
+          def initialize
+            @calls = []
+          end
+
+          def on_tool_call(fn, error)
+            @calls << [fn, error]
+          end
+        end.new
+      end
+
+      before { LLM::Tool.clear_registry! }
+      before { system }
+
+      before do
+        parser << %(event: response.output_item.added\ndata: {"type":"response.output_item.added","item":{"id":"fc_1","type":"function_call","status":"in_progress","arguments":"","call_id":"call_1","name":"system"},"output_index":0}\n\n)
+        parser << %(event: response.function_call_arguments.delta\ndata: {"type":"response.function_call_arguments.delta","delta":"{\\"command\\":\\"date\\"}","item_id":"fc_1","output_index":0}\n\n)
+        parser << %(event: response.function_call_arguments.done\ndata: {"type":"response.function_call_arguments.done","arguments":"{\\"command\\":\\"date\\"}","item_id":"fc_1","output_index":0}\n\n)
+      end
+
+      it "emits a resolved function through on_tool_call" do
+        fn, error = stream.calls.fetch(0)
+        expect(fn).to be_a(LLM::Function)
+        expect(fn.id).to eq("call_1")
+        expect(fn.name).to eq("system")
+        expect(fn.arguments).to eq({"command" => "date"})
+        expect(error).to be_nil
+      end
+    end
   end
 end
