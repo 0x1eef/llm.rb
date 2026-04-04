@@ -138,6 +138,21 @@ module LLM
     end
 
     ##
+    # Calls a named collection of work through the context.
+    #
+    # This currently supports `:functions`, forwarding to `functions.call`.
+    #
+    # @param [Symbol] target
+    #  The work collection to call
+    # @return [Array<LLM::Function::Return>]
+    def call(target)
+      case target
+      when :functions then functions.call
+      else raise ArgumentError, "Unknown target: #{target.inspect}. Expected :functions"
+      end
+    end
+
+    ##
     # Returns tool returns accumulated in this context
     # @return [Array<LLM::Function::Return>]
     def returns

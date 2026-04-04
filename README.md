@@ -187,7 +187,7 @@ begin
   mcp.start
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the directories in this project.")
-  ctx.talk(ctx.functions.call) while ctx.functions.any?
+  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 ensure
   mcp.stop
 end
@@ -213,7 +213,7 @@ begin
   mcp.start
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the available GitHub MCP toolsets.")
-  ctx.talk(ctx.functions.call) while ctx.functions.any?
+  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 ensure
   mcp.stop
 end
@@ -331,7 +331,7 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
 ctx.talk("Run `date`.")
-ctx.talk(ctx.functions.call) while ctx.functions.any?
+ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 ```
 
 #### Structured Outputs
