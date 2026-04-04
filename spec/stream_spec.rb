@@ -43,6 +43,15 @@ RSpec.describe LLM::Stream do
         expect(queue).to equal(stream.queue)
       end
     end
+
+    context "#wait" do
+      it "forwards to the queue" do
+        stream.queue << stream.tool_not_found(tool)
+        expect(stream.wait(:thread).map(&:to_h)).to eq(
+          [{id: "call_1", name: "system", value: {error: true, type: "LLM::NoSuchToolError", message: "tool not found"}}]
+        )
+      end
+    end
   end
 
   context "when a subclass overrides callbacks" do
@@ -89,14 +98,14 @@ RSpec.describe LLM::Stream do
   context "when using the queue" do
     it "returns queued function returns" do
       stream.queue << stream.tool_not_found(tool)
-      expect(stream.queue.wait(:thread).map(&:to_h)).to eq(
+      expect(stream.wait(:thread).map(&:to_h)).to eq(
         [{id: "call_1", name: "system", value: {error: true, type: "LLM::NoSuchToolError", message: "tool not found"}}]
       )
     end
 
     it "waits for spawned work" do
       stream.queue << tool.spawn(:thread)
-      expect(stream.queue.wait(:thread).map(&:to_h)).to eq(
+      expect(stream.wait(:thread).map(&:to_h)).to eq(
         [{id: "call_1", name: "system", value: {"ok" => true}}]
       )
     end

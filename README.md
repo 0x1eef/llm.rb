@@ -202,7 +202,7 @@ structured streaming events:
 - `on_tool_call` for streamed tool-call notifications
 
 Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want features like
-`queue`, or implement the same methods on your own object. Keep these
+`queue` and `wait`, or implement the same methods on your own object. Keep these
 callbacks fast: they run inline with the parser.
 
 `on_tool_call` lets tools start before the model finishes its turn, for
@@ -254,7 +254,7 @@ ctx = LLM::Context.new(llm, stream:, tools: [System])
 
 ctx.talk("Run `date` and `uname -a`.")
 while ctx.functions.any?
-  ctx.talk(stream.queue.wait(:thread))
+  ctx.talk(stream.wait(:thread))
 end
 ```
 

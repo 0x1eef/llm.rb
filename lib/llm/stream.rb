@@ -29,6 +29,15 @@ module LLM
       @queue ||= Queue.new
     end
 
+    ##
+    # Waits for queued tool work to finish and returns function results.
+    # @param [Symbol] strategy
+    #  The concurrency strategy to use
+    # @return [Array<LLM::Function::Return>]
+    def wait(strategy)
+      queue.wait(strategy)
+    end
+
     # @group Public callbacks
 
     ##
