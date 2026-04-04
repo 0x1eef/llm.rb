@@ -69,4 +69,33 @@ RSpec.describe LLM::Context do
       expect(ctx.talk("What is the capital of France?")).to eq(response)
     end
   end
+
+  context "when a tool call already has a matching tool return" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "system"
+        description "run shell commands"
+      end
+    end
+
+    before do
+      ctx.messages << LLM::Message.new("assistant", nil, {
+        tools: [tool],
+        tool_calls: [
+          {id: "call_1", type: "function", function: {name: "system", arguments: {command: "date"}}}
+        ]
+      })
+      ctx.messages << LLM::Message.new("tool", LLM::Function::Return.new("call_1", "system", {success: true}))
+    end
+
+    it "returns tool returns from ctx.returns" do
+      expect(ctx.returns.map(&:id)).to eq(["call_1"])
+    end
+
+    it "does not include the tool call in ctx.functions" do
+      expect(ctx.functions).to be_empty
+    end
+  end
 end

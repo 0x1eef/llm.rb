@@ -125,15 +125,29 @@ module LLM
     # Returns an array of functions that can be called
     # @return [Array<LLM::Function>]
     def functions
+      return_ids = returns.map(&:id)
       @messages
         .select(&:assistant?)
         .flat_map do |msg|
-          fns = msg.functions.select(&:pending?)
+          fns = msg.functions.select { _1.pending? && !return_ids.include?(_1.id) }
           fns.each do |fn|
             fn.tracer = tracer
             fn.model  = msg.model
           end
         end.extend(LLM::Function::Array)
+    end
+
+    ##
+    # Returns tool returns accumulated in this context
+    # @return [Array<LLM::Function::Return>]
+    def returns
+      @messages
+        .select(&:tool_return?)
+        .flat_map do |msg|
+          LLM::Function::Return === msg.content ?
+            [msg.content] :
+            [*msg.content].grep(LLM::Function::Return)
+        end
     end
 
     ##

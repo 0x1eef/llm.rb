@@ -24,6 +24,12 @@ class LLM::Google
       tap { merge_chunk!(chunk) }
     end
 
+    ##
+    # Frees internal parser state used during streaming.
+    # @return [void]
+    def free
+    end
+
     private
 
     def merge_chunk!(chunk)

@@ -171,15 +171,11 @@ ensure
 end
 ```
 
-#### Streaming Chat
+#### Simple Streaming
 
-This example demonstrates llm.rb's streaming support. The `stream: $stdout`
-parameter tells the context to write responses incrementally as they arrive
-from the LLM. The `Context` object manages the conversation history, and
-`talk()` sends your input while automatically appending both your message and
-the LLM's response to the context. Streams accept any object with `#<<`,
-giving you flexibility to pipe output to files, network sockets, or custom
-buffers:
+At the simplest level, any object that implements `#<<` can receive visible
+output as it arrives. This works with `$stdout`, `StringIO`, files, sockets,
+and other Ruby IO-style objects:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -194,17 +190,41 @@ loop do
 end
 ```
 
-#### Reasoning
+#### Advanced Streaming
 
-Some providers also expose reasoning separately from visible output. In that
-case, streams can implement `on_content` and `on_reasoning_content`, and the
-final response also exposes `reasoning_content`:
+llm.rb also supports the [`LLM::Stream`](lib/llm/stream.rb) interface for
+structured streaming events:
+
+- `on_content` for visible assistant output
+- `on_reasoning_content` for separate reasoning output
+- `on_tool_call` for streamed tool-call notifications
+
+Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want features like
+`queue`, or implement the same methods on your own object. Keep these
+callbacks fast: they run inline with the parser.
+
+`on_tool_call` lets tools start before the model finishes its turn, for
+example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
+`tool.spawn(:task)`.
+
+If a stream cannot execute a tool, `error` is an `LLM::Function::Return` that
+communicates the failure back to the LLM. That lets the tool-call path recover
+and keeps the session alive. It also leaves control in the callback: it can
+send `error`, spawn the tool when `error == nil`, or handle the situation
+however it sees fit.
+
+In normal use this should be rare, since `on_tool_call` is usually called with
+a resolved tool and `error == nil`. To resolve a tool call, the tool must be
+found in `LLM::Function.registry`. That covers `LLM::Tool` subclasses,
+including MCP tools, but not `LLM.function` closures, which are excluded
+because they may be bound to local state:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
+# Assume `System < LLM::Tool` is already defined.
 
-class Stream
+class Stream < LLM::Stream
   attr_reader :content, :reasoning_content
 
   def initialize
@@ -212,23 +232,28 @@ class Stream
     @reasoning_content = +""
   end
 
-  def on_content(value)
-    @content << value
+  def on_content(content)
+    @content << content
+    print content
   end
 
-  def on_reasoning_content(value)
-    @reasoning_content << value
+  def on_reasoning_content(content)
+    @reasoning_content << content
+  end
+
+  def on_tool_call(tool, error)
+    queue << (error || tool.spawn(:thread))
   end
 end
 
-llm = LLM.deepseek(key: ENV["KEY"])
+llm = LLM.openai(key: ENV["KEY"])
 stream = Stream.new
-ctx = LLM::Context.new(llm, model: "deepseek-reasoner", stream:)
-res = ctx.talk("What is 17 * 19?")
+ctx = LLM::Context.new(llm, stream:, tools: [System])
 
-puts "answer: #{res.content}"
-puts "streamed reasoning: #{stream.reasoning_content}"
-puts "final reasoning: #{res.reasoning_content}"
+ctx.talk("Run `date` and `uname -a`.")
+while ctx.functions.any?
+  ctx.talk(stream.queue.wait(:thread))
+end
 ```
 
 #### Tool Calling

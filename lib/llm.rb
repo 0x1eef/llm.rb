@@ -20,6 +20,7 @@ module LLM
   require_relative "llm/mime"
   require_relative "llm/multipart"
   require_relative "llm/file"
+  require_relative "llm/stream"
   require_relative "llm/provider"
   require_relative "llm/context"
   require_relative "llm/agent"

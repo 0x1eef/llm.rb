@@ -95,4 +95,29 @@ RSpec.describe LLM::Tool do
       expect(described_class.unregister(tool)).to eq(tool)
     end
   end
+
+  describe ".find_by_name" do
+    before { [weather, shell] }
+
+    it "returns a tool when found" do
+      expect(described_class.find_by_name("shell")).to eq(shell)
+    end
+
+    it "returns nil when not found" do
+      expect(described_class.find_by_name("missing")).to be_nil
+    end
+  end
+
+  describe ".find_by_name!" do
+    before { [weather, shell] }
+
+    it "returns a tool when found" do
+      expect(described_class.find_by_name!("shell")).to eq(shell)
+    end
+
+    it "raises when not found" do
+      expect { described_class.find_by_name!("missing") }
+        .to raise_error(LLM::NoSuchToolError, 'no such tool "missing"')
+    end
+  end
 end

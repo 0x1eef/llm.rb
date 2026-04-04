@@ -129,6 +129,15 @@ class LLM::Tool
   end
 
   ##
+  # Finds a registered tool by name.
+  # @param [String] name
+  # @return [Class<LLM::Tool>]
+  # @raise [LLM::NoSuchToolError]
+  def self.find_by_name!(name)
+    find_by_name(name) || raise(LLM::NoSuchToolError, "no such tool #{name.inspect}")
+  end
+
+  ##
   # Returns (or sets) the tool description
   # @param [String, nil] desc The tool description
   # @return [String]

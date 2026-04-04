@@ -402,6 +402,7 @@ class LLM::Provider
           res.body = body
         end
       ensure
+        handler&.free
         parser&.free
       end
     else

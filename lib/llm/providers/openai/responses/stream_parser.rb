@@ -24,6 +24,12 @@ class LLM::OpenAI
       tap { handle_event(chunk) }
     end
 
+    ##
+    # Frees internal parser state used during streaming.
+    # @return [void]
+    def free
+    end
+
     private
 
     def handle_event(chunk)

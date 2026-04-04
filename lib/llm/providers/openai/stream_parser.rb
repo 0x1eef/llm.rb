@@ -11,9 +11,10 @@ class LLM::OpenAI
 
     ##
     # @return [LLM::OpenAI::Chunk]
-    def initialize(io)
+    def initialize(stream)
       @body = {}
-      @io = io
+      @stream = stream
+      @emits = {tools: []}
     end
 
     ##
@@ -21,6 +22,13 @@ class LLM::OpenAI
     # @return [LLM::OpenAI::Chunk]
     def parse!(chunk)
       tap { merge!(chunk) }
+    end
+
+    ##
+    # Frees internal parser state used during streaming.
+    # @return [void]
+    def free
+      @emits.clear
     end
 
     private
@@ -94,21 +102,54 @@ class LLM::OpenAI
         else
           target["tool_calls"][tindex] = toola
         end
+        emit_tool(target["tool_calls"][tindex], tindex)
       end
     end
 
     def emit_content(value)
-      if @io.respond_to?(:on_content)
-        @io.on_content(value)
-      elsif @io.respond_to?(:<<)
-        @io << value
+      if @stream.respond_to?(:on_content)
+        @stream.on_content(value)
+      elsif @stream.respond_to?(:<<)
+        @stream << value
       end
     end
 
     def emit_reasoning_content(value)
-      if @io.respond_to?(:on_reasoning_content)
-        @io.on_reasoning_content(value)
+      if @stream.respond_to?(:on_reasoning_content)
+        @stream.on_reasoning_content(value)
       end
+    end
+
+    def emit_tool(tool, tindex)
+      return unless @stream.respond_to?(:on_tool_call)
+      return unless complete_tool?(tool)
+      return if @emits[:tools].include?(tindex)
+      function, error = resolve_tool(tool)
+      @emits[:tools] << tindex
+      @stream.on_tool_call(function, error)
+    end
+
+    def complete_tool?(tool)
+      function = tool["function"]
+      function && tool["id"] && function["name"] && parse_arguments(function["arguments"])
+    end
+
+    def resolve_tool(tool)
+      function = tool["function"]
+      registered = LLM::Function.find_by_name(function["name"])
+      fn = (registered || LLM::Function.new(function["name"])).dup.tap do |fn|
+        fn.id = tool["id"]
+        fn.arguments = parse_arguments(function["arguments"])
+      end
+      [fn, (registered ? nil : @stream.tool_not_found(fn))]
+    end
+
+    def parse_arguments(arguments)
+      return nil if arguments.to_s.empty?
+      parsed = LLM.json.load(arguments)
+      Hash === parsed ? parsed : nil
+    rescue *LLM.json.parser_error
+      nil
     end
   end
 end

@@ -42,5 +42,12 @@ module LLM
     # Returns a fully constructed response body
     # @return [LLM::Object]
     def body = @parser.body
+
+    ##
+    # Frees parser state after streaming completes.
+    # @return [void]
+    def free
+      @parser.free
+    end
   end
 end

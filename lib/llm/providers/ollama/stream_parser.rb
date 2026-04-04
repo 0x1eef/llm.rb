@@ -23,6 +23,12 @@ class LLM::Ollama
       tap { merge!(chunk) }
     end
 
+    ##
+    # Frees internal parser state used during streaming.
+    # @return [void]
+    def free
+    end
+
     private
 
     def merge!(chunk)

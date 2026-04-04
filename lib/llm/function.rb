@@ -32,6 +32,7 @@ class LLM::Function
   require_relative "function/registry"
   require_relative "function/tracing"
   require_relative "function/array"
+  require_relative "function/task"
   require_relative "function/thread_group"
   require_relative "function/fiber_group"
   require_relative "function/task_group"
@@ -167,11 +168,10 @@ class LLM::Function
   #   - `:task`: Use async tasks (requires async gem)
   #   - `:fiber`: Use raw fibers
   #
-  # @return [Thread, Async::Task, Fiber]
-  #   Returns the underlying concurrent handle. Its resolved value is an
-  #   {LLM::Function::Return}.
+  # @return [LLM::Function::Task]
+  #   Returns a task whose `#value` is an {LLM::Function::Return}.
   def spawn(strategy)
-    case strategy
+    task = case strategy
     when :task
       require "async" unless defined?(::Async)
       Async { call_function }
@@ -186,6 +186,7 @@ class LLM::Function
     else
       raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, or :fiber"
     end
+    Task.new(task)
   ensure
     @called = true
   end
@@ -263,7 +264,8 @@ class LLM::Function
   #   Returns a Return object with either the function result or error information.
   def call_function
     runner = ((Class === @runner) ? @runner.new : @runner)
-    Return.new(id, name, runner.call(**arguments))
+    kwargs = Hash === arguments ? arguments.transform_keys(&:to_sym) : arguments
+    Return.new(id, name, runner.call(**kwargs))
   rescue => ex
     Return.new(id, name,  {error: true, type: ex.class.name, message: ex.message})
   end
