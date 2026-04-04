@@ -9,6 +9,7 @@ Changes since `v4.10.0`.
 - Add `LLM::Stream` for richer streaming callbacks, including `on_content`,
   `on_reasoning_content`, and `on_tool_call` for concurrent tool execution.
 - Add `LLM::Stream#wait` as a shortcut for `queue.wait`.
+- Add `LLM::Context#wait` as a shortcut for the configured stream's `wait`.
 - Add `LLM::Function.registry` and enhanced support for MCP tools in
   `LLM::Tool.registry` for tool resolution during streaming.
 - Add normalized `LLM::Response` for OpenAI Responses, providing `content`,

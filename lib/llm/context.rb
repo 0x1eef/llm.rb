@@ -151,6 +151,22 @@ module LLM
     end
 
     ##
+    # Waits for queued streamed tool work to finish.
+    #
+    # This forwards to the configured stream object when it implements
+    # `#wait`, making queued streamed tool results available through the
+    # context itself.
+    #
+    # @param [Symbol] strategy
+    #  The concurrency strategy to use
+    # @return [Array<LLM::Function::Return>]
+    def wait(strategy)
+      stream = @params[:stream]
+      return stream.wait(strategy) if stream.respond_to?(:wait)
+      raise TypeError, "stream does not implement wait"
+    end
+
+    ##
     # Returns token usage accumulated in this context
     # @note
     # This method returns token usage for the latest

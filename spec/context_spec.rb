@@ -98,4 +98,26 @@ RSpec.describe LLM::Context do
       expect(ctx.functions).to be_empty
     end
   end
+
+  context "when configured with a stream that supports wait" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:stream) { LLM::Stream.new }
+    let(:ctx) { LLM::Context.new(provider, model:, stream:) }
+
+    it "forwards #wait to the configured stream" do
+      expect(stream).to receive(:wait).with(:thread).and_return([])
+      expect(ctx.wait(:thread)).to eq([])
+    end
+  end
+
+  context "when the configured stream does not support wait" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:ctx) { LLM::Context.new(provider, model:, stream: StringIO.new) }
+
+    it "raises a TypeError" do
+      expect { ctx.wait(:thread) }.to raise_error(TypeError, /stream does not implement wait/)
+    end
+  end
 end
