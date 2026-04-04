@@ -30,6 +30,9 @@ llm.rb is built around the state and execution model around them:
 
 - **Contexts are central** <br>
   They hold history, tools, schema, usage, cost, persistence, and execution state.
+- **Contexts can be serialized** <br>
+  A context can be serialized to JSON and stored on disk, in a database, in a
+  job queue, or anywhere else your application needs to persist state.
 - **Tool execution is explicit** <br>
   Run local, provider-native, and MCP tools sequentially or concurrently with threads, fibers, or async tasks.
 - **Run tools while streaming** <br>
@@ -544,9 +547,9 @@ puts res.content
 
 #### Context Persistence
 
-Contexts can be serialized and restored across process boundaries. This makes
-it possible to persist conversation state in a string, file, database, or
-queue and resume work later:
+Contexts can be serialized and restored across process boundaries. A context
+can be serialized to JSON and stored on disk, in a database, in a job queue,
+or anywhere else your application needs to persist state:
 
 ```ruby
 #!/usr/bin/env ruby
