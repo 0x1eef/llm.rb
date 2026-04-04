@@ -151,19 +151,22 @@ module LLM
     end
 
     ##
-    # Waits for queued streamed tool work to finish.
+    # Waits for queued tool work to finish.
     #
-    # This forwards to the configured stream object when it implements
-    # `#wait`, making queued streamed tool results available through the
-    # context itself.
+    # This prefers queued streamed tool work when the configured stream
+    # exposes a non-empty queue. Otherwise it falls back to waiting on
+    # the context's pending functions directly.
     #
     # @param [Symbol] strategy
     #  The concurrency strategy to use
     # @return [Array<LLM::Function::Return>]
     def wait(strategy)
       stream = @params[:stream]
-      return stream.wait(strategy) if stream.respond_to?(:wait)
-      raise TypeError, "stream does not implement wait"
+      if LLM::Stream === stream && !stream.queue.empty?
+        stream.wait(strategy)
+      else
+        functions.wait(strategy)
+      end
     end
 
     ##

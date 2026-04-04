@@ -163,7 +163,7 @@ ctx = LLM::Context.new(llm, stream: $stdout, tools: [FetchWeather, FetchNews, Fe
 
 # Execute multiple independent tools concurrently
 ctx.talk("Summarize the weather, headlines, and stock price.")
-ctx.talk(ctx.functions.wait(:thread)) while ctx.functions.any?
+ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 ```
 
 #### MCP
@@ -301,7 +301,7 @@ ctx = LLM::Context.new(llm, stream:, tools: [System])
 
 ctx.talk("Run `date` and `uname -a`.")
 while ctx.functions.any?
-  ctx.talk(stream.wait(:thread))
+  ctx.talk(ctx.wait(:thread))
 end
 ```
 
