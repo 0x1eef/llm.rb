@@ -21,6 +21,11 @@ Changes since `v4.10.0`.
 - Add explicit MCP transport constructors via `LLM::MCP.stdio(...)` and
   `LLM::MCP.http(...)`.
 
+### Fix
+
+- Fix Google tool-call handling by synthesizing stable ids when Gemini does
+  not provide a direct tool-call id.
+
 ## v4.10.0
 
 Changes since `v4.9.0`.

@@ -138,7 +138,7 @@ class LLM::Google
       return unless complete_tool?(part)
       key = [cindex, pindex]
       return if @emits[:tools].include?(key)
-      function, error = resolve_tool(part["functionCall"])
+      function, error = resolve_tool(part, cindex, pindex)
       @emits[:tools] << key
       @stream.on_tool_call(function, error)
     end
@@ -148,9 +148,11 @@ class LLM::Google
       call && call["name"] && Hash === call["args"]
     end
 
-    def resolve_tool(call)
+    def resolve_tool(part, cindex, pindex)
+      call = part["functionCall"]
       registered = LLM::Function.find_by_name(call["name"])
       fn = (registered || LLM::Function.new(call["name"])).dup.tap do |fn|
+        fn.id = LLM::Google.tool_id(part:, cindex:, pindex:)
         fn.arguments = call["args"]
       end
       [fn, (registered ? nil : @stream.tool_not_found(fn))]

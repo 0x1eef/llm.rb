@@ -66,21 +66,22 @@ module LLM::Google::ResponseAdapter
     private
 
     def adapt_choices
-      candidates.map.with_index do |choice, index|
+      candidates.map.with_index do |choice, cindex|
         content = choice.content || LLM::Object.new
         role = content.role || "model"
         parts = content.parts || [{"text" => choice.finishReason}]
         text = parts.filter_map { _1["text"] }.join
         tools = parts.select { _1["functionCall"] }
-        extra = {index:, response: self, tool_calls: adapt_tool_calls(tools), original_tool_calls: tools}
+        extra = {index: cindex, response: self, tool_calls: adapt_tool_calls(parts, cindex), original_tool_calls: tools}
         LLM::Message.new(role, text, extra)
       end
     end
 
-    def adapt_tool_calls(parts)
-      (parts || []).map do |part|
+    def adapt_tool_calls(parts, cindex)
+      (parts || []).each_with_index.filter_map do |part, pindex|
         tool = part["functionCall"]
-        {name: tool.name, arguments: tool.args}
+        next unless tool
+        {id: LLM::Google.tool_id(part:, cindex:, pindex:), name: tool.name, arguments: tool.args}
       end
     end
 

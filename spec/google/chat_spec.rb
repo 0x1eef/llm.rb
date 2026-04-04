@@ -19,7 +19,40 @@ RSpec.describe "LLM::Context: google" do
     include_examples "LLM::Context: text stream", :google, match_requests_on: [:method]
     include_examples "LLM::Context: tool stream", :google, match_requests_on: [:method]
 
-    context "with tool stream response metadata",
+    context "when given a Google function call id",
+            vcr: {cassette_name: "google/chat/llm_function_class", match_requests_on: [:method]} do
+      let(:tool) do
+        Class.new(LLM::Tool) do
+          name "system"
+          description "Runs system commands"
+          params { _1.object(command: _1.string.required) }
+          def call(command:)
+            {success: Kernel.system(command)}
+          end
+        end
+      end
+      let(:params) { {tools: [tool]} }
+
+      before { ctx.talk("What is the date?") }
+
+      it "synthesizes an id for the pending function" do
+        expect(ctx.functions.first.id).to start_with("google_")
+      end
+    end
+
+    describe ".tool_id" do
+      it "uses thoughtSignature when given" do
+        part = {"functionCall" => {"name" => "system"}, "thoughtSignature" => "abc123"}
+        expect(LLM::Google.tool_id(part:, cindex: 0, pindex: 0)).to eq("google_abc123")
+      end
+
+      it "falls back to candidate and part indexes" do
+        part = {"functionCall" => {"name" => "system"}}
+        expect(LLM::Google.tool_id(part:, cindex: 2, pindex: 1)).to eq("google_call_2_1")
+      end
+    end
+
+    context "when given tool stream response metadata",
             vcr: {cassette_name: "google/chat/llm_chat_stream_tool_metadata", match_requests_on: [:method]} do
       let(:params) { {stream: true, tools: [tool]} }
       let(:tool) do
