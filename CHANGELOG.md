@@ -13,6 +13,7 @@ Changes since `v4.10.0`.
 - Add `mode: :responses` to `LLM::Context` for routing `talk` through the Responses API
 - Add `LLM::Stream` for richer streaming callbacks while preserving `#<<` compatibility
 - Add `LLM::Function.registry` and support for MCP tools in `LLM::Tool.registry`
+- Add `LLM::Context#returns` for collecting pending tool returns from the context
 
 ## v4.10.0
 
