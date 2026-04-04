@@ -545,8 +545,8 @@ puts res.content
 #### Context Persistence
 
 Contexts can be serialized and restored across process boundaries. This makes
-it possible to persist conversation state in a file, database, or queue and
-resume work later:
+it possible to persist conversation state in a string, file, database, or
+queue and resume work later:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -556,12 +556,20 @@ llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm)
 ctx.talk("Hello")
 ctx.talk("Remember that my favorite language is Ruby")
-ctx.save(path: "context.json")
+
+# Serialize to a string when you want to store the context yourself,
+# for example in a database row or job payload.
+payload = ctx.to_json
 
 restored = LLM::Context.new(llm)
-restored.restore(path: "context.json")
+restored.restore(string: payload)
 res = restored.talk("What is my favorite language?")
 puts res.content
+
+# You can also persist the same state to a file:
+ctx.save(path: "context.json")
+restored = LLM::Context.new(llm)
+restored.restore(path: "context.json")
 ```
 
 #### Agents
