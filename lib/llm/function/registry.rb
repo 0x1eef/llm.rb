@@ -8,6 +8,10 @@ class LLM::Function
   # tool subclasses, while {LLM::Function.registry} stores the functions
   # derived from those tools.
   #
+  # The registry overwrites older tool definitions with newer ones when they
+  # share the same tool name. In practice, tool identity is resolved by name,
+  # and LLMs generally do not allow two tools with the same name.
+  #
   # Functions defined with {LLM.function} are not added to the function
   # registry, since they may be closures bound to local state. Each registry
   # decides how entries are keyed via {#registry_key}.
