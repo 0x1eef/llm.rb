@@ -29,12 +29,14 @@
 #     end
 #   end
 class LLM::Function
+  require_relative "function/registry"
   require_relative "function/tracing"
   require_relative "function/array"
   require_relative "function/thread_group"
   require_relative "function/fiber_group"
   require_relative "function/task_group"
 
+  extend LLM::Function::Registry
   prepend LLM::Function::Tracing
 
   Return = Struct.new(:id, :name, :value) do
@@ -144,7 +146,7 @@ class LLM::Function
   end
 
   ##
-  # Calls the function in a separate thread.
+  # Calls the function concurrently.
   #
   # This is the low-level method that powers concurrent tool execution.
   # Prefer the collection methods on {LLM::Context#functions} for most
@@ -156,8 +158,8 @@ class LLM::Function
   #   ctx.talk(ctx.functions.wait)
   #
   #   # Direct usage (uncommon)
-  #   thread = tool.spawn
-  #   result = thread.value
+  #   task = tool.spawn(:thread)
+  #   result = task.value
   #
   # @param [Symbol] strategy
   #   Controls concurrency strategy:
@@ -166,7 +168,8 @@ class LLM::Function
   #   - `:fiber`: Use raw fibers
   #
   # @return [Thread, Async::Task, Fiber]
-  #   Returns a thread, async task, or fiber whose `#value` is an {LLM::Function::Return}.
+  #   Returns the underlying concurrent handle. Its resolved value is an
+  #   {LLM::Function::Return}.
   def spawn(strategy)
     case strategy
     when :task

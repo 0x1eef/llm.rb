@@ -66,8 +66,8 @@ RSpec.describe LLM::Tool do
 
       before { mcp }
 
-      it "does not include it in the registry" do
-        is_expected.to eq([])
+      it "includes it in the registry" do
+        is_expected.to eq([mcp])
       end
     end
   end

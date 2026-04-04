@@ -20,6 +20,7 @@
 class LLM::Tool
   require_relative "tool/param"
   extend LLM::Tool::Param
+  extend LLM::Function::Registry
 
   types = [
     :Leaf, :String, :Enum,
@@ -39,58 +40,51 @@ class LLM::Tool
   # @return [Class<LLM::Tool>]
   #  Returns a subclass of LLM::Tool
   def self.mcp(mcp, tool)
-    klass = Class.new(LLM::Tool) do
-      name tool["name"]
-      description tool["description"]
-      params { tool["inputSchema"] || {type: "object", properties: {}} }
-
-      define_singleton_method(:inspect) do
-        "<LLM::Tool:0x#{object_id.to_s(16)} name=#{tool["name"]} (mcp)>"
-      end
-      singleton_class.alias_method :to_s, :inspect
-
-      define_singleton_method(:mcp?) do
-        true
-      end
-
-      define_method(:call) do |**args|
-        mcp.call_tool(tool["name"], args)
-      end
-    end
-    unregister(klass)
-  end
-
-  ##
-  # Returns all subclasses of LLM::Tool
-  # @note
-  #  This method excludes tools who haven't defined a name
-  #  as well as tools defined via MCP.
-  # @return [Array<LLM::Tool>]
-  def self.registry
     lock do
-      @registry.select(&:name)
+      @mcp = true
+      klass = Class.new(LLM::Tool) do
+        name tool["name"]
+        description tool["description"]
+        params { tool["inputSchema"] || {type: "object", properties: {}} }
+
+        define_singleton_method(:inspect) do
+          "<LLM::Tool:0x#{object_id.to_s(16)} name=#{tool["name"]} (mcp)>"
+        end
+        singleton_class.alias_method :to_s, :inspect
+
+        define_singleton_method(:mcp?) do
+          true
+        end
+
+        define_method(:call) do |**args|
+          mcp.call_tool(tool["name"], args)
+        end
+      end
+      @mcp = false
+      register(klass)
+      klass
+    ensure
+      @mcp = false
     end
   end
-  @registry = []
 
   ##
   # Clear the registry
   # @return [void]
   def self.clear_registry!
     lock do
-      @registry.clear
-      nil
+      @registry.each_value { LLM::Function.unregister(_1.function) }
+      super
     end
   end
 
   ##
-  # Register a tool in the registry
+  # Registers a tool and its function.
   # @param [LLM::Tool] tool
   # @api private
   def self.register(tool)
-    lock do
-      @registry << tool
-    end
+    super
+    LLM::Function.register(tool.function)
   end
 
   ##
@@ -99,7 +93,9 @@ class LLM::Tool
   # @api private
   def self.unregister(tool)
     lock do
-      @registry.delete(tool)
+      LLM::Function.unregister(tool.function)
+      super
+      tool
     end
   end
 
@@ -111,7 +107,7 @@ class LLM::Tool
     LLM.lock(:inherited) do
       tool.instance_eval { @__monitor ||= Monitor.new }
       tool.function.register(tool)
-      LLM::Tool.register(tool)
+      LLM::Tool.register(tool) unless lock { @mcp }
     end
   end
 
@@ -123,6 +119,13 @@ class LLM::Tool
     lock do
       name ? function.name(name) : function.name
     end
+  end
+
+  ##
+  # Returns all registered tool classes with definitions.
+  # @return [Array<Class<LLM::Tool>>]
+  def self.registry
+    super.select(&:name)
   end
 
   ##
@@ -152,13 +155,6 @@ class LLM::Tool
       @function ||= LLM::Function.new(nil)
     end
   end
-
-  ##
-  # @api private
-  def self.lock(&)
-    @__monitor.synchronize(&)
-  end
-  @__monitor = Monitor.new
 
   ##
   # Returns true if the tool is an MCP tool

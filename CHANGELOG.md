@@ -11,6 +11,7 @@ Changes since `v4.10.0`.
 - Reasoning support across streams, messages, and responses when providers expose it
 - Normalize `LLM::Response` for OpenAI Responses with `content`, `content!`, `messages` / `choices`, `usage`, and `reasoning_content`
 - Add `mode: :responses` to `LLM::Context` for routing `talk` through the Responses API
+- Add `LLM::Function.registry` and support for MCP tools in `LLM::Tool.registry`
 
 ## v4.10.0
 

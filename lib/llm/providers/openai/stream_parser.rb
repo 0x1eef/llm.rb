@@ -69,6 +69,8 @@ class LLM::OpenAI
             elsif key == "reasoning_content"
               emit_reasoning_content(value)
               message_hash[key] = value
+            elsif key == "tool_calls"
+              merge_tools!(message_hash, value)
             else
               message_hash[key] = value
             end
