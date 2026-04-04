@@ -6,14 +6,20 @@ Changes since `v4.10.0`.
 
 ### Add
 
-- Persistent HTTP connection pooling for repeated MCP tool calls via `LLM.mcp(http: ...).persist!`
-- Explicit MCP transport constructors via `LLM::MCP.stdio(...)` and `LLM::MCP.http(...)`
-- Reasoning support across streams, messages, and responses when providers expose it
-- Normalize `LLM::Response` for OpenAI Responses with `content`, `content!`, `messages` / `choices`, `usage`, and `reasoning_content`
-- Add `mode: :responses` to `LLM::Context` for routing `talk` through the Responses API
-- Add `LLM::Stream` for richer streaming callbacks while preserving `#<<` compatibility
-- Add `LLM::Function.registry` and support for MCP tools in `LLM::Tool.registry`
-- Add `LLM::Context#returns` for collecting pending tool returns from the context
+- Add `LLM::Stream` for richer streaming callbacks, including `on_content`,
+  `on_reasoning_content`, and `on_tool_call` for concurrent tool execution.
+- Add `LLM::Stream#wait` as a shortcut for `queue.wait`.
+- Add `LLM::Function.registry` and enhanced support for MCP tools in
+  `LLM::Tool.registry` for tool resolution during streaming.
+- Add normalized `LLM::Response` for OpenAI Responses, providing `content`,
+  `content!`, `messages` / `choices`, `usage`, and `reasoning_content`.
+- Add `mode: :responses` to `LLM::Context` for routing `talk` through the
+  Responses API.
+- Add `LLM::Context#returns` for collecting pending tool returns from the context.
+- Add persistent HTTP connection pooling for repeated MCP tool calls via
+  `LLM.mcp(http: ...).persist!`.
+- Add explicit MCP transport constructors via `LLM::MCP.stdio(...)` and
+  `LLM::MCP.http(...)`.
 
 ## v4.10.0
 
@@ -21,10 +27,10 @@ Changes since `v4.9.0`.
 
 ### Add
 
-- HTTP transport for MCP with `LLM::MCP::Transport::HTTP` for remote servers
-- JSON Schema union types (`any_of`, `all_of`, `one_of`) with parser integration
-- JSON Schema type array union support (e.g., `"type": ["object", "null"]`)
-- JSON Schema type inference from `const`, `enum`, or `default` fields
+- Add HTTP transport for MCP with `LLM::MCP::Transport::HTTP` for remote servers
+- Add JSON Schema union types (`any_of`, `all_of`, `one_of`) with parser integration
+- Add JSON Schema type array union support (e.g., `"type": ["object", "null"]`)
+- Add JSON Schema type inference from `const`, `enum`, or `default` fields
 
 ### Change
 
