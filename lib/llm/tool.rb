@@ -73,7 +73,7 @@ class LLM::Tool
   # @return [void]
   def self.clear_registry!
     lock do
-      @registry.each_value { LLM::Function.unregister(_1.function) }
+      @__registry.each_value { LLM::Function.unregister(_1.function) }
       super
     end
   end

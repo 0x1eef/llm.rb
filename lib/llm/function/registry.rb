@@ -15,8 +15,8 @@ class LLM::Function
     ##
     # @api private
     def self.extended(klass)
-      klass.instance_variable_set(:@registry, {})
-      klass.instance_variable_set(:@names, {})
+      klass.instance_variable_set(:@__registry, {})
+      klass.instance_variable_set(:@__names, {})
       klass.instance_variable_set(:@__monitor, Monitor.new)
     end
 
@@ -25,7 +25,7 @@ class LLM::Function
     # @return [Array<LLM::Function, LLM::Tool>]
     def registry
       lock do
-        @registry.values
+        @__registry.values
       end
     end
 
@@ -35,7 +35,7 @@ class LLM::Function
     # @return [LLM::Function, LLM::Tool, nil]
     def find_by_name(name)
       lock do
-        @names[name.to_s] ||= @registry.each_value.find do
+        @__names[name.to_s] ||= @__registry.each_value.find do
           tool_name(_1).to_s == name.to_s
         end
       end
@@ -46,8 +46,8 @@ class LLM::Function
     # @return [void]
     def clear_registry!
       lock do
-        @registry.clear
-        @names.clear
+        @__registry.clear
+        @__names.clear
         nil
       end
     end
@@ -58,8 +58,8 @@ class LLM::Function
     # @api private
     def register(entry)
       lock do
-        @registry[registry_key(entry)] = entry
-        @names[tool_name(entry).to_s] = entry if tool_name(entry)
+        @__registry[registry_key(entry)] = entry
+        @__names[tool_name(entry).to_s] = entry if tool_name(entry)
       end
     end
 
@@ -69,9 +69,9 @@ class LLM::Function
     # @api private
     def unregister(entry)
       lock do
-        @registry.delete(registry_key(entry))
-        @registry.delete(entry)
-        @names.delete(tool_name(entry).to_s) if tool_name(entry)
+        @__registry.delete(registry_key(entry))
+        @__registry.delete(entry)
+        @__names.delete(tool_name(entry).to_s) if tool_name(entry)
       end
     end
 
