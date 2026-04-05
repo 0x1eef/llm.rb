@@ -577,6 +577,63 @@ restored = LLM::Context.new(llm)
 restored.restore(path: "context.json")
 ```
 
+In a Rails application, you can also wrap persisted context state in an
+ActiveRecord model. A minimal schema would include a `snapshot` column for the
+serialized context payload (`jsonb` is recommended) and a `provider` column
+for the provider name:
+
+```ruby
+create_table :contexts do |t|
+  t.jsonb :snapshot
+  t.string :provider, null: false
+  t.timestamps
+end
+```
+
+For example:
+
+```ruby
+class Context < ApplicationRecord
+  def talk(...)
+    ctx.talk(...).tap { flush }
+  end
+
+  def wait(...)
+    ctx.wait(...).tap { flush }
+  end
+
+  def messages
+    ctx.messages
+  end
+
+  def model
+    ctx.model
+  end
+
+  def flush
+    update_column(:snapshot, ctx.to_json)
+  end
+
+  private
+
+  def ctx
+    @ctx ||= begin
+      ctx = LLM::Context.new(llm)
+      snapshot ? ctx.restore(string: snapshot) : nil
+      ctx
+    end
+  end
+
+  def llm
+    LLM.method(provider).call(key: ENV.fetch(key))
+  end
+
+  def key
+    "#{provider.upcase}_KEY"
+  end
+end
+```
+
 #### Agents
 
 Agents in llm.rb are reusable, preconfigured assistants that automatically
