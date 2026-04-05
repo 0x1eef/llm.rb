@@ -37,7 +37,7 @@ llm.rb is built around the state and execution model around them:
   Run local, provider-native, and MCP tools sequentially or concurrently with threads, fibers, or async tasks.
 - **Run tools while streaming** <br>
   Start tool work while a response is still streaming instead of waiting for the turn to finish. <br>
-  This lets tool latency overlap with model output and is one of llm.rb's strongest execution features.
+  This overlaps tool latency with model output and exposes streamed tool-call events for introspection, making it one of llm.rb's strongest execution features.
 - **HTTP MCP can reuse connections** <br>
   Opt into persistent HTTP pooling for repeated remote MCP tool calls with `persist!`.
 - **One API across providers and capabilities** <br>
@@ -109,7 +109,8 @@ llm.rb can start tool execution from streamed tool-call events before the
 assistant turn is fully finished. That means tool latency can overlap with
 streaming output instead of happening strictly after it. If your model emits
 tool calls early, this can noticeably reduce end-to-end latency for real
-systems.
+systems. It also gives your application visibility into tool-call events as
+they happen, which is useful for tracing, orchestration, and debugging.
 
 This is different from plain concurrent tool execution. The tool starts while
 the response is still arriving, not after the turn has fully completed.
@@ -257,7 +258,8 @@ callbacks fast: they run inline with the parser.
 `on_tool_call` lets tools start before the model finishes its turn, for
 example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
 `tool.spawn(:task)`. This is the mechanism behind running tools while
-streaming.
+streaming, and it gives you a first-class place to observe and instrument
+tool-call execution as it unfolds.
 
 If a stream cannot execute a tool, `error` is an `LLM::Function::Return` that
 communicates the failure back to the LLM. That lets the tool-call path recover
