@@ -577,7 +577,7 @@ restored = LLM::Context.new(llm)
 restored.restore(path: "context.json")
 ```
 
-#### Context Persistence: ActiveRecord
+#### Context Persistence: ActiveRecord (Rails)
 
 In a Rails application, you can also wrap persisted context state in an
 ActiveRecord model. A minimal schema would include a `snapshot` column for the
@@ -621,7 +621,7 @@ class Context < ApplicationRecord
   def ctx
     @ctx ||= begin
       ctx = LLM::Context.new(llm)
-      snapshot ? ctx.restore(string: snapshot) : nil
+      ctx.restore(string: snapshot) if snapshot
       ctx
     end
   end
