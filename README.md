@@ -122,6 +122,93 @@ loop do
 end
 ```
 
+#### Structured Outputs
+
+The `LLM::Schema` system lets you define JSON schemas for structured outputs.
+Schemas can be defined as classes with `property` declarations or built
+programmatically using a fluent interface. When you pass a schema to a context,
+llm.rb adapts it into the provider's structured-output format when that
+provider supports one. The `content!` method then parses the assistant's JSON
+response into a Ruby object:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+require "pp"
+
+class Report < LLM::Schema
+  property :category, Enum["performance", "security", "outage"], "Report category", required: true
+  property :summary, String, "Short summary", required: true
+  property :impact, OneOf[String, Integer], "Primary impact, as text or a count", required: true
+  property :services, Array[String], "Impacted services", required: true
+  property :timestamp, String, "When it happened", optional: true
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, schema: Report)
+res = ctx.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
+pp res.content!
+
+# {
+#   "category" => "performance",
+#   "summary" => "Database latency spiked, causing 5% request timeouts for 12 minutes.",
+#   "impact" => "5% request timeouts",
+#   "services" => ["Database"],
+#   "timestamp" => "2024-06-05T10:42:00Z"
+# }
+```
+
+#### Tool Calling
+
+Tools in llm.rb can be defined as classes inheriting from `LLM::Tool` or as
+closures using `LLM.function`. When the LLM requests a tool call, the context
+stores `Function` objects in `ctx.functions`. The `call()` method executes all
+pending functions and returns their results to the LLM. Tools describe
+structured parameters with JSON Schema and adapt those definitions to each
+provider's tool-calling format (OpenAI, Anthropic, Google, etc.):
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class System < LLM::Tool
+  name "system"
+  description "Run a shell command"
+  param :command, String, "Command to execute", required: true
+
+  def call(command:)
+    {success: system(command)}
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
+ctx.talk("Run `date`.")
+ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+```
+
+#### Concurrent Tools
+
+llm.rb provides explicit concurrency control for tool execution. The
+`wait(:thread)` method spawns each pending function in its own thread and waits
+for all to complete. You can also use `:fiber` for cooperative multitasking or
+`:task` for async/await patterns (requires the `async` gem). The context
+automatically collects all results and reports them back to the LLM in a
+single turn, maintaining conversation flow while parallelizing independent
+operations:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout, tools: [FetchWeather, FetchNews, FetchStock])
+
+# Execute multiple independent tools concurrently
+ctx.talk("Summarize the weather, headlines, and stock price.")
+ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+```
+
 #### Advanced Streaming
 
 llm.rb also supports the [`LLM::Stream`](lib/llm/stream.rb) interface for
@@ -189,28 +276,6 @@ while ctx.functions.any?
 end
 ```
 
-#### Concurrent Tools
-
-llm.rb provides explicit concurrency control for tool execution. The
-`wait(:thread)` method spawns each pending function in its own thread and waits
-for all to complete. You can also use `:fiber` for cooperative multitasking or
-`:task` for async/await patterns (requires the `async` gem). The context
-automatically collects all results and reports them back to the LLM in a
-single turn, maintaining conversation flow while parallelizing independent
-operations:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: $stdout, tools: [FetchWeather, FetchNews, FetchStock])
-
-# Execute multiple independent tools concurrently
-ctx.talk("Summarize the weather, headlines, and stock price.")
-ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
-```
-
 #### MCP
 
 llm.rb integrates with the Model Context Protocol (MCP) to dynamically discover
@@ -262,71 +327,6 @@ begin
 ensure
   mcp.stop
 end
-```
-
-#### Tool Calling
-
-Tools in llm.rb can be defined as classes inheriting from `LLM::Tool` or as
-closures using `LLM.function`. When the LLM requests a tool call, the context
-stores `Function` objects in `ctx.functions`. The `call()` method executes all
-pending functions and returns their results to the LLM. Tools describe
-structured parameters with JSON Schema and adapt those definitions to each
-provider's tool-calling format (OpenAI, Anthropic, Google, etc.):
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-class System < LLM::Tool
-  name "system"
-  description "Run a shell command"
-  param :command, String, "Command to execute", required: true
-
-  def call(command:)
-    {success: system(command)}
-  end
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
-ctx.talk("Run `date`.")
-ctx.talk(ctx.call(:functions)) while ctx.functions.any?
-```
-
-#### Structured Outputs
-
-The `LLM::Schema` system lets you define JSON schemas for structured outputs.
-Schemas can be defined as classes with `property` declarations or built
-programmatically using a fluent interface. When you pass a schema to a context,
-llm.rb adapts it into the provider's structured-output format when that
-provider supports one. The `content!` method then parses the assistant's JSON
-response into a Ruby object:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-require "pp"
-
-class Report < LLM::Schema
-  property :category, Enum["performance", "security", "outage"], "Report category", required: true
-  property :summary, String, "Short summary", required: true
-  property :impact, OneOf[String, Integer], "Primary impact, as text or a count", required: true
-  property :services, Array[String], "Impacted services", required: true
-  property :timestamp, String, "When it happened", optional: true
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, schema: Report)
-res = ctx.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
-pp res.content!
-
-# {
-#   "category" => "performance",
-#   "summary" => "Database latency spiked, causing 5% request timeouts for 12 minutes.",
-#   "impact" => "5% request timeouts",
-#   "services" => ["Database"],
-#   "timestamp" => "2024-06-05T10:42:00Z"
-# }
 ```
 
 ## Providers
