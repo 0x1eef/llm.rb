@@ -547,7 +547,7 @@ res = ctx.talk("What is the capital of France?")
 puts res.content
 ```
 
-#### Context Persistence
+#### Context Persistence: Vanilla
 
 Contexts can be serialized and restored across process boundaries. A context
 can be serialized to JSON and stored on disk, in a database, in a job queue,
@@ -576,6 +576,8 @@ ctx.save(path: "context.json")
 restored = LLM::Context.new(llm)
 restored.restore(path: "context.json")
 ```
+
+#### Context Persistence: ActiveRecord
 
 In a Rails application, you can also wrap persisted context state in an
 ActiveRecord model. A minimal schema would include a `snapshot` column for the
