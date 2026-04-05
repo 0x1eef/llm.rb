@@ -103,37 +103,76 @@ llm.rb provides a complete set of primitives for building LLM-powered systems:
 
 ## Quick Start
 
-#### Run Tools While Streaming
+#### Simple Streaming
 
-llm.rb can start tool execution from streamed tool-call events before the
-assistant turn is fully finished. That means tool latency can overlap with
-streaming output instead of happening strictly after it. If your model emits
-tool calls early, this can noticeably reduce end-to-end latency for real
-systems. It also gives your application visibility into tool-call events as
-they happen, which is useful for tracing, orchestration, and debugging.
-
-This is different from plain concurrent tool execution. The tool starts while
-the response is still arriving, not after the turn has fully completed.
-
-For example:
+At the simplest level, any object that implements `#<<` can receive visible
+output as it arrives. This works with `$stdout`, `StringIO`, files, sockets,
+and other Ruby IO-style objects:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
-class System < LLM::Tool
-  name "system"
-  description "Run a shell command"
-  params { _1.object(command: _1.string.required) }
-
-  def call(command:)
-    {success: Kernel.system(command)}
-  end
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout)
+loop do
+  print "> "
+  ctx.talk(STDIN.gets || break)
+  puts
 end
+```
+
+#### Advanced Streaming
+
+llm.rb also supports the [`LLM::Stream`](lib/llm/stream.rb) interface for
+structured streaming events:
+
+- `on_content` for visible assistant output
+- `on_reasoning_content` for separate reasoning output
+- `on_tool_call` for streamed tool-call notifications
+
+Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want features like
+`queue` and `wait`, or implement the same methods on your own object. Keep these
+callbacks fast: they run inline with the parser.
+
+`on_tool_call` lets tools start before the model finishes its turn, for
+example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
+`tool.spawn(:task)`. That can overlap tool latency with streaming output and
+gives you a first-class place to observe and instrument tool-call execution as
+it unfolds.
+
+If a stream cannot execute a tool, `error` is an `LLM::Function::Return` that
+communicates the failure back to the LLM. That lets the tool-call path recover
+and keeps the session alive. It also leaves control in the callback: it can
+send `error`, spawn the tool when `error == nil`, or handle the situation
+however it sees fit.
+
+In normal use this should be rare, since `on_tool_call` is usually called with
+a resolved tool and `error == nil`. To resolve a tool call, the tool must be
+found in `LLM::Function.registry`. That covers `LLM::Tool` subclasses,
+including MCP tools, but not `LLM.function` closures, which are excluded
+because they may be bound to local state:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+# Assume `System < LLM::Tool` is already defined.
 
 class Stream < LLM::Stream
+  attr_reader :content, :reasoning_content
+
+  def initialize
+    @content = +""
+    @reasoning_content = +""
+  end
+
   def on_content(content)
+    @content << content
     print content
+  end
+
+  def on_reasoning_content(content)
+    @reasoning_content << content
   end
 
   def on_tool_call(tool, error)
@@ -144,8 +183,10 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
 
-ctx.talk("Run `date` and tell me what command you ran.")
-ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+ctx.talk("Run `date` and `uname -a`.")
+while ctx.functions.any?
+  ctx.talk(ctx.wait(:thread))
+end
 ```
 
 #### Concurrent Tools
@@ -220,92 +261,6 @@ begin
   ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 ensure
   mcp.stop
-end
-```
-
-#### Simple Streaming
-
-At the simplest level, any object that implements `#<<` can receive visible
-output as it arrives. This works with `$stdout`, `StringIO`, files, sockets,
-and other Ruby IO-style objects:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: $stdout)
-loop do
-  print "> "
-  ctx.talk(STDIN.gets || break)
-  puts
-end
-```
-
-#### Advanced Streaming
-
-llm.rb also supports the [`LLM::Stream`](lib/llm/stream.rb) interface for
-structured streaming events:
-
-- `on_content` for visible assistant output
-- `on_reasoning_content` for separate reasoning output
-- `on_tool_call` for streamed tool-call notifications
-
-Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want features like
-`queue` and `wait`, or implement the same methods on your own object. Keep these
-callbacks fast: they run inline with the parser.
-
-`on_tool_call` lets tools start before the model finishes its turn, for
-example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
-`tool.spawn(:task)`. This is the mechanism behind running tools while
-streaming, and it gives you a first-class place to observe and instrument
-tool-call execution as it unfolds.
-
-If a stream cannot execute a tool, `error` is an `LLM::Function::Return` that
-communicates the failure back to the LLM. That lets the tool-call path recover
-and keeps the session alive. It also leaves control in the callback: it can
-send `error`, spawn the tool when `error == nil`, or handle the situation
-however it sees fit.
-
-In normal use this should be rare, since `on_tool_call` is usually called with
-a resolved tool and `error == nil`. To resolve a tool call, the tool must be
-found in `LLM::Function.registry`. That covers `LLM::Tool` subclasses,
-including MCP tools, but not `LLM.function` closures, which are excluded
-because they may be bound to local state:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-# Assume `System < LLM::Tool` is already defined.
-
-class Stream < LLM::Stream
-  attr_reader :content, :reasoning_content
-
-  def initialize
-    @content = +""
-    @reasoning_content = +""
-  end
-
-  def on_content(content)
-    @content << content
-    print content
-  end
-
-  def on_reasoning_content(content)
-    @reasoning_content << content
-  end
-
-  def on_tool_call(tool, error)
-    queue << (error || tool.spawn(:thread))
-  end
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
-
-ctx.talk("Run `date` and `uname -a`.")
-while ctx.functions.any?
-  ctx.talk(ctx.wait(:thread))
 end
 ```
 
