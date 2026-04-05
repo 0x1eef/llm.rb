@@ -107,7 +107,11 @@ llm.rb provides a complete set of primitives for building LLM-powered systems:
 
 At the simplest level, any object that implements `#<<` can receive visible
 output as it arrives. This works with `$stdout`, `StringIO`, files, sockets,
-and other Ruby IO-style objects:
+and other Ruby IO-style objects.
+
+For more control, llm.rb also supports advanced streaming patterns through
+[`LLM::Stream`](lib/llm/stream.rb). See [Advanced Streaming](#advanced-streaming)
+for a structured callback-based example:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -228,7 +232,7 @@ example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
 gives you a first-class place to observe and instrument tool-call execution as
 it unfolds.
 
-If a stream cannot execute a tool, `error` is an `LLM::Function::Return` that
+If a stream cannot resolve a tool, `error` is an `LLM::Function::Return` that
 communicates the failure back to the LLM. That lets the tool-call path recover
 and keeps the session alive. It also leaves control in the callback: it can
 send `error`, spawn the tool when `error == nil`, or handle the situation
