@@ -126,7 +126,7 @@ module LLM
         "gen_ai.operation.name" => "execute_tool",
         "gen_ai.request.model" => model,
         "gen_ai.tool.call.id" => id,
-        "gen_ai.tool.name" => name,
+        "gen_ai.tool.name" => name&.to_s,
         "gen_ai.tool.call.arguments" => LLM.json.dump(arguments),
         "gen_ai.provider.name" => provider_name,
         "server.address" => provider_host,
@@ -145,7 +145,7 @@ module LLM
       return nil unless span
       attributes = {
         "gen_ai.tool.call.id" => result.id,
-        "gen_ai.tool.name" => result.name,
+        "gen_ai.tool.name" => result.name&.to_s,
         "gen_ai.tool.call.result" => LLM.json.dump(result.value)
       }.compact
       attributes.each { span.set_attribute(_1, _2) }
