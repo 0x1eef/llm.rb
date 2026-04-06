@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-Changes since `v4.11.0`.
+Changes since `v4.11.1`.
 
-## v4.11.0
+## v4.11.1
 
 Changes since `v4.10.0`.
 
