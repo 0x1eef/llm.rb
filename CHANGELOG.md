@@ -7,7 +7,7 @@ Changes since `v4.11.1`.
 ### Add
 
 - Add `persistent` as an alias for `persist!` on providers and MCP transports.
-- Add `LLM::Stream#on_tool_finish` for observing completed streamed tool work.
+- Add `LLM::Stream#on_tool_return` for observing completed streamed tool work.
 - Add `LLM::Function::Return#error?`.
 
 ### Change

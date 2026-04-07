@@ -46,9 +46,9 @@ RSpec.describe LLM::Stream do
     end
   end
 
-  describe "#on_tool_finish" do
+  describe "#on_tool_return" do
     it "returns nil" do
-      expect(stream.on_tool_finish(tool, stream.tool_not_found(tool))).to be_nil
+      expect(stream.on_tool_return(tool, stream.tool_not_found(tool))).to be_nil
     end
   end
 
@@ -122,7 +122,7 @@ RSpec.describe LLM::Stream do
           @calls << [fn, error]
         end
 
-        def on_tool_finish(fn, ret)
+        def on_tool_return(fn, ret)
           @returns << [fn, ret]
         end
       end.new
@@ -145,7 +145,7 @@ RSpec.describe LLM::Stream do
 
     it "handles finished tools" do
       ret = stream.tool_not_found(tool)
-      stream.on_tool_finish(tool, ret)
+      stream.on_tool_return(tool, ret)
       expect(stream.returns).to eq([[tool, ret]])
     end
   end
@@ -175,10 +175,10 @@ RSpec.describe LLM::Stream do
           )
         end
 
-        it "emits on_tool_finish" do
+        it "emits on_tool_return" do
           events = []
           stream = Class.new(described_class) do
-            define_method(:on_tool_finish) { |fn, ret| events << [fn, ret] }
+            define_method(:on_tool_return) { |fn, ret| events << [fn, ret] }
           end.new
           stream.queue << tool.spawn(:thread)
 

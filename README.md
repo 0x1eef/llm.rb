@@ -226,7 +226,8 @@ structured streaming events:
 
 Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want features like
 `queue`, `wait`, `on_reasoning_content`, `on_tool_call`, or
-`on_tool_return`. Keep these callbacks fast: they run inline with the parser.
+`on_tool_return`. Keep `on_content`, `on_reasoning_content`, and
+`on_tool_call` fast: they run inline with the parser.
 
 `on_tool_call` lets tools start before the model finishes its turn, for
 example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
