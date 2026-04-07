@@ -233,7 +233,11 @@ class LLM::Function
     when "LLM::Google"
       {name: @name, description: @description, parameters: @params}.compact
     when "LLM::Anthropic"
-      {name: @name, description: @description, input_schema: @params}.compact
+      {
+        name: @name,
+        description: @description,
+        input_schema: @params || {type: "object", properties: {}}
+      }.compact
     else
       format_openai(provider)
     end

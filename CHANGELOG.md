@@ -8,6 +8,10 @@ Changes since `v4.11.1`.
 
 - Add `persistent` as an alias for `persist!` on providers and MCP transports.
 
+### Fix
+
+- Fix Anthropic tools without params.
+
 ## v4.11.1
 
 Changes since `v4.11.0`.
