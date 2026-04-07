@@ -308,7 +308,7 @@ class LLM::Provider
   # This method configures a provider to use a persistent connection pool
   # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
   # @example
-  #   llm = LLM.openai(key: ENV["KEY"]).persist!
+  #   llm = LLM.openai(key: ENV["KEY"]).persistent
   #   # do something with 'llm'
   # @return [LLM::Provider]
   def persist!
@@ -317,6 +317,7 @@ class LLM::Provider
       tap { @client = client }
     end
   end
+  alias_method :persistent, :persist!
 
   ##
   # @param [Object] stream

@@ -4,6 +4,10 @@
 
 Changes since `v4.11.1`.
 
+### Add
+
+- Add `persistent` as an alias for `persist!` on providers and MCP transports.
+
 ## v4.11.1
 
 Changes since `v4.11.0`.

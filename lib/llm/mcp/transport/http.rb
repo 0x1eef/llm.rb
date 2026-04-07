@@ -104,7 +104,7 @@ module LLM::MCP::Transport
     # Configures the transport to use a persistent HTTP connection pool
     # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
     # @example
-    #   mcp = LLM.mcp(http: {url: "https://example.com/mcp"}).persist!
+    #   mcp = LLM.mcp(http: {url: "https://example.com/mcp"}).persistent
     #   # do something with 'mcp'
     # @return [LLM::MCP::Transport::HTTP]
     def persist!
@@ -119,6 +119,7 @@ module LLM::MCP::Transport
       end
       self
     end
+    alias_method :persistent, :persist!
 
     private
 

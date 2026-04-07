@@ -84,6 +84,7 @@ module LLM::MCP::Transport
     def persist!
       self
     end
+    alias_method :persistent, :persist!
 
     private
 

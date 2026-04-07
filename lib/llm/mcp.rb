@@ -104,13 +104,14 @@ class LLM::MCP
   # Configures an HTTP MCP transport to use a persistent connection pool
   # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
   # @example
-  #   mcp = LLM.mcp(http: {url: "https://example.com/mcp"}).persist!
+  #   mcp = LLM.mcp(http: {url: "https://example.com/mcp"}).persistent
   #   # do something with 'mcp'
   # @return [LLM::MCP]
   def persist!
     transport.persist!
     self
   end
+  alias_method :persistent, :persist!
 
   ##
   # Returns the tools provided by the MCP process.
