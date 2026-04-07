@@ -256,20 +256,11 @@ require "llm"
 # Assume `System < LLM::Tool` is already defined.
 
 class Stream < LLM::Stream
-  attr_reader :content, :reasoning_content
-
-  def initialize
-    @content = +""
-    @reasoning_content = +""
-  end
-
   def on_content(content)
-    @content << content
     $stdout << content
   end
 
   def on_reasoning_content(content)
-    @reasoning_content << content
     $stderr << content
   end
 
