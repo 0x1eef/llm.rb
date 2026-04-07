@@ -216,34 +216,33 @@ ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 
 #### Advanced Streaming
 
-llm.rb also supports the [`LLM::Stream`](lib/llm/stream.rb) interface for
-structured streaming events:
+Use [`LLM::Stream`](lib/llm/stream.rb) when you want more than plain `#<<`
+output. It adds structured streaming callbacks for:
 
 - `on_content` for visible assistant output
 - `on_reasoning_content` for separate reasoning output
 - `on_tool_call` for streamed tool-call notifications
 - `on_tool_return` for completed tool execution
 
-Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want features like
-`queue`, `wait`, `on_reasoning_content`, `on_tool_call`, or
-`on_tool_return`. Keep `on_content`, `on_reasoning_content`, and
-`on_tool_call` fast: they run inline with the parser.
+Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want callbacks like
+`on_reasoning_content`, `on_tool_call`, and `on_tool_return`, or helpers like
+`queue` and `wait`.
+
+Keep `on_content`, `on_reasoning_content`, and `on_tool_call` fast: they run
+inline with the streaming parser. `on_tool_return` is different: it runs later,
+when `wait` resolves queued streamed tool work.
 
 `on_tool_call` lets tools start before the model finishes its turn, for
 example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
-`tool.spawn(:task)`. That can overlap tool latency with streaming output and
-gives you a first-class place to observe and instrument tool-call execution as
-it unfolds.
+`tool.spawn(:task)`. That can overlap tool latency with streaming output.
+`on_tool_return` is the place to react when that queued work completes, for
+example by updating progress UIs, logging tool latency, or changing visible
+state from "Running tool ..." to "Finished tool ...".
 
-`on_tool_return` runs when queued streamed tool work completes. This is useful
-for updating progress UIs, logging tool latency, or changing visible state
-from "Running tool ..." to "Finished tool ...".
-
-If a stream cannot resolve a tool, `error` is an `LLM::Function::Return` that
-communicates the failure back to the LLM. That lets the tool-call path recover
-and keeps the session alive. It also leaves control in the callback: it can
-send `error`, spawn the tool when `error == nil`, or handle the situation
-however it sees fit.
+If a stream cannot resolve a tool, `on_tool_call` receives `error` as an
+`LLM::Function::Return`. That keeps the session alive and leaves control in
+the callback: it can send `error`, spawn the tool when `error == nil`, or
+handle the situation however it sees fit.
 
 In normal use this should be rare, since `on_tool_call` is usually called with
 a resolved tool and `error == nil`. To resolve a tool call, the tool must be
