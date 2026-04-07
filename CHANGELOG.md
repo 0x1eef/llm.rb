@@ -10,7 +10,10 @@ Changes since `v4.11.1`.
 
 ### Fix
 
-- Fix Anthropic tools without params.
+- Fix Anthropic tools without params by always emitting `input_schema`.
+- Fix Anthropic tool-only responses to still produce an assistant message.
+- Fix Anthropic tool results to use the `user` role.
+- Fix Anthropic tool input normalization.
 
 ## v4.11.1
 

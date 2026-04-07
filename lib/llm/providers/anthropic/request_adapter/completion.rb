@@ -28,9 +28,16 @@ module LLM::Anthropic::RequestAdapter
 
     def adapt_message
       if message.tool_call?
-        {role: message.role, content: message.extra[:original_tool_calls]}
+        {role: message.role, content: adapt_tool_calls}
       else
         {role: message.role, content: adapt_content(content)}
+      end
+    end
+
+    def adapt_tool_calls
+      message.extra[:tool_calls].filter_map do |tool|
+        next unless tool[:id] && tool[:name]
+        {type: "tool_use", id: tool[:id], name: tool[:name], input: LLM::Anthropic.parse_tool_input(tool[:arguments])}
       end
     end
 

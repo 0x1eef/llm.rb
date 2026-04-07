@@ -66,7 +66,8 @@ module LLM::Anthropic::ResponseAdapter
     private
 
     def adapt_choices
-      texts.map.with_index do |choice, index|
+      source = texts.empty? && tools.any? ? [{"text" => ""}] : texts
+      source.map.with_index do |choice, index|
         extra = {
           index:, response: self,
           tool_calls: adapt_tool_calls(tools), original_tool_calls: tools
@@ -77,7 +78,11 @@ module LLM::Anthropic::ResponseAdapter
 
     def adapt_tool_calls(tools)
       (tools || []).filter_map do |tool|
-        {id: tool.id, name: tool.name, arguments: tool.input}
+        {
+          id: tool.id,
+          name: tool.name,
+          arguments: LLM::Anthropic.parse_tool_input(tool.input)
+        }
       end
     end
 

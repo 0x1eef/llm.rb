@@ -14,6 +14,7 @@ module LLM
   #   ctx.talk ["Tell me about this photo", ctx.local_file("/images/photo.png")]
   #   ctx.messages.select(&:assistant?).each { print "[#{_1.role}]", _1.content, "\n" }
   class Anthropic < Provider
+    require_relative "anthropic/utils"
     require_relative "anthropic/error_handler"
     require_relative "anthropic/request_adapter"
     require_relative "anthropic/response_adapter"
@@ -21,6 +22,7 @@ module LLM
     require_relative "anthropic/models"
     require_relative "anthropic/files"
     include RequestAdapter
+    extend Utils
 
     HOST = "api.anthropic.com"
 
@@ -77,6 +79,15 @@ module LLM
     # @return (see LLM::Provider#assistant_role)
     def assistant_role
       "assistant"
+    end
+
+    ##
+    # Anthropic expects tool results to be sent as user messages
+    # containing `tool_result` content blocks rather than a distinct
+    # `tool` role.
+    # @return (see LLM::Provider#tool_role)
+    def tool_role
+      :user
     end
 
     ##

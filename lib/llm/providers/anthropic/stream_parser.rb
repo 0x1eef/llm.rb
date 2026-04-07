@@ -105,7 +105,7 @@ class LLM::Anthropic
       registered = LLM::Function.find_by_name(tool["name"])
       fn = (registered || LLM::Function.new(tool["name"])).dup.tap do |fn|
         fn.id = tool["id"]
-        fn.arguments = tool["input"]
+        fn.arguments = LLM::Anthropic.parse_tool_input(tool["input"])
       end
       [fn, (registered ? nil : @stream.tool_not_found(fn))]
     end
