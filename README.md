@@ -111,7 +111,8 @@ and other Ruby IO-style objects.
 
 For more control, llm.rb also supports advanced streaming patterns through
 [`LLM::Stream`](lib/llm/stream.rb). See [Advanced Streaming](#advanced-streaming)
-for a structured callback-based example:
+for a structured callback-based example. Basic `#<<` streams only receive
+visible output chunks:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -223,7 +224,7 @@ structured streaming events:
 - `on_tool_call` for streamed tool-call notifications
 
 Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want features like
-`queue` and `wait`, or implement the same methods on your own object. Keep these
+`queue`, `wait`, `on_reasoning_content`, or `on_tool_call`. Keep these
 callbacks fast: they run inline with the parser.
 
 `on_tool_call` lets tools start before the model finishes its turn, for

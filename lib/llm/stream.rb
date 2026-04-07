@@ -5,20 +5,20 @@ module LLM
   # The {LLM::Stream LLM::Stream} class provides the callback interface for
   # streamed model output in llm.rb.
   #
-  # A stream object can be an instance of {LLM::Stream LLM::Stream}, a
-  # subclass that overrides the callbacks it needs, or any other object that
-  # implements some or all of the same interface. {#queue} provides a small
-  # helper for collecting asynchronous tool work started from a callback, and
-  # {#tool_not_found} returns an in-band tool error when a streamed tool
-  # cannot be resolved.
+  # A stream object can be an instance of {LLM::Stream LLM::Stream} or a
+  # subclass that overrides the callbacks it needs. For basic streaming,
+  # llm.rb also accepts any object that implements `#<<`. {#queue} provides
+  # a small helper for collecting asynchronous tool work started from a
+  # callback, and {#tool_not_found} returns an in-band tool error when a
+  # streamed tool cannot be resolved.
   #
   # @note The `on_*` callbacks run inline with the streaming parser. They
   #   therefore block streaming progress and should generally return as
   #   quickly as possible.
   #
-  # The most common callback is {#on_content}, which also maps to {#<<} for
-  # compatibility with `StringIO`-style objects. Providers may also call
-  # {#on_reasoning_content} and {#on_tool_call} when that data is available.
+  # The most common callback is {#on_content}, which also maps to {#<<}.
+  # Providers may also call {#on_reasoning_content} and {#on_tool_call} when
+  # that data is available.
   class Stream
     require_relative "stream/queue"
 

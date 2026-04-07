@@ -323,10 +323,7 @@ class LLM::Provider
   # @param [Object] stream
   # @return [Boolean]
   def streamable?(stream)
-    stream.respond_to?(:on_content) ||
-      stream.respond_to?(:on_tool_call) ||
-      stream.respond_to?(:on_reasoning_content) ||
-      stream.respond_to?(:<<)
+    LLM::Stream === stream || stream.respond_to?(:<<)
   end
 
   private

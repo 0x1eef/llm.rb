@@ -8,6 +8,12 @@ Changes since `v4.11.1`.
 
 - Add `persistent` as an alias for `persist!` on providers and MCP transports.
 
+### Change
+
+- Expect advanced streaming callbacks to use `LLM::Stream` subclasses
+  instead of duck-typing them onto arbitrary objects. Basic `#<<`
+  streaming remains supported.
+
 ### Fix
 
 - Fix Anthropic tools without params by always emitting `input_schema`.
