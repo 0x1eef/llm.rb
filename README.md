@@ -222,11 +222,11 @@ structured streaming events:
 - `on_content` for visible assistant output
 - `on_reasoning_content` for separate reasoning output
 - `on_tool_call` for streamed tool-call notifications
-- `on_tool_finish` for completed tool execution
+- `on_tool_return` for completed tool execution
 
 Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want features like
 `queue`, `wait`, `on_reasoning_content`, `on_tool_call`, or
-`on_tool_finish`. Keep these callbacks fast: they run inline with the parser.
+`on_tool_return`. Keep these callbacks fast: they run inline with the parser.
 
 `on_tool_call` lets tools start before the model finishes its turn, for
 example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
@@ -234,7 +234,7 @@ example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
 gives you a first-class place to observe and instrument tool-call execution as
 it unfolds.
 
-`on_tool_finish` runs when queued streamed tool work completes. This is useful
+`on_tool_return` runs when queued streamed tool work completes. This is useful
 for updating progress UIs, logging tool latency, or changing visible state
 from "Running tool ..." to "Finished tool ...".
 
@@ -277,7 +277,7 @@ class Stream < LLM::Stream
     queue << (error || tool.spawn(:thread))
   end
 
-  def on_tool_finish(tool, ret)
+  def on_tool_return(tool, ret)
     $stdout << (ret.error? ? "Tool #{tool.name} failed\n" : "Finished tool #{tool.name}\n")
   end
 end

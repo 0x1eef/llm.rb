@@ -80,16 +80,16 @@ module LLM
     end
 
     ##
-    # Called when queued streamed tool work finishes.
+    # Called when queued streamed tool work returns.
     # @note This callback runs when {#wait} resolves work that was queued from
     #   {#on_tool_call}, such as values returned by `tool.spawn(:thread)`,
     #   `tool.spawn(:fiber)`, or `tool.spawn(:task)`.
     # @param [LLM::Function] tool
-    #  The tool that finished execution.
+    #  The tool that returned.
     # @param [LLM::Function::Return] ret
     #  The completed tool return.
     # @return [nil]
-    def on_tool_finish(tool, ret)
+    def on_tool_return(tool, ret)
       nil
     end
 
