@@ -265,11 +265,12 @@ class Stream < LLM::Stream
 
   def on_content(content)
     @content << content
-    print content
+    $stdout << content
   end
 
   def on_reasoning_content(content)
     @reasoning_content << content
+    $stderr << content
   end
 
   def on_tool_call(tool, error)
