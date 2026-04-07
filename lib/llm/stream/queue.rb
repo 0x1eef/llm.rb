@@ -8,8 +8,10 @@ class LLM::Stream
   # returns an array of {LLM::Function::Return} values.
   class Queue
     ##
+    # @param [LLM::Stream] stream
     # @return [LLM::Stream::Queue]
-    def initialize
+    def initialize(stream)
+      @stream = stream
       @items = []
     end
 
@@ -39,13 +41,24 @@ class LLM::Stream
     # @return [Array<LLM::Function::Return>]
     def wait(strategy)
       returns, tasks = @items.shift(@items.length).partition { LLM::Function::Return === _1 }
-      returns.concat case strategy
+      results = case strategy
       when :thread then LLM::Function::ThreadGroup.new(tasks).wait
       when :task then LLM::Function::TaskGroup.new(tasks).wait
       when :fiber then LLM::Function::FiberGroup.new(tasks).wait
       else raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, or :fiber"
       end
+      returns.concat fire_hooks(tasks, results)
     end
     alias_method :value, :wait
+
+    private
+
+    def fire_hooks(tasks, results)
+      results.each_with_index do |ret, idx|
+        tool = tasks[idx]&.function
+        @stream.on_tool_finish(tool, ret) if tool
+      end
+      results
+    end
   end
 end

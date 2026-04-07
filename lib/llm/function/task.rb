@@ -10,10 +10,16 @@ class LLM::Function
     attr_reader :task
 
     ##
+    # @return [LLM::Function, nil]
+    attr_reader :function
+
+    ##
     # @param [Thread, Fiber, Async::Task] task
+    # @param [LLM::Function, nil] function
     # @return [LLM::Function::Task]
-    def initialize(task)
+    def initialize(task, function = nil)
       @task = task
+      @function = function
     end
 
     ##

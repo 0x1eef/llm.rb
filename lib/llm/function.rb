@@ -42,6 +42,13 @@ class LLM::Function
 
   Return = Struct.new(:id, :name, :value) do
     ##
+    # Returns true when the return value represents an error.
+    # @return [Boolean]
+    def error?
+      Hash === value && value[:error] == true
+    end
+
+    ##
     # Returns a Hash representation of {LLM::Function::Return}
     # @return [Hash]
     def to_h
@@ -186,7 +193,7 @@ class LLM::Function
     else
       raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, or :fiber"
     end
-    Task.new(task)
+    Task.new(task, self)
   ensure
     @called = true
   end

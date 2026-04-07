@@ -26,7 +26,7 @@ module LLM
     # Returns a lazily-initialized queue for tool results or spawned work.
     # @return [LLM::Stream::Queue]
     def queue
-      @queue ||= Queue.new
+      @queue ||= Queue.new(self)
     end
 
     ##
@@ -76,6 +76,20 @@ module LLM
     #  An in-band tool error for unresolved tool calls.
     # @return [nil]
     def on_tool_call(tool, error)
+      nil
+    end
+
+    ##
+    # Called when queued streamed tool work finishes.
+    # @note This callback runs when {#wait} resolves work that was queued from
+    #   {#on_tool_call}, such as values returned by `tool.spawn(:thread)`,
+    #   `tool.spawn(:fiber)`, or `tool.spawn(:task)`.
+    # @param [LLM::Function] tool
+    #  The tool that finished execution.
+    # @param [LLM::Function::Return] ret
+    #  The completed tool return.
+    # @return [nil]
+    def on_tool_finish(tool, ret)
       nil
     end
 
