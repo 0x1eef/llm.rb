@@ -6,6 +6,15 @@ Changes since `v4.11.1`.
 
 ## v4.11.1
 
+Changes since `v4.11.0`.
+
+### Fix
+
+* Cast OpenTelemetry tool-related values to strings. <br>
+  Otherwise they're rejected by opentelemetry-sdk as invalid attributes.
+
+## v4.11.0
+
 Changes since `v4.10.0`.
 
 ### Add
