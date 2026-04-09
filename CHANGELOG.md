@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+Changes since `v4.12.0`.
+
+### Fix
+
+All of these fixes apply to OpenAI's Responses API:
+
+- fix(openai): emit `on_reasoning_content` for streamed reasoning summaries.
+- fix(openai): skip `previous_response_id` on `store: false` follow-up calls.
+- fix(openai): fall back to an empty object schema for tools without params.
+- fix(openai): preserve original tool-call payloads on re-sent assistant tool messages.
+- fix(openai): emit `output_text` for assistant-authored response content.
+- fix(openai): return `nil` for `system_fingerprint` on normalized response objects.
+
 ## v4.12.0
 
 Changes since `v4.11.1`.
