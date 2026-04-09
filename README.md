@@ -9,10 +9,11 @@
 
 ## About
 
-llm.rb is a Ruby-centric toolkit for building real LLM-powered systems — where
-LLMs are part of your architecture, not just API calls. It gives you explicit
-control over contexts, tools, concurrency, and providers, so you can compose
-reliable, production-ready workflows without hidden abstractions.
+llm.rb is a Ruby-centric system integration layer for building real
+LLM-powered systems. It connects LLMs to real systems by turning APIs into
+tools and unifying MCP, providers, and application logic into a single
+execution model. It is used in production systems integrating external and
+internal tools, including agents, MCP services, and OpenAPI-based APIs.
 
 Built for engineers who want to understand and control their LLM systems. No
 frameworks, no hidden magic — just composable primitives for building real
@@ -26,8 +27,10 @@ and capabilities of llm.rb.
 ## What Makes It Different
 
 Most LLM libraries stop at requests and responses. <br>
-llm.rb is built around the state and execution model around them:
+llm.rb is built around the state and execution model behind them:
 
+- **A system layer, not just an API wrapper** <br>
+  llm.rb unifies LLMs, tools, MCP servers, and application APIs into a single execution model.
 - **Contexts are central** <br>
   They hold history, tools, schema, usage, cost, persistence, and execution state.
 - **Contexts can be serialized** <br>
@@ -49,22 +52,48 @@ llm.rb is built around the state and execution model around them:
 - **Stdlib-only by default** <br>
   llm.rb runs on the Ruby standard library by default, with providers, optional features, and the model registry loaded only when you use them.
 
+## What llm.rb Enables
+
+llm.rb acts as the integration layer between LLMs, tools, and real systems.
+
+- Turn REST / OpenAPI APIs into LLM tools
+- Connect multiple MCP sources (Notion, internal services, etc.)
+- Build agents that operate across system boundaries
+- Orchestrate tools from multiple providers and protocols
+- Stream responses while executing tools concurrently
+- Treat LLMs as part of your architecture, not isolated calls
+
+Without llm.rb, providers, tool formats, and orchestration paths tend to stay
+fragmented. With llm.rb, they share a unified execution model with composable
+tools and a more consistent system architecture.
+
+## Real-World Usage
+
+llm.rb is used to integrate external MCP services such as Notion, internal APIs
+exposed via OpenAPI or `swagger.json`, and multiple tool sources into a unified
+execution model. Common usage patterns include combining multiple MCP sources,
+turning internal APIs into tools, and running those tools through the same
+context and provider flow.
+
+It supports multiple MCP sources, external SaaS integrations, internal APIs via
+OpenAPI, and multiple LLM providers simultaneously.
+
 ## Architecture & Execution Model
 
-llm.rb is built in layers, each providing explicit control:
+llm.rb sits at the center of the execution path, connecting tools, MCP
+sources, APIs, providers, and your application through explicit contexts:
 
 ```
-┌─────────────────────────────────────────┐
-│          Your Application               │
-├─────────────────────────────────────────┤
-│         Contexts & Agents               │ ← Stateful workflows
-├─────────────────────────────────────────┤
-│           Tools & Functions             │ ← Concurrent execution
-├─────────────────────────────────────────┤
-│   Unified Provider API (OpenAI, etc.)   │ ← Provider abstraction
-├─────────────────────────────────────────┤
-│      HTTP, JSON, Thread Safety          │ ← Infrastructure
-└─────────────────────────────────────────┘
+        External MCP        Internal MCP        OpenAPI / REST
+             │                   │                    │
+             └────────── Tools / MCP Layer ──────────┘
+                               │
+                         llm.rb Contexts
+                               │
+                        LLM Providers
+                  (OpenAI, Anthropic, etc.)
+                               │
+                        Your Application
 ```
 
 ### Key Design Decisions
@@ -102,6 +131,10 @@ llm.rb provides a complete set of primitives for building LLM-powered systems:
 - **Model Registry** — local metadata for capabilities, limits, pricing
 
 ## Quick Start
+
+These examples show individual features, but llm.rb is designed to combine
+them into full systems where LLMs, tools, and external services operate
+together.
 
 #### Simple Streaming
 
@@ -284,6 +317,16 @@ end
 ```
 
 #### MCP
+
+MCP is a first-class integration mechanism in llm.rb.
+
+MCP allows llm.rb to treat external services, internal APIs, and system
+capabilities as tools in a unified interface. This makes it possible to
+connect multiple MCP sources simultaneously and expose your own APIs as tools.
+
+In practice, this supports workflows such as external SaaS integrations,
+multiple MCP sources in the same context, and OpenAPI -> MCP -> tools
+pipelines for internal services.
 
 llm.rb integrates with the Model Context Protocol (MCP) to dynamically discover
 and use tools from external servers. This example starts a filesystem MCP
