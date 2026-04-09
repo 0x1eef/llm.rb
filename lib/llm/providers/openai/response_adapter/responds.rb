@@ -61,6 +61,13 @@ module LLM::OpenAI::ResponseAdapter
     end
 
     ##
+    # OpenAI's Responses API does not expose a system fingerprint.
+    # @return [nil]
+    def system_fingerprint
+      nil
+    end
+
+    ##
     # Returns the aggregated text content from the response outputs.
     # @return [String]
     def output_text
@@ -88,10 +95,15 @@ module LLM::OpenAI::ResponseAdapter
     private
 
     def adapt_message
-      message = LLM::Message.new("assistant", +"", {response: self, tool_calls: [], reasoning_content: +""})
+      message = LLM::Message.new(
+        "assistant",
+        +"",
+        {response: self, tool_calls: [], original_tool_calls: [], reasoning_content: +""},
+      )
       output.each do |choice|
         if choice.type == "function_call"
           message.extra[:tool_calls] << adapt_tool(choice)
+          message.extra[:original_tool_calls] << choice
         elsif choice.type == "reasoning"
           (choice.summary || []).each do |summary|
             next unless summary["type"] == "summary_text"

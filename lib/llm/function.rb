@@ -257,7 +257,7 @@ class LLM::Function
     when "LLM::OpenAI::Responses"
       {
         type: "function", name: @name, description: @description,
-        parameters: @params.to_h.merge(additionalProperties: false), strict: true
+        parameters: (@params || {type: "object", properties: {}}).to_h.merge(additionalProperties: false), strict: false
       }.compact
     else
       {

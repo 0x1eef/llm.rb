@@ -103,9 +103,9 @@ module LLM
     #   res = ctx.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
-      res_id = @messages.find(&:assistant?)&.response&.response_id
-      params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
       params = @params.merge(params)
+      res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
+      params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
       res = @llm.responses.create(prompt, params)
       role = params[:role] || @llm.user_role
       @messages.concat LLM::Prompt === prompt ? prompt.to_a : [LLM::Message.new(role, prompt)]

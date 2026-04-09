@@ -15,6 +15,8 @@ module LLM::OpenAI::RequestAdapter
       catch(:abort) do
         if Hash === message
           {role: message[:role], content: adapt_content(message[:content])}
+        elsif message.tool_call?
+          message.extra[:original_tool_calls]
         else
           adapt_message
         end
@@ -23,12 +25,12 @@ module LLM::OpenAI::RequestAdapter
 
     private
 
-    def adapt_content(content)
+    def adapt_content(content, role: message.role)
       case content
       when String
-        [{type: :input_text, text: content.to_s}]
+        [{type: text_content_type(role), text: content.to_s}]
       when LLM::Response then adapt_remote_file(content)
-      when LLM::Message then adapt_content(content.content)
+      when LLM::Message then adapt_content(content.content, role: content.role)
       when LLM::Object
         case content.kind
         when :image_url then [{type: :image_url, image_url: {url: content.value.to_s}}]
@@ -46,7 +48,7 @@ module LLM::OpenAI::RequestAdapter
       when Array
         adapt_array
       else
-        {role: message.role, content: adapt_content(content)}
+        {role: message.role, content: adapt_content(content, role: message.role)}
       end
     end
 
@@ -56,7 +58,7 @@ module LLM::OpenAI::RequestAdapter
       elsif returns.any?
         returns.map { {type: "function_call_output", call_id: _1.id, output: LLM.json.dump(_1.value)} }
       else
-        {role: message.role, content: content.flat_map { adapt_content(_1) }}
+        {role: message.role, content: content.flat_map { adapt_content(_1, role: message.role) }}
       end
     end
 
@@ -83,5 +85,9 @@ module LLM::OpenAI::RequestAdapter
     def message = @message
     def content = message.content
     def returns = content.grep(LLM::Function::Return)
+
+    def text_content_type(role)
+      role.to_s == "assistant" ? :output_text : :input_text
+    end
   end
 end
