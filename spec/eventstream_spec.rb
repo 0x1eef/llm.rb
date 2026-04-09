@@ -336,5 +336,48 @@ RSpec.describe LLM::EventStream::Parser do
         expect(error).to be_nil
       end
     end
+
+    context "when given streamed OpenAI Responses reasoning content" do
+      let(:handler) { LLM::EventHandler.new(LLM::OpenAI::Responses::StreamParser.new(stream)) }
+      let(:stream) do
+        Class.new(LLM::Stream) do
+          attr_reader :content, :reasoning_content
+
+          def initialize
+            @content = +""
+            @reasoning_content = +""
+          end
+
+          def on_content(value)
+            @content << value
+          end
+
+          def on_reasoning_content(value)
+            @reasoning_content << value
+          end
+        end.new
+      end
+
+      before do
+        parser << %(event: response.output_item.added\ndata: {"type":"response.output_item.added","item":{"id":"rs_1","type":"reasoning","summary":[]},"output_index":0}\n\n)
+        parser << %(event: response.reasoning_summary_text.delta\ndata: {"type":"response.reasoning_summary_text.delta","output_index":0,"summary_index":0,"delta":"Think"}\n\n)
+        parser << %(event: response.reasoning_summary_text.done\ndata: {"type":"response.reasoning_summary_text.done","output_index":0,"summary_index":0,"text":"Think"}\n\n)
+        parser << %(event: response.output_item.added\ndata: {"type":"response.output_item.added","item":{"id":"msg_1","type":"message","content":[]},"output_index":1}\n\n)
+        parser << %(event: response.content_part.added\ndata: {"type":"response.content_part.added","output_index":1,"content_index":0,"part":{"type":"output_text","text":""}}\n\n)
+        parser << %(event: response.output_text.delta\ndata: {"type":"response.output_text.delta","output_index":1,"content_index":0,"delta":"Answer"}\n\n)
+      end
+
+      it "emits assistant content through on_content" do
+        expect(stream.content).to eq("Answer")
+      end
+
+      it "emits reasoning content through on_reasoning_content" do
+        expect(stream.reasoning_content).to eq("Think")
+      end
+
+      it "preserves streamed reasoning content in the parsed body" do
+        expect(handler.body.dig("output", 0, "summary", 0, "text")).to eq("Think")
+      end
+    end
   end
 end

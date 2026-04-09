@@ -43,11 +43,19 @@ class LLM::OpenAI
           @body[k] = v
         end
         @body["output"] ||= []
+      when "response.in_progress", "response.completed"
+        response = chunk["response"] || {}
+        response.each do |k, v|
+          next if k == "output" && @body["output"].is_a?(Array) && @body["output"].any?
+          @body[k] = v
+        end
+        @body["output"] ||= response["output"] || []
       when "response.output_item.added"
         output_index = chunk["output_index"]
         item = chunk["item"]
         @body["output"][output_index] = item
         @body["output"][output_index]["content"] ||= []
+        @body["output"][output_index]["summary"] ||= [] if item["type"] == "reasoning"
       when "response.content_part.added"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
@@ -55,6 +63,25 @@ class LLM::OpenAI
         @body["output"][output_index] ||= {"content" => []}
         @body["output"][output_index]["content"] ||= []
         @body["output"][output_index]["content"][content_index] = part
+      when "response.reasoning_summary_text.delta"
+        output_item = @body["output"][chunk["output_index"]]
+        if output_item && output_item["type"] == "reasoning"
+          summary_index = chunk["summary_index"] || 0
+          output_item["summary"] ||= []
+          output_item["summary"][summary_index] ||= {"type" => "summary_text", "text" => +""}
+          output_item["summary"][summary_index]["text"] << chunk["delta"]
+          emit_reasoning_content(chunk["delta"])
+        end
+      when "response.reasoning_summary_text.done"
+        output_item = @body["output"][chunk["output_index"]]
+        if output_item && output_item["type"] == "reasoning"
+          summary_index = chunk["summary_index"] || 0
+          output_item["summary"] ||= []
+          output_item["summary"][summary_index] = {
+            "type" => "summary_text",
+            "text" => chunk["text"]
+          }
+        end
       when "response.output_text.delta"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
@@ -100,6 +127,10 @@ class LLM::OpenAI
       elsif @stream.respond_to?(:<<)
         @stream << value
       end
+    end
+
+    def emit_reasoning_content(value)
+      @stream.on_reasoning_content(value) if @stream.respond_to?(:on_reasoning_content)
     end
 
     def emit_tool(index, tool)
