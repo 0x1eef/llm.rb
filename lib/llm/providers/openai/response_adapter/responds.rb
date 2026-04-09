@@ -98,7 +98,7 @@ module LLM::OpenAI::ResponseAdapter
       message = LLM::Message.new(
         "assistant",
         +"",
-        {response: self, tool_calls: [], original_tool_calls: [], reasoning_content: +""},
+        {response: self, tool_calls: [], original_tool_calls: [], reasoning_content: +""}
       )
       output.each do |choice|
         if choice.type == "function_call"
