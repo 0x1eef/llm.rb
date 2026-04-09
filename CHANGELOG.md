@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## v4.12.0
 
 Changes since `v4.11.1`.
+
+This release expands advanced streaming and MCP execution while reframing
+llm.rb more clearly as a system integration layer for LLMs, tools, MCP
+sources, and application APIs.
 
 ### Add
 

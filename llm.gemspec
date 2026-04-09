@@ -8,47 +8,15 @@ Gem::Specification.new do |spec|
   spec.authors = ["Antar Azri", "0x1eef", "Christos Maris", "Rodrigo Serrano"]
   spec.email = ["azantar@proton.me", "0x1eef@hardenedbsd.org"]
 
-  spec.summary = <<~SUMMARY
-  llm.rb is a Ruby-centric toolkit for building real LLM-powered systems — where
-  LLMs are part of your architecture, not just API calls. It gives you explicit
-  control over contexts, tools, concurrency, and providers, so you can compose
-  reliable, production-ready workflows without hidden abstractions.
-  SUMMARY
+  spec.summary = "System integration layer for LLMs, tools, MCP, and APIs in Ruby."
 
   spec.description = <<~DESCRIPTION
-  llm.rb is a Ruby-centric toolkit for building real LLM-powered systems — where
-  LLMs are part of your architecture, not just API calls. It gives you explicit
-  control over contexts, tools, concurrency, and providers, so you can compose
-  reliable, production-ready workflows without hidden abstractions.
-
-  Built for engineers who want to understand and control their LLM systems. No
-  frameworks, no hidden magic — just composable primitives for building real
-  applications, from scripts to full systems like Relay.
-
-  ## Key Features
-
-  - **Contexts are central** — Hold history, tools, schema, usage, cost, persistence, and execution state
-  - **Tool execution is explicit** — Run local, provider-native, and MCP tools sequentially or concurrently
-  - **One API across providers** — Unified interface for OpenAI, Anthropic, Google, xAI, zAI, DeepSeek, Ollama, and LlamaCpp
-  - **Thread-safe where it matters** — Providers are shareable, while contexts stay isolated and stateful
-  - **Production-ready** — Cost tracking, observability, persistence, and performance tuning built in
-  - **Stdlib-only by default** — Runs on Ruby standard library, with optional features loaded only when used
-
-  ## Capabilities
-
-  - Chat & Contexts with persistence
-  - Streaming responses
-  - Tool calling with JSON Schema validation
-  - Concurrent execution (threads, fibers, async tasks)
-  - Agents with auto-execution
-  - Structured outputs
-  - MCP (Model Context Protocol) support
-  - Multimodal inputs (text, images, audio, documents)
-  - Audio generation, transcription, translation
-  - Image generation and editing
-  - Files API for document processing
-  - Embeddings and vector stores
-  - Local model registry for capabilities, limits, and pricing
+  llm.rb is a Ruby-centric system integration layer for building LLM-powered
+  systems. It connects LLMs to real systems by turning APIs into tools and
+  unifying MCP, providers, contexts, and application logic in one execution
+  model. It supports explicit tool orchestration, concurrent execution,
+  streaming, multiple MCP sources, and multiple LLM providers for production
+  systems that integrate external and internal services.
   DESCRIPTION
 
   spec.license = "0BSD"
