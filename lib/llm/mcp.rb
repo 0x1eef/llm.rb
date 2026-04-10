@@ -138,6 +138,13 @@ class LLM::MCP
     params = {name:}
     params[:arguments] = arguments if arguments
     res = call(transport, "prompts/get", params)
+    res["messages"] = [*res["messages"]].map do |message|
+      LLM::Message.new(
+        message["role"],
+        adapt_content(message["content"]),
+        {original_content: message["content"]}
+      )
+    end
     LLM::Object.from(res)
   end
   alias_method :get_prompt, :find_prompt
@@ -155,6 +162,19 @@ class LLM::MCP
   private
 
   attr_reader :llm, :command, :transport, :timeout
+
+  def adapt_content(content)
+    case content
+    when String
+      content
+    when Hash
+      content["type"] == "text" ? content["text"].to_s : LLM::Object.from(content)
+    when Array
+      content.map { adapt_content(_1) }
+    else
+      content
+    end
+  end
 
   def adapt_tool_result(result)
     if result["structuredContent"]

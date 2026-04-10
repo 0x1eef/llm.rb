@@ -84,8 +84,11 @@ RSpec.describe LLM::MCP do
         id: 0
       )
       expect(prompt.description).to eq("Prompt description")
+      expect(prompt.messages.first).to be_a(LLM::Message)
       expect(prompt.messages.first.role).to eq("user")
-      expect(prompt.messages.first.content.text).to eq("Hello")
+      expect(prompt.messages.first.content).to eq("Hello")
+      expect(prompt.messages.first.extra.original_content.type).to eq("text")
+      expect(prompt.messages.first.extra.original_content.text).to eq("Hello")
     end
   end
 end

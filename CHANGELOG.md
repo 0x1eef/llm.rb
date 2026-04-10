@@ -13,6 +13,7 @@ Changes since `v4.12.0`.
 All of these fixes apply to MCP:
 
 - fix(mcp): raise `LLM::MCP::MismatchError` on mismatched response ids.
+- fix(mcp): normalize prompt message content while preserving the original payload.
 
 All of these fixes apply to OpenAI's Responses API:
 
