@@ -9,17 +9,18 @@
 
 ## About
 
-llm.rb is a Ruby gem for building LLM systems that have to touch real
-software. It gives you one execution model for providers, tools, MCP servers,
-streaming, schemas, files, and application state.
+llm.rb is a Ruby library for building AI workflows that need to talk to the
+rest of your software. It gives you one execution model for providers, tools,
+MCP servers, streaming, schemas, files, and state, so the same core
+primitives can power chat flows, tool-enabled agents, multimodal prompts,
+persisted contexts, and provider-backed workflows.
 
-This is not a prompt helper and it is not trying to hide the moving parts. It
-is built for engineers who want to control how LLM calls, tool calls, and
-system integrations actually run.
-
-llm.rb is also deliberately small in the right places. It runs on the Ruby
-standard library by default, loads optional pieces only when needed, and stays
-open to extension instead of forcing one framework or one provider model.
+It is built for engineers who want control over how these systems run. llm.rb
+stays close to Ruby, runs on the standard library by default, loads optional
+pieces only when needed, and remains easy to extend. It also works well in
+Rails or ActiveRecord applications, where a small wrapper around context
+persistence is enough to save and restore long-lived conversation state across
+requests, jobs, or retries.
 
 ## Architecture
 
