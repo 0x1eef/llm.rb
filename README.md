@@ -23,23 +23,18 @@ open to extension instead of forcing one framework or one provider model.
 
 ## Architecture
 
-llm.rb sits in the middle of the execution path:
-
 ```
-        External MCP        Internal MCP        OpenAPI / REST
-             │                   │                    │
-             └────────── Tools / MCP Layer ──────────┘
-                               │
-                         llm.rb Contexts
-                               │
-                        LLM Providers
-                  (OpenAI, Anthropic, etc.)
-                               │
-                        Your Application
+    External MCP      Internal MCP      OpenAPI / REST
+         │                 │                  │
+         └────────── Tools / MCP Layer ───────┘
+                            │
+                      llm.rb Contexts
+                            │
+                       LLM Providers
+                 (OpenAI, Anthropic, etc.)
+                            │
+                      Your Application
 ```
-
-The point is not to make these parts disappear. The point is to give them one
-coherent runtime model.
 
 ## Differentiators
 
