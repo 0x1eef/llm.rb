@@ -53,11 +53,14 @@ class LLM::MCP
       poll(timeout:, ex: [IO::WaitReadable]) do
         loop do
           res = transport.read_nonblock
-          next unless res["id"] == id
-          if res["error"]
+          if res["id"] == id && res["error"]
             raise LLM::MCP::Error.from(response: res)
-          else
+          elsif res["id"] == id
             break res["result"]
+          elsif res["method"]
+            next
+          elsif res.key?("id")
+            raise LLM::MCP::MismatchError.new(expected_id: id, actual_id: res["id"])
           end
         end
       end
@@ -101,6 +104,8 @@ class LLM::MCP
     #  The exceptions to retry when raised
     # @yield
     #  The block to run
+    # @raise [LLM::MCP::MismatchError]
+    #  When an unrelated response id is received while waiting
     # @raise [LLM::MCP::TimeoutError]
     #  When the block takes longer than the timeout
     # @return [Object]

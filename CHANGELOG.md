@@ -14,6 +14,7 @@ All of these fixes apply to OpenAI's Responses API:
 - fix(openai): preserve original tool-call payloads on re-sent assistant tool messages.
 - fix(openai): emit `output_text` for assistant-authored response content.
 - fix(openai): return `nil` for `system_fingerprint` on normalized response objects.
+- fix(mcp): raise `LLM::MCP::MismatchError` on mismatched response ids.
 
 ## v4.12.0
 
