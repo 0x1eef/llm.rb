@@ -45,7 +45,7 @@ coherent runtime model.
 - See the [_examples](./_examples) directory for complete applications.
 - Watch the [screencast](https://www.youtube.com/watch?v=x1K4wMeO_QA).
 
-## What Makes It Different
+## Differentiators
 
 Most LLM libraries stop at requests and responses. llm.rb is built around the
 state and execution model behind them.
@@ -117,10 +117,10 @@ state and execution model behind them.
 ## Installation
 
 ```bash
-gem install llm
+gem install llm.rb
 ```
 
-## Where To Go Next
+## Resources
 
 - [resources/deepdive.md](resources/deepdive.md) is the examples guide.
 - It covers streaming, tools, MCP, persistence, agents, multimodal prompts,
