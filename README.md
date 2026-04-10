@@ -1,5 +1,3 @@
-# llm.rb
-
 <p align="center">
   <a href="llm.rb"><img src="https://github.com/llmrb/llm.rb/raw/main/llm.png" width="200" height="200" border="0" alt="llm.rb"></a>
 </p>
@@ -8,6 +6,8 @@
   <a href="https://opensource.org/license/0bsd"><img src="https://img.shields.io/badge/License-0BSD-orange.svg?" alt="License"></a>
   <a href="https://github.com/llmrb/llm.rb/tags"><img src="https://img.shields.io/badge/version-4.12.0-green.svg?" alt="Version"></a>
 </p>
+
+## About
 
 llm.rb is a Ruby gem for building LLM systems that have to touch real
 software. It gives you one execution model for providers, tools, MCP servers,
@@ -40,10 +40,6 @@ llm.rb sits in the middle of the execution path:
 
 The point is not to make these parts disappear. The point is to give them one
 coherent runtime model.
-
-- Read the [deep dive](resources/deepdive.md) for the full walkthrough.
-- See the [_examples](./_examples) directory for complete applications.
-- Watch the [screencast](https://www.youtube.com/watch?v=x1K4wMeO_QA).
 
 ## Differentiators
 
