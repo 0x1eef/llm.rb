@@ -122,6 +122,27 @@ class LLM::MCP
   end
 
   ##
+  # Returns the prompts provided by the MCP process.
+  # @return [Array<LLM::Object>]
+  def prompts
+    res = call(transport, "prompts/list")
+    LLM::Object.from(res["prompts"])
+  end
+
+  ##
+  # Returns a prompt by name.
+  # @param [String] name The prompt name
+  # @param [Hash<String, String>, nil] arguments The prompt arguments
+  # @return [LLM::Object]
+  def find_prompt(name:, arguments: nil)
+    params = {name:}
+    params[:arguments] = arguments if arguments
+    res = call(transport, "prompts/get", params)
+    LLM::Object.from(res)
+  end
+  alias_method :get_prompt, :find_prompt
+
+  ##
   # Calls a tool by name with the given arguments
   # @param [String] name The name of the tool to call
   # @param [Hash] arguments The arguments to pass to the tool
