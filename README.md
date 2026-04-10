@@ -112,6 +112,21 @@ state and execution model behind them.
 gem install llm.rb
 ```
 
+## Example
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout)
+
+loop do
+  print "> "
+  ctx.talk(STDIN.gets || break)
+  puts
+end
+```
+
 ## Resources
 
 - [resources/deepdive.md](resources/deepdive.md) is the examples guide.
