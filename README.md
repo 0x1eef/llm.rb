@@ -115,8 +115,6 @@ gem install llm.rb
 ## Resources
 
 - [resources/deepdive.md](resources/deepdive.md) is the examples guide.
-- It covers streaming, tools, MCP, persistence, agents, multimodal prompts,
-  production patterns, and more.
 - [_examples/relay](./_examples/relay) shows a real application built on top
   of llm.rb.
 - [doc site](https://0x1eef.github.io/x/llm.rb?rebuild=1) has the API docs.
