@@ -446,6 +446,50 @@ ctx.talk("Run `date`.")
 ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 ```
 
+### Cancelling A Function
+
+Because pending tool calls are explicit `LLM::Function` objects, your code can
+decide not to run them and return a cancellation result instead.
+
+This is useful when tool execution depends on user confirmation, policy checks,
+or any other application-level gate. The model requests work, but your code can
+still stop it before the function actually runs:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class System < LLM::Tool
+  name "system"
+  description "Run a shell command"
+  param :command, String, "Command to execute", required: true
+
+  def call(command:)
+    {success: system(command)}
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: [System])
+
+ctx.talk("Run `date` and `uname -a`.")
+
+approved = ctx.functions.select do |fn|
+  print "Run #{fn.name}? [y/N] "
+  STDIN.gets.to_s.strip.downcase == "y"
+end
+
+returns = ctx.functions.map do |fn|
+  if approved.include?(fn)
+    fn.call
+  else
+    fn.cancel(reason: "user declined to run the function")
+  end
+end
+
+ctx.talk(returns)
+```
+
 ### Closure-Based Tools
 
 For smaller cases, `LLM.function` gives you a closure-based alternative to
