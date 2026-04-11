@@ -548,12 +548,14 @@ subclasses:
 #!/usr/bin/env ruby
 require "llm"
 
-weather = LLM.function(
-  "weather",
-  "Return the weather for a city",
-  city: String
-) do |city:|
-  {city:, forecast: "sunny", high_c: 23}
+weather = LLM.function(:weather) do |fn|
+  fn.description "Return the weather for a city"
+  fn.params do |schema|
+    schema.object(city: schema.string.required)
+  end
+  fn.define do |city:|
+    {city:, forecast: "sunny", high_c: 23}
+  end
 end
 
 llm = LLM.openai(key: ENV["KEY"])
