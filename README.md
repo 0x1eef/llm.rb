@@ -29,7 +29,7 @@ so they compose naturally instead of becoming separate subsystems.
 ## Architecture
 
 <p align="center">
-  <img src="./resources/architecture.png" alt="llm.rb architecture" width="790">
+  <img src="https://github.com/llmrb/llm.rb/raw/main/resources/architecture.png" alt="llm.rb architecture" width="790">
 </p>
 
 ## Core Concept
