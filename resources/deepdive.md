@@ -24,6 +24,7 @@ Most features extend these, rather than introducing new abstractions.
   - [Supported Providers](#supported-providers)
   - [Basic Context](#basic-context)
   - [Responses API](#responses-api)
+- [Responses](#responses)
 - [Streaming](#streaming)
   - [Basic Streaming](#basic-streaming)
   - [Advanced Streaming](#advanced-streaming)
@@ -152,6 +153,21 @@ ctx.talk("Your task is to answer the user's questions", role: :developer)
 res = ctx.talk("What is the capital of France?")
 puts res.content
 ```
+
+## Responses
+
+The response side follows the same idea as the rest of llm.rb. APIs that make
+model requests return
+[`LLM::Response`](https://0x1eef.github.io/x/llm.rb/LLM/Response.html)
+objects as a common base shape, then layer on extra behavior when an endpoint
+or provider needs something more specific.
+
+That base wrapper still keeps the raw `Net::HTTPResponse` on `response.res`,
+so normalization does not cut you off from low-level HTTP access when you need
+to inspect headers, status, or other transport details.
+
+Some response adapters also add `Enumerable`, so list-style and search-style
+results can often be iterated directly without reaching into `response.data`.
 
 ## Streaming
 
@@ -790,9 +806,9 @@ require "pp"
 llm = LLM.openai(key: ENV["KEY"])
 file = llm.files.create(path: "README.md")
 store = llm.vector_stores.create_and_poll(name: "Docs", file_ids: [file.id])
-hits = llm.vector_stores.search(vector: store, query: "What does llm.rb do?")
+res = llm.vector_stores.search(vector: store, query: "What does llm.rb do?")
 
-pp hits.data.first
+res.each { pp _1 }
 ```
 
 ## Tracing

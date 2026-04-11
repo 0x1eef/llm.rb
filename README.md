@@ -86,6 +86,14 @@ same context object.
 - **Providers are normalized, not flattened**  
   Share one API surface across providers without losing access to provider-
   specific capabilities where they matter.
+- **Responses keep a uniform shape**  
+  Provider calls return
+  [`LLM::Response`](https://0x1eef.github.io/x/llm.rb/LLM/Response.html)
+  objects as a common base shape, then extend them with endpoint- or
+  provider-specific behavior when needed.
+- **Low-level access is still there**  
+  Normalized responses still keep the raw `Net::HTTPResponse` available when
+  you need headers, status, or other HTTP details.
 - **Local model metadata is included**  
   Model capabilities, pricing, and limits are available locally without extra
   API calls.
