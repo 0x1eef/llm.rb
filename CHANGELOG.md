@@ -15,6 +15,11 @@ Changes since `v4.13.0`.
 - Rework provider HTTP internals around `LLM::Provider::Transport::HTTP`
   with explicit transient and persistent transport handling.
 
+### Fix
+
+- Use `IO::EAGAINWaitReadable` for explicit MCP non-blocking read errors
+  while continuing to retry on `IO::WaitReadable`.
+
 ## v4.13.0
 
 Changes since `v4.12.0`.

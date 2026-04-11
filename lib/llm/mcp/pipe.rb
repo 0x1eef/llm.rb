@@ -27,7 +27,7 @@ class LLM::MCP
 
     ##
     # Reads from the reader end without blocking.
-    # @raise [IO::WaitReadable]
+    # @raise [IO::EAGAINWaitReadable]
     #  When no data is available to read
     # @return [String]
     def read_nonblock(...)

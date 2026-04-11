@@ -57,7 +57,7 @@ module LLM::MCP::Transport
     # Reads a message from the MCP process without blocking.
     # @raise [LLM::Error]
     #  When the transport is not running
-    # @raise [IO::WaitReadable]
+    # @raise [IO::EAGAINWaitReadable]
     #  When no complete message is available to read
     # @return [Hash]
     #  The next message from the MCP process

@@ -74,7 +74,7 @@ class LLM::MCP
     #  The IO stream to read from (:stdout, :stderr)
     # @raise [LLM::Error]
     #  When the command is not running
-    # @raise [IO::WaitReadable]
+    # @raise [IO::EAGAINWaitReadable]
     #  When no complete message is available to read
     # @return [String]
     #  The next complete line from the specified IO stream

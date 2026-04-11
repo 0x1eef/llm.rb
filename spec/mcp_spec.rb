@@ -17,7 +17,7 @@ RSpec.describe LLM::MCP do
       end
 
       def read_nonblock
-        raise IO::WaitReadable.new if @messages.empty?
+        raise IO::EAGAINWaitReadable if @messages.empty?
         @messages.shift
       end
     end.new(messages)

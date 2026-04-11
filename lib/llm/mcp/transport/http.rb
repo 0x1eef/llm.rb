@@ -82,13 +82,13 @@ module LLM::MCP::Transport
     # Reads the next queued message without blocking.
     # @raise [LLM::MCP::Error]
     #  When the transport is not running
-    # @raise [IO::WaitReadable]
+    # @raise [IO::EAGAINWaitReadable]
     #  When no complete message is available to read
     # @return [Hash]
     def read_nonblock
       lock do
         raise LLM::MCP::Error, "MCP transport is not running" unless running?
-        raise IO::WaitReadable if @queue.empty?
+        raise IO::EAGAINWaitReadable, "no complete message available" if @queue.empty?
         @queue.shift
       end
     end
