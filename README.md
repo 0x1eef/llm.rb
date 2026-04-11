@@ -23,10 +23,8 @@ requests, jobs, or retries.
 
 Most LLM libraries stop at request/response APIs. Building real systems means
 stitching together streaming, tools, state, persistence, and external
-services by hand.
-
-llm.rb provides a single execution model for all of these, so they compose
-naturally instead of becoming separate subsystems.
+services by hand. llm.rb provides a single execution model for all of these,
+so they compose naturally instead of becoming separate subsystems.
 
 ## Architecture
 
