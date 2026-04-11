@@ -80,6 +80,9 @@ same context object.
 - **MCP is built in**  
   Connect to MCP servers over stdio or HTTP without bolting on a separate
   integration stack.
+- **Provider support is broad**  
+  Work with OpenAI, OpenAI-compatible endpoints, Anthropic, Google, DeepSeek,
+  Z.ai, xAI, llama.cpp, and Ollama through the same runtime.
 - **Tools are explicit**  
   Run local tools, provider-native tools, and MCP tools through the same path
   with fewer special cases.
