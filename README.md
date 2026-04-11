@@ -28,18 +28,9 @@ so they compose naturally instead of becoming separate subsystems.
 
 ## Architecture
 
-```
-    External MCP      Internal MCP      OpenAPI / REST
-         │                 │                  │
-         └────────── Tools / MCP Layer ───────┘
-                            │
-                      llm.rb Contexts
-                            │
-                       LLM Providers
-                 (OpenAI, Anthropic, etc.)
-                            │
-                      Your Application
-```
+<p align="center">
+  <img src="./resources/architecture.png" alt="llm.rb architecture" width="790">
+</p>
 
 ## Core Concept
 
