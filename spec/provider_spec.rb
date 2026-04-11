@@ -23,4 +23,34 @@ RSpec.describe LLM::Provider do
       end
     end
   end
+
+  context "#interrupt!" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:owner) { Fiber.current }
+
+    it "finishes an active transient request" do
+      http = Net::HTTP.new("example.com")
+      allow(http).to receive(:active?).and_return(true)
+      allow(http).to receive(:finish)
+      req = LLM::Provider::Transport::HTTP::Interruptible::Request.new(http:)
+      provider.send(:transport).send(:set_request, req, owner)
+      provider.interrupt!(owner)
+      expect(http).to have_received(:finish)
+    end
+
+    it "finishes an active persistent connection" do
+      persistent_class = if defined?(Net::HTTP::Persistent)
+        Net::HTTP::Persistent
+      else
+        stub_const("Net::HTTP::Persistent", Class.new)
+      end
+      client = persistent_class.allocate
+      connection = double(:connection, http: nil)
+      allow(client).to receive(:finish)
+      req = LLM::Provider::Transport::HTTP::Interruptible::Request.new(http: client, connection:)
+      provider.send(:transport).send(:set_request, req, owner)
+      provider.interrupt!(owner)
+      expect(client).to have_received(:finish).with(connection)
+    end
+  end
 end

@@ -7,14 +7,9 @@
 # @abstract
 class LLM::Provider
   require "net/http"
-  require_relative "client"
-  include LLM::Client
-
-  @@clients = {}
-
-  ##
-  # @api private
-  def self.clients = @@clients
+  require_relative "provider/transport/http"
+  require_relative "provider/transport/http/execution"
+  include Transport::HTTP::Execution
 
   ##
   # @param [String, nil] key
@@ -36,9 +31,9 @@ class LLM::Provider
     @port = port
     @timeout = timeout
     @ssl = ssl
-    @client = persistent ? persistent_client : nil
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
+    @transport = Transport::HTTP.new(host:, port:, timeout:, ssl:, persistent:)
     @monitor = Monitor.new
   end
 
@@ -47,7 +42,7 @@ class LLM::Provider
   # @return [String]
   # @note The secret key is redacted in inspect for security reasons
   def inspect
-    "#<#{self.class.name}:0x#{object_id.to_s(16)} @key=[REDACTED] @client=#{@client.inspect} @tracer=#{tracer.inspect}>"
+    "#<#{self.class.name}:0x#{object_id.to_s(16)} @key=[REDACTED] @transport=#{transport.inspect} @tracer=#{tracer.inspect}>"
   end
 
   ##
@@ -312,12 +307,19 @@ class LLM::Provider
   #   # do something with 'llm'
   # @return [LLM::Provider]
   def persist!
-    client = persistent_client
-    lock do
-      tap { @client = client }
-    end
+    transport.persist!
+    self
   end
   alias_method :persistent, :persist!
+
+  ##
+  # Interrupt the active request, if any.
+  # @param [Fiber] owner
+  # @return [nil]
+  def interrupt!(owner)
+    transport.interrupt!(owner)
+  end
+  alias_method :cancel!, :interrupt!
 
   ##
   # @param [Object] stream
@@ -328,7 +330,7 @@ class LLM::Provider
 
   private
 
-  attr_reader :client, :base_uri, :host, :port, :timeout, :ssl
+  attr_reader :base_uri, :host, :port, :timeout, :ssl, :transport
 
   ##
   # The headers to include with a request
@@ -358,94 +360,6 @@ class LLM::Provider
   #  Returns the provider-specific Server-Side Events (SSE) parser
   def stream_parser
     raise NotImplementedError
-  end
-
-  ##
-  # Executes a HTTP request
-  # @param [Net::HTTPRequest] request
-  #  The request to send
-  # @param [Proc] b
-  #  A block to yield the response to (optional)
-  # @return [Net::HTTPResponse]
-  #  The response from the server
-  # @raise [LLM::Error::Unauthorized]
-  #  When authentication fails
-  # @raise [LLM::Error::RateLimit]
-  #  When the rate limit is exceeded
-  # @raise [LLM::Error]
-  #  When any other unsuccessful status code is returned
-  # @raise [SystemCallError]
-  #  When there is a network error at the operating system level
-  # @return [Net::HTTPResponse]
-  def execute(request:, operation:, stream: nil, stream_parser: self.stream_parser, model: nil, inputs: nil, &b)
-    tracer = self.tracer
-    span = tracer.on_request_start(operation:, model:, inputs:)
-    http = client || transient_client
-    args = (Net::HTTP === http) ? [request] : [URI.join(base_uri, request.path), request]
-    res = if stream
-      http.request(*args) do |res|
-        if Net::HTTPSuccess === res
-          handler = event_handler.new stream_parser.new(stream)
-          parser = LLM::EventStream::Parser.new
-          parser.register(handler)
-          res.read_body(parser)
-          # If the handler body is empty, the response was
-          # most likely not streamed or parsing failed.
-          # Preserve the raw body in that case so standard
-          # JSON/error handling can parse it later.
-          body = handler.body.empty? ? parser.body : handler.body
-          res.body = Hash === body || Array === body ? LLM::Object.from(body) : body
-        else
-          body = +""
-          res.read_body { body << _1 }
-          res.body = body
-        end
-      ensure
-        handler&.free
-        parser&.free
-      end
-    else
-      b ? http.request(*args) { (Net::HTTPSuccess === _1) ? b.call(_1) : _1 } :
-          http.request(*args)
-    end
-    [handle_response(res, tracer, span), span, tracer]
-  end
-
-  ##
-  # Handles the response from a request
-  # @param [Net::HTTPResponse] res
-  #  The response to handle
-  # @param [Object, nil] span
-  #  The span
-  # @return [Net::HTTPResponse]
-  def handle_response(res, tracer, span)
-    case res
-    when Net::HTTPOK then res.body = parse_response(res)
-    else error_handler.new(tracer, span, res).raise_error!
-    end
-    res
-  end
-
-  ##
-  # Parse a HTTP response
-  # @param [Net::HTTPResponse] res
-  # @return [LLM::Object, String]
-  def parse_response(res)
-    case res["content-type"]
-    when %r|\Aapplication/json\s*| then LLM::Object.from(LLM.json.load(res.body))
-    else res.body
-    end
-  end
-
-  ##
-  # @param [Net::HTTPRequest] req
-  #  The request to set the body stream for
-  # @param [IO] io
-  #  The IO object to set as the body stream
-  # @return [void]
-  def set_body_stream(req, io)
-    req.body_stream = io
-    req["transfer-encoding"] = "chunked" unless req["content-length"]
   end
 
   ##

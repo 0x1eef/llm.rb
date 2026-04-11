@@ -62,6 +62,7 @@ module LLM
       @mode = params.delete(:mode) || :completions
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @messages = LLM::Buffer.new(llm)
+      @owner = Fiber.current
     end
 
     ##
@@ -183,6 +184,15 @@ module LLM
         functions.wait(strategy)
       end
     end
+
+    ##
+    # Interrupt the active request, if any.
+    # This is inspired by Go's context cancellation model.
+    # @return [nil]
+    def interrupt!
+      llm.interrupt!(@owner)
+    end
+    alias_method :cancel!, :interrupt!
 
     ##
     # Returns token usage accumulated in this context

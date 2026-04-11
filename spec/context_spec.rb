@@ -150,4 +150,16 @@ RSpec.describe LLM::Context do
       expect(ctx.wait(:thread)).to eq([])
     end
   end
+
+  context "#interrupt!" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+
+    it "forwards to the provider" do
+      owner = Fiber.new {}
+      ctx.instance_variable_set(:@owner, owner)
+      expect(provider).to receive(:interrupt!).with(owner).and_return(nil)
+      expect(ctx.interrupt!).to be_nil
+    end
+  end
 end

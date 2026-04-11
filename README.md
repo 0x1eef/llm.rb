@@ -74,6 +74,10 @@ same context object.
 - **Streaming and tool execution work together**  
   Start tool work while output is still streaming so you can hide latency
   instead of waiting for turns to finish.
+- **Requests can be interrupted cleanly**  
+  Stop in-flight provider work through the same runtime instead of treating
+  cancellation as a separate concern. `LLM::Context#cancel!` is inspired by
+  Go's context cancellation model.
 - **Concurrency is a first-class feature**  
   Use threads, fibers, or async tasks without rewriting your tool layer.
 - **Advanced workloads are built in, not bolted on**  
@@ -114,6 +118,7 @@ same context object.
 - **Chat & Contexts** — stateless and stateful interactions with persistence
 - **Context Serialization** — save and restore state across processes or time
 - **Streaming** — visible output, reasoning output, tool-call events
+- **Request Interruption** — stop in-flight provider work cleanly
 - **Tool Calling** — class-based tools and closure-based functions
 - **Run Tools While Streaming** — overlap model output with tool latency
 - **Concurrent Execution** — threads, async tasks, and fibers

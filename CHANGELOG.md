@@ -4,6 +4,17 @@
 
 Changes since `v4.13.0`.
 
+### Add
+
+- Add `LLM::Context#interrupt!`, `LLM::Context#cancel!`, and
+  `LLM::Interrupt` for interrupting in-flight provider requests,
+  inspired by Go's context cancellation.
+
+### Change
+
+- Rework provider HTTP internals around `LLM::Provider::Transport::HTTP`
+  with explicit transient and persistent transport handling.
+
 ## v4.13.0
 
 Changes since `v4.12.0`.

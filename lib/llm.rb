@@ -41,6 +41,14 @@ module LLM
   @registry = {}
 
   ##
+  # Shared HTTP clients used by providers.
+  @clients = {}
+
+  ##
+  # @api private
+  def self.clients = @clients
+
+  ##
   # @param [Symbol, LLM::Provider] llm
   #  The name of a provider, or an instance of LLM::Provider
   # @return [LLM::Object]

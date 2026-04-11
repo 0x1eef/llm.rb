@@ -56,6 +56,10 @@ module LLM
   ToolLoopError = Class.new(Error)
 
   ##
+  # When a request is interrupted
+  Interrupt = Class.new(Error)
+
+  ##
   # When a tool call cannot be mapped to a local tool
   NoSuchToolError = Class.new(Error)
 
