@@ -1,24 +1,67 @@
-# Deep Dive
+<p align="center">
+  <a href="../README.md"><img src="https://github.com/llmrb/llm.rb/raw/main/llm.png" width="200" height="200" border="0" alt="llm.rb"></a>
+</p>
+<p align="center">
+  <b>deepdive</b>
+</p>
 
-This guide is focused on examples. The main [README](../README.md) covers the
-high-level positioning and design goals. This document keeps the runnable
-material in one place.
+This guide is the practical companion to the main [README](../README.md).
+The README explains what llm.rb is. This document shows how to use it.
 
-## Examples
+## Contents
 
-Start with the basic request and response path, then add structure, tools,
-concurrency, and MCP.
+- [Providers](#providers)
+- [Streaming](#streaming)
+- [Reasoning](#reasoning)
+- [Structured Outputs](#structured-outputs)
+- [Persistence](#persistence)
+- [Tools](#tools)
+- [Agents](#agents)
+- [MCP](#mcp)
+- [Multimodal Prompts](#multimodal-prompts)
+- [Retrieval And Files](#retrieval-and-files)
+- [Tracing](#tracing)
+- [Production And Operations](#production-and-operations)
+- [Putting It Together](#putting-it-together)
 
-#### Simple Streaming
+## Providers
+
+Start with a provider and a context. From there, you can add schemas, tools,
+MCP, persistence, streaming, and other features without changing the overall
+shape of the code.
+
+In llm.rb, `LLM::Context` is the main execution boundary. It keeps message
+history, provider params, tool state, and usage together, so you can keep
+building on the same object instead of switching to a different abstraction
+for each feature.
+
+Those context-level defaults are not fixed. You can override them on a single
+`talk` or `respond` call by passing request params directly, which makes it
+easy to keep stable defaults at the context level while changing things like
+`model`, `schema`, `tools`, or `stream` for one turn.
+
+### Supported Providers
+
+llm.rb supports multiple LLM providers behind one API surface:
+
+- **OpenAI** (`LLM.openai`)
+- **Anthropic** (`LLM.anthropic`)
+- **Google** (`LLM.google`)
+- **DeepSeek** (`LLM.deepseek`)
+- **xAI** (`LLM.xai`)
+- **zAI** (`LLM.zai`)
+- **Ollama** (`LLM.ollama`)
+- **Llama.cpp** (`LLM.llamacpp`)
+
+### Basic Context
 
 At the simplest level, any object that implements `#<<` can receive visible
-output as it arrives. This works with `$stdout`, `StringIO`, files, sockets,
+output as it arrives. That includes `$stdout`, `StringIO`, files, sockets,
 and other Ruby IO-style objects.
 
-For more control, llm.rb also supports advanced streaming patterns through
-[`LLM::Stream`](lib/llm/stream.rb). See [Advanced Streaming](#advanced-streaming)
-for a structured callback-based example. Basic `#<<` streams only receive
-visible output chunks:
+This is the smallest complete llm.rb loop: a provider, a context, and a place
+for streamed output to go. Once that is in place, the rest of the library
+builds outward from the same pattern:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -26,6 +69,7 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout)
+
 loop do
   print "> "
   ctx.talk(STDIN.gets || break)
@@ -33,14 +77,184 @@ loop do
 end
 ```
 
-#### Structured Outputs
+Context defaults can still be overridden on a single turn. That is useful when
+most turns should share one setup, but a specific request needs a different
+model, schema, tool set, or stream target:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, model: "gpt-4.1-mini", stream: $stdout)
+
+ctx.talk("Answer normally.")
+ctx.talk("Now return JSON.", schema: Report, stream: nil, model: "gpt-4.1")
+```
+
+### Responses API
+
+llm.rb also supports OpenAI's Responses API through `LLM::Context` with
+`mode: :responses`. The important switch is `store:`. With `store: false`, the
+Responses API stays stateless while still using the Responses endpoint. With
+`store: true`, OpenAI can keep response state server-side and reduce how much
+conversation state needs to be sent on each turn.
+
+Use this when you want the Responses API specifically, not just normal chat
+completions. llm.rb keeps it behind the same context interface so the rest of
+your application code does not need to change much:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, mode: :responses, store: false)
+
+ctx.talk("Your task is to answer the user's questions", role: :developer)
+res = ctx.talk("What is the capital of France?")
+puts res.content
+```
+
+## Streaming
+
+Streaming ranges from plain visible output to structured callbacks that can
+drive tool execution while the model is still responding.
+
+The simple form is just an object that implements `#<<`. The advanced form is
+`LLM::Stream`, which gives you explicit callbacks for visible output,
+reasoning output, and tool-call lifecycle events.
+
+### Basic Streaming
+
+At the lowest level, any object that responds to `#<<` can receive visible
+output chunks.
+
+This is the easiest way to make the model feel responsive. It works well for
+CLI tools, logs, and any interface where plain visible output is enough:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout)
+ctx.talk("Explain how TCP keepalive works in one paragraph.")
+puts
+```
+
+### Advanced Streaming
+
+Use [`LLM::Stream`](../lib/llm/stream.rb) when you want structured callbacks
+such as `on_content`, `on_reasoning_content`, `on_tool_call`, and
+`on_tool_return`.
+
+This is the version to use when streaming is part of control flow, not just
+presentation. It lets your code react to output, reasoning, and tool events
+as they happen:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class Stream < LLM::Stream
+  def on_content(content)
+    $stdout << content
+  end
+
+  def on_reasoning_content(content)
+    $stderr << content
+  end
+
+  def on_tool_call(tool, error)
+    $stdout << "Running tool #{tool.name}\n"
+    queue << (error || tool.spawn(:thread))
+  end
+
+  def on_tool_return(tool, ret)
+    if ret.error?
+      $stdout << "Tool #{tool.name} failed\n"
+    else
+      $stdout << "Finished tool #{tool.name}\n"
+    end
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
+
+ctx.talk("Run `date` and `uname -a`.")
+ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+```
+
+## Reasoning
+
+Some providers expose model reasoning separately from visible assistant output.
+llm.rb lets you handle that in two ways: stream it as it arrives, or read it
+from the final response when the provider includes it.
+
+This is part of the normal response model. Completion-style responses expose
+`reasoning_content`, and streamed providers can emit reasoning incrementally
+through `LLM::Stream#on_reasoning_content`.
+
+### Stream Reasoning Output
+
+Use `LLM::Stream#on_reasoning_content` when you want reasoning output as a
+separate stream.
+
+If the provider emits reasoning incrementally, this lets you surface or log it
+without mixing it into the assistant-visible response stream:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class Stream < LLM::Stream
+  def on_content(content)
+    $stdout << content
+  end
+
+  def on_reasoning_content(content)
+    $stderr << content
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: Stream.new)
+ctx.talk("Solve 17 * 19 and show your work.")
+```
+
+### Read Reasoning From The Response
+
+When a provider includes reasoning content in the final completion, it is also
+available on the response object.
+
+This is useful when you want the final response first and only inspect the
+reasoning afterward, for example in debugging or offline analysis:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.llamacpp(url: ENV["URL"])
+ctx = LLM::Context.new(llm)
+res = ctx.talk("Solve 17 * 19 and show your work.")
+
+puts res.content
+puts res.reasoning_content
+```
+
+## Structured Outputs
 
 The `LLM::Schema` system lets you define JSON schemas for structured outputs.
 Schemas can be defined as classes with `property` declarations or built
-programmatically using a fluent interface. When you pass a schema to a context,
-llm.rb adapts it into the provider's structured-output format when that
-provider supports one. The `content!` method then parses the assistant's JSON
-response into a Ruby object:
+programmatically using a fluent interface. When you pass a schema to a
+context, llm.rb adapts it into the provider's structured-output format when
+that provider supports one.
+
+The useful part is that the schema stays in Ruby. You describe the shape once,
+attach it to the context, and let llm.rb adapt it to the provider API instead
+of hand-writing JSON Schema payloads for each request:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -59,377 +273,47 @@ llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, schema: Report)
 res = ctx.talk("Structure this report: 'Database latency spiked at 10:42 UTC, causing 5% request timeouts for 12 minutes.'")
 pp res.content!
-
-# {
-#   "category" => "performance",
-#   "summary" => "Database latency spiked, causing 5% request timeouts for 12 minutes.",
-#   "impact" => "5% request timeouts",
-#   "services" => ["Database"],
-#   "timestamp" => "2024-06-05T10:42:00Z"
-# }
 ```
 
-#### Tool Calling
+### Fluent Schemas
 
-Tools in llm.rb can be defined as classes inheriting from `LLM::Tool` or as
-closures using `LLM.function`. When the LLM requests a tool call, the context
-stores `Function` objects in `ctx.functions`. The `call()` method executes all
-pending functions and returns their results to the LLM. Tools describe
-structured parameters with JSON Schema and adapt those definitions to each
-provider's tool-calling format (OpenAI, Anthropic, Google, etc.):
+If you do not want a class, you can build the schema inline.
+
+This style is useful for one-off workflows or dynamic schemas that do not need
+their own constant:
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
+require "pp"
 
-class System < LLM::Tool
-  name "system"
-  description "Run a shell command"
-  param :command, String, "Command to execute", required: true
-
-  def call(command:)
-    {success: system(command)}
-  end
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
-ctx.talk("Run `date`.")
-ctx.talk(ctx.call(:functions)) while ctx.functions.any?
-```
-
-#### Concurrent Tools
-
-llm.rb provides explicit concurrency control for tool execution. The
-`wait(:thread)` method spawns each pending function in its own thread and waits
-for all to complete. You can also use `:fiber` for cooperative multitasking or
-`:task` for async/await patterns (requires the `async` gem). The context
-automatically collects all results and reports them back to the LLM in a
-single turn, maintaining conversation flow while parallelizing independent
-operations:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: $stdout, tools: [FetchWeather, FetchNews, FetchStock])
-
-# Execute multiple independent tools concurrently
-ctx.talk("Summarize the weather, headlines, and stock price.")
-ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
-```
-
-#### Advanced Streaming
-
-Use [`LLM::Stream`](lib/llm/stream.rb) when you want more than plain `#<<`
-output. It adds structured streaming callbacks for:
-
-- `on_content` for visible assistant output
-- `on_reasoning_content` for separate reasoning output
-- `on_tool_call` for streamed tool-call notifications
-- `on_tool_return` for completed tool execution
-
-Subclass [`LLM::Stream`](lib/llm/stream.rb) when you want callbacks like
-`on_reasoning_content`, `on_tool_call`, and `on_tool_return`, or helpers like
-`queue` and `wait`.
-
-Keep `on_content`, `on_reasoning_content`, and `on_tool_call` fast: they run
-inline with the streaming parser. `on_tool_return` is different: it runs later,
-when `wait` resolves queued streamed tool work.
-
-`on_tool_call` lets tools start before the model finishes its turn, for
-example with `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
-`tool.spawn(:task)`. That can overlap tool latency with streaming output.
-`on_tool_return` is the place to react when that queued work completes, for
-example by updating progress UIs, logging tool latency, or changing visible
-state from "Running tool ..." to "Finished tool ...".
-
-If a stream cannot resolve a tool, `on_tool_call` receives `error` as an
-`LLM::Function::Return`. That keeps the session alive and leaves control in
-the callback: it can send `error`, spawn the tool when `error == nil`, or
-handle the situation however it sees fit.
-
-In normal use this should be rare, since `on_tool_call` is usually called with
-a resolved tool and `error == nil`. To resolve a tool call, the tool must be
-found in `LLM::Function.registry`. That covers `LLM::Tool` subclasses,
-including MCP tools, but not `LLM.function` closures, which are excluded
-because they may be bound to local state:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-# Assume `System < LLM::Tool` is already defined.
-
-class Stream < LLM::Stream
-  def on_content(content)
-    $stdout << content
-  end
-
-  def on_reasoning_content(content)
-    $stderr << content
-  end
-
-  def on_tool_call(tool, error)
-    $stdout << "Running tool #{tool.name}\n"
-    queue << (error || tool.spawn(:thread))
-  end
-
-  def on_tool_return(tool, ret)
-    $stdout << (ret.error? ? "Tool #{tool.name} failed\n" : "Finished tool #{tool.name}\n")
-  end
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
-
-ctx.talk("Run `date` and `uname -a`.")
-while ctx.functions.any?
-  ctx.talk(ctx.wait(:thread))
-end
-```
-
-#### MCP
-
-MCP is a first-class integration mechanism in llm.rb.
-
-MCP allows llm.rb to treat external services, internal APIs, and system
-capabilities as tools in a unified interface. This makes it possible to
-connect multiple MCP sources simultaneously and expose your own APIs as tools.
-
-In practice, this supports workflows such as external SaaS integrations,
-multiple MCP sources in the same context, and OpenAPI -> MCP -> tools
-pipelines for internal services.
-
-llm.rb integrates with the Model Context Protocol (MCP) to dynamically discover
-and use tools from external servers. This example starts a filesystem MCP
-server over stdio and makes its tools available to a context, enabling the LLM
-to interact with the local file system through a standardized interface.
-Use `LLM::MCP.stdio` or `LLM::MCP.http` when you want to make the transport
-explicit. Like `LLM::Context`, an MCP client is stateful and should remain
-isolated to a single thread:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-mcp = LLM::MCP.stdio(argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd])
-
-begin
-  mcp.start
-  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
-  ctx.talk("List the directories in this project.")
-  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
-ensure
-  mcp.stop
-end
-```
-
-You can also connect to an MCP server over HTTP. This is useful when the
-server already runs remotely and exposes MCP through a URL instead of a local
-process. If you expect repeated tool calls, use `persistent` to reuse a
-process-wide HTTP connection pool. This requires the optional
-`net-http-persistent` gem:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-mcp = LLM::MCP.http(
-  url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
-).persistent
-
-begin
-  mcp.start
-  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
-  ctx.talk("List the available GitHub MCP toolsets.")
-  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
-ensure
-  mcp.stop
-end
-```
-
-## Supported Providers
-
-llm.rb supports multiple LLM providers with a unified API.
-All providers share the same context, tool, and concurrency interfaces, making
-it easy to switch between cloud and local models:
-
-- **OpenAI** (`LLM.openai`)
-- **Anthropic** (`LLM.anthropic`)
-- **Google** (`LLM.google`)
-- **DeepSeek** (`LLM.deepseek`)
-- **xAI** (`LLM.xai`)
-- **zAI** (`LLM.zai`)
-- **Ollama** (`LLM.ollama`)
-- **Llama.cpp** (`LLM.llamacpp`)
-
-## Running In Production
-
-#### Production Basics
-
-llm.rb is designed for production use from the ground up:
-
-- **Thread-safe providers** - Share `LLM::Provider` instances across your application
-- **Thread-local contexts** - Keep `LLM::Context` instances thread-local for state isolation
-- **Cost tracking** - Know your spend before the bill arrives
-- **Observability** - Built-in tracing with OpenTelemetry support
-- **Persistence** - Save and restore contexts across processes
-- **Performance** - Swap JSON adapters and enable HTTP connection pooling
-- **Error handling** - Structured errors, not unpredictable exceptions
-
-#### Tracing
-
-llm.rb includes built-in tracers for local logging, OpenTelemetry, and
-LangSmith. Assign a tracer to a provider and all context requests and tool
-calls made through that provider will be instrumented. Tracers are local to
-the current fiber, so the same provider can use different tracers in different
-concurrent tasks without interfering with each other.
-
-Use the logger tracer when you want structured logs through Ruby's standard
-library:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
-
-ctx = LLM::Context.new(llm)
-ctx.talk("Hello")
-```
-
-Use the telemetry tracer when you want OpenTelemetry spans. This requires the
-`opentelemetry-sdk` gem, and exporters such as OTLP can be added separately:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Telemetry.new(llm)
-
-ctx = LLM::Context.new(llm)
-ctx.talk("Hello")
-pp llm.tracer.spans
-```
-
-Use the LangSmith tracer when you want LangSmith-compatible metadata and trace
-grouping on top of the telemetry tracer:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Langsmith.new(
-  llm,
-  metadata: {env: "dev"},
-  tags: ["chatbot"]
+schema = LLM::Schema.new.object(
+  category: LLM::Schema.new.string.enum("performance", "security", "outage").required,
+  summary: LLM::Schema.new.string.required,
+  services: LLM::Schema.new.array(LLM::Schema.new.string).required
 )
 
-ctx = LLM::Context.new(llm)
-ctx.talk("Hello")
-```
-
-#### Thread Safety
-
-llm.rb uses Ruby's `Monitor` class to ensure thread safety at the provider
-level, allowing you to share a single provider instance across multiple threads
-while maintaining state isolation through thread-local contexts. This design
-enables efficient resource sharing while preventing race conditions in
-concurrent applications:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-# Thread-safe providers - create once, use everywhere
 llm = LLM.openai(key: ENV["KEY"])
-
-# Each thread should have its own context for state isolation
-Thread.new do
-  ctx = LLM::Context.new(llm)  # Thread-local context
-  ctx.talk("Hello from thread 1")
-end
-
-Thread.new do
-  ctx = LLM::Context.new(llm)  # Thread-local context
-  ctx.talk("Hello from thread 2")
-end
+ctx = LLM::Context.new(llm, schema:)
+res = ctx.talk("Structure this report: 'API latency spiked for the billing service.'")
+pp res.content!
 ```
 
-#### Performance Tuning
+## Persistence
 
-llm.rb's JSON adapter system lets you swap JSON libraries for better
-performance in high-throughput applications. The library supports stdlib JSON,
-Oj, and Yajl, with Oj typically offering the best performance. Additionally,
-you can enable HTTP connection pooling using the optional `net-http-persistent`
-gem to reduce connection overhead in production environments:
+Contexts can be serialized and restored across process boundaries. That gives
+you a straightforward way to persist long-lived conversation state between
+requests, jobs, retries, or deployments.
 
-```ruby
-#!/usr/bin/env ruby
-require "llm"
+This works because `LLM::Context` already holds the state that matters:
+messages, tool returns, usage, and provider-facing parameters. Persistence is
+therefore mostly about choosing where to store that snapshot.
 
-# Swap JSON libraries for better performance
-LLM.json = :oj  # Use Oj for faster JSON parsing
+### Save To A File
 
-# Enable HTTP connection pooling for high-throughput applications
-llm = LLM.openai(key: ENV["KEY"]).persistent  # Uses net-http-persistent when available
-```
-
-#### Model Registry
-
-llm.rb includes a local model registry that provides metadata about model
-capabilities, pricing, and limits without requiring API calls. The registry is
-shipped with the gem and sourced from https://models.dev, giving you access to
-up-to-date information about context windows, token costs, and supported
-modalities for each provider:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-# Access model metadata, capabilities, and pricing
-registry = LLM.registry_for(:openai)
-model_info = registry.limit(model: "gpt-4.1")
-puts "Context window: #{model_info.context} tokens"
-puts "Cost: $#{model_info.cost.input}/1M input tokens"
-```
-
-## More Workflows
-
-#### Responses API
-
-llm.rb also supports OpenAI's Responses API through `LLM::Context` with
-`mode: :responses`. The important switch is `store:`. With `store: false`, the
-Responses API stays stateless while still using the Responses endpoint, which
-is useful for models or features that are only available through the Responses
-API. With `store: true`, OpenAI can keep
-response state server-side and reduce how much conversation state needs to be
-sent on each turn:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, mode: :responses, store: false)
-
-ctx.talk("Your task is to answer the user's questions", role: :developer)
-res = ctx.talk("What is the capital of France?")
-puts res.content
-```
-
-#### Context Persistence: Vanilla
-
-Contexts can be serialized and restored across process boundaries. A context
-can be serialized to JSON and stored on disk, in a database, in a job queue,
-or anywhere else your application needs to persist state:
+File-based persistence is the simplest way to see how context serialization
+works. It is useful for scripts, local tools, and any workflow where a JSON
+snapshot is enough.
 
 ```ruby
 #!/usr/bin/env ruby
@@ -440,27 +324,27 @@ ctx = LLM::Context.new(llm)
 ctx.talk("Hello")
 ctx.talk("Remember that my favorite language is Ruby")
 
-# Serialize to a string when you want to store the context yourself,
-# for example in a database row or job payload.
 payload = ctx.to_json
 
 restored = LLM::Context.new(llm)
 restored.restore(string: payload)
-res = restored.talk("What is my favorite language?")
-puts res.content
+puts restored.talk("What is my favorite language?").content
 
-# You can also persist the same state to a file:
 ctx.save(path: "context.json")
+
 restored = LLM::Context.new(llm)
 restored.restore(path: "context.json")
+puts restored.talk("What is my favorite language?").content
 ```
 
-#### Context Persistence: ActiveRecord (Rails)
+### Persist With ActiveRecord
 
-In a Rails application, you can also wrap persisted context state in an
-ActiveRecord model. A minimal schema would include a `snapshot` column for the
-serialized context payload (`jsonb` is recommended) and a `provider` column
-for the provider name:
+In Rails or ActiveRecord, a small wrapper is enough to persist context state
+between requests or jobs.
+
+The key idea is that the database record owns the serialized context, while
+the `LLM::Context` instance is rebuilt on demand and flushed back after each
+turn:
 
 ```ruby
 create_table :contexts do |t|
@@ -469,8 +353,6 @@ create_table :contexts do |t|
   t.timestamps
 end
 ```
-
-For example:
 
 ```ruby
 class Context < ApplicationRecord
@@ -514,13 +396,108 @@ class Context < ApplicationRecord
 end
 ```
 
-#### Agents
+## Tools
 
-Agents in llm.rb are reusable, preconfigured assistants that automatically
-execute tool calls and maintain conversation state. Unlike contexts which
-require manual tool execution, agents automatically handle the tool call loop,
-making them ideal for autonomous workflows where you want the LLM to
-independently use available tools to accomplish tasks:
+Tools in llm.rb can be defined as classes inheriting from `LLM::Tool` or as
+closures using `LLM.function`. The same execution model covers provider tool
+calls, local tools, and MCP-exposed tools.
+
+At the context level, tool execution is explicit. The model can request work,
+the context records pending functions, and your code decides when to execute
+them and feed the results back in.
+
+### Tool Calling
+
+When the LLM requests a tool call, the context stores `Function` objects in
+`ctx.functions`. `call(:functions)` executes the pending work and returns the
+results to the model.
+
+This explicit flow is one of the main design choices in llm.rb. The model can
+request work, but your code stays in control of when that work runs and how
+its results get fed back in:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class System < LLM::Tool
+  name "system"
+  description "Run a shell command"
+  param :command, String, "Command to execute", required: true
+
+  def call(command:)
+    {success: system(command)}
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
+ctx.talk("Run `date`.")
+ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+```
+
+### Closure-Based Tools
+
+For smaller cases, `LLM.function` gives you a closure-based alternative to
+`LLM::Tool`:
+
+This is useful when you want a quick function without defining a class. The
+main limitation is that `LLM.function` does not register a tool class in
+`LLM::Tool.registry`, so features that depend on tool-class registration, such
+as streamed tool resolution through `LLM::Stream`, only work with `LLM::Tool`
+subclasses:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+weather = LLM.function(
+  "weather",
+  "Return the weather for a city",
+  city: String
+) do |city:|
+  {city:, forecast: "sunny", high_c: 23}
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: [weather])
+ctx.talk("What is the weather in Lisbon?")
+ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+```
+
+### Concurrent Tools
+
+Use `wait(:thread)`, `wait(:fiber)`, or `wait(:task)` when you want multiple
+pending tool calls to run concurrently.
+
+This matters when a turn fans out into several independent tool calls. Instead
+of blocking on each one in sequence, you can resolve them together and reduce
+end-to-end latency:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(
+  llm,
+  stream: $stdout,
+  tools: [FetchWeather, FetchNews, FetchStock]
+)
+
+ctx.talk("Summarize the weather, headlines, and stock price.")
+ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+```
+
+## Agents
+
+`LLM::Agent` gives you a reusable, preconfigured assistant built on top of
+the same context, tool, and schema primitives. It is a good fit when you want
+to package instructions, model choice, tools, and output shape into one class.
+
+The main difference from `LLM::Context` is control flow. An agent will apply
+its instructions automatically and keep executing tool calls until the turn
+settles or it hits the configured limit.
 
 ```ruby
 #!/usr/bin/env ruby
@@ -538,31 +515,117 @@ agent = SystemAdmin.new(llm)
 res = agent.talk("Run 'date'")
 ```
 
-#### Cost Tracking
+## MCP
 
-llm.rb provides built-in cost estimation that works without making additional
-API calls. The cost tracking system uses the local model registry to calculate
-estimated costs based on token usage, giving you visibility into spending
-before bills arrive. This is particularly useful for monitoring usage in
-production applications and setting budget alerts:
+MCP lets llm.rb treat external services, internal APIs, and prompt libraries
+as part of the same execution path.
+
+`LLM::MCP` is a stateful client that can connect over stdio or HTTP, list
+tools and prompts, and adapt them into the same runtime model used by
+contexts and agents.
+
+### MCP Tools Over Stdio
+
+Use stdio when the MCP server runs as a local process. This is the most direct
+way to connect local utilities and developer tools into a context.
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm)
-ctx.talk "Hello"
-puts "Estimated cost so far: $#{ctx.cost}"
-ctx.talk "Tell me a joke"
-puts "Estimated cost so far: $#{ctx.cost}"
+mcp = LLM::MCP.stdio(
+  argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd]
+)
+
+begin
+  mcp.start
+  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
+  ctx.talk("List the directories in this project.")
+  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+ensure
+  mcp.stop
+end
 ```
 
-#### Multimodal Prompts
+### MCP Tools Over HTTP
 
-Contexts provide helpers for composing multimodal prompts from URLs, local
-files, and provider-managed remote files. These tagged objects let providers
-adapt the input into the format they expect:
+If you expect repeated tool calls, use `persistent` to reuse a process-wide
+HTTP connection pool. This requires the optional `net-http-persistent` gem:
+
+Use HTTP when the MCP server is remote or shared across machines. The
+persistent client helps when the workflow makes repeated MCP requests.
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+).persistent
+
+begin
+  mcp.start
+  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
+  ctx.talk("List the available GitHub MCP toolsets.")
+  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+ensure
+  mcp.stop
+end
+```
+
+### MCP Prompts
+
+MCP servers can also expose prompt templates. llm.rb can list those prompts
+and fetch a specific prompt by name. Retrieved prompt messages are normalized
+into `LLM::Message` objects, and the raw MCP payload stays available in
+`extra.original_content`.
+
+This is useful when prompts live outside the application and need to be
+fetched by name, optionally with arguments, before being passed into a
+context or agent:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+mcp = LLM::MCP.stdio(argv: ["npx", "-y", "@mcpservers/prompt-library"])
+
+begin
+  mcp.start
+
+  prompts = mcp.prompts
+  prompt = mcp.find_prompt(
+    name: "suggest_code_error_fix",
+    arguments: {
+      "code_error" => "undefined method `name' for nil:NilClass",
+      "function_name" => "render_profile"
+    }
+  )
+
+  puts prompts.map(&:name)
+  puts prompt.messages.first.content
+  puts prompt.messages.first.extra.original_content.type
+ensure
+  mcp.stop
+end
+```
+
+## Multimodal Prompts
+
+Contexts provide helpers for composing prompts that include images, audio,
+documents, and provider-managed files.
+
+These helpers normalize non-text inputs before they reach the provider
+adapter. That keeps the prompt-building code in Ruby while still letting each
+provider receive the shape it expects.
+
+### Image Input
+
+Image helpers let you build multimodal prompts without manually assembling
+provider-specific payloads.
 
 ```ruby
 #!/usr/bin/env ruby
@@ -575,12 +638,10 @@ res = ctx.talk ["Describe this image", ctx.image_url("https://example.com/cat.jp
 puts res.content
 ```
 
-#### Audio Generation
+### Audio Generation
 
-llm.rb supports OpenAI's audio API for text-to-speech generation, allowing you
-to create speech from text with configurable voices and output formats. The
-audio API returns binary audio data that can be streamed directly to files or
-other IO objects, enabling integration with multimedia applications:
+Provider media APIs are exposed alongside chat APIs, so the same provider
+object can also handle speech output.
 
 ```ruby
 #!/usr/bin/env ruby
@@ -591,12 +652,10 @@ res = llm.audio.create_speech(input: "Hello world")
 IO.copy_stream res.audio, File.join(Dir.home, "hello.mp3")
 ```
 
-#### Image Generation
+### Image Generation
 
-llm.rb provides access to OpenAI's DALL-E image generation API through a
-unified interface. The API supports multiple response formats including
-base64-encoded images and temporary URLs, with automatic handling of binary
-data streaming for efficient file operations:
+Image generation follows the same pattern: call the provider API, then handle
+the returned file or stream in normal Ruby code.
 
 ```ruby
 #!/usr/bin/env ruby
@@ -607,26 +666,197 @@ res = llm.images.create(prompt: "a dog on a rocket to the moon")
 IO.copy_stream res.images[0], File.join(Dir.home, "dogonrocket.png")
 ```
 
-#### Embeddings
+## Retrieval And Files
 
-llm.rb's embedding API generates vector representations of text for semantic
-search and retrieval-augmented generation (RAG) workflows. The API supports
-batch processing of multiple inputs and returns normalized vectors suitable for
-vector similarity operations, with consistent dimensionality across providers:
+When you want to index content or use provider-side retrieval APIs, llm.rb
+exposes files, embeddings, and vector stores directly.
+
+This is useful when the workflow needs more than chat completion. You can
+upload content, build embeddings, create vector stores, and query them from
+the same provider object you already use for prompts and contexts.
+
+### Embeddings
+
+Embeddings are the basic building block for semantic search, clustering, and
+retrieval workflows.
 
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
-res = llm.embed(["programming is fun", "ruby is a programming language", "sushi is art"])
+res = llm.embed([
+  "programming is fun",
+  "ruby is a programming language",
+  "sushi is art"
+])
+
 puts res.class
 puts res.embeddings.size
 puts res.embeddings[0].size
+```
 
-# LLM::Response
-# 3
-# 1536
+### Files And Vector Stores
+
+When you want provider-side retrieval, file uploads and vector stores let the
+provider index your content and search over it directly.
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+require "pp"
+
+llm = LLM.openai(key: ENV["KEY"])
+file = llm.files.create(path: "README.md")
+store = llm.vector_stores.create_and_poll(name: "Docs", file_ids: [file.id])
+hits = llm.vector_stores.search(vector: store, query: "What does llm.rb do?")
+
+pp hits.data.first
+```
+
+## Tracing
+
+Assign a tracer to a provider and all context requests and tool calls made
+through that provider will be instrumented.
+
+Tracing is attached at the provider level, so the same tracer follows normal
+requests, tool execution, and higher-level workflows built on contexts or
+agents. That keeps observability close to the runtime model instead of adding
+it as a separate wrapper later:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
+
+ctx = LLM::Context.new(llm)
+ctx.talk("Hello")
+```
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Telemetry.new(llm)
+
+ctx = LLM::Context.new(llm)
+ctx.talk("Hello")
+pp llm.tracer.spans
+```
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Langsmith.new(
+  llm,
+  metadata: {env: "dev"},
+  tags: ["chatbot"]
+)
+
+ctx = LLM::Context.new(llm)
+ctx.talk("Hello")
+```
+
+## Production And Operations
+
+These are the pieces you reach for once the workflow itself is working.
+
+Most of them are small switches rather than a second framework. Providers are
+meant to be shared, contexts are meant to stay isolated, and performance or
+cost controls layer onto the same core objects.
+
+### Production Basics
+
+These are the default operational assumptions behind the library. They are
+simple, but getting them right early makes the rest of the workflow more
+predictable.
+
+- **Thread-safe providers** — share `LLM::Provider` instances across the app
+- **Thread-local contexts** — keep `LLM::Context` instances state-isolated
+- **Cost tracking** — estimate spend without extra API calls
+- **Persistence** — save and restore contexts across processes
+- **Performance** — swap JSON adapters and enable HTTP connection pooling
+- **Error handling** — structured errors instead of unpredictable exceptions
+
+### Thread Safety
+
+Providers are designed to be shared. Contexts should generally stay local to
+one thread.
+
+That split is intentional. Providers are mostly configuration and transport,
+while contexts hold mutable workflow state:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+
+Thread.new do
+  ctx = LLM::Context.new(llm)
+  ctx.talk("Hello from thread 1")
+end
+
+Thread.new do
+  ctx = LLM::Context.new(llm)
+  ctx.talk("Hello from thread 2")
+end
+```
+
+### Performance Tuning
+
+Swap JSON backends when you need more throughput, and enable persistent HTTP
+when request volume makes it worth it.
+
+These are opt-in changes. You can stay on the standard library by default and
+only add extra dependencies when the workload justifies them:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+LLM.json = :oj
+llm = LLM.openai(key: ENV["KEY"]).persistent
+```
+
+### Model Registry
+
+The local model registry provides metadata about model capabilities, pricing,
+and limits without requiring API calls.
+
+This is useful when the application needs to make local decisions about model
+selection, limits, or estimated cost:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+registry = LLM.registry_for(:openai)
+model_info = registry.limit(model: "gpt-4.1")
+puts "Context window: #{model_info.context} tokens"
+puts "Cost: $#{model_info.cost.input}/1M input tokens"
+```
+
+### Cost Tracking
+
+Contexts accumulate usage as they run, which makes cost tracking available
+without a separate accounting layer.
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk "Hello"
+puts "Estimated cost so far: $#{ctx.cost}"
+ctx.talk "Tell me a joke"
+puts "Estimated cost so far: $#{ctx.cost}"
 ```
 
 ## Putting It Together
