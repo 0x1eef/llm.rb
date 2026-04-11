@@ -2,11 +2,25 @@
 
 ## Unreleased
 
+Changes since `v4.13.0`.
+
+## v4.13.0
+
 Changes since `v4.12.0`.
+
+This release expands MCP prompt support, improves reasoning support in the
+OpenAI Responses API, and refreshes the docs around llm.rb's runtime model,
+contexts, and advanced workflows.
 
 ### Add
 
 - Add `LLM::MCP#prompts` and `LLM::MCP#find_prompt` for MCP prompt support.
+
+### Change
+
+- Rework the README around llm.rb as a runtime for AI systems.
+- Add a dedicated deep dive guide for providers, contexts, persistence,
+  tools, agents, MCP, tracing, multimodal prompts, and retrieval.
 
 ### Fix
 
