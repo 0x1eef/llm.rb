@@ -9,11 +9,10 @@
 
 ## About
 
-llm.rb is a Ruby library for building AI workflows that need to talk to the
-rest of your software. It gives you one execution model for providers, tools,
-MCP servers, streaming, schemas, files, and state, so the same core
-primitives can power chat flows, tool-enabled agents, multimodal prompts,
-persisted contexts, and provider-backed workflows.
+llm.rb is a runtime for building AI systems that integrate directly with your
+application. It is not just an API wrapper. It provides a unified execution
+model for providers, tools, MCP servers, streaming, schemas, files, and
+state.
 
 It is built for engineers who want control over how these systems run. llm.rb
 stays close to Ruby, runs on the standard library by default, loads optional
@@ -21,6 +20,13 @@ pieces only when needed, and remains easy to extend. It also works well in
 Rails or ActiveRecord applications, where a small wrapper around context
 persistence is enough to save and restore long-lived conversation state across
 requests, jobs, or retries.
+
+Most LLM libraries stop at request/response APIs. Building real systems means
+stitching together streaming, tools, state, persistence, and external
+services by hand.
+
+llm.rb provides a single execution model for all of these, so they compose
+naturally instead of becoming separate subsystems.
 
 ## Architecture
 
@@ -37,10 +43,23 @@ requests, jobs, or retries.
                       Your Application
 ```
 
+## Core Concept
+
+`LLM::Context` is the execution boundary in llm.rb.
+
+It holds:
+- message history
+- tool state
+- schemas
+- streaming configuration
+- usage and cost tracking
+
+Instead of switching abstractions for each feature, everything builds on the
+same context object.
+
 ## Differentiators
 
-Most LLM libraries stop at requests and responses. llm.rb is built around the
-state and execution model behind them.
+### Execution Model
 
 - **A system layer, not just an API wrapper**  
   Put providers, tools, MCP servers, and application APIs behind one runtime
@@ -51,37 +70,46 @@ state and execution model behind them.
 - **Contexts can be serialized**  
   Save and restore live state for jobs, databases, retries, or long-running
   workflows.
-- **Tools are explicit**  
-  Run local tools, provider-native tools, and MCP tools through the same path
-  with fewer special cases.
+
+### Runtime Behavior
+
 - **Streaming and tool execution work together**  
   Start tool work while output is still streaming so you can hide latency
   instead of waiting for turns to finish.
 - **Concurrency is a first-class feature**  
   Use threads, fibers, or async tasks without rewriting your tool layer.
-- **It scales from scripts to long-lived systems**  
-  The same primitives work for one-off scripts, background jobs, and more
-  demanding application workloads with streaming, persistence, and tracing.
-- **MCP is built in**  
-  Connect to MCP servers over stdio or HTTP without bolting on a separate
-  integration stack.
-- **Providers are normalized, not flattened**  
-  Share one API surface across providers without losing access to provider-
-  specific capabilities where they matter.
-- **It is highly pluggable**  
-  Add tools, swap providers, change JSON backends, plug in tracing, or layer
-  internal APIs and MCP servers into the same execution path.
 - **Advanced workloads are built in, not bolted on**  
   Streaming, concurrent tool execution, persistence, tracing, and MCP support
   all fit the same runtime model.
-- **Thread boundaries are clear**  
-  Providers are shareable. Contexts are stateful and should stay thread-local.
+
+### Integration
+
+- **MCP is built in**  
+  Connect to MCP servers over stdio or HTTP without bolting on a separate
+  integration stack.
+- **Tools are explicit**  
+  Run local tools, provider-native tools, and MCP tools through the same path
+  with fewer special cases.
+- **Providers are normalized, not flattened**  
+  Share one API surface across providers without losing access to provider-
+  specific capabilities where they matter.
 - **Local model metadata is included**  
   Model capabilities, pricing, and limits are available locally without extra
   API calls.
+
+### Design Philosophy
+
 - **Runs on the stdlib**  
   Start with Ruby's standard library and add extra dependencies only when you
   need them.
+- **It is highly pluggable**  
+  Add tools, swap providers, change JSON backends, plug in tracing, or layer
+  internal APIs and MCP servers into the same execution path.
+- **It scales from scripts to long-lived systems**  
+  The same primitives work for one-off scripts, background jobs, and more
+  demanding application workloads with streaming, persistence, and tracing.
+- **Thread boundaries are clear**  
+  Providers are shareable. Contexts are stateful and should stay thread-local.
 
 ## Capabilities
 

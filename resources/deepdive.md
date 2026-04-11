@@ -8,6 +8,16 @@
 This guide is the practical companion to the main [README](../README.md).
 The README explains what llm.rb is. This document shows how to use it.
 
+## Mental Model
+
+Everything in llm.rb builds on three concepts:
+
+- Provider: the model backend
+- Context: the execution state
+- Tools: external work the model can request
+
+Most features extend these, rather than introducing new abstractions.
+
 ## Contents
 
 - [Providers](#providers)
