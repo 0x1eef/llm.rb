@@ -27,13 +27,15 @@ class LLM::MCP
     def call(transport, method, params = {})
       message = {jsonrpc: "2.0", method:, params: default_params(method).merge(params)}
       if notification?(method)
-        transport.write(message)
-        nil
-      else
-        @request_id = (@request_id || -1) + 1
-        id = @request_id
-        transport.write(message.merge(id:))
-        recv(transport, id)
+        router.write(transport, message)
+        return nil
+      end
+      id, mailbox = router.register
+      begin
+        router.write(transport, message.merge(id:))
+        recv(transport, id, mailbox)
+      ensure
+        router.clear(id)
       end
     end
 
@@ -49,19 +51,12 @@ class LLM::MCP
     #  When the MCP process returns an error
     # @return [Object, nil]
     #  The result returned by the MCP process
-    def recv(transport, id)
+    def recv(transport, id, mailbox)
       poll(timeout:, ex: [IO::WaitReadable]) do
         loop do
-          res = transport.read_nonblock
-          if res["id"] == id && res["error"]
-            raise LLM::MCP::Error.from(response: res)
-          elsif res["id"] == id
-            break res["result"]
-          elsif res["method"]
-            next
-          elsif res.key?("id")
-            raise LLM::MCP::MismatchError.new(expected_id: id, actual_id: res["id"])
-          end
+          res = mailbox.pop
+          return handle_response(id, res) if res
+          route_response(router.read(transport), id)
         end
       end
     end
@@ -118,6 +113,22 @@ class LLM::MCP
         raise LLM::MCP::TimeoutError, "MCP process timed out" if duration > timeout
         sleep 0.05
       end
+    end
+
+    def handle_response(id, res)
+      raise LLM::MCP::Error.from(response: res) if res["error"]
+      return res["result"] if res["id"] == id
+      raise LLM::MCP::MismatchError.new(expected_id: id, actual_id: res["id"])
+    end
+
+    def route_response(res, id)
+      return nil if res["method"]
+      return router.route(res) if res.key?("id")
+      raise LLM::MCP::MismatchError.new(expected_id: id, actual_id: nil)
+    end
+
+    def router
+      @router ||= LLM::MCP::Router.new
     end
   end
 end

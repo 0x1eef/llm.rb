@@ -90,12 +90,12 @@ module LLM::Provider::Transport
       # @return [Net::HTTPResponse]
       def perform_request(http, request, stream, stream_parser, &b)
         if stream
-            http.request(request) do |res|
-              if Net::HTTPSuccess === res
-                parser = StreamDecoder.new(stream_parser.new(stream))
-                res.read_body(parser)
-                body = parser.body
-                res.body = (Hash === body || Array === body) ? LLM::Object.from(body) : body
+          http.request(request) do |res|
+            if Net::HTTPSuccess === res
+              parser = StreamDecoder.new(stream_parser.new(stream))
+              res.read_body(parser)
+              body = parser.body
+              res.body = (Hash === body || Array === body) ? LLM::Object.from(body) : body
             else
               body = +""
               res.read_body { body << _1 }

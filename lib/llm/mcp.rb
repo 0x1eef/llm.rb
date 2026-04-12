@@ -10,11 +10,14 @@
 # transports and focuses on discovering tools that can be used through
 # {LLM::Context LLM::Context} and {LLM::Agent LLM::Agent}.
 #
-# Like {LLM::Context LLM::Context}, an MCP client is stateful and is
-# expected to remain isolated to a single thread.
+# An MCP client is stateful. Coordinate lifecycle operations such as
+# {#start} and {#stop}; request methods can be issued concurrently and
+# responses are matched by JSON-RPC id.
 class LLM::MCP
   require_relative "mcp/error"
   require_relative "mcp/command"
+  require_relative "mcp/mailbox"
+  require_relative "mcp/router"
   require_relative "mcp/rpc"
   require_relative "mcp/pipe"
   require_relative "mcp/transport/http"

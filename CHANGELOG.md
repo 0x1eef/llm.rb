@@ -34,6 +34,10 @@ Changes since `v4.13.0`.
 
 ### Fix
 
+* **Support parallel MCP tool calls on one client** <br>
+  Route MCP responses by JSON-RPC id so concurrent tool calls can
+  share one client and transport without mismatching replies.
+
 * **Use explicit MCP non-blocking read errors** <br>
   Use `IO::EAGAINWaitReadable` while continuing to retry on
   `IO::WaitReadable`.
