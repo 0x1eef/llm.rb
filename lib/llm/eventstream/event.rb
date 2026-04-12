@@ -4,8 +4,17 @@ module LLM::EventStream
   ##
   # @private
   class Event
-    FIELD_REGEXP = /[^:]+/
-    VALUE_REGEXP = /(?<=: ).+/
+    UNSET = Object.new.freeze
+
+    def self.parse(chunk)
+      newline = chunk.end_with?("\n") ? chunk.bytesize - 1 : chunk.bytesize
+      separator = chunk.index(":")
+      return [nil, nil] unless separator
+      field = chunk.byteslice(0, separator)
+      value_start = separator + (chunk.getbyte(separator + 1) == 32 ? 2 : 1)
+      value = value_start < newline ? chunk.byteslice(value_start, newline - value_start) : nil
+      [field, value]
+    end
 
     ##
     # Returns the field name
@@ -25,9 +34,10 @@ module LLM::EventStream
     ##
     # @param [String] chunk
     # @return [LLM::EventStream::Event]
-    def initialize(chunk)
-      @field = chunk[FIELD_REGEXP]
-      @value = chunk[VALUE_REGEXP]
+    def initialize(chunk, field: UNSET, value: UNSET)
+      @field, @value = self.class.parse(chunk) if field.equal?(UNSET) || value.equal?(UNSET)
+      @field = field unless field.equal?(UNSET)
+      @value = value unless value.equal?(UNSET)
       @chunk = chunk
     end
 

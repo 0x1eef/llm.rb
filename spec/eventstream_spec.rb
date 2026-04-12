@@ -380,4 +380,24 @@ RSpec.describe LLM::EventStream::Parser do
       end
     end
   end
+
+  describe "#on" do
+    let(:events) { [] }
+    subject(:parser) do
+      described_class.new.tap do |instance|
+        instance.on(:data) { events << _1 }
+      end
+    end
+
+    after { parser.free }
+
+    it "still yields event objects to callback subscribers" do
+      parser << %(data: {"ok":true}\n)
+      event = events.fetch(0)
+      expect(event).to be_a(LLM::EventStream::Event)
+      expect(event.field).to eq("data")
+      expect(event.value).to eq('{"ok":true}')
+      expect(event.chunk).to eq(%(data: {"ok":true}\n))
+    end
+  end
 end

@@ -55,22 +55,29 @@ module LLM::EventStream
 
     private
 
-    def parse!(event)
-      event = Event.new(event)
-      dispatch(event)
+    def parse!(chunk)
+      field, value = Event.parse(chunk)
+      dispatch_visitors(field, value, chunk)
+      dispatch_callbacks(field, value, chunk)
     end
 
-    def dispatch(event)
-      @visitors.each { dispatch_visitor(_1, event) }
-      @events[event.field].each { _1.call(event) }
+    def dispatch_visitors(field, value, chunk)
+      @visitors.each { dispatch_visitor(_1, field, value, chunk) }
     end
 
-    def dispatch_visitor(visitor, event)
-      method = "on_#{event.field}"
+    def dispatch_callbacks(field, value, chunk)
+      callbacks = @events[field]
+      return if callbacks.empty?
+      event = Event.new(chunk, field:, value:)
+      callbacks.each { _1.call(event) }
+    end
+
+    def dispatch_visitor(visitor, field, value, chunk)
+      method = "on_#{field}"
       if visitor.respond_to?(method)
-        visitor.public_send(method, event)
+        visitor.public_send(method, value, chunk)
       elsif visitor.respond_to?("on_chunk")
-        visitor.on_chunk(event)
+        visitor.on_chunk(nil, chunk)
       end
     end
 

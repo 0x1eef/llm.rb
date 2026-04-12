@@ -21,29 +21,31 @@ module LLM::MCP::Transport
 
     ##
     # Receives the SSE event name.
-    # @param [LLM::EventStream::Event] event
+    # @param [LLM::EventStream::Event, String, nil] event
+    # @param [String, nil] chunk
     #  The event stream event
     # @return [void]
-    def on_event(event)
-      @event = event.value
+    def on_event(event, chunk = nil)
+      @event = chunk ? event : event.value
     end
 
     ##
     # Receives one line of SSE data.
-    # @param [LLM::EventStream::Event] event
+    # @param [LLM::EventStream::Event, String, nil] event
+    # @param [String, nil] chunk
     #  The event stream event
     # @return [void]
-    def on_data(event)
-      @data << event.value.to_s
+    def on_data(event, chunk = nil)
+      @data << (chunk ? event : event.value).to_s
     end
 
     # The generic event stream parser dispatches one line at a time.
     # A blank line terminates the current SSE event.
-    # @param [LLM::EventStream::Event] event
+    # @param [LLM::EventStream::Event, String] event
     #  The event stream event
     # @return [void]
-    def on_chunk(event)
-      flush if event.chunk == "\n"
+    def on_chunk(event, chunk = nil)
+      flush if (chunk || event&.chunk || event) == "\n"
     end
 
     private

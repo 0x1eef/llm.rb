@@ -6,19 +6,26 @@ Changes since `v4.13.0`.
 
 ### Add
 
-- Add `LLM::Context#interrupt!`, `LLM::Context#cancel!`, and
+* **Add request interruption support** <br>
+  Add `LLM::Context#interrupt!`, `LLM::Context#cancel!`, and
   `LLM::Interrupt` for interrupting in-flight provider requests,
   inspired by Go's context cancellation.
 
 ### Change
 
-- Rework provider HTTP internals around `LLM::Provider::Transport::HTTP`
-  with explicit transient and persistent transport handling.
+* **Rework provider HTTP transport internals** <br>
+  Rework provider HTTP around `LLM::Provider::Transport::HTTP` with
+  explicit transient and persistent transport handling.
+
+* **Reduce SSE parser overhead** <br>
+  Dispatch raw parsed values to registered visitors instead of building
+  an `Event` object for every streamed line.
 
 ### Fix
 
-- Use `IO::EAGAINWaitReadable` for explicit MCP non-blocking read errors
-  while continuing to retry on `IO::WaitReadable`.
+* **Use explicit MCP non-blocking read errors** <br>
+  Use `IO::EAGAINWaitReadable` while continuing to retry on
+  `IO::WaitReadable`.
 
 ## v4.13.0
 
