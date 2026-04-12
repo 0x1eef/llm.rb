@@ -4,6 +4,13 @@
 
 Changes since `v4.14.0`.
 
+### Change
+
+* **Reduce OpenAI stream parser overhead** <br>
+  Do less repeat work while assembling streamed content and tool calls.
+  Completed tool arguments are now parsed once and reused, and the
+  Responses parser repeats fewer nested lookups on hot paths.
+
 ## v4.14.0
 
 Changes since `v4.13.0`.

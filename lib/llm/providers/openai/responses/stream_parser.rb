@@ -16,7 +16,7 @@ class LLM::OpenAI
     def initialize(stream)
       @body = {"output" => []}
       @stream = stream
-      @emits = {tools: []}
+      @emits = {tools: {}}
     end
 
     ##
@@ -36,6 +36,7 @@ class LLM::OpenAI
     private
 
     def handle_event(chunk)
+      output = @body["output"]
       case chunk["type"]
       when "response.created"
         chunk.each do |k, v|
@@ -46,34 +47,38 @@ class LLM::OpenAI
       when "response.in_progress", "response.completed"
         response = chunk["response"] || {}
         response.each do |k, v|
-          next if k == "output" && @body["output"].is_a?(Array) && @body["output"].any?
+          next if k == "output" && Array === output && output.any?
           @body[k] = v
         end
         @body["output"] ||= response["output"] || []
       when "response.output_item.added"
         output_index = chunk["output_index"]
         item = chunk["item"]
-        @body["output"][output_index] = item
-        @body["output"][output_index]["content"] ||= []
-        @body["output"][output_index]["summary"] ||= [] if item["type"] == "reasoning"
+        output[output_index] = item
+        item["content"] ||= []
+        item["summary"] ||= [] if item["type"] == "reasoning"
       when "response.content_part.added"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
         part = chunk["part"]
-        @body["output"][output_index] ||= {"content" => []}
-        @body["output"][output_index]["content"] ||= []
-        @body["output"][output_index]["content"][content_index] = part
+        output_item = output[output_index] ||= {"content" => []}
+        content = output_item["content"] ||= []
+        content[content_index] = part
       when "response.reasoning_summary_text.delta"
-        output_item = @body["output"][chunk["output_index"]]
+        output_item = output[chunk["output_index"]]
         if output_item && output_item["type"] == "reasoning"
           summary_index = chunk["summary_index"] || 0
-          output_item["summary"] ||= []
-          output_item["summary"][summary_index] ||= {"type" => "summary_text", "text" => +""}
-          output_item["summary"][summary_index]["text"] << chunk["delta"]
-          emit_reasoning_content(chunk["delta"])
+          delta = chunk["delta"]
+          summary = output_item["summary"] ||= []
+          if (summary_item = summary[summary_index])
+            summary_item["text"] << delta
+          else
+            summary[summary_index] = {"type" => "summary_text", "text" => delta}
+          end
+          emit_reasoning_content(delta)
         end
       when "response.reasoning_summary_text.done"
-        output_item = @body["output"][chunk["output_index"]]
+        output_item = output[chunk["output_index"]]
         if output_item && output_item["type"] == "reasoning"
           summary_index = chunk["summary_index"] || 0
           output_item["summary"] ||= []
@@ -86,23 +91,29 @@ class LLM::OpenAI
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
         delta_text = chunk["delta"]
-        output_item = @body["output"][output_index]
+        output_item = output[output_index]
         if output_item && output_item["content"]
           content_part = output_item["content"][content_index]
           if content_part && content_part["type"] == "output_text"
-            content_part["text"] ||= ""
-            content_part["text"] << delta_text
+            if (text = content_part["text"])
+              text << delta_text
+            else
+              content_part["text"] = delta_text
+            end
             emit_content(delta_text)
           end
         end
       when "response.function_call_arguments.delta"
-        output_item = @body["output"][chunk["output_index"]]
+        output_item = output[chunk["output_index"]]
         if output_item && output_item["type"] == "function_call"
-          output_item["arguments"] ||= +""
-          output_item["arguments"] << chunk["delta"]
+          if (arguments = output_item["arguments"])
+            arguments << chunk["delta"]
+          else
+            output_item["arguments"] = chunk["delta"]
+          end
         end
       when "response.function_call_arguments.done"
-        output_item = @body["output"][chunk["output_index"]]
+        output_item = output[chunk["output_index"]]
         if output_item && output_item["type"] == "function_call"
           output_item["arguments"] = chunk["arguments"]
           emit_tool(chunk["output_index"], output_item)
@@ -110,14 +121,14 @@ class LLM::OpenAI
       when "response.output_item.done"
         output_index = chunk["output_index"]
         item = chunk["item"]
-        @body["output"][output_index] = item
+        output[output_index] = item
       when "response.content_part.done"
         output_index = chunk["output_index"]
         content_index = chunk["content_index"]
         part = chunk["part"]
-        @body["output"][output_index] ||= {"content" => []}
-        @body["output"][output_index]["content"] ||= []
-        @body["output"][output_index]["content"][content_index] = part
+        output_item = output[output_index] ||= {"content" => []}
+        content = output_item["content"] ||= []
+        content[content_index] = part
       end
     end
 
@@ -135,22 +146,20 @@ class LLM::OpenAI
 
     def emit_tool(index, tool)
       return unless @stream.respond_to?(:on_tool_call)
-      return unless complete_tool?(tool)
-      return if @emits[:tools].include?(index)
-      function, error = resolve_tool(tool)
-      @emits[:tools] << index
+      return if @emits[:tools][index]
+      return unless tool["call_id"] && tool["name"]
+      arguments = parse_arguments(tool["arguments"])
+      return unless arguments
+      function, error = resolve_tool(tool, arguments)
+      @emits[:tools][index] = true
       @stream.on_tool_call(function, error)
     end
 
-    def complete_tool?(tool)
-      tool["call_id"] && tool["name"] && parse_arguments(tool["arguments"])
-    end
-
-    def resolve_tool(tool)
+    def resolve_tool(tool, arguments)
       registered = LLM::Function.find_by_name(tool["name"])
       fn = (registered || LLM::Function.new(tool["name"])).dup.tap do |fn|
         fn.id = tool["call_id"]
-        fn.arguments = parse_arguments(tool["arguments"])
+        fn.arguments = arguments
       end
       [fn, (registered ? nil : @stream.tool_not_found(fn))]
     end

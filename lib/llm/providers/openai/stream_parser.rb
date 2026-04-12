@@ -14,7 +14,7 @@ class LLM::OpenAI
     def initialize(stream)
       @body = {}
       @stream = stream
-      @emits = {tools: []}
+      @emits = {tools: {}}
     end
 
     ##
@@ -45,11 +45,12 @@ class LLM::OpenAI
     end
 
     def merge_choices!(choices)
+      body_choices = @body["choices"]
       choices.each do |choice|
         index = choice["index"]
-        if @body["choices"][index]
-          target_message = @body["choices"][index]["message"]
-          delta = choice["delta"] || {}
+        delta = choice["delta"] || {}
+        if body_choices[index]
+          target_message = body_choices[index]["message"]
           delta.each do |key, value|
             next if value.nil?
             if key == "content"
@@ -68,8 +69,8 @@ class LLM::OpenAI
           end
         else
           message_hash = {"role" => "assistant"}
-          @body["choices"][index] = {"message" => message_hash}
-          (choice["delta"] || {}).each do |key, value|
+          body_choices[index] = {"message" => message_hash}
+          delta.each do |key, value|
             next if value.nil?
             if key == "content"
               emit_content(value)
@@ -122,24 +123,21 @@ class LLM::OpenAI
 
     def emit_tool(tool, tindex)
       return unless @stream.respond_to?(:on_tool_call)
-      return unless complete_tool?(tool)
-      return if @emits[:tools].include?(tindex)
-      function, error = resolve_tool(tool)
-      @emits[:tools] << tindex
+      return if @emits[:tools][tindex]
+      function = tool["function"]
+      return unless function && tool["id"] && function["name"]
+      arguments = parse_arguments(function["arguments"])
+      return unless arguments
+      function, error = resolve_tool(tool, function, arguments)
+      @emits[:tools][tindex] = true
       @stream.on_tool_call(function, error)
     end
 
-    def complete_tool?(tool)
-      function = tool["function"]
-      function && tool["id"] && function["name"] && parse_arguments(function["arguments"])
-    end
-
-    def resolve_tool(tool)
-      function = tool["function"]
+    def resolve_tool(tool, function, arguments)
       registered = LLM::Function.find_by_name(function["name"])
       fn = (registered || LLM::Function.new(function["name"])).dup.tap do |fn|
         fn.id = tool["id"]
-        fn.arguments = parse_arguments(function["arguments"])
+        fn.arguments = arguments
       end
       [fn, (registered ? nil : @stream.tool_not_found(fn))]
     end
