@@ -21,6 +21,12 @@ Changes since `v4.13.0`.
   Dispatch raw parsed values to registered visitors instead of building
   an `Event` object for every streamed line.
 
+* **Reduce provider streaming allocations** <br>
+  Decode streamed provider payloads directly in
+  `LLM::Provider::Transport::HTTP` before handing them to provider
+  parsers, which cuts allocation churn and gives a smaller streaming
+  speed bump.
+
 ### Fix
 
 * **Use explicit MCP non-blocking read errors** <br>

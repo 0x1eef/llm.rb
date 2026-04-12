@@ -10,6 +10,7 @@ class LLM::Provider
     #
     # @api private
     class HTTP
+      require_relative "http/stream_decoder"
       require_relative "http/interruptible"
 
       include Interruptible
