@@ -5,6 +5,7 @@ module LLM::EventStream
   # @private
   class Parser
     COMPACT_THRESHOLD = 4096
+    Visitor = Struct.new(:target, :on_data, :on_event, :on_id, :on_retry, :on_chunk)
 
     ##
     # @return [LLM::EventStream::Parser]
@@ -20,7 +21,12 @@ module LLM::EventStream
     # @param [#on_data] visitor
     # @return [void]
     def register(visitor)
-      @visitors << visitor
+      @visitors << Visitor.new(
+        visitor,
+        visitor.respond_to?(:on_data), visitor.respond_to?(:on_event),
+        visitor.respond_to?(:on_id), visitor.respond_to?(:on_retry),
+        visitor.respond_to?(:on_chunk)
+      )
     end
 
     ##
@@ -58,10 +64,14 @@ module LLM::EventStream
 
     private
 
-    def parse!(chunk)
-      field, value = Event.parse(chunk)
+    def parse_event!(chunk, field, value)
       dispatch_visitors(field, value, chunk)
       dispatch_callbacks(field, value, chunk)
+    end
+
+    def parse!(chunk)
+      field, value = Event.parse(chunk)
+      parse_event!(chunk, field, value)
     end
 
     def dispatch_visitors(field, value, chunk)
@@ -76,11 +86,33 @@ module LLM::EventStream
     end
 
     def dispatch_visitor(visitor, field, value, chunk)
-      method = "on_#{field}"
-      if visitor.respond_to?(method)
-        visitor.public_send(method, value, chunk)
-      elsif visitor.respond_to?("on_chunk")
-        visitor.on_chunk(nil, chunk)
+      target = visitor.target
+      if field == "data"
+        if visitor.on_data
+          target.on_data(value, chunk)
+        elsif visitor.on_chunk
+          target.on_chunk(nil, chunk)
+        end
+      elsif field == "event"
+        if visitor.on_event
+          target.on_event(value, chunk)
+        elsif visitor.on_chunk
+          target.on_chunk(nil, chunk)
+        end
+      elsif field == "id"
+        if visitor.on_id
+          target.on_id(value, chunk)
+        elsif visitor.on_chunk
+          target.on_chunk(nil, chunk)
+        end
+      elsif field == "retry"
+        if visitor.on_retry
+          target.on_retry(value, chunk)
+        elsif visitor.on_chunk
+          target.on_chunk(nil, chunk)
+        end
+      elsif visitor.on_chunk
+        target.on_chunk(nil, chunk)
       end
     end
 
