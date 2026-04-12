@@ -4,6 +4,8 @@ class LLM::OpenAI
   ##
   # @private
   class Responses::StreamParser
+    EMPTY_HASH = {}.freeze
+
     ##
     # Returns the fully constructed response body
     # @return [Hash]
@@ -45,7 +47,7 @@ class LLM::OpenAI
         end
         @body["output"] ||= []
       when "response.in_progress", "response.completed"
-        response = chunk["response"] || {}
+        response = chunk["response"] || EMPTY_HASH
         response.each do |k, v|
           next if k == "output" && Array === output && output.any?
           @body[k] = v
@@ -70,7 +72,7 @@ class LLM::OpenAI
           summary_index = chunk["summary_index"] || 0
           delta = chunk["delta"]
           summary = output_item["summary"] ||= []
-          if (summary_item = summary[summary_index])
+          if summary_item = summary[summary_index]
             summary_item["text"] << delta
           else
             summary[summary_index] = {"type" => "summary_text", "text" => delta}
@@ -95,7 +97,7 @@ class LLM::OpenAI
         if output_item && output_item["content"]
           content_part = output_item["content"][content_index]
           if content_part && content_part["type"] == "output_text"
-            if (text = content_part["text"])
+            if text = content_part["text"]
               text << delta_text
             else
               content_part["text"] = delta_text
@@ -106,7 +108,7 @@ class LLM::OpenAI
       when "response.function_call_arguments.delta"
         output_item = output[chunk["output_index"]]
         if output_item && output_item["type"] == "function_call"
-          if (arguments = output_item["arguments"])
+          if arguments = output_item["arguments"]
             arguments << chunk["delta"]
           else
             output_item["arguments"] = chunk["delta"]

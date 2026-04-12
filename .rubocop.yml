@@ -63,3 +63,5 @@ Style/TernaryParentheses:
   Enabled: false
 Style/MethodCallWithoutArgsParentheses:
   Enabled: false
+Style/ParenthesesAroundCondition:
+  Enabled: false

@@ -6,15 +6,16 @@ Changes since `v4.14.0`.
 
 ### Change
 
-* **Reduce OpenAI stream parser overhead** <br>
-  Do less repeat work while assembling streamed content and tool calls.
-  Completed tool arguments are now parsed once and reused, and the
-  Responses parser repeats fewer nested lookups on hot paths.
-  In the local `stream_parser` benchmark versus `v4.13.0`
-  (median of 5 samples, 5000 iterations), the generic eventstream path
-  is about 36% faster with about 29% fewer allocations, while the
-  OpenAI stream and Responses parsers are each about 4% faster with
-  about 3-4% fewer allocations.
+* **Reduce OpenAI stream parser merge overhead** <br>
+  Special-case the most common single-field deltas, streamline
+  incremental tool-call merging, and avoid repeated JSON parse attempts
+  until streamed tool arguments look complete.
+  In the local `stream_parser` benchmark versus `v4.14.0`
+  (median of 20 samples, 20000 iterations), the generic eventstream
+  path is about 3% faster with fewer allocations, the OpenAI stream
+  parser is about 13% faster with about 6% fewer allocations, and the
+  OpenAI Responses parser is about 2% faster with unchanged
+  allocations.
 
 ## v4.14.0
 

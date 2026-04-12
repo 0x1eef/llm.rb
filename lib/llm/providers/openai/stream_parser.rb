@@ -4,6 +4,8 @@ class LLM::OpenAI
   ##
   # @private
   class StreamParser
+    EMPTY_HASH = {}.freeze
+
     ##
     # Returns the fully constructed response body
     # @return [Hash]
@@ -48,43 +50,65 @@ class LLM::OpenAI
       body_choices = @body["choices"]
       choices.each do |choice|
         index = choice["index"]
-        delta = choice["delta"] || {}
-        if body_choices[index]
-          target_message = body_choices[index]["message"]
-          delta.each do |key, value|
-            next if value.nil?
-            if key == "content"
-              target_message[key] ||= +""
-              target_message[key] << value
-              emit_content(value)
-            elsif key == "reasoning_content"
-              target_message[key] ||= +""
-              target_message[key] << value
-              emit_reasoning_content(value)
-            elsif key == "tool_calls"
-              merge_tools!(target_message, value)
-            else
-              target_message[key] = value
-            end
-          end
+        delta = choice["delta"] || EMPTY_HASH
+        target_message = if body_choice = body_choices[index]
+          body_choice["message"]
         else
-          message_hash = {"role" => "assistant"}
-          body_choices[index] = {"message" => message_hash}
-          delta.each do |key, value|
-            next if value.nil?
-            if key == "content"
-              emit_content(value)
-              message_hash[key] = value
-            elsif key == "reasoning_content"
-              emit_reasoning_content(value)
-              message_hash[key] = value
-            elsif key == "tool_calls"
-              merge_tools!(message_hash, value)
-            else
-              message_hash[key] = value
-            end
-          end
+          body_choices[index] = {"message" => {"role" => "assistant"}}
+          body_choices[index]["message"]
         end
+        merge_delta!(target_message, delta)
+      end
+    end
+
+    def merge_delta!(target_message, delta)
+      if delta.length == 1
+        merge_single_delta!(target_message, delta)
+      elsif content = delta["content"]
+        if target_content = target_message["content"]
+          target_content << content
+        else
+          target_message["content"] = content
+        end
+        emit_content(content)
+      elsif reasoning = delta["reasoning_content"]
+        if target_reasoning = target_message["reasoning_content"]
+          target_reasoning << reasoning
+        else
+          target_message["reasoning_content"] = reasoning
+        end
+        emit_reasoning_content(reasoning)
+      elsif tool_calls = delta["tool_calls"]
+        merge_tools!(target_message, tool_calls)
+      end
+      return if delta.length <= 1
+      delta.each do |key, value|
+        next if value.nil? || key == "content" || key == "reasoning_content" || key == "tool_calls"
+        target_message[key] = value
+      end
+    end
+
+    def merge_single_delta!(target_message, delta)
+      if content = delta["content"]
+        if target_content = target_message["content"]
+          target_content << content
+        else
+          target_message["content"] = content
+        end
+        emit_content(content)
+        return
+      end
+      if reasoning = delta["reasoning_content"]
+        if target_reasoning = target_message["reasoning_content"]
+          target_reasoning << reasoning
+        else
+          target_message["reasoning_content"] = reasoning
+        end
+        emit_reasoning_content(reasoning)
+        return
+      end
+      if tool_calls = delta["tool_calls"]
+        merge_tools!(target_message, tool_calls)
       end
     end
 
@@ -94,16 +118,38 @@ class LLM::OpenAI
         tindex = toola["index"]
         tindex = index unless Integer === tindex && tindex >= 0
         toolb = target["tool_calls"][tindex]
-        if toolb && toola["function"] && toolb["function"]
+        functiona = toola["function"]
+        functionb = toolb && toolb["function"]
+        if functiona && functionb
           # Append to existing function arguments
-          toola["function"].each do |func_key, func_value|
-            toolb["function"][func_key] ||= +""
-            toolb["function"][func_key] << func_value
-          end
+          merge_function!(functionb, functiona)
         else
           target["tool_calls"][tindex] = toola
         end
         emit_tool(target["tool_calls"][tindex], tindex)
+      end
+    end
+
+    def merge_function!(target, source)
+      if arguments = source["arguments"]
+        if target_arguments = target["arguments"]
+          target_arguments << arguments
+        else
+          target["arguments"] = arguments
+        end
+      end
+      if name = source["name"]
+        if target_name = target["name"]
+          target_name << name
+        else
+          target["name"] = name
+        end
+      end
+      return if source.length <= 2
+      source.each do |func_key, func_value|
+        next if func_key == "arguments" || func_key == "name"
+        target[func_key] ||= +""
+        target[func_key] << func_value
       end
     end
 
@@ -126,6 +172,7 @@ class LLM::OpenAI
       return if @emits[:tools][tindex]
       function = tool["function"]
       return unless function && tool["id"] && function["name"]
+      return unless arguments_complete?(function["arguments"])
       arguments = parse_arguments(function["arguments"])
       return unless arguments
       function, error = resolve_tool(tool, function, arguments)
@@ -148,6 +195,11 @@ class LLM::OpenAI
       Hash === parsed ? parsed : nil
     rescue *LLM.json.parser_error
       nil
+    end
+
+    def arguments_complete?(arguments)
+      value = arguments.to_s.rstrip
+      !value.empty? && value.end_with?("}")
     end
   end
 end
