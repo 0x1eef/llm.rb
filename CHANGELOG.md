@@ -10,6 +10,14 @@ Changes since `v4.14.0`.
   Special-case the most common single-field deltas, streamline
   incremental tool-call merging, and avoid repeated JSON parse attempts
   until streamed tool arguments look complete.
+
+* **Cache streaming callback capabilities in parsers** <br>
+  Cache callback support checks once at parser initialization time in
+  the OpenAI, OpenAI Responses, Anthropic, Google, and Ollama stream
+  parsers instead of repeating `respond_to?` checks on hot streaming
+  paths.
+
+* **Improve streaming parser performance** <br>
   In the local `stream_parser` benchmark versus `v4.14.0`
   (median of 20 samples, 20000 iterations), the generic eventstream
   path is about 3% faster with fewer allocations, the OpenAI stream
