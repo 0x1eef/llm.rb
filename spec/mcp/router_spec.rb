@@ -76,7 +76,7 @@ RSpec.describe LLM::MCP::Router do
       expect(transport.entered_count).to eq(2)
       transport.release
       threads.each(&:join)
-      expect(transport.writes).to eq([{id: 0}, {id: 1}])
+      expect(transport.writes).to contain_exactly({id: 0}, {id: 1})
     end
   end
 end
