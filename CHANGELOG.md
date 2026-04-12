@@ -10,6 +10,11 @@ Changes since `v4.14.0`.
   Do less repeat work while assembling streamed content and tool calls.
   Completed tool arguments are now parsed once and reused, and the
   Responses parser repeats fewer nested lookups on hot paths.
+  In the local `stream_parser` benchmark versus `v4.13.0`
+  (median of 5 samples, 5000 iterations), the generic eventstream path
+  is about 36% faster with about 29% fewer allocations, while the
+  OpenAI stream and Responses parsers are each about 4% faster with
+  about 3-4% fewer allocations.
 
 ## v4.14.0
 

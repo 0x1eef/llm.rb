@@ -11,6 +11,7 @@
 /*.lock
 /.env
 /script
+/bench/
 
 # rspec failure tracking
 .rspec_status

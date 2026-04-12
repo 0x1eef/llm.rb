@@ -54,6 +54,10 @@ task :console do
   binding.irb
 end
 
+Dir[File.join(__dir__, "tasks", "*.rake")].sort.each do |task|
+  load task
+end
+
 namespace :'models.dev' do
   desc "Download models.dev metadata"
   task :download do
