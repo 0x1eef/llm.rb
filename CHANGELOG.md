@@ -17,13 +17,22 @@ Changes since `v4.14.0`.
   parsers instead of repeating `respond_to?` checks on hot streaming
   paths.
 
+* **Reduce OpenAI Responses parser lookup overhead** <br>
+  Special-case the hot Responses API event paths and cache the current
+  output item and content part so streamed output text deltas do less
+  repeated nested lookup work.
+
 * **Improve streaming parser performance** <br>
-  In the local `stream_parser` benchmark versus `v4.14.0`
-  (median of 20 samples, 20000 iterations), the generic eventstream
-  path is about 3% faster with fewer allocations, the OpenAI stream
-  parser is about 13% faster with about 6% fewer allocations, and the
-  OpenAI Responses parser is about 2% faster with unchanged
-  allocations.
+  In the local replay-based `stream_parser` benchmark versus
+  `v4.14.0` (median of 20 samples, 5000 iterations):
+  Plain Ruby: the generic eventstream path is effectively flat with
+  unchanged allocations, the OpenAI stream parser is about 9% faster
+  with about 4% fewer allocations, and the OpenAI Responses parser is
+  about 3% faster with a small allocation reduction.
+  YJIT: the generic eventstream path is about 6% faster with unchanged
+  allocations, the OpenAI stream parser is about 10% faster with about
+  4% fewer allocations, and the OpenAI Responses parser is slightly
+  faster with a small allocation reduction.
 
 ## v4.14.0
 
@@ -63,11 +72,15 @@ parallel tool calls can safely share one connection.
 
 * **Improve streaming parser performance** <br>
   In the local replay-based `stream_parser` benchmark versus `v4.13.0`
-  (median of 20 samples, 5000 iterations), the generic eventstream
-  path is about 51% faster with about 32% fewer allocations, the
-  OpenAI stream parser is about 1% faster with unchanged allocations,
-  and the OpenAI Responses parser is effectively flat with unchanged
-  allocations.
+  (median of 20 samples, 5000 iterations):
+  Plain Ruby: the generic eventstream path is about 53% faster with
+  about 32% fewer allocations, the OpenAI stream parser is about 11%
+  faster with about 4% fewer allocations, and the OpenAI Responses
+  parser is about 3% faster with unchanged allocations.
+  YJIT on the current parser benchmark harness: the current tree is
+  about 26% faster than non-YJIT on the generic eventstream path,
+  about 18% faster on the OpenAI stream parser, and about 16% faster
+  on the OpenAI Responses parser, with allocations unchanged.
 
 ### Fix
 

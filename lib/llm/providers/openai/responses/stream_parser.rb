@@ -23,6 +23,10 @@ class LLM::OpenAI
       @can_emit_reasoning_content = stream.respond_to?(:on_reasoning_content)
       @can_emit_tool_call = stream.respond_to?(:on_tool_call)
       @can_push_content = stream.respond_to?(:<<)
+      @cached_output_index = nil
+      @cached_output_item = nil
+      @cached_content_index = nil
+      @cached_content_part = nil
     end
 
     ##
@@ -37,105 +41,165 @@ class LLM::OpenAI
     # @return [void]
     def free
       @emits.clear
+      clear_cache!
     end
 
     private
 
     def handle_event(chunk)
       output = @body["output"]
-      case chunk["type"]
-      when "response.created"
-        chunk.each do |k, v|
-          next if k == "type"
-          @body[k] = v
-        end
-        @body["output"] ||= []
-      when "response.in_progress", "response.completed"
-        response = chunk["response"] || EMPTY_HASH
-        response.each do |k, v|
-          next if k == "output" && Array === output && output.any?
-          @body[k] = v
-        end
-        @body["output"] ||= response["output"] || []
-      when "response.output_item.added"
-        output_index = chunk["output_index"]
-        item = chunk["item"]
-        output[output_index] = item
-        item["content"] ||= []
-        item["summary"] ||= [] if item["type"] == "reasoning"
-      when "response.content_part.added"
-        output_index = chunk["output_index"]
-        content_index = chunk["content_index"]
-        part = chunk["part"]
-        output_item = output[output_index] ||= {"content" => []}
-        content = output_item["content"] ||= []
-        content[content_index] = part
-      when "response.reasoning_summary_text.delta"
-        output_item = output[chunk["output_index"]]
-        if output_item && output_item["type"] == "reasoning"
-          summary_index = chunk["summary_index"] || 0
-          delta = chunk["delta"]
-          summary = output_item["summary"] ||= []
-          if summary_item = summary[summary_index]
-            summary_item["text"] << delta
-          else
-            summary[summary_index] = {"type" => "summary_text", "text" => delta}
+      type = chunk["type"]
+      if type == "response.output_text.delta"
+        merge_output_text_delta!(output, chunk)
+      elsif type == "response.content_part.added"
+        merge_content_part!(output, chunk)
+      elsif type == "response.output_item.added"
+        merge_output_item!(output, chunk)
+      elsif type == "response.function_call_arguments.delta"
+        merge_function_call_arguments_delta!(output, chunk)
+      elsif type == "response.function_call_arguments.done"
+        merge_function_call_arguments_done!(output, chunk)
+      elsif type == "response.output_item.done"
+        merge_output_item!(output, chunk)
+      elsif type == "response.content_part.done"
+        merge_content_part!(output, chunk, part_key: "part")
+      else
+        case type
+        when "response.created"
+          clear_cache!
+          chunk.each do |k, v|
+            next if k == "type"
+            @body[k] = v
           end
-          emit_reasoning_content(delta)
-        end
-      when "response.reasoning_summary_text.done"
-        output_item = output[chunk["output_index"]]
-        if output_item && output_item["type"] == "reasoning"
-          summary_index = chunk["summary_index"] || 0
-          output_item["summary"] ||= []
-          output_item["summary"][summary_index] = {
-            "type" => "summary_text",
-            "text" => chunk["text"]
-          }
-        end
-      when "response.output_text.delta"
-        output_index = chunk["output_index"]
-        content_index = chunk["content_index"]
-        delta_text = chunk["delta"]
-        output_item = output[output_index]
-        if output_item && output_item["content"]
-          content_part = output_item["content"][content_index]
-          if content_part && content_part["type"] == "output_text"
-            if text = content_part["text"]
-              text << delta_text
+          @body["output"] ||= []
+        when "response.in_progress", "response.completed"
+          clear_cache!
+          response = chunk["response"] || EMPTY_HASH
+          response.each do |k, v|
+            next if k == "output" && Array === output && output.any?
+            @body[k] = v
+          end
+          @body["output"] ||= response["output"] || []
+        when "response.reasoning_summary_text.delta"
+          output_item = output_item_at(output, chunk["output_index"])
+          if output_item && output_item["type"] == "reasoning"
+            summary_index = chunk["summary_index"] || 0
+            delta = chunk["delta"]
+            summary = output_item["summary"] ||= []
+            if summary_item = summary[summary_index]
+              summary_item["text"] << delta
             else
-              content_part["text"] = delta_text
+              summary[summary_index] = {"type" => "summary_text", "text" => delta}
             end
-            emit_content(delta_text)
+            emit_reasoning_content(delta)
+          end
+        when "response.reasoning_summary_text.done"
+          output_item = output_item_at(output, chunk["output_index"])
+          if output_item && output_item["type"] == "reasoning"
+            summary_index = chunk["summary_index"] || 0
+            output_item["summary"] ||= []
+            output_item["summary"][summary_index] = {
+              "type" => "summary_text",
+              "text" => chunk["text"]
+            }
           end
         end
-      when "response.function_call_arguments.delta"
-        output_item = output[chunk["output_index"]]
-        if output_item && output_item["type"] == "function_call"
-          if arguments = output_item["arguments"]
-            arguments << chunk["delta"]
-          else
-            output_item["arguments"] = chunk["delta"]
-          end
-        end
-      when "response.function_call_arguments.done"
-        output_item = output[chunk["output_index"]]
-        if output_item && output_item["type"] == "function_call"
-          output_item["arguments"] = chunk["arguments"]
-          emit_tool(chunk["output_index"], output_item)
-        end
-      when "response.output_item.done"
-        output_index = chunk["output_index"]
-        item = chunk["item"]
-        output[output_index] = item
-      when "response.content_part.done"
-        output_index = chunk["output_index"]
-        content_index = chunk["content_index"]
-        part = chunk["part"]
-        output_item = output[output_index] ||= {"content" => []}
-        content = output_item["content"] ||= []
-        content[content_index] = part
       end
+    end
+
+    def merge_output_item!(output, chunk)
+      output_index = chunk["output_index"]
+      item = chunk["item"]
+      output[output_index] = item
+      item["content"] ||= [] if item["type"] == "message" || item.key?("content")
+      item["summary"] ||= [] if item["type"] == "reasoning"
+      cache_output_item!(output_index, item)
+    end
+
+    def merge_content_part!(output, chunk, part_key: "part")
+      output_index = chunk["output_index"]
+      content_index = chunk["content_index"]
+      part = chunk[part_key]
+      output_item = output_item_at(output, output_index)
+      unless output_item
+        output_item = {"content" => []}
+        output[output_index] = output_item
+        cache_output_item!(output_index, output_item)
+      end
+      content = output_item["content"] ||= []
+      content[content_index] = part
+      cache_content_part!(content_index, part)
+    end
+
+    def merge_output_text_delta!(output, chunk)
+      content_part = content_part_at(output, chunk["output_index"], chunk["content_index"])
+      if content_part && content_part["type"] == "output_text"
+        delta_text = chunk["delta"]
+        if text = content_part["text"]
+          text << delta_text
+        else
+          content_part["text"] = delta_text
+        end
+        emit_content(delta_text)
+      end
+    end
+
+    def merge_function_call_arguments_delta!(output, chunk)
+      output_item = output_item_at(output, chunk["output_index"])
+      if output_item && output_item["type"] == "function_call"
+        if arguments = output_item["arguments"]
+          arguments << chunk["delta"]
+        else
+          output_item["arguments"] = chunk["delta"]
+        end
+      end
+    end
+
+    def merge_function_call_arguments_done!(output, chunk)
+      output_item = output_item_at(output, chunk["output_index"])
+      if output_item && output_item["type"] == "function_call"
+        output_item["arguments"] = chunk["arguments"]
+        emit_tool(chunk["output_index"], output_item)
+      end
+    end
+
+    def output_item_at(output, output_index)
+      if @cached_output_index == output_index
+        @cached_output_item
+      else
+        cache_output_item!(output_index, output[output_index])
+      end
+    end
+
+    def content_part_at(output, output_index, content_index)
+      if @cached_output_index == output_index && @cached_content_index == content_index
+        @cached_content_part
+      else
+        output_item = output_item_at(output, output_index)
+        content = output_item && output_item["content"]
+        cache_content_part!(content_index, content && content[content_index])
+      end
+    end
+
+    def cache_output_item!(output_index, output_item)
+      @cached_output_index = output_index
+      @cached_output_item = output_item
+      @cached_content_index = nil
+      @cached_content_part = nil
+      output_item
+    end
+
+    def cache_content_part!(content_index, content_part)
+      @cached_content_index = content_index
+      @cached_content_part = content_part
+      content_part
+    end
+
+    def clear_cache!
+      @cached_output_index = nil
+      @cached_output_item = nil
+      @cached_content_index = nil
+      @cached_content_part = nil
     end
 
     def emit_content(value)

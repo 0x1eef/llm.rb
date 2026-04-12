@@ -72,6 +72,42 @@ RSpec.describe LLM::OpenAI::Responses::StreamParser do
     expect(stream.content).to eq("Answer")
   end
 
+  it "refreshes cached content when an output item is replaced" do
+    parser.parse!(
+      "type" => "response.output_item.added",
+      "output_index" => 0,
+      "item" => {"id" => "msg_1", "type" => "message", "content" => []}
+    )
+    parser.parse!(
+      "type" => "response.content_part.added",
+      "output_index" => 0,
+      "content_index" => 0,
+      "part" => {"type" => "output_text", "text" => +""}
+    )
+    parser.parse!(
+      "type" => "response.output_text.delta",
+      "output_index" => 0,
+      "content_index" => 0,
+      "delta" => "A"
+    )
+    parser.parse!(
+      "type" => "response.output_item.done",
+      "output_index" => 0,
+      "item" => {
+        "id" => "msg_1",
+        "type" => "message",
+        "content" => [{"type" => "output_text", "text" => +"B"}]
+      }
+    )
+    parser.parse!(
+      "type" => "response.output_text.delta",
+      "output_index" => 0,
+      "content_index" => 0,
+      "delta" => "C"
+    )
+    expect(parser.body.dig("output", 0, "content", 0, "text")).to eq("BC")
+  end
+
   it "emits tool calls when response function arguments complete" do
     parser.parse!(
       "type" => "response.output_item.added",
