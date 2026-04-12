@@ -61,6 +61,14 @@ parallel tool calls can safely share one connection.
   worthwhile, which lowers allocation churn in the remaining generic
   SSE path.
 
+* **Improve streaming parser performance** <br>
+  In the local replay-based `stream_parser` benchmark versus `v4.13.0`
+  (median of 20 samples, 5000 iterations), the generic eventstream
+  path is about 51% faster with about 32% fewer allocations, the
+  OpenAI stream parser is about 1% faster with unchanged allocations,
+  and the OpenAI Responses parser is effectively flat with unchanged
+  allocations.
+
 ### Fix
 
 * **Support parallel MCP tool calls on one client** <br>
