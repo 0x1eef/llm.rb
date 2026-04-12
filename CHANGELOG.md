@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+Changes since `v4.14.0`.
+
+## v4.14.0
+
 Changes since `v4.13.0`.
+
+This release adds request interruption for contexts, reworks provider
+HTTP internals for lower-overhead streaming, and fixes MCP clients so
+parallel tool calls can safely share one connection.
 
 ### Add
 
