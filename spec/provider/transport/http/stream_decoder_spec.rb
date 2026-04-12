@@ -43,6 +43,11 @@ RSpec.describe LLM::Provider::Transport::HTTP::StreamDecoder do
     expect(parser.chunks).to eq([{"ok" => true}])
   end
 
+  it "flushes sse events separated with crlf" do
+    decoder << "data: {\"ok\":true}\r\n\r\n"
+    expect(parser.chunks).to eq([{"ok" => true}])
+  end
+
   it "decodes raw json lines for non-sse streams" do
     decoder << %({"ok":true}\n)
     decoder << %({"value":1}\n)

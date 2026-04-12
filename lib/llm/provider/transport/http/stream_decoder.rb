@@ -44,7 +44,7 @@ module LLM::Provider::Transport
     private
 
     def handle_line(line)
-      if line == "\n"
+      if line == "\n" || line == "\r\n"
         flush_sse_event
       elsif line.start_with?("data:")
         @data << field_value(line)
@@ -62,11 +62,13 @@ module LLM::Provider::Transport
 
     def field_value(line)
       value_start = line.getbyte(5) == 32 ? 6 : 5
-      line.byteslice(value_start, line.bytesize - value_start - 1)
+      strip_newline(line.byteslice(value_start..))
     end
 
     def strip_newline(line)
-      line.end_with?("\n") ? line.byteslice(0, line.bytesize - 1) : line
+      line = line.byteslice(0, line.bytesize - 1) if line.end_with?("\n")
+      line = line.byteslice(0, line.bytesize - 1) if line.end_with?("\r")
+      line
     end
 
     def decode!(payload)
