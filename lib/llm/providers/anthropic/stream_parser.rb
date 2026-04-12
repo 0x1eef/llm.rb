@@ -16,6 +16,9 @@ class LLM::Anthropic
     def initialize(stream)
       @body = {"role" => "assistant", "content" => []}
       @stream = stream
+      @can_emit_content = stream.respond_to?(:on_content)
+      @can_emit_tool_call = stream.respond_to?(:on_tool_call)
+      @can_push_content = stream.respond_to?(:<<)
     end
 
     ##
@@ -88,15 +91,15 @@ class LLM::Anthropic
     end
 
     def emit_content(value)
-      if @stream.respond_to?(:on_content)
+      if @can_emit_content
         @stream.on_content(value)
-      elsif @stream.respond_to?(:<<)
+      elsif @can_push_content
         @stream << value
       end
     end
 
     def emit_tool(tool)
-      return unless @stream.respond_to?(:on_tool_call)
+      return unless @can_emit_tool_call
       function, error = resolve_tool(tool)
       @stream.on_tool_call(function, error)
     end

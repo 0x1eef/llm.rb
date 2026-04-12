@@ -19,6 +19,10 @@ class LLM::OpenAI
       @body = {"output" => []}
       @stream = stream
       @emits = {tools: {}}
+      @can_emit_content = stream.respond_to?(:on_content)
+      @can_emit_reasoning_content = stream.respond_to?(:on_reasoning_content)
+      @can_emit_tool_call = stream.respond_to?(:on_tool_call)
+      @can_push_content = stream.respond_to?(:<<)
     end
 
     ##
@@ -135,19 +139,19 @@ class LLM::OpenAI
     end
 
     def emit_content(value)
-      if @stream.respond_to?(:on_content)
+      if @can_emit_content
         @stream.on_content(value)
-      elsif @stream.respond_to?(:<<)
+      elsif @can_push_content
         @stream << value
       end
     end
 
     def emit_reasoning_content(value)
-      @stream.on_reasoning_content(value) if @stream.respond_to?(:on_reasoning_content)
+      @stream.on_reasoning_content(value) if @can_emit_reasoning_content
     end
 
     def emit_tool(index, tool)
-      return unless @stream.respond_to?(:on_tool_call)
+      return unless @can_emit_tool_call
       return if @emits[:tools][index]
       return unless tool["call_id"] && tool["name"]
       arguments = parse_arguments(tool["arguments"])
