@@ -27,6 +27,11 @@ Changes since `v4.13.0`.
   parsers, which cuts allocation churn and gives a smaller streaming
   speed bump.
 
+* **Reduce generic SSE parser allocations** <br>
+  Keep unread event-stream buffer data in place until compaction is
+  worthwhile, which lowers allocation churn in the remaining generic
+  SSE path.
+
 ### Fix
 
 * **Use explicit MCP non-blocking read errors** <br>

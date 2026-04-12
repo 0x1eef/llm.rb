@@ -4,6 +4,8 @@ module LLM::EventStream
   ##
   # @private
   class Parser
+    COMPACT_THRESHOLD = 4096
+
     ##
     # @return [LLM::EventStream::Parser]
     def initialize
@@ -42,7 +44,8 @@ module LLM::EventStream
     # Returns the internal buffer
     # @return [String]
     def body
-      @buffer.dup
+      return @buffer.dup if @cursor.zero?
+      @buffer.byteslice(@cursor, @buffer.bytesize - @cursor) || +""
     end
 
     ##
@@ -83,13 +86,18 @@ module LLM::EventStream
 
     def each_line
       while (newline = @buffer.index("\n", @cursor))
-        line = @buffer[@cursor..newline]
+        line = @buffer.byteslice(@cursor, newline - @cursor + 1)
         @cursor = newline + 1
         yield(line)
       end
       return if @cursor.zero?
-      @buffer = @buffer[@cursor..] || +""
-      @cursor = 0
+      if @cursor >= @buffer.bytesize
+        @buffer.clear
+        @cursor = 0
+      elsif @cursor >= COMPACT_THRESHOLD
+        @buffer = @buffer.byteslice(@cursor, @buffer.bytesize - @cursor) || +""
+        @cursor = 0
+      end
     end
   end
 end
