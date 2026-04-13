@@ -24,15 +24,23 @@ Changes since `v4.14.0`.
 
 * **Improve streaming parser performance** <br>
   In the local replay-based `stream_parser` benchmark versus
-  `v4.14.0` (median of 20 samples, 5000 iterations):
-  Plain Ruby: the generic eventstream path is effectively flat with
-  unchanged allocations, the OpenAI stream parser is about 9% faster
-  with about 4% fewer allocations, and the OpenAI Responses parser is
-  about 3% faster with a small allocation reduction.
-  YJIT: the generic eventstream path is about 6% faster with unchanged
-  allocations, the OpenAI stream parser is about 10% faster with about
-  4% fewer allocations, and the OpenAI Responses parser is slightly
-  faster with a small allocation reduction.
+  `v4.14.0` (median of 20 samples, 5000 iterations), plain Ruby is a
+  small overall win: the generic eventstream path is about 0.4%
+  faster, the OpenAI stream parser is about 0.5% faster, and the
+  OpenAI Responses parser is about 1.6% faster, with unchanged
+  allocations. Under YJIT on the same benchmark, the generic
+  eventstream path is about 0.9% faster and the OpenAI stream parser
+  is about 0.4% faster, while the OpenAI Responses parser is about
+  0.7% slower, also with unchanged allocations.
+
+  Compared to `v4.13.0`, the larger `v4.14.0` streaming gains still
+  hold. The generic eventstream path remains dramatically faster than
+  `v4.13.0`, the OpenAI stream parser remains modestly faster, and the
+  OpenAI Responses parser is roughly flat to slightly better depending
+  on runtime. In other words, current keeps the large eventstream win
+  from `v4.14.0`, adds only small incremental changes beyond that, and
+  does not turn the post-`v4.14.0` parser work into another large
+  benchmark jump.
 
 ## v4.14.0
 
