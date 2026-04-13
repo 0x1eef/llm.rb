@@ -80,6 +80,11 @@ same context object.
 - **MCP is built in**  
   Connect to MCP servers over stdio or HTTP without bolting on a separate
   integration stack.
+- **Persistent HTTP pooling is shared process-wide**  
+  When enabled, separate `LLM::Provider` instances with the same
+  endpoint settings can share one persistent pool, and separate HTTP
+  `LLM::MCP` instances can do the same, instead of each object creating
+  its own isolated per-instance transport.
 - **Provider support is broad**  
   Work with OpenAI, OpenAI-compatible endpoints, Anthropic, Google, DeepSeek,
   Z.ai, xAI, llama.cpp, and Ollama through the same runtime.
