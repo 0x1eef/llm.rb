@@ -2,10 +2,18 @@
 
 module LLM
   ##
-  # {LLM::Response LLM::Response} encapsulates a response
-  # from an LLM provider. It is returned by all methods
-  # that make requests to a provider, and sometimes extended
-  # with provider-specific functionality.
+  # {LLM::Response LLM::Response} is the normalized base shape for
+  # provider and endpoint responses in llm.rb.
+  #
+  # Provider calls return an instance of this class, then extend it
+  # with provider-, endpoint-, or context-specific modules so response
+  # handling can share one common surface without flattening away
+  # specialized behavior.
+  #
+  # The normalized response still keeps the original
+  # {Net::HTTPResponse Net::HTTPResponse} available through {#res}
+  # when callers need direct access to raw HTTP details such as
+  # headers, status codes, or unadapted bodies.
   class Response
     require "json"
 

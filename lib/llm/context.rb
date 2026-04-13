@@ -2,16 +2,21 @@
 
 module LLM
   ##
-  # {LLM::Context LLM::Context} represents a stateful interaction with
-  # an LLM, including conversation history, tools, execution state,
-  # and cost tracking. It evolves over time as the system runs.
+  # {LLM::Context LLM::Context} is the stateful execution boundary in
+  # llm.rb.
   #
-  # Context is the stateful environment in which an LLM operates.
-  # This is not just prompt context; it is an active, evolving
-  # execution boundary for LLM workflows.
+  # It holds the evolving runtime state for an LLM workflow:
+  # conversation history, tool calls and returns, schema and streaming
+  # configuration, accumulated usage, and request ownership for
+  # interruption.
   #
-  # A context can use the chat completions API that all providers
-  # support or the responses API that currently only OpenAI supports.
+  # This is broader than prompt context alone. A context is the object
+  # that lets one-off prompts, streaming turns, tool execution,
+  # persistence, retries, and serialized long-lived workflows all run
+  # through the same model.
+  #
+  # A context can drive the chat completions API that all providers
+  # support or the Responses API on providers that expose it.
   #
   # @example
   #   #!/usr/bin/env ruby
