@@ -34,7 +34,8 @@ so they compose naturally instead of becoming separate subsystems.
 
 ## Core Concept
 
-`LLM::Context` is the execution boundary in llm.rb.
+[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
+is the execution boundary in llm.rb.
 
 It holds:
 - message history
@@ -65,10 +66,16 @@ same context object.
 - **Streaming and tool execution work together**  
   Start tool work while output is still streaming so you can hide latency
   instead of waiting for turns to finish.
+- **Tool calls have an explicit lifecycle**  
+  A tool call can be executed, cancelled through
+  [`LLM::Function#cancel`](https://0x1eef.github.io/x/llm.rb/LLM/Function.html#cancel-instance_method),
+  or left unresolved for manual handling, but the normal runtime contract is
+  still that a model-issued tool request is answered with a tool return.
 - **Requests can be interrupted cleanly**  
   Stop in-flight provider work through the same runtime instead of treating
-  cancellation as a separate concern. `LLM::Context#cancel!` is inspired by
-  Go's context cancellation model.
+  cancellation as a separate concern.
+  [`LLM::Context#cancel!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#cancel-21-instance_method)
+  is inspired by Go's context cancellation model.
 - **Concurrency is a first-class feature**  
   Use threads, fibers, or async tasks without rewriting your tool layer.
 - **Advanced workloads are built in, not bolted on**  
@@ -81,10 +88,13 @@ same context object.
   Connect to MCP servers over stdio or HTTP without bolting on a separate
   integration stack.
 - **Persistent HTTP pooling is shared process-wide**  
-  When enabled, separate `LLM::Provider` instances with the same
-  endpoint settings can share one persistent pool, and separate HTTP
-  `LLM::MCP` instances can do the same, instead of each object creating
-  its own isolated per-instance transport.
+  When enabled, separate
+  [`LLM::Provider`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
+  instances with the same endpoint settings can share one persistent
+  pool, and separate HTTP
+  [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html)
+  instances can do the same, instead of each object creating its own
+  isolated per-instance transport.
 - **Provider support is broad**  
   Work with OpenAI, OpenAI-compatible endpoints, Anthropic, Google, DeepSeek,
   Z.ai, xAI, llama.cpp, and Ollama through the same runtime.
