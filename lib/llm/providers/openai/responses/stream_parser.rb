@@ -46,6 +46,9 @@ class LLM::OpenAI
 
     private
 
+    ##
+    # @group Dispatchers
+
     def handle_event(chunk)
       output = @body["output"]
       type = chunk["type"]
@@ -66,45 +69,40 @@ class LLM::OpenAI
       else
         case type
         when "response.created"
-          clear_cache!
-          chunk.each do |k, v|
-            next if k == "type"
-            @body[k] = v
-          end
-          @body["output"] ||= []
+          merge_response_created!(chunk)
         when "response.in_progress", "response.completed"
-          clear_cache!
-          response = chunk["response"] || EMPTY_HASH
-          response.each do |k, v|
-            next if k == "output" && Array === output && output.any?
-            @body[k] = v
-          end
-          @body["output"] ||= response["output"] || []
+          merge_response_state!(output, chunk)
         when "response.reasoning_summary_text.delta"
-          output_item = output_item_at(output, chunk["output_index"])
-          if output_item && output_item["type"] == "reasoning"
-            summary_index = chunk["summary_index"] || 0
-            delta = chunk["delta"]
-            summary = output_item["summary"] ||= []
-            if summary_item = summary[summary_index]
-              summary_item["text"] << delta
-            else
-              summary[summary_index] = {"type" => "summary_text", "text" => delta}
-            end
-            emit_reasoning_content(delta)
-          end
+          merge_reasoning_summary_text_delta!(output, chunk)
         when "response.reasoning_summary_text.done"
-          output_item = output_item_at(output, chunk["output_index"])
-          if output_item && output_item["type"] == "reasoning"
-            summary_index = chunk["summary_index"] || 0
-            output_item["summary"] ||= []
-            output_item["summary"][summary_index] = {
-              "type" => "summary_text",
-              "text" => chunk["text"]
-            }
-          end
+          merge_reasoning_summary_text_done!(output, chunk)
         end
       end
+    end
+
+    ##
+    # @endgroup
+
+    ##
+    # @group Mergers
+
+    def merge_response_created!(chunk)
+      clear_cache!
+      chunk.each do |k, v|
+        next if k == "type"
+        @body[k] = v
+      end
+      @body["output"] ||= []
+    end
+
+    def merge_response_state!(output, chunk)
+      clear_cache!
+      response = chunk["response"] || EMPTY_HASH
+      response.each do |k, v|
+        next if k == "output" && Array === output && output.any?
+        @body[k] = v
+      end
+      @body["output"] ||= response["output"] || []
     end
 
     def merge_output_item!(output, chunk)
@@ -144,6 +142,33 @@ class LLM::OpenAI
       end
     end
 
+    def merge_reasoning_summary_text_delta!(output, chunk)
+      output_item = output_item_at(output, chunk["output_index"])
+      if output_item && output_item["type"] == "reasoning"
+        summary_index = chunk["summary_index"] || 0
+        delta = chunk["delta"]
+        summary = output_item["summary"] ||= []
+        if summary_item = summary[summary_index]
+          summary_item["text"] << delta
+        else
+          summary[summary_index] = {"type" => "summary_text", "text" => delta}
+        end
+        emit_reasoning_content(delta)
+      end
+    end
+
+    def merge_reasoning_summary_text_done!(output, chunk)
+      output_item = output_item_at(output, chunk["output_index"])
+      if output_item && output_item["type"] == "reasoning"
+        summary_index = chunk["summary_index"] || 0
+        output_item["summary"] ||= []
+        output_item["summary"][summary_index] = {
+          "type" => "summary_text",
+          "text" => chunk["text"]
+        }
+      end
+    end
+
     def merge_function_call_arguments_delta!(output, chunk)
       output_item = output_item_at(output, chunk["output_index"])
       if output_item && output_item["type"] == "function_call"
@@ -162,6 +187,12 @@ class LLM::OpenAI
         emit_tool(chunk["output_index"], output_item)
       end
     end
+
+    ##
+    # @endgroup
+
+    ##
+    # @group Cache
 
     def output_item_at(output, output_index)
       if @cached_output_index == output_index
@@ -202,6 +233,12 @@ class LLM::OpenAI
       @cached_content_part = nil
     end
 
+    ##
+    # @endgroup
+
+    ##
+    # @group Emitters
+
     def emit_content(value)
       if @can_emit_content
         @stream.on_content(value)
@@ -225,6 +262,12 @@ class LLM::OpenAI
       @stream.on_tool_call(function, error)
     end
 
+    ##
+    # @endgroup
+
+    ##
+    # @group Resolvers
+
     def resolve_tool(tool, arguments)
       registered = LLM::Function.find_by_name(tool["name"])
       fn = (registered || LLM::Function.new(tool["name"])).dup.tap do |fn|
@@ -241,5 +284,8 @@ class LLM::OpenAI
     rescue *LLM.json.parser_error
       nil
     end
+
+    ##
+    # @endgroup
   end
 end
