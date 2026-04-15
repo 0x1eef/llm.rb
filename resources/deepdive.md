@@ -36,6 +36,7 @@ Most features extend these, rather than introducing new abstractions.
 - [Persistence](#persistence)
   - [Save To A File](#save-to-a-file)
   - [Persist With ActiveRecord](#persist-with-activerecord)
+  - [Persist With Sequel](#persist-with-sequel)
 - [Tools](#tools)
   - [Tool Calling](#tool-calling)
   - [Cancelling A Function](#cancelling-a-function)
@@ -447,6 +448,107 @@ class Context < ApplicationRecord
     "#{provider.upcase}_KEY"
   end
 end
+```
+
+### Persist With Sequel
+
+llm.rb has Sequel support built in through `plugin :llm`, which can be applied
+to any `Sequel::Model`. It is highly configurable but comes with sane defaults
+for provider selection, model selection, usage columns, and serialized context
+storage. The plugin persists `LLM::Context` as JSON, and on PostgreSQL this can
+be optimized further by storing the serialized context in a `jsonb` column
+instead of plain text:
+
+- `format: :string` stores the context as a JSON string in a text column.
+- `format: :json` or `format: :jsonb` stores the context as a structured JSON
+  object, which is useful for native JSON columns such as PostgreSQL `jsonb`.
+
+**Migration:**
+
+```ruby
+create_table :contexts do
+  primary_key :id
+  String :provider, null: false
+  String :model
+  String :data, text: true
+  Integer :input_tokens
+  Integer :output_tokens
+  Integer :total_tokens
+end
+```
+
+**Model:**
+
+```ruby
+require "llm"
+require "sequel"
+require "sequel/plugins/llm"
+
+class Context < Sequel::Model
+  plugin :llm, provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
+end
+```
+
+```ruby
+class Context < Sequel::Model
+  plugin :llm,
+    format: :jsonb,
+    provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
+end
+```
+
+**Usage:**
+
+```ruby
+ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
+ctx.talk("Remember that my favorite language is Ruby")
+puts ctx.talk("What is my favorite language?").content
+puts ctx.usage.total_tokens
+```
+
+`context:` lets the plugin inject default options into the constructed
+`LLM::Context`. Those defaults still live at the context layer, so they can be
+overridden on individual `talk` or `respond` calls when a specific turn needs
+different behavior. One common use is setting default tools this way, but the
+same hook can also preload schemas, stream handlers, or other context-level
+options:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+require "sequel"
+require "sequel/plugins/llm"
+
+##
+# A simple tool that the LLM will call when it could answer
+# a user's query. Its return value is consumed by the LLM.
+class System < LLM::Tool
+  name "system"
+  description "Run a shell command"
+  param :command, String, "Command to execute", required: true
+
+  def call(command:)
+    {output: `#{command}`}
+  end
+end
+
+##
+# A sequel model that wraps an instance of LLM::Context. It is highly
+# configurable but lets keep it simple :) The 'persistent' option opts
+# into a process-wide net-http-persistent connection pool.
+class Context < Sequel::Model
+  plugin :llm,
+    provider: -> { {key: ENV["#{provider.upcase}_KEY"], persistent: true} },
+    context: -> { {tools: [System]} }
+end
+
+##
+# We create a new record, then update the record every time we call
+# 'talk' on the model.
+ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
+ctx.talk("What files are in my home directory?")
+res = ctx.talk(ctx.functions.call)
+puts res.content
 ```
 
 ## Tools
