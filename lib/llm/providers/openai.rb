@@ -32,8 +32,8 @@ module LLM
 
     ##
     # @param key (see LLM::Provider#initialize)
-    def initialize(**)
-      super(host: HOST, **)
+    def initialize(base_path: "/v1", **)
+      super(host: HOST, base_path:, **)
     end
 
     ##
@@ -52,7 +52,7 @@ module LLM
     # @raise (see LLM::Provider#request)
     # @return (see LLM::Provider#embed)
     def embed(input, model: "text-embedding-3-small", **params)
-      req = Net::HTTP::Post.new("/v1/embeddings", headers)
+      req = Net::HTTP::Post.new(path("/embeddings"), headers)
       req.body = LLM.json.dump({input:, model:}.merge!(params))
       res, span, tracer = execute(request: req, operation: "embeddings", model:)
       res = ResponseAdapter.adapt(res, type: :embedding)
@@ -187,7 +187,7 @@ module LLM
     private
 
     def completions_path
-      "/v1/chat/completions"
+      path("/chat/completions")
     end
 
     def headers

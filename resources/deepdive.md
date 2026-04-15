@@ -22,6 +22,7 @@ Most features extend these, rather than introducing new abstractions.
 
 - [Providers](#providers)
   - [Supported Providers](#supported-providers)
+  - [OpenAI-Compatible APIs](#openai-compatible-apis)
   - [Basic Context](#basic-context)
   - [Responses API](#responses-api)
 - [Responses](#responses)
@@ -91,6 +92,43 @@ llm.rb supports multiple LLM providers behind one API surface:
 - **zAI** (`LLM.zai`)
 - **Ollama** (`LLM.ollama`)
 - **Llama.cpp** (`LLM.llamacpp`)
+
+### OpenAI-Compatible APIs
+
+Many providers expose an OpenAI-compatible API without using OpenAI's exact
+infrastructure or URL layout. In llm.rb, `host:` controls where requests go,
+and `base_path:` controls the API prefix used to build endpoint paths.
+
+For providers that keep OpenAI's usual `/v1/...` layout, overriding `host:` is
+often enough:
+
+```ruby
+llm = LLM.openai(
+  key: ENV["DEEPSEEK_KEY"],
+  host: "api.deepseek.com"
+)
+```
+
+That said, if llm.rb has a native provider for the service, prefer that over
+the generic OpenAI-compatible path. For example, `LLM.deepseek(...)` is the
+better default for DeepSeek even though `LLM.openai(host: "api.deepseek.com", ...)`
+can work too.
+
+Some providers also change the base path. DeepInfra is one example: its
+OpenAI-compatible API lives under `/v1/openai/...`, so both `host:` and
+`base_path:` need to be set:
+
+```ruby
+llm = LLM.openai(
+  key: ENV["DEEPINFRA_TOKEN"],
+  host: "api.deepinfra.com",
+  base_path: "/v1/openai"
+)
+```
+
+This same pattern also works for proxies, gateways, and self-hosted
+OpenAI-compatible servers that preserve the request schema but change the URL
+layout.
 
 ### Basic Context
 

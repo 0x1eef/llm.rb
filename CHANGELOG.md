@@ -4,6 +4,14 @@
 
 Changes since `v4.15.0`.
 
+### Change
+
+* **Support OpenAI-compatible base paths** <br>
+  Add `base_path:` to provider configuration so OpenAI-compatible
+  endpoints can vary both host and API prefix. This supports providers,
+  proxies, and gateways that keep OpenAI request shapes but use
+  non-standard URL layouts such as DeepInfra's `/v1/openai/...`.
+
 ## v4.15.0
 
 Changes since `v4.14.0`.

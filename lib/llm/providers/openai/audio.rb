@@ -32,7 +32,7 @@ class LLM::OpenAI
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
     def create_speech(input:, voice: "alloy", model: "gpt-4o-mini-tts", response_format: "mp3", **params)
-      req = Net::HTTP::Post.new("/v1/audio/speech", headers)
+      req = Net::HTTP::Post.new(path("/audio/speech"), headers)
       req.body = LLM.json.dump({input:, voice:, model:, response_format:}.merge!(params))
       io = StringIO.new("".b)
       res, span, tracer = execute(request: req, operation: "request") { _1.read_body { |chunk| io << chunk } }
@@ -55,7 +55,7 @@ class LLM::OpenAI
     # @return [LLM::Response]
     def create_transcription(file:, model: "whisper-1", **params)
       multi = LLM::Multipart.new(params.merge!(file: LLM.File(file), model:))
-      req = Net::HTTP::Post.new("/v1/audio/transcriptions", headers)
+      req = Net::HTTP::Post.new(path("/audio/transcriptions"), headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
@@ -79,7 +79,7 @@ class LLM::OpenAI
     # @return [LLM::Response]
     def create_translation(file:, model: "whisper-1", **params)
       multi = LLM::Multipart.new(params.merge!(file: LLM.File(file), model:))
-      req = Net::HTTP::Post.new("/v1/audio/translations", headers)
+      req = Net::HTTP::Post.new(path("/audio/translations"), headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
@@ -90,7 +90,7 @@ class LLM::OpenAI
 
     private
 
-    [:headers, :execute, :set_body_stream].each do |m|
+    [:path, :headers, :execute, :set_body_stream].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

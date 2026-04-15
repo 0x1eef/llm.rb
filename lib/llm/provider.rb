@@ -22,15 +22,18 @@ class LLM::Provider
   #  The number of seconds to wait for a response
   # @param [Boolean] ssl
   #  Whether to use SSL for the connection
+  # @param [String] base_path
+  #  Optional base path prefix for HTTP API routes.
   # @param [Boolean] persistent
   #  Whether to use a persistent connection.
   #  Requires the net-http-persistent gem.
-  def initialize(key:, host:, port: 443, timeout: 60, ssl: true, persistent: false)
+  def initialize(key:, host:, port: 443, timeout: 60, ssl: true, base_path: "", persistent: false)
     @key = key
     @host = host
     @port = port
     @timeout = timeout
     @ssl = ssl
+    @base_path = normalize_base_path(base_path)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
     @transport = Transport::HTTP.new(host:, port:, timeout:, ssl:, persistent:)
@@ -329,6 +332,18 @@ class LLM::Provider
   end
 
   private
+
+  def path(suffix)
+    return suffix if @base_path.empty?
+    "#{@base_path}#{suffix}"
+  end
+
+  def normalize_base_path(path)
+    path = path.to_s.strip
+    return "" if path.empty? || path == "/"
+    path = "/#{path}" unless path.start_with?("/")
+    path.sub(%r{/+\z}, "")
+  end
 
   attr_reader :base_uri, :host, :port, :timeout, :ssl, :transport
 

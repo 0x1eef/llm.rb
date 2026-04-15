@@ -50,7 +50,7 @@ class LLM::OpenAI
     # @raise (see LLM::Provider#request)
     # @return [LLM::Response]
     def create(prompt:, model: "dall-e-3", response_format: "b64_json", **params)
-      req = Net::HTTP::Post.new("/v1/images/generations", headers)
+      req = Net::HTTP::Post.new(path("/images/generations"), headers)
       req.body = LLM.json.dump({prompt:, n: 1, model:, response_format:}.merge!(params))
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
@@ -76,7 +76,7 @@ class LLM::OpenAI
     def create_variation(image:, model: "dall-e-2", response_format: "b64_json", **params)
       image = LLM.File(image)
       multi = LLM::Multipart.new(params.merge!(image:, model:, response_format:))
-      req = Net::HTTP::Post.new("/v1/images/variations", headers)
+      req = Net::HTTP::Post.new(path("/images/variations"), headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
@@ -102,7 +102,7 @@ class LLM::OpenAI
     def edit(image:, prompt:, model: "dall-e-2", response_format: "b64_json", **params)
       image = LLM.File(image)
       multi = LLM::Multipart.new(params.merge!(image:, prompt:, model:, response_format:))
-      req = Net::HTTP::Post.new("/v1/images/edits", headers)
+      req = Net::HTTP::Post.new(path("/images/edits"), headers)
       req["content-type"] = multi.content_type
       set_body_stream(req, multi.body)
       res, span, tracer = execute(request: req, operation: "request")
@@ -113,7 +113,7 @@ class LLM::OpenAI
 
     private
 
-    [:headers, :execute, :set_body_stream].each do |m|
+    [:path, :headers, :execute, :set_body_stream].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end

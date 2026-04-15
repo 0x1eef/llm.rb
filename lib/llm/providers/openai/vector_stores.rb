@@ -31,7 +31,7 @@ class LLM::OpenAI
     # @return [LLM::Response]
     def all(**params)
       query = URI.encode_www_form(params)
-      req = Net::HTTP::Get.new("/v1/vector_stores?#{query}", headers)
+      req = Net::HTTP::Get.new(path("/vector_stores?#{query}"), headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :enumerable)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -47,7 +47,7 @@ class LLM::OpenAI
     # @return [LLM::Response]
     # @see https://platform.openai.com/docs/api-reference/vector_stores/create OpenAI docs
     def create(name:, file_ids: nil, **params)
-      req = Net::HTTP::Post.new("/v1/vector_stores", headers)
+      req = Net::HTTP::Post.new(path("/vector_stores"), headers)
       req.body = LLM.json.dump(params.merge({name:, file_ids:}).compact)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
@@ -72,7 +72,7 @@ class LLM::OpenAI
     # @see https://platform.openai.com/docs/api-reference/vector_stores/retrieve OpenAI docs
     def get(vector:)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
-      req = Net::HTTP::Get.new("/v1/vector_stores/#{vector_id}", headers)
+      req = Net::HTTP::Get.new(path("/vector_stores/#{vector_id}"), headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -89,7 +89,7 @@ class LLM::OpenAI
     # @see https://platform.openai.com/docs/api-reference/vector_stores/modify OpenAI docs
     def modify(vector:, name: nil, **params)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
-      req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}", headers)
+      req = Net::HTTP::Post.new(path("/vector_stores/#{vector_id}"), headers)
       req.body = LLM.json.dump(params.merge({name:}).compact)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
@@ -105,7 +105,7 @@ class LLM::OpenAI
     # @see https://platform.openai.com/docs/api-reference/vector_stores/delete OpenAI docs
     def delete(vector:)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
-      req = Net::HTTP::Delete.new("/v1/vector_stores/#{vector_id}", headers)
+      req = Net::HTTP::Delete.new(path("/vector_stores/#{vector_id}"), headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -122,7 +122,7 @@ class LLM::OpenAI
     # @see https://platform.openai.com/docs/api-reference/vector_stores/search OpenAI docs
     def search(vector:, query:, **params)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
-      req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}/search", headers)
+      req = Net::HTTP::Post.new(path("/vector_stores/#{vector_id}/search"), headers)
       req.body = LLM.json.dump(params.merge({query:}).compact)
       res, span, tracer = execute(request: req, operation: "retrieval")
       res = ResponseAdapter.adapt(res, type: :enumerable)
@@ -140,7 +140,7 @@ class LLM::OpenAI
     def all_files(vector:, **params)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       query = URI.encode_www_form(params)
-      req = Net::HTTP::Get.new("/v1/vector_stores/#{vector_id}/files?#{query}", headers)
+      req = Net::HTTP::Get.new(path("/vector_stores/#{vector_id}/files?#{query}"), headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :enumerable)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -159,7 +159,7 @@ class LLM::OpenAI
     def add_file(vector:, file:, attributes: nil, **params)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       file_id = file.respond_to?(:id) ? file.id : file
-      req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}/files", headers)
+      req = Net::HTTP::Post.new(path("/vector_stores/#{vector_id}/files"), headers)
       req.body = LLM.json.dump(params.merge({file_id:, attributes:}).compact)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
@@ -190,7 +190,7 @@ class LLM::OpenAI
     def update_file(vector:, file:, attributes:, **params)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       file_id = file.respond_to?(:id) ? file.id : file
-      req = Net::HTTP::Post.new("/v1/vector_stores/#{vector_id}/files/#{file_id}", headers)
+      req = Net::HTTP::Post.new(path("/vector_stores/#{vector_id}/files/#{file_id}"), headers)
       req.body = LLM.json.dump(params.merge({attributes:}).compact)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
@@ -209,7 +209,7 @@ class LLM::OpenAI
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       file_id = file.respond_to?(:id) ? file.id : file
       query = URI.encode_www_form(params)
-      req = Net::HTTP::Get.new("/v1/vector_stores/#{vector_id}/files/#{file_id}?#{query}", headers)
+      req = Net::HTTP::Get.new(path("/vector_stores/#{vector_id}/files/#{file_id}?#{query}"), headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -226,7 +226,7 @@ class LLM::OpenAI
     def delete_file(vector:, file:)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       file_id = file.respond_to?(:id) ? file.id : file
-      req = Net::HTTP::Delete.new("/v1/vector_stores/#{vector_id}/files/#{file_id}", headers)
+      req = Net::HTTP::Delete.new(path("/vector_stores/#{vector_id}/files/#{file_id}"), headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -259,7 +259,7 @@ class LLM::OpenAI
 
     private
 
-    [:headers, :execute, :set_body_stream].each do |m|
+    [:path, :headers, :execute, :set_body_stream].each do |m|
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
   end
