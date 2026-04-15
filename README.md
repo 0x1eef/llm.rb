@@ -101,6 +101,10 @@ same context object.
   [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html)
   instances can do the same, instead of each object creating its own
   isolated per-instance transport.
+- **OpenAI-compatible gateways are supported** <br>
+  Target OpenAI-compatible services such as DeepInfra and OpenRouter, as well
+  as proxies and self-hosted servers, with `host:` and `base_path:` when they
+  preserve OpenAI request shapes but change the API root path.
 - **Provider support is broad** <br>
   Work with OpenAI, OpenAI-compatible endpoints, Anthropic, Google, DeepSeek,
   Z.ai, xAI, llama.cpp, and Ollama through the same runtime.
