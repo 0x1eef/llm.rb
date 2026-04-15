@@ -462,6 +462,8 @@ instead of plain text:
 - `format: :string` stores the context as a JSON string in a text column.
 - `format: :json` or `format: :jsonb` stores the context as a structured JSON
   object, which is useful for native JSON columns such as PostgreSQL `jsonb`.
+  These formats expect a real JSON column type with Sequel JSON typecasting
+  enabled for the model.
 
 **Migration:**
 

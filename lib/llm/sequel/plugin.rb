@@ -12,6 +12,8 @@ module LLM::Sequel
   # Context state can be stored as a JSON string (`format: :string`, the
   # default) or as a structured object (`format: :json` / `:jsonb`) for
   # databases such as PostgreSQL that can persist JSON natively.
+  # `:json` and `:jsonb` expect a real JSON column type with Sequel handling
+  # JSON typecasting for the model.
   module Plugin
     EMPTY_HASH = {}.freeze
     DEFAULT_USAGE_COLUMNS = {
@@ -55,7 +57,8 @@ module LLM::Sequel
     # @param [Hash] options
     # @option options [Symbol] :format
     #   Storage format for the serialized context. Use `:string` for text
-    #   columns, or `:json` / `:jsonb` for structured JSON columns.
+    #   columns, or `:json` / `:jsonb` for structured JSON columns with Sequel
+    #   JSON typecasting enabled.
     # @return [void]
     def self.configure(model, options = EMPTY_HASH)
       options = DEFAULTS.merge(options)

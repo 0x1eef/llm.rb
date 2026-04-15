@@ -27,7 +27,7 @@ Changes since `v4.14.0`.
   `LLM::Context` state with default columns and pass provider setup
   through `provider:` when needed. The plugin now also supports
   `format: :string`, `:json`, or `:jsonb` for text and native JSON
-  storage.
+  storage when Sequel JSON typecasting is enabled.
 
 * **Improve streaming parser performance** <br>
   In the local replay-based `stream_parser` benchmark versus
