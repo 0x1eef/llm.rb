@@ -194,7 +194,7 @@ require "sequel"
 require "sequel/plugins/llm"
 
 class Context < Sequel::Model
-  plugin :llm, provider: -> { {key: ENV["#{provider.upcase}_SECRET"], persistent: true } }
+  plugin :llm, provider: -> { { key: ENV["#{provider.upcase}_SECRET"], persistent: true } }
 end
 
 ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
