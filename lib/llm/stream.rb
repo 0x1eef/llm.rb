@@ -86,10 +86,10 @@ module LLM
     #   `tool.spawn(:fiber)`, or `tool.spawn(:task)`.
     # @param [LLM::Function] tool
     #  The tool that returned.
-    # @param [LLM::Function::Return] ret
+    # @param [LLM::Function::Return] result
     #  The completed tool return.
     # @return [nil]
-    def on_tool_return(tool, ret)
+    def on_tool_return(tool, result)
       nil
     end
 

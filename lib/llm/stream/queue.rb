@@ -54,9 +54,9 @@ class LLM::Stream
     private
 
     def fire_hooks(tasks, results)
-      results.each_with_index do |ret, idx|
+      results.each_with_index do |result, idx|
         tool = tasks[idx]&.function
-        @stream.on_tool_return(tool, ret) if tool
+        @stream.on_tool_return(tool, result) if tool
       end
       results
     end

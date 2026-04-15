@@ -122,8 +122,8 @@ RSpec.describe LLM::Stream do
           @calls << [fn, error]
         end
 
-        def on_tool_return(fn, ret)
-          @returns << [fn, ret]
+        def on_tool_return(fn, result)
+          @returns << [fn, result]
         end
       end.new
     end
@@ -178,7 +178,7 @@ RSpec.describe LLM::Stream do
         it "emits on_tool_return" do
           events = []
           stream = Class.new(described_class) do
-            define_method(:on_tool_return) { |fn, ret| events << [fn, ret] }
+            define_method(:on_tool_return) { |fn, result| events << [fn, result] }
           end.new
           stream.queue << tool.spawn(:thread)
 

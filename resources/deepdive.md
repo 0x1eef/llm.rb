@@ -225,8 +225,8 @@ class Stream < LLM::Stream
     queue << (error || tool.spawn(:thread))
   end
 
-  def on_tool_return(tool, ret)
-    if ret.error?
+  def on_tool_return(tool, result)
+    if result.error?
       $stdout << "Tool #{tool.name} failed\n"
     else
       $stdout << "Finished tool #{tool.name}\n"
