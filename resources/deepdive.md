@@ -431,61 +431,46 @@ puts restored.talk("What is my favorite language?").content
 
 ### Persist With ActiveRecord
 
-In Rails or ActiveRecord, a small wrapper is enough to persist context state
-between requests or jobs.
+llm.rb has ActiveRecord support built in through `acts_as_llm`, which can be
+applied to any ActiveRecord model. It is highly configurable but comes with
+sane defaults for provider selection, model selection, usage columns, and
+serialized context storage. The wrapper persists `LLM::Context` as JSON, and
+on PostgreSQL this can be optimized further by storing the serialized context
+in a `jsonb` column instead of plain text:
 
-The key idea is that the database record owns the serialized context, while
-the `LLM::Context` instance is rebuilt on demand and flushed back after each
-turn:
+- `format: :string` stores the context as a JSON string in a text column.
+- `format: :json` or `format: :jsonb` stores the context as a structured JSON
+  object, which is useful for native JSON columns such as PostgreSQL `jsonb`.
+  These formats expect a real JSON column type with ActiveRecord JSON
+  typecasting enabled for the model.
 
 ```ruby
 create_table :contexts do |t|
-  t.jsonb :snapshot
   t.string :provider, null: false
+  t.string :model
+  t.text :data
+  t.integer :input_tokens
+  t.integer :output_tokens
+  t.integer :total_tokens
   t.timestamps
 end
 ```
 
 ```ruby
+require "llm"
+require "active_record"
+require "llm/active_record"
+
 class Context < ApplicationRecord
-  def talk(...)
-    ctx.talk(...).tap { flush }
-  end
-
-  def wait(...)
-    ctx.wait(...).tap { flush }
-  end
-
-  def messages
-    ctx.messages
-  end
-
-  def model
-    ctx.model
-  end
-
-  def flush
-    update_column(:snapshot, ctx.to_json)
-  end
-
-  private
-
-  def ctx
-    @ctx ||= begin
-      ctx = LLM::Context.new(llm)
-      ctx.restore(string: snapshot) if snapshot
-      ctx
-    end
-  end
-
-  def llm
-    LLM.method(provider).call(key: ENV.fetch(key))
-  end
-
-  def key
-    "#{provider.upcase}_KEY"
-  end
+  acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
 end
+```
+
+```ruby
+ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
+ctx.talk("Remember that my favorite language is Ruby")
+puts ctx.talk("What is my favorite language?").content
+puts ctx.usage.total_tokens
 ```
 
 ### Persist With Sequel

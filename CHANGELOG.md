@@ -12,6 +12,12 @@ Changes since `v4.15.0`.
   proxies, and gateways that keep OpenAI request shapes but use
   non-standard URL layouts such as DeepInfra's `/v1/openai/...`.
 
+* **Add ActiveRecord context persistence with `acts_as_llm`** <br>
+  Add a built-in ActiveRecord wrapper that mirrors the Sequel plugin
+  API so applications can persist `LLM::Context` state on records with
+  default columns, provider/context hooks, and `format: :string`,
+  `:json`, or `:jsonb` storage.
+
 ## v4.15.0
 
 Changes since `v4.14.0`.

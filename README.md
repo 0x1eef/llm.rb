@@ -17,9 +17,9 @@ state.
 It is built for engineers who want control over how these systems run. llm.rb
 stays close to Ruby, runs on the standard library by default, loads optional
 pieces only when needed, and remains easy to extend. It also works well in
-Rails or ActiveRecord applications, and it includes built-in Sequel plugin
-support, where a small wrapper around context persistence is enough to save
-and restore long-lived conversation state across requests, jobs, or retries.
+Rails or ActiveRecord applications, with built-in `acts_as_llm`, and includes
+built-in Sequel support through `plugin :llm`, so long-lived context state can
+be saved and restored across requests, jobs, or retries.
 
 Most LLM libraries stop at request/response APIs. Building real systems means
 stitching together streaming, tools, state, persistence, and external
@@ -87,12 +87,12 @@ same context object.
 - **MCP is built in** <br>
   Connect to MCP servers over stdio or HTTP without bolting on a separate
   integration stack.
-- **Sequel persistence is built in** <br>
-  Use `plugin :llm` to persist `LLM::Context` state on a Sequel model with
-  sensible default columns, then pass provider setup through
-  `provider:` when you need it. Use `format: :string` for text columns or
-  `format: :jsonb` when you want native PostgreSQL JSON storage with Sequel's
-  JSON typecasting support enabled.
+- **ActiveRecord and Sequel persistence are built in** <br>
+  Use `acts_as_llm` on ActiveRecord models or `plugin :llm` on Sequel models
+  to persist `LLM::Context` state with sensible default columns. Both support
+  `provider:` and `context:` hooks, plus `format: :string` for text columns
+  or `format: :jsonb` for native PostgreSQL JSON storage when ORM JSON
+  typecasting support is enabled.
 - **Persistent HTTP pooling is shared process-wide** <br>
   When enabled, separate
   [`LLM::Provider`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
@@ -203,6 +203,24 @@ class Context < Sequel::Model
 end
 
 ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
+ctx.talk("Remember that my favorite language is Ruby")
+puts ctx.talk("What is my favorite language?").content
+```
+
+**ActiveRecord (ORM)**
+
+See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+
+```ruby
+require "llm"
+require "active_record"
+require "llm/active_record"
+
+class Context < ApplicationRecord
+  acts_as_llm provider: -> { { key: ENV["#{provider.upcase}_SECRET"], persistent: true } }
+end
+
+ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
 ```
