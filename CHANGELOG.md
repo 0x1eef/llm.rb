@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+Changes since `v4.16.0`.
+
+## v4.16.0
+
 Changes since `v4.15.0`.
+
+This release expands ORM support with built-in ActiveRecord persistence
+and improves compatibility with OpenAI-compatible gateways, proxies, and
+self-hosted servers that use non-standard API root paths.
 
 ### Change
 
@@ -15,8 +23,8 @@ Changes since `v4.15.0`.
 * **Add ActiveRecord context persistence with `acts_as_llm`** <br>
   Add a built-in ActiveRecord wrapper that mirrors the Sequel plugin
   API so applications can persist `LLM::Context` state on records with
-  default columns, provider/context hooks, and `format: :string`,
-  `:json`, or `:jsonb` storage.
+  default columns, provider/context hooks, validation-backed writes,
+  and `format: :string`, `:json`, or `:jsonb` storage.
 
 ## v4.15.0
 
