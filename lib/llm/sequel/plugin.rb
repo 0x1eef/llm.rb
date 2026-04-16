@@ -185,12 +185,11 @@ module LLM::Sequel
         if data.nil? || data == ""
           ctx
         else
-          string = case options[:format]
-          when :string then data
-          when :json, :jsonb then LLM.json.dump(data)
+          case options[:format]
+          when :string then ctx.restore(string: data)
+          when :json, :jsonb then ctx.restore(data:)
           else raise ArgumentError, "Unknown format: #{options[:format].inspect}"
           end
-          ctx.restore(string:)
         end
       end
     end

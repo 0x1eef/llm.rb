@@ -307,18 +307,21 @@ module LLM
     #  The path to a JSON file
     # @param [String, nil] string
     #  A raw JSON string
+    # @param [Hash, nil] data
+    #  A parsed context payload
     # @raise [SystemCallError]
     #  Might raise a number of SystemCallError subclasses
     # @return [LLM::Context]
-    def deserialize(path: nil, string: nil)
-      payload = if path.nil? and string.nil?
-        raise ArgumentError, "a path or string is required"
+    def deserialize(path: nil, string: nil, data: nil)
+      ctx = if data
+        data
+      elsif path.nil? and string.nil?
+        raise ArgumentError, "a path, string, or data payload is required"
       elsif path
-        ::File.binread(path)
+        LLM.json.load(::File.binread(path))
       else
-        string
+        LLM.json.load(string)
       end
-      ctx = LLM.json.load(payload)
       @messages.concat [*ctx["messages"]].map { deserialize_message(_1) }
       self
     end

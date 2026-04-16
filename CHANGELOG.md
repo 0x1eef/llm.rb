@@ -2,7 +2,23 @@
 
 ## Unreleased
 
+Changes since `v4.16.1`.
+
+## v4.16.1
+
 Changes since `v4.16.0`.
+
+This release tightens ORM persistence by removing an unnecessary JSON
+round-trip when restoring structured `:json` and `:jsonb` context
+payloads.
+
+### Change
+
+* **Restore structured ORM payloads directly** <br>
+  Teach `LLM::Context#restore` to accept parsed data payloads and use
+  that path from the ActiveRecord and Sequel persistence wrappers for
+  `format: :json` and `:jsonb`, avoiding a redundant
+  `Hash -> JSON string -> Hash` round-trip on restore.
 
 ## v4.16.0
 
