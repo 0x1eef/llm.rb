@@ -41,7 +41,7 @@ RSpec.describe LLM::Context do
 
     context "#context_window" do
       subject { ctx.context_window }
-      it { is_expected.to eq(128000) }
+      it { is_expected.to eq(131072) }
     end
   end
 
