@@ -211,8 +211,8 @@ puts ctx.talk("What is my favorite language?").content
 
 - [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) is the
   examples guide.
-- [_examples/relay](./_examples/relay) shows a real application built on top
-  of llm.rb.
+- [relay](https://github.com/llmrb/relay) shows a real application built on
+  top of llm.rb.
 - [doc site](https://0x1eef.github.io/x/llm.rb?rebuild=1) has the API docs.
 
 ## License
