@@ -34,7 +34,7 @@
         "cache_read": 0.028
       },
       "limit": {
-        "context": 128000,
+        "context": 131072,
         "output": 8192
       }
     },
