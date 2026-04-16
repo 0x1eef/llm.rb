@@ -31,6 +31,19 @@ module LLM::ActiveRecord
       context: EMPTY_HASH
     }.freeze
 
+    module Hooks
+      ##
+      # Called when hooks are extended onto an ActiveRecord model.
+      #
+      # @param [Class] model
+      # @return [void]
+      def self.extended(model)
+        options = model.llm_plugin_options
+        model.validates options[:provider_column], options[:model_column], presence: true
+        model.include InstanceMethods unless model.ancestors.include?(InstanceMethods)
+      end
+    end
+
     ##
     # Installs the `acts_as_llm` wrapper on an ActiveRecord model.
     #
@@ -43,11 +56,9 @@ module LLM::ActiveRecord
     def acts_as_llm(options = EMPTY_HASH)
       options = DEFAULTS.merge(options)
       usage_columns = DEFAULT_USAGE_COLUMNS.merge(options[:usage_columns] || EMPTY_HASH)
-      unless respond_to?(:llm_plugin_options)
-        class_attribute :llm_plugin_options, instance_accessor: false, default: DEFAULTS
-      end
+      class_attribute :llm_plugin_options, instance_accessor: false, default: DEFAULTS unless respond_to?(:llm_plugin_options)
       self.llm_plugin_options = options.merge(usage_columns: usage_columns.freeze).freeze
-      include InstanceMethods unless ancestors.include?(InstanceMethods)
+      extend Hooks
     end
 
     module InstanceMethods
@@ -175,12 +186,8 @@ module LLM::ActiveRecord
           columns[:output_tokens] => ctx.usage.output_tokens,
           columns[:total_tokens] => ctx.usage.total_tokens
         }
-        if persisted?
-          update_columns(attrs)
-        else
-          assign_attributes(attrs)
-          save!(validate: false)
-        end
+        assign_attributes(attrs)
+        save!
       end
 
       ##
