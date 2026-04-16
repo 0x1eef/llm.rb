@@ -473,6 +473,45 @@ puts ctx.talk("What is my favorite language?").content
 puts ctx.usage.total_tokens
 ```
 
+`context:` works the same way here as it does with the Sequel plugin. It lets
+the model inject default options into the constructed `LLM::Context`, while
+still allowing individual `talk` and `respond` calls to override them when a
+specific turn needs different behavior. One common use is setting default
+tools:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+require "active_record"
+require "llm/active_record"
+
+##
+# A small tool that gives the LLM access to the current time in UTC.
+class Clock < LLM::Tool
+  name "clock"
+  description "Return the current UTC time"
+
+  def call
+    {time: Time.now.utc.iso8601}
+  end
+end
+
+##
+# The ActiveRecord model owns the serialized context and injects a default
+# tool through `context:`.
+class Context < ApplicationRecord
+  acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
+              context: -> { {tools: [Clock]} },
+              format: :jsonb
+end
+
+ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
+ctx.talk("What time is it in UTC right now?")
+while ctx.functions.any?
+  puts ctx.talk(ctx.call(:functions)).content
+end
+```
+
 ### Persist With Sequel
 
 llm.rb has Sequel support built in through `plugin :llm`, which can be applied
