@@ -9,10 +9,10 @@
 
 ## About
 
-llm.rb is a runtime for building AI systems that integrate directly with your
-application. It is not just an API wrapper. It provides a unified execution
-model for providers, tools, MCP servers, streaming, schemas, files, and
-state.
+llm.rb is a lightweight runtime for building capable AI systems in Ruby.
+
+It is not just an API wrapper. It provides a unified execution model for providers,
+tools, MCP servers, streaming, schemas, files, and state.
 
 It is built for engineers who want control over how these systems run. llm.rb
 stays close to Ruby, runs on the standard library by default, loads optional
