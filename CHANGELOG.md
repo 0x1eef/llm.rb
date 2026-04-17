@@ -34,6 +34,11 @@ Changes since `v4.16.1`.
   including mode, returns, interruption, prompt helpers, file helpers,
   and tracer access.
 
+* **Add ActiveRecord agent persistence with `acts_as_agent`** <br>
+  Add `acts_as_agent` for ActiveRecord models that should wrap
+  `LLM::Agent`, reusing the same record-backed runtime shape as
+  `acts_as_llm` while letting tool execution be managed by the agent.
+
 ## v4.16.1
 
 Changes since `v4.16.0`.

@@ -482,6 +482,10 @@ puts ctx.talk("What is my favorite language?").content
 puts ctx.usage.total_tokens
 ```
 
+The `acts_as_llm` method wraps
+[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) and
+provides full control over tool execution.
+
 `context:` works the same way here as it does with the Sequel plugin. It lets
 the model inject default options into the constructed `LLM::Context`, while
 still allowing individual `talk` and `respond` calls to override them when a
@@ -519,6 +523,27 @@ ctx.talk("What time is it in UTC right now?")
 while ctx.functions.any?
   puts ctx.talk(ctx.call(:functions)).content
 end
+```
+
+The `acts_as_agent` method wraps
+[`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) and manages
+tool execution for you.
+
+```ruby
+require "llm"
+require "active_record"
+require "llm/active_record"
+
+class Ticket < ApplicationRecord
+  acts_as_agent provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
+  model "gpt-5.4-mini"
+  instructions "You are a concise support assistant."
+  tools SearchDocs, Escalate
+  concurrency :thread
+end
+
+ticket = Ticket.create!(provider: "openai", model: "gpt-5.4-mini")
+puts ticket.talk("How do I rotate my API key?").content
 ```
 
 ### Persist With Sequel
