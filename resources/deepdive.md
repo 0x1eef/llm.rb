@@ -464,18 +464,10 @@ require "active_record"
 require "llm/active_record"
 
 class Context < ApplicationRecord
-  acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
-end
-```
-
-```ruby
-class Context < ApplicationRecord
   acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
               tracer: -> { LLM::Tracer::Logger.new($stdout) }
 end
-```
 
-```ruby
 ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
@@ -577,37 +569,18 @@ create_table :contexts do
 end
 ```
 
-**Model:**
-
 ```ruby
 require "llm"
 require "sequel"
 require "sequel/plugins/llm"
 
 class Context < Sequel::Model
-  plugin :llm, provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
-end
-```
-
-```ruby
-class Context < Sequel::Model
   plugin :llm,
     provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
-    tracer: -> { LLM::Tracer::Logger.new($stdout) }
+    tracer: -> { LLM::Tracer::Logger.new($stdout) },
+    format: :jsonb
 end
-```
 
-```ruby
-class Context < Sequel::Model
-  plugin :llm,
-    format: :jsonb,
-    provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
-end
-```
-
-**Usage:**
-
-```ruby
 ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
