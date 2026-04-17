@@ -23,6 +23,8 @@ pieces only when needed, includes built-in ActiveRecord support through
 long-lived, tool-capable, stateful AI workflows instead of just
 request/response helpers.
 
+Want to see some code? Jump to [the examples](#examples) section.
+
 ## Architecture
 
 <p align="center">
