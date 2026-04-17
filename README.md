@@ -17,7 +17,7 @@ state, so real systems can be built out of one coherent execution model instead
 of a pile of adapters.
 
 It stays close to Ruby, runs on the standard library by default, loads optional
-pieces only when needed, works naturally in Rails or ActiveRecord through
+pieces only when needed, includes built-in ActiveRecord support through
 `acts_as_llm` and `acts_as_agent`, includes built-in Sequel support through
 `plugin :llm`, and is designed for engineers who want control over
 long-lived, tool-capable, stateful AI workflows instead of just
@@ -89,12 +89,14 @@ same context object.
   Connect to MCP servers over stdio or HTTP without bolting on a separate
   integration stack.
 - **ActiveRecord and Sequel persistence are built in** <br>
-  Use `acts_as_llm` on ActiveRecord models when you want to wrap
-  `LLM::Context`, `acts_as_agent` when you want to wrap `LLM::Agent`, or
-  `plugin :llm` on Sequel models to persist `LLM::Context` state with sensible
-  default columns. These integrations support `provider:` and `context:` hooks,
-  plus `format: :string` for text columns or `format: :jsonb` for native
-  PostgreSQL JSON storage when ORM JSON typecasting support is enabled.
+  llm.rb includes built-in ActiveRecord support through `acts_as_llm` and
+  `acts_as_agent`, plus built-in Sequel support through `plugin :llm`.
+  Use `acts_as_llm` when you want to wrap `LLM::Context`, `acts_as_agent`
+  when you want to wrap `LLM::Agent`, or `plugin :llm` on Sequel models to
+  persist `LLM::Context` state with sensible default columns. These
+  integrations support `provider:` and `context:` hooks, plus `format:
+  :string` for text columns or `format: :jsonb` for native PostgreSQL JSON
+  storage when ORM JSON typecasting support is enabled.
 - **Persistent HTTP pooling is shared process-wide** <br>
   When enabled, separate
   [`LLM::Provider`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
