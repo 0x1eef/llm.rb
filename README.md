@@ -210,7 +210,7 @@ puts ctx.talk("What is my favorite language?").content
 **ActiveRecord (ORM): acts_as_llm**
 
 The `acts_as_llm` method wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) and
-provides full control over tool execution.
+provides full control over tool execution. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
@@ -229,7 +229,7 @@ puts ctx.talk("What is my favorite language?").content
 **ActiveRecord (ORM): acts_as_agent**
 
 The `acts_as_agent` method wraps [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) and
-manages tool execution for you.
+manages tool execution for you. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
