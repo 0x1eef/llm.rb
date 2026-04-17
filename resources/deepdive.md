@@ -460,6 +460,7 @@ end
 
 ```ruby
 require "llm"
+require "net/http/persistent"
 require "active_record"
 require "llm/active_record"
 
@@ -487,6 +488,7 @@ tools:
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
+require "net/http/persistent"
 require "active_record"
 require "llm/active_record"
 
@@ -523,6 +525,7 @@ tool execution for you.
 
 ```ruby
 require "llm"
+require "net/http/persistent"
 require "active_record"
 require "llm/active_record"
 
@@ -571,6 +574,7 @@ end
 
 ```ruby
 require "llm"
+require "net/http/persistent"
 require "sequel"
 require "sequel/plugins/llm"
 
@@ -597,6 +601,7 @@ options:
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
+require "net/http/persistent"
 require "sequel"
 require "sequel/plugins/llm"
 

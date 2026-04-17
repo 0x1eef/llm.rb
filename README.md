@@ -201,6 +201,7 @@ The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/
 
 ```ruby
 require "llm"
+require "net/http/persistent"
 require "sequel"
 require "sequel/plugins/llm"
 
@@ -220,6 +221,7 @@ provides full control over tool execution. <br> See the [deepdive](https://0x1ee
 
 ```ruby
 require "llm"
+require "net/http/persistent"
 require "active_record"
 require "llm/active_record"
 
@@ -239,6 +241,7 @@ manages tool execution for you. <br> See the [deepdive](https://0x1eef.github.io
 
 ```ruby
 require "llm"
+require "net/http/persistent"
 require "active_record"
 require "llm/active_record"
 
