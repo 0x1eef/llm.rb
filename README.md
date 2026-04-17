@@ -238,7 +238,6 @@ require "llm/active_record"
 
 class Ticket < ApplicationRecord
   acts_as_agent provider: -> { { key: ENV["#{provider.upcase}_SECRET"], persistent: true } }
-
   model "gpt-5.4-mini"
   instructions "You are a concise support assistant."
   tools SearchDocs, Escalate
