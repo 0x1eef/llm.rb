@@ -13,7 +13,8 @@ module LLM::Sequel
   # default) or as a structured object (`format: :json` / `:jsonb`) for
   # databases such as PostgreSQL that can persist JSON natively.
   # `:json` and `:jsonb` expect a real JSON column type with Sequel handling
-  # JSON typecasting for the model.
+  # JSON typecasting for the model. A `tracer:` proc can also be configured
+  # to assign a fiber-local tracer onto the resolved provider.
   module Plugin
     EMPTY_HASH = {}.freeze
     DEFAULT_USAGE_COLUMNS = {
@@ -27,6 +28,7 @@ module LLM::Sequel
       data_column: :data,
       format: :string,
       usage_columns: DEFAULT_USAGE_COLUMNS,
+      tracer: nil,
       provider: EMPTY_HASH,
       context: EMPTY_HASH
     }.freeze
@@ -59,6 +61,9 @@ module LLM::Sequel
     #   Storage format for the serialized context. Use `:string` for text
     #   columns, or `:json` / `:jsonb` for structured JSON columns with Sequel
     #   JSON typecasting enabled.
+    # @option options [Proc, LLM::Tracer, nil] :tracer
+    #   Optional tracer or proc that resolves to one and is assigned through
+    #   `llm.tracer = ...` on the resolved provider.
     # @return [void]
     def self.configure(model, options = EMPTY_HASH)
       options = DEFAULTS.merge(options)
@@ -112,6 +117,13 @@ module LLM::Sequel
     end
 
     ##
+    # @see LLM::Context#mode
+    # @return [Symbol]
+    def mode
+      ctx.mode
+    end
+
+    ##
     # @see LLM::Context#messages
     # @return [Array<LLM::Message>]
     def messages
@@ -132,6 +144,13 @@ module LLM::Sequel
     # @return [Array<LLM::Function>]
     def functions
       ctx.functions
+    end
+
+    ##
+    # @see LLM::Context#returns
+    # @return [Array<LLM::Function::Return>]
+    def returns
+      ctx.returns
     end
 
     ##
@@ -161,6 +180,50 @@ module LLM::Sequel
       )
     end
 
+    ##
+    # @see LLM::Context#interrupt!
+    # @return [nil]
+    def interrupt!
+      ctx.interrupt!
+    end
+    alias_method :cancel!, :interrupt!
+
+    ##
+    # @see LLM::Context#prompt
+    # @return [LLM::Prompt]
+    def prompt(&)
+      ctx.prompt(&)
+    end
+    alias_method :build_prompt, :prompt
+
+    ##
+    # @see LLM::Context#image_url
+    # @return [LLM::Object]
+    def image_url(...)
+      ctx.image_url(...)
+    end
+
+    ##
+    # @see LLM::Context#local_file
+    # @return [LLM::Object]
+    def local_file(...)
+      ctx.local_file(...)
+    end
+
+    ##
+    # @see LLM::Context#remote_file
+    # @return [LLM::Object]
+    def remote_file(...)
+      ctx.remote_file(...)
+    end
+
+    ##
+    # @see LLM::Context#tracer
+    # @return [LLM::Tracer]
+    def tracer
+      ctx.tracer
+    end
+
     private
 
     ##
@@ -171,6 +234,8 @@ module LLM::Sequel
       provider = self[columns[:provider_column]]
       kwargs = resolve_options(options[:provider])
       @llm ||= LLM.method(provider).call(**kwargs)
+      @llm.tracer = resolve_option(options[:tracer]) if options[:tracer]
+      @llm
     end
 
     ##

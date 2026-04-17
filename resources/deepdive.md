@@ -443,6 +443,8 @@ in a `jsonb` column instead of plain text:
   object, which is useful for native JSON columns such as PostgreSQL `jsonb`.
   These formats expect a real JSON column type with ActiveRecord JSON
   typecasting enabled for the model.
+- `tracer:` accepts a tracer or proc and assigns it through `llm.tracer = ...`
+  on the resolved provider, which is useful for fiber-local request tracing.
 
 ```ruby
 create_table :contexts do |t|
@@ -463,6 +465,13 @@ require "llm/active_record"
 
 class Context < ApplicationRecord
   acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
+end
+```
+
+```ruby
+class Context < ApplicationRecord
+  acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
+              tracer: -> { LLM::Tracer::Logger.new($stdout) }
 end
 ```
 
@@ -526,6 +535,8 @@ instead of plain text:
   object, which is useful for native JSON columns such as PostgreSQL `jsonb`.
   These formats expect a real JSON column type with Sequel JSON typecasting
   enabled for the model.
+- `tracer:` accepts a tracer or proc and assigns it through `llm.tracer = ...`
+  on the resolved provider, which is useful for fiber-local request tracing.
 
 **Migration:**
 
@@ -550,6 +561,14 @@ require "sequel/plugins/llm"
 
 class Context < Sequel::Model
   plugin :llm, provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
+end
+```
+
+```ruby
+class Context < Sequel::Model
+  plugin :llm,
+    provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
+    tracer: -> { LLM::Tracer::Logger.new($stdout) }
 end
 ```
 
