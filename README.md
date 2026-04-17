@@ -11,20 +11,14 @@
 
 llm.rb is a lightweight runtime for building capable AI systems in Ruby.
 
-It is not just an API wrapper. It provides a unified execution model for providers,
-tools, MCP servers, streaming, schemas, files, and state.
-
-It is built for engineers who want control over how these systems run. llm.rb
-stays close to Ruby, runs on the standard library by default, loads optional
-pieces only when needed, and remains easy to extend. It also works well in
-Rails or ActiveRecord applications, with built-in `acts_as_llm`, and includes
-built-in Sequel support through `plugin :llm`, so long-lived context state can
-be saved and restored across requests, jobs, or retries.
-
-Most LLM libraries stop at request/response APIs. Building real systems means
-stitching together streaming, tools, state, persistence, and external
-services by hand. llm.rb provides a single execution model for all of these,
-so they compose naturally instead of becoming separate subsystems.
+It is not just an API wrapper. llm.rb gives you one runtime for providers,
+contexts, agents, tools, MCP servers, streaming, schemas, files, and persisted
+state, so real systems can be built out of one coherent execution model instead
+of a pile of adapters. It stays close to Ruby, runs on the standard library by
+default, loads optional pieces only when needed, works naturally in Rails or
+ActiveRecord through `acts_as_llm`, includes built-in Sequel support through
+`plugin :llm`, and is designed for engineers who want control over long-lived,
+tool-capable, stateful AI workflows instead of just request/response helpers.
 
 ## Architecture
 
