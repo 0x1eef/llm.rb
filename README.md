@@ -174,7 +174,7 @@ gem install llm.rb
 
 **REPL**
 
-See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) directly for an interactive REPL. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
@@ -191,7 +191,7 @@ end
 
 **Sequel (ORM)**
 
-See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
@@ -250,7 +250,7 @@ puts ticket.talk("How do I rotate my API key?").content
 
 **Agent**
 
-See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) directly and lets the agent manage tool execution. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
