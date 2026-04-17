@@ -66,6 +66,10 @@ same context object.
 - **Streaming and tool execution work together** <br>
   Start tool work while output is still streaming so you can hide latency
   instead of waiting for turns to finish.
+- **Agents auto-manage tool execution** <br>
+  Use `LLM::Agent` when you want the same stateful runtime surface as
+  `LLM::Context`, but with tool loops executed automatically according to a
+  configured concurrency mode such as `:call`, `:thread`, `:task`, or `:fiber`.
 - **Tool calls have an explicit lifecycle** <br>
   A tool call can be executed, cancelled through
   [`LLM::Function#cancel`](https://0x1eef.github.io/x/llm.rb/LLM/Function.html#cancel-instance_method),
@@ -223,6 +227,25 @@ end
 ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
+```
+
+**Agent**
+
+See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+
+```ruby
+require "llm"
+
+class ShellAgent < LLM::Agent
+  model "gpt-5.4-mini"
+  instructions "You are a Linux system assistant."
+  tools Shell
+  concurrency :thread
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = ShellAgent.new(llm)
+puts agent.talk("What time is it on this system?").content
 ```
 
 ## Resources

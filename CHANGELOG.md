@@ -4,6 +4,25 @@
 
 Changes since `v4.16.1`.
 
+### Change
+
+* **Add configurable tool concurrency to `LLM::Agent`** <br>
+  Add the class-level `concurrency` DSL to `LLM::Agent` so automatic
+  tool loops can run with `:call`, `:thread`, `:task`, or `:fiber`
+  instead of always executing sequentially.
+
+* **Bring `LLM::Agent` closer to `LLM::Context`** <br>
+  Expand `LLM::Agent` so it exposes more of the same runtime surface as
+  `LLM::Context`, including returns, interruption, mode, cost, context
+  window, structured serialization, and other context-backed helpers,
+  while still auto-managing tool loops.
+
+* **Refresh agent docs and coverage** <br>
+  Update the README and deep dive to explain the current role of
+  `LLM::Agent`, add examples that show automatic tool execution and
+  concurrency, and add focused specs for the expanded agent surface and
+  tool-loop behavior.
+
 ## v4.16.1
 
 Changes since `v4.16.0`.

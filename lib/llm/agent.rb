@@ -6,10 +6,18 @@ module LLM
   # reusable, preconfigured assistants with defaults for model,
   # tools, schema, and instructions.
   #
+  # It wraps the same stateful runtime surface as
+  # {LLM::Context LLM::Context}: message history, usage, persistence,
+  # streaming parameters, and provider-backed requests still flow through
+  # an underlying context. The defining behavior of an agent is that it
+  # automatically resolves pending tool calls for you during `talk` and
+  # `respond`, instead of leaving tool loops to the caller.
+  #
   # **Notes:**
   # * Instructions are injected only on the first request.
-  # * An agent will automatically execute tool calls (unlike {LLM::Context LLM::Context}).
-  # * The idea originally came from RubyLLM and was adapted to llm.rb.
+  # * An agent automatically executes tool loops (unlike {LLM::Context LLM::Context}).
+  # * Tool loop execution can be configured with `concurrency :call`,
+  #   `:thread`, `:task`, or `:fiber`.
   #
   # @example
   #   class SystemAdmin < LLM::Agent
@@ -73,6 +81,21 @@ module LLM
     end
 
     ##
+    # Set or get the tool execution concurrency.
+    #
+    # @param [Symbol, nil] concurrency
+    #  Controls how pending tool loops are executed:
+    #  - `:call`: sequential calls
+    #  - `:thread`: concurrent threads
+    #  - `:task`: concurrent async tasks
+    #  - `:fiber`: concurrent raw fibers
+    # @return [Symbol, nil]
+    def self.concurrency(concurrency = nil)
+      return @concurrency if concurrency.nil?
+      @concurrency = concurrency
+    end
+
+    ##
     # @param [LLM::Provider] provider
     #  A provider
     # @param [Hash] params
@@ -82,8 +105,10 @@ module LLM
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [#to_json, nil] :schema Defaults to nil
+    # @option params [Symbol, nil] :concurrency Defaults to the agent class concurrency
     def initialize(llm, params = {})
       defaults = {model: self.class.model, tools: self.class.tools, schema: self.class.schema}.compact
+      @concurrency = params.delete(:concurrency) || self.class.concurrency
       @llm = llm
       @ctx = LLM::Context.new(llm, defaults.merge(params))
     end
@@ -94,7 +119,7 @@ module LLM
     #
     # @param prompt (see LLM::Provider#complete)
     # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
-    # @option params [Integer] :max_tool_rounds The maxinum number of tool call iterations (default 10)
+    # @option params [Integer] :tool_attempts The maxinum number of tool call iterations (default 10)
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
@@ -102,13 +127,13 @@ module LLM
     #   response = agent.talk("Hello, what is your name?")
     #   puts response.choices[0].content
     def talk(prompt, params = {})
-      i, max = 0, Integer(params.delete(:max_tool_rounds) || 10)
+      max = Integer(params.delete(:tool_attempts) || 10)
       res = @ctx.talk(apply_instructions(prompt), params)
-      until @ctx.functions.empty?
-        raise LLM::ToolLoopError, "pending tool calls remain" if i >= max
-        res = @ctx.talk @ctx.functions.map(&:call), params
-        i += 1
+      max.times do
+        break if @ctx.functions.empty?
+        res = @ctx.talk(call_functions, params)
       end
+      raise LLM::ToolLoopError, "pending tool calls remain" unless @ctx.functions.empty?
       res
     end
     alias_method :chat, :talk
@@ -120,7 +145,7 @@ module LLM
     # @note Not all LLM providers support this API
     # @param prompt (see LLM::Provider#complete)
     # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
-    # @option params [Integer] :max_tool_rounds The maxinum number of tool call iterations (default 10)
+    # @option params [Integer] :tool_attempts The maxinum number of tool call iterations (default 10)
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
@@ -128,13 +153,13 @@ module LLM
     #   res = agent.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
-      i, max = 0, Integer(params.delete(:max_tool_rounds) || 10)
+      max = Integer(params.delete(:tool_attempts) || 10)
       res = @ctx.respond(apply_instructions(prompt), params)
-      until @ctx.functions.empty?
-        raise LLM::ToolLoopError, "pending tool calls remain" if i >= max
-        res = @ctx.respond @ctx.functions.map(&:call), params
-        i += 1
+      max.times do
+        break if @ctx.functions.empty?
+        res = @ctx.respond(call_functions, params)
       end
+      raise LLM::ToolLoopError, "pending tool calls remain" unless @ctx.functions.empty?
       res
     end
 
@@ -151,10 +176,39 @@ module LLM
     end
 
     ##
+    # @see LLM::Context#returns
+    # @return [Array<LLM::Function::Return>]
+    def returns
+      @ctx.returns
+    end
+
+    ##
+    # @see LLM::Context#call
+    # @return [Object]
+    def call(...)
+      @ctx.call(...)
+    end
+
+    ##
+    # @see LLM::Context#wait
+    # @return [Array<LLM::Function::Return>]
+    def wait(...)
+      @ctx.wait(...)
+    end
+
+    ##
     # @return [LLM::Object]
     def usage
       @ctx.usage
     end
+
+    ##
+    # Interrupt the active request, if any.
+    # @return [nil]
+    def interrupt!
+      @ctx.interrupt!
+    end
+    alias_method :cancel!, :interrupt!
 
     ##
     # @param (see LLM::Context#prompt)
@@ -207,6 +261,53 @@ module LLM
     end
 
     ##
+    # @return [Symbol]
+    def mode
+      @ctx.mode
+    end
+
+    ##
+    # Returns the configured tool execution concurrency.
+    # @return [Symbol, nil]
+    def concurrency
+      @concurrency
+    end
+
+    ##
+    # @see LLM::Context#cost
+    # @return [LLM::Cost]
+    def cost
+      @ctx.cost
+    end
+
+    ##
+    # @see LLM::Context#context_window
+    # @return [Integer]
+    def context_window
+      @ctx.context_window
+    end
+
+    ##
+    # @see LLM::Context#to_h
+    # @return [Hash]
+    def to_h
+      @ctx.to_h
+    end
+
+    ##
+    # @return [String]
+    def to_json(...)
+      to_h.to_json(...)
+    end
+
+    ##
+    # @return [String]
+    def inspect
+      "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
+      "@llm=#{@llm.class}, @mode=#{mode.inspect}, @messages=#{messages.inspect}>"
+    end
+
+    ##
     # @param (see LLM::Context#serialize)
     # @return (see LLM::Context#serialize)
     def serialize(**kw)
@@ -230,13 +331,23 @@ module LLM
       instr = self.class.instructions
       return new_prompt unless instr
       if LLM::Prompt === new_prompt
-        @ctx.messages.empty? ? new_prompt.system(instr) : nil
+        new_prompt.system(instr) if @ctx.messages.empty?
         new_prompt
       else
         prompt do
-          @ctx.messages.empty? ? _1.system(instr) : nil
+          _1.system(instr) if @ctx.messages.empty?
           _1.user(new_prompt)
         end
+      end
+    end
+
+    ##
+    # @return [Array<LLM::Function::Return>]
+    def call_functions
+      case concurrency || :call
+      when :call then call(:functions)
+      when :thread, :task, :fiber then wait(concurrency)
+      else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. Expected :call, :thread, :task, or :fiber"
       end
     end
   end

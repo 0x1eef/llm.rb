@@ -757,12 +757,23 @@ ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 ## Agents
 
 `LLM::Agent` gives you a reusable, preconfigured assistant built on top of
-the same context, tool, and schema primitives. It is a good fit when you want
-to package instructions, model choice, tools, and output shape into one class.
+the same context, tool, and schema primitives. It keeps the same stateful
+runtime surface as `LLM::Context`, but wraps it in automatic tool-loop
+execution. That makes it a good fit when you want to package instructions,
+model choice, tools, output shape, and tool concurrency into one class.
 
 The main difference from `LLM::Context` is control flow. An agent will apply
 its instructions automatically and keep executing tool calls until the turn
-settles or it hits the configured limit.
+settles or it hits the configured limit. Tool execution can stay sequential
+with `concurrency :call`, or run through `:thread`, `:task`, or `:fiber`
+depending on how you want pending functions resolved.
+
+Those agent-level defaults are not fixed. You can still override things like
+`model`, `tools`, `schema`, `stream`, or `concurrency` when you initialize the
+agent, and you can continue overriding request-level options again at the
+`talk` or `respond` call site.
+
+An agent example:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -773,11 +784,13 @@ class SystemAdmin < LLM::Agent
   instructions "You are a Linux system admin"
   tools Shell
   schema Result
+  concurrency :thread
 end
 
 llm = LLM.openai(key: ENV["KEY"])
 agent = SystemAdmin.new(llm)
-res = agent.talk("Run 'date'")
+res = agent.talk("Run 'date' and summarize the result.")
+puts res.content
 ```
 
 ## MCP
