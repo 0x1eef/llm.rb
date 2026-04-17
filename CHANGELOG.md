@@ -2,7 +2,17 @@
 
 ## Unreleased
 
+Changes since `v4.17.0`.
+
+## v4.17.0
+
 Changes since `v4.16.1`.
+
+This release expands agent support across llm.rb. It brings `LLM::Agent`
+closer to `LLM::Context`, adds configurable automatic tool concurrency,
+extends persisted ORM wrappers with more of the context runtime surface and
+fiber-local tracer hooks, and introduces built-in ActiveRecord agent
+persistence through `acts_as_agent`.
 
 ### Change
 
