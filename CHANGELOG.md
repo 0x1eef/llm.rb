@@ -23,6 +23,17 @@ Changes since `v4.16.1`.
   concurrency, and add focused specs for the expanded agent surface and
   tool-loop behavior.
 
+* **Add ORM tracer hooks for persisted contexts** <br>
+  Add `tracer:` to both the Sequel plugin and `acts_as_llm` so models
+  can resolve and assign fiber-local tracers onto the provider used by
+  their persisted `LLM::Context`.
+
+* **Bring persisted ORM wrappers closer to `LLM::Context`** <br>
+  Expand both the Sequel plugin and `acts_as_llm` so record-backed
+  contexts expose more of the same runtime surface as `LLM::Context`,
+  including mode, returns, interruption, prompt helpers, file helpers,
+  and tracer access.
+
 ## v4.16.1
 
 Changes since `v4.16.0`.
@@ -60,17 +71,6 @@ self-hosted servers that use non-standard API root paths.
   API so applications can persist `LLM::Context` state on records with
   default columns, provider/context hooks, validation-backed writes,
   and `format: :string`, `:json`, or `:jsonb` storage.
-
-* **Add ORM tracer hooks for persisted contexts** <br>
-  Add `tracer:` to both the Sequel plugin and `acts_as_llm` so models
-  can resolve and assign fiber-local tracers onto the provider used by
-  their persisted `LLM::Context`.
-
-* **Bring persisted ORM wrappers closer to `LLM::Context`** <br>
-  Expand both the Sequel plugin and `acts_as_llm` so record-backed
-  contexts expose more of the same runtime surface as `LLM::Context`,
-  including mode, returns, interruption, prompt helpers, file helpers,
-  and tracer access.
 
 ## v4.15.0
 
