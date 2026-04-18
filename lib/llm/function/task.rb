@@ -14,7 +14,7 @@ class LLM::Function
     attr_reader :function
 
     ##
-    # @param [Thread, Fiber, Async::Task] task
+    # @param [Thread, Fiber, Async::Task, Ractor, LLM::Function::Ractor::Task] task
     # @param [LLM::Function, nil] function
     # @return [LLM::Function::Task]
     def initialize(task, function = nil)
@@ -25,7 +25,8 @@ class LLM::Function
     ##
     # @return [Boolean]
     def alive?
-      task.alive?
+      return task.alive? if task.respond_to?(:alive?)
+      false
     end
 
     ##

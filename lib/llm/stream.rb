@@ -63,13 +63,16 @@ module LLM
     # Called when a streamed tool call has been fully constructed.
     # @note A stream implementation may start tool execution here, for
     #   example by pushing `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
-    #   `tool.spawn(:task)` onto {#queue}. When a streamed tool cannot be
-    #   resolved, `error` is passed as an {LLM::Function::Return}. It can be
-    #   sent back to the model, allowing the tool-call path to recover and the
-    #   session to continue. Tool resolution depends on
+    #   `tool.spawn(:task)` onto {#queue}. Mixed strategies can also be
+    #   selected per tool, such as `tool.mcp? ? tool.spawn(:task) :
+    #   tool.spawn(:ractor)`. When a streamed tool cannot be resolved, `error`
+    #   is passed as an {LLM::Function::Return}. It can be sent back to the
+    #   model, allowing the tool-call path to recover and the session to
+    #   continue. Tool resolution depends on
     #   {LLM::Function.registry}, which includes {LLM::Tool LLM::Tool}
     #   subclasses, including MCP tools, but not functions defined with
-    #   {LLM.function}.
+    #   {LLM.function}. The current `:ractor` mode is for class-based tools
+    #   and does not support MCP tools.
     # @param [LLM::Function] tool
     #  The parsed tool call.
     # @param [LLM::Function::Return, nil] error

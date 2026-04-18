@@ -17,7 +17,7 @@ module LLM
   # * Instructions are injected only on the first request.
   # * An agent automatically executes tool loops (unlike {LLM::Context LLM::Context}).
   # * Tool loop execution can be configured with `concurrency :call`,
-  #   `:thread`, `:task`, or `:fiber`.
+  #   `:thread`, `:task`, `:fiber`, or `:ractor`.
   #
   # @example
   #   class SystemAdmin < LLM::Agent
@@ -89,6 +89,8 @@ module LLM
     #  - `:thread`: concurrent threads
     #  - `:task`: concurrent async tasks
     #  - `:fiber`: concurrent raw fibers
+    #  - `:ractor`: concurrent Ruby ractors for class-based tools; MCP tools are not supported,
+    #    and this mode is especially useful for CPU-bound tool work
     # @return [Symbol, nil]
     def self.concurrency(concurrency = nil)
       return @concurrency if concurrency.nil?
@@ -346,8 +348,8 @@ module LLM
     def call_functions
       case concurrency || :call
       when :call then call(:functions)
-      when :thread, :task, :fiber then wait(concurrency)
-      else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. Expected :call, :thread, :task, or :fiber"
+      when :thread, :task, :fiber, :ractor then wait(concurrency)
+      else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. Expected :call, :thread, :task, :fiber, or :ractor"
       end
     end
   end

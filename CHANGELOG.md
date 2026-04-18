@@ -4,12 +4,25 @@
 
 Changes since `v4.17.0`.
 
+### Change
+
+* **Add experimental ractor tool concurrency** <br>
+  Add `:ractor` support to `LLM::Function#spawn`, `LLM::Function::Array#wait`,
+  `LLM::Stream#wait`, and `LLM::Agent.concurrency` so class-based tools with
+  ractor-safe arguments and return values can run in Ruby ractors and report
+  their results back into the normal LLM tool-return path. MCP tools are not
+  supported by the current `:ractor` mode, but mixed workloads can still
+  branch on `tool.mcp?` and choose a supported strategy per tool. `:ractor`
+  is especially useful for CPU-bound tools, while `:task`, `:fiber`, or
+  `:thread` may be a better fit for I/O-bound work.
+
 ## v4.17.0
 
 Changes since `v4.16.1`.
 
 This release expands agent support across llm.rb. It brings `LLM::Agent`
-closer to `LLM::Context`, adds configurable automatic tool concurrency,
+closer to `LLM::Context`, adds configurable automatic tool concurrency
+including experimental ractor support for class-based tools,
 extends persisted ORM wrappers with more of the context runtime surface and
 fiber-local tracer hooks, and introduces built-in ActiveRecord agent
 persistence through `acts_as_agent`.
@@ -18,8 +31,9 @@ persistence through `acts_as_agent`.
 
 * **Add configurable tool concurrency to `LLM::Agent`** <br>
   Add the class-level `concurrency` DSL to `LLM::Agent` so automatic
-  tool loops can run with `:call`, `:thread`, `:task`, or `:fiber`
-  instead of always executing sequentially.
+  tool loops can run with `:call`, `:thread`, `:task`, `:fiber`, or
+  experimental `:ractor` support for class-based tools instead of
+  always executing sequentially.
 
 * **Bring `LLM::Agent` closer to `LLM::Context`** <br>
   Expand `LLM::Agent` so it exposes more of the same runtime surface as

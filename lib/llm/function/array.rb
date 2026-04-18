@@ -27,8 +27,9 @@ class LLM::Function
     #   - `:thread`: Use threads
     #   - `:task`: Use async tasks (requires async gem)
     #   - `:fiber`: Use raw fibers
+    #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     #
-    # @return [LLM::Function::ThreadGroup, LLM::Function::TaskGroup, LLM::Function::FiberGroup]
+    # @return [LLM::Function::ThreadGroup, LLM::Function::TaskGroup, LLM::Function::FiberGroup, LLM::Function::Ractor::Group]
     def spawn(strategy)
       case strategy
       when :task
@@ -37,8 +38,10 @@ class LLM::Function
         ThreadGroup.new(map { |fn| fn.spawn(:thread) })
       when :fiber
         FiberGroup.new(map { |fn| fn.spawn(:fiber) })
+      when :ractor
+        Ractor::Group.new(map { |fn| fn.spawn(:ractor) })
       else
-        raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, or :fiber"
+        raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, or :ractor"
       end
     end
 
@@ -51,6 +54,7 @@ class LLM::Function
     #   - `:thread`: Use threads
     #   - `:task`: Use async tasks (requires async gem)
     #   - `:fiber`: Use raw fibers
+    #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     #
     # @return [Array<LLM::Function::Return>]
     #  Returns values to be reported back to the LLM.

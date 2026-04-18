@@ -68,7 +68,10 @@ same context object.
 - **Agents auto-manage tool execution** <br>
   Use `LLM::Agent` when you want the same stateful runtime surface as
   `LLM::Context`, but with tool loops executed automatically according to a
-  configured concurrency mode such as `:call`, `:thread`, `:task`, or `:fiber`.
+  configured concurrency mode such as `:call`, `:thread`, `:task`, `:fiber`,
+  or experimental `:ractor` support for class-based tools. MCP tools are not
+  supported by the current `:ractor` mode, but mixed tool sets can still
+  route MCP tools and local tools through different strategies at runtime.
 - **Tool calls have an explicit lifecycle** <br>
   A tool call can be executed, cancelled through
   [`LLM::Function#cancel`](https://0x1eef.github.io/x/llm.rb/LLM/Function.html#cancel-instance_method),
@@ -80,7 +83,12 @@ same context object.
   [`LLM::Context#cancel!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#cancel-21-instance_method)
   is inspired by Go's context cancellation model.
 - **Concurrency is a first-class feature** <br>
-  Use threads, fibers, or async tasks without rewriting your tool layer.
+  Use threads, fibers, async tasks, or experimental ractors without
+  rewriting your tool layer. The current `:ractor` mode is for class-based
+  tools and does not support MCP tools, but mixed workloads can branch on
+  `tool.mcp?` and choose a supported strategy per tool. `:ractor` is
+  especially useful for CPU-bound tools, while `:task`, `:fiber`, or
+  `:thread` may be a better fit for I/O-bound work.
 - **Advanced workloads are built in, not bolted on** <br>
   Streaming, concurrent tool execution, persistence, tracing, and MCP support
   all fit the same runtime model.

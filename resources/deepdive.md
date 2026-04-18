@@ -279,6 +279,20 @@ ctx.talk("Run `date` and `uname -a`.")
 ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 ```
 
+If streamed tool calls mix MCP tools with local class-based tools, you can
+choose the strategy per tool inside `on_tool_call` so MCP tools stay on a
+supported concurrency mode while local class-based tools use experimental
+`:ractor` execution:
+
+```ruby
+class Stream < LLM::Stream
+  def on_tool_call(tool, error)
+    return queue << error if error
+    queue << (tool.mcp? ? tool.spawn(:task) : tool.spawn(:ractor))
+  end
+end
+```
+
 ## Reasoning
 
 Some providers expose model reasoning separately from visible assistant output.
@@ -754,8 +768,13 @@ ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 
 ### Concurrent Tools
 
-Use `wait(:thread)`, `wait(:fiber)`, or `wait(:task)` when you want multiple
-pending tool calls to run concurrently.
+Use `wait(:thread)`, `wait(:fiber)`, `wait(:task)`, or experimental
+`wait(:ractor)` when you want multiple pending tool calls to run concurrently.
+The current `:ractor` mode is intended for class-based tools and does not
+support MCP tools, but mixed workloads can still route MCP tools and local
+tools through different strategies at runtime. `:ractor` is especially useful
+for CPU-bound tools, while `:task`, `:fiber`, or `:thread` may be a better fit
+for I/O-bound work.
 
 This matters when a turn fans out into several independent tool calls. Instead
 of blocking on each one in sequence, you can resolve them together and reduce
@@ -787,8 +806,10 @@ model choice, tools, output shape, and tool concurrency into one class.
 The main difference from `LLM::Context` is control flow. An agent will apply
 its instructions automatically and keep executing tool calls until the turn
 settles or it hits the configured limit. Tool execution can stay sequential
-with `concurrency :call`, or run through `:thread`, `:task`, or `:fiber`
-depending on how you want pending functions resolved.
+with `concurrency :call`, or run through `:thread`, `:task`, `:fiber`, or
+experimental `:ractor` depending on how you want pending functions resolved.
+The current `:ractor` mode is intended for class-based tools with ractor-safe
+arguments and return values. MCP tools are not supported.
 
 Those agent-level defaults are not fixed. You can still override things like
 `model`, `tools`, `schema`, `stream`, or `concurrency` when you initialize the

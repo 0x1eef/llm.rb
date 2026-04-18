@@ -38,6 +38,7 @@ class LLM::Stream
     #   - `:thread`: Use threads
     #   - `:task`: Use async tasks (requires async gem)
     #   - `:fiber`: Use raw fibers
+    #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     # @return [Array<LLM::Function::Return>]
     def wait(strategy)
       returns, tasks = @items.shift(@items.length).partition { LLM::Function::Return === _1 }
@@ -45,7 +46,8 @@ class LLM::Stream
       when :thread then LLM::Function::ThreadGroup.new(tasks).wait
       when :task then LLM::Function::TaskGroup.new(tasks).wait
       when :fiber then LLM::Function::FiberGroup.new(tasks).wait
-      else raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, or :fiber"
+      when :ractor then LLM::Function::Ractor::Group.new(tasks).wait
+      else raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, or :ractor"
       end
       returns.concat fire_hooks(tasks, results)
     end

@@ -187,6 +187,18 @@ RSpec.describe LLM::Stream do
           expect(events).to eq([[tool, returns.fetch(0)]])
         end
       end
+
+      context "when given ractor work" do
+        before do
+          stream.queue << tool.spawn(:ractor)
+        end
+
+        it "waits for the spawned work" do
+          expect(stream.wait(:ractor).map(&:to_h)).to eq(
+            [{id: "call_1", name: "system", value: {"ok" => true}}]
+          )
+        end
+      end
     end
   end
 end

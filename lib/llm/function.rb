@@ -36,6 +36,8 @@ class LLM::Function
   require_relative "function/thread_group"
   require_relative "function/fiber_group"
   require_relative "function/task_group"
+  require_relative "function/ractor"
+  require_relative "function/ractor_group"
 
   extend LLM::Function::Registry
   prepend LLM::Function::Tracing
@@ -174,6 +176,7 @@ class LLM::Function
   #   - `:thread`: Use threads
   #   - `:task`: Use async tasks (requires async gem)
   #   - `:fiber`: Use raw fibers
+  #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
   #
   # @return [LLM::Function::Task]
   #   Returns a task whose `#value` is an {LLM::Function::Return}.
@@ -190,8 +193,11 @@ class LLM::Function
       ensure
         Fiber.yield
       end.tap(&:resume)
+    when :ractor
+      raise ArgumentError, "Ractor concurrency only supports class-based tools" unless Class === @runner
+      Ractor::Task.new(@runner, id, name, arguments)
     else
-      raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, or :fiber"
+      raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, or :ractor"
     end
     Task.new(task, self)
   ensure
