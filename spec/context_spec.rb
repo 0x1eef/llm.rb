@@ -93,8 +93,6 @@ RSpec.describe LLM::Context do
         file.flush
       end
     end
-    let(:tmpdir) { Dir.mktmpdir("llmrb-context") }
-    let(:serialized) { File.join(tmpdir, "context.json") }
     let(:message) do
       LLM::Message.new("user", [
         ctx.image_url(image_url),
@@ -112,7 +110,6 @@ RSpec.describe LLM::Context do
 
     after do
       tempfile.close!
-      FileUtils.remove_entry(tmpdir)
     end
 
     context "#restore" do
@@ -139,15 +136,13 @@ RSpec.describe LLM::Context do
     end
 
     context "#serialize" do
-      let(:restored) do
-        described_class.new(provider, model:).tap do |other|
-          ctx.messages << message
-          ctx.serialize(path: serialized)
-          other.restore(path: serialized)
-        end
-      end
-
       it "round-trips tagged prompt objects through a file" do
+        path = File.join(Dir.mktmpdir("llmrb-context"), "context.json")
+        ctx.messages << message
+        ctx.serialize(path:)
+        restored = described_class.new(provider, model:)
+        restored.restore(path:)
+        content = restored.messages.first.content
         expect(restored.messages.size).to eq(1)
         expect(restored.messages.first).to be_a(LLM::Message)
         expect(content.fetch(0).kind).to eq(:image_url)
@@ -158,6 +153,8 @@ RSpec.describe LLM::Context do
         expect(content.fetch(2).kind).to eq(:remote_file)
         expect(content.fetch(2).value.file?).to eq(true)
         expect(content.fetch(2).value.id).to eq("file_123")
+      ensure
+        FileUtils.remove_entry(File.dirname(path))
       end
     end
   end
