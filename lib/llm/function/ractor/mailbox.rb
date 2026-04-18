@@ -31,11 +31,9 @@ class LLM::Function
     private
 
     def request(type)
-      reply = ::Ractor.new do
-        ::Ractor.yield(::Ractor.receive)
-      end
+      reply = ::Ractor.new { ::Ractor.receive }
       task.send([type, reply])
-      reply.take
+      reply.respond_to?(:take) ? reply.take : ::Ractor.select(reply).last
     end
   end
 end
