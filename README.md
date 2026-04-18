@@ -267,6 +267,7 @@ class Ticket < ApplicationRecord
     { key: ENV["#{provider.upcase}_SECRET"], persistent: true }
   end
 end
+
 ticket = Ticket.create!(provider: "openai", model: "gpt-5.4-mini")
 puts ticket.talk("How do I rotate my API key?").content
 ```
