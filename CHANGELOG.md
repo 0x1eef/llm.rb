@@ -4,6 +4,17 @@
 
 Changes since `v4.18.0`.
 
+## v4.18.0
+
+This release improves tracing and tool execution behavior across llm.rb.
+It makes provider tracers default to the provider instance, adds
+`LLM::Provider#with_tracer` for scoped overrides, restores tool tracing for
+concurrent and streamed tool execution, extends streamed tracing to MCP tools,
+and adds symbol-based ORM option hooks alongside experimental ractor tool
+concurrency.
+
+Changes since `v4.17.0`.
+
 ### Change
 
 * **Make provider tracers default to the provider instance** <br>
@@ -41,17 +52,6 @@ Changes since `v4.18.0`.
   branch on `tool.mcp?` and choose a supported strategy per tool. `:ractor`
   is especially useful for CPU-bound tools, while `:task`, `:fiber`, or
   `:thread` may be a better fit for I/O-bound work.
-
-## v4.18.0
-
-This release improves tracing and tool execution behavior across llm.rb.
-It makes provider tracers default to the provider instance, adds
-`LLM::Provider#with_tracer` for scoped overrides, restores tool tracing for
-concurrent and streamed tool execution, extends streamed tracing to MCP tools,
-and adds symbol-based ORM option hooks alongside experimental ractor tool
-concurrency.
-
-Changes since `v4.17.0`.
 
 ## v4.17.0
 
