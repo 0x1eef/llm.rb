@@ -2,7 +2,16 @@
 
 ## Unreleased
 
+Changes since `v4.19.0`.
+
+## v4.19.0
+
 Changes since `v4.18.0`.
+
+This release tightens the ActiveRecord and ORM integration layer. It adds
+inline agent DSL blocks to `acts_as_agent` so agent defaults can be defined
+where the wrapper is declared, and it exposes the resolved provider through
+public `llm` methods on the ActiveRecord and Sequel wrappers.
 
 ### Change
 
