@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+Changes since `v4.20.2`.
+
+## v4.20.2
+
 Changes since `v4.20.1`.
+
+This patch release improves runtime behavior around interruption and mixed
+concurrency waits. It also rounds out response API uniformity for Google
+completion responses.
 
 ### Fix
 
