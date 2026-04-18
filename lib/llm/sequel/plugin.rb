@@ -224,8 +224,6 @@ module LLM::Sequel
       ctx.tracer
     end
 
-    private
-
     ##
     # Returns the resolved provider instance for this record.
     # @return [LLM::Provider]
@@ -238,6 +236,8 @@ module LLM::Sequel
       @llm.tracer = resolve_option(options[:tracer]) if options[:tracer]
       @llm
     end
+
+    private
 
     ##
     # @return [LLM::Context]

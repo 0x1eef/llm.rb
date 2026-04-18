@@ -6,6 +6,10 @@ Changes since `v4.18.0`.
 
 ### Change
 
+* **Make ORM provider access public through `llm`** <br>
+  Expose the resolved provider on the Sequel plugin and the ActiveRecord
+  `acts_as_llm` / `acts_as_agent` wrappers through a public `llm` method.
+
 * **Allow inline agent DSL blocks in `acts_as_agent`** <br>
   Let ActiveRecord models configure `model`, `tools`, `schema`,
   `instructions`, and `concurrency` directly inside the `acts_as_agent`
