@@ -203,6 +203,40 @@ loop do
 end
 ```
 
+**Streaming**
+
+This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) directly so visible output and tool execution can happen together. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+
+```ruby
+require "llm"
+
+class Stream < LLM::Stream
+  def on_content(content)
+    $stdout << content
+  end
+
+  def on_tool_call(tool, error)
+    return queue << error if error
+    $stdout << "\nRunning tool #{tool.name}...\n"
+    queue << tool.spawn(:thread)
+  end
+
+  def on_tool_return(tool, result)
+    if result.error?
+      $stdout << "Tool #{tool.name} failed\n"
+    else
+      $stdout << "Finished tool #{tool.name}\n"
+    end
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
+
+ctx.talk("Run `date` and `uname -a`.")
+ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+```
+
 **Sequel (ORM)**
 
 The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
@@ -289,6 +323,30 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 agent = ShellAgent.new(llm)
 puts agent.talk("What time is it on this system?").content
+```
+
+**MCP**
+
+This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+
+```ruby
+require "llm"
+require "net/http/persistent"
+
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+).persistent
+
+begin
+  mcp.start
+  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
+  ctx.talk("Pull information about my GitHub account.")
+  ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+ensure
+  mcp.stop
+end
 ```
 
 ## Resources
