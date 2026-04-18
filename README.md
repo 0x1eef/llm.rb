@@ -186,7 +186,7 @@ gem install llm.rb
 
 ## Examples
 
-**REPL**
+#### REPL
 
 This example uses [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) directly for an interactive REPL. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
@@ -203,7 +203,7 @@ loop do
 end
 ```
 
-**Streaming**
+#### Streaming
 
 This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) directly so visible output and tool execution can happen together. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
@@ -237,7 +237,7 @@ ctx.talk("Run `date` and `uname -a`.")
 ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 ```
 
-**Sequel (ORM)**
+#### Sequel (ORM)
 
 The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
@@ -256,7 +256,7 @@ ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
 ```
 
-**ActiveRecord (ORM): acts_as_llm**
+#### ActiveRecord (ORM): acts_as_llm
 
 The `acts_as_llm` method wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) and
 provides full control over tool execution. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
@@ -276,7 +276,7 @@ ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
 ```
 
-**ActiveRecord (ORM): acts_as_agent**
+#### ActiveRecord (ORM): acts_as_agent
 
 The `acts_as_agent` method wraps [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) and
 manages tool execution for you. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
@@ -306,7 +306,7 @@ ticket = Ticket.create!(provider: "openai", model: "gpt-5.4-mini")
 puts ticket.talk("How do I rotate my API key?").content
 ```
 
-**Agent**
+#### Agent
 
 This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) directly and lets the agent manage tool execution. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
@@ -325,7 +325,7 @@ agent = ShellAgent.new(llm)
 puts agent.talk("What time is it on this system?").content
 ```
 
-**MCP**
+#### MCP
 
 This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
@@ -348,6 +348,13 @@ ensure
   mcp.stop
 end
 ```
+
+## Screencast
+
+This screencast was built on an older version of llm.rb, but it still shows
+how capable the runtime can be in a real application:
+
+[![Watch the llm.rb screencast](https://img.youtube.com/vi/Jb7LNUYlCf4/maxresdefault.jpg)](https://www.youtube.com/watch?v=x1K4wMeO_QA)
 
 ## Resources
 
