@@ -69,7 +69,6 @@ module LLM
       @mode = params.delete(:mode) || :completions
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @messages = LLM::Buffer.new(llm)
-      @owner = Fiber.current
     end
 
     ##
@@ -86,6 +85,7 @@ module LLM
     #   puts res.messages[0].content
     def talk(prompt, params = {})
       return respond(prompt, params) if mode == :responses
+      @owner = Fiber.current
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
       bind!(params[:stream], params[:model])
@@ -112,6 +112,7 @@ module LLM
     #   res = ctx.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
+      @owner = Fiber.current
       params = @params.merge(params)
       bind!(params[:stream], params[:model])
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id

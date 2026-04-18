@@ -253,5 +253,17 @@ RSpec.describe LLM::Context do
       expect(provider).to receive(:interrupt!).with(owner).and_return(nil)
       expect(ctx.interrupt!).to be_nil
     end
+
+    it "tracks the executing fiber as the interrupt owner" do
+      owner = Fiber.new do
+        allow(provider).to receive(:complete).and_return(
+          double(choices: [LLM::Message.new("assistant", "hello")])
+        )
+        ctx.talk("hello")
+        expect(provider).to receive(:interrupt!).with(Fiber.current).and_return(nil)
+        expect(ctx.interrupt!).to be_nil
+      end
+      owner.resume
+    end
   end
 end

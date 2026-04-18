@@ -10,6 +10,11 @@ Changes since `v4.20.1`.
   Add `LLM::Response#id` support to Google completion responses so tracer
   and caller code can rely on the same API used by other providers.
 
+* **Track interrupt ownership on the active request** <br>
+  Bind `LLM::Context` interruption to the fiber running `talk` or `respond`
+  so `interrupt!` works correctly when requests are started outside the
+  context's initialization fiber.
+
 ### Change
 
 * **Allow mixed concurrency strategies in `wait(...)`** <br>
