@@ -342,7 +342,6 @@ module LLM
       stream.extra[:tracer] = tracer
       stream.extra[:model] = model
     end
-
   end
 
   # Backward-compatible alias

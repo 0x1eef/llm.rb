@@ -91,6 +91,7 @@ RSpec.describe LLM::Context do
         file.flush
       end
     end
+    let(:serialized) { Tempfile.new(["llmrb-context", ".json"]) }
     let(:message) do
       LLM::Message.new("user", [
         ctx.image_url(image_url),
@@ -109,7 +110,10 @@ RSpec.describe LLM::Context do
       ctx.messages << message
     end
 
-    after { tempfile.close! }
+    after do
+      tempfile.close!
+      serialized.close!
+    end
 
     context "#restore" do
       it "restores image_url content" do
@@ -131,6 +135,27 @@ RSpec.describe LLM::Context do
         expect(content.fetch(2).value.mime_type).to eq("image/png")
         expect(content.fetch(2).value.uri).to eq("https://example.com/photo.png")
         expect(content.fetch(2).value.file_type).to eq("image")
+      end
+    end
+
+    context "#serialize" do
+      let(:restored) do
+        described_class.new(provider, model:).tap do |other|
+          ctx.serialize(path: serialized.path)
+          other.restore(path: serialized.path)
+        end
+      end
+
+      it "round-trips tagged prompt objects through a file" do
+        expect { restored.messages.first.content }.not_to raise_error
+        expect(content.fetch(0).kind).to eq(:image_url)
+        expect(content.fetch(0).value).to eq(image_url)
+        expect(content.fetch(1).kind).to eq(:local_file)
+        expect(content.fetch(1).value).to be_a(LLM::File)
+        expect(content.fetch(1).value.path).to eq(tempfile.path)
+        expect(content.fetch(2).kind).to eq(:remote_file)
+        expect(content.fetch(2).value.file?).to eq(true)
+        expect(content.fetch(2).value.id).to eq("file_123")
       end
     end
   end
