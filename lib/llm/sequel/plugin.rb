@@ -13,8 +13,8 @@ module LLM::Sequel
   # default) or as a structured object (`format: :json` / `:jsonb`) for
   # databases such as PostgreSQL that can persist JSON natively.
   # `:json` and `:jsonb` expect a real JSON column type with Sequel handling
-  # JSON typecasting for the model. A `tracer:` proc can also be configured
-  # to assign a fiber-local tracer onto the resolved provider.
+  # JSON typecasting for the model. `provider:`, `context:`, and `tracer:`
+  # can also be configured as symbols that are called on the model.
   module Plugin
     EMPTY_HASH = {}.freeze
     DEFAULT_USAGE_COLUMNS = {
@@ -61,9 +61,9 @@ module LLM::Sequel
     #   Storage format for the serialized context. Use `:string` for text
     #   columns, or `:json` / `:jsonb` for structured JSON columns with Sequel
     #   JSON typecasting enabled.
-    # @option options [Proc, LLM::Tracer, nil] :tracer
-    #   Optional tracer or proc that resolves to one and is assigned through
-    #   `llm.tracer = ...` on the resolved provider.
+    # @option options [Proc, Symbol, LLM::Tracer, nil] :tracer
+    #   Optional tracer, method name, or proc that resolves to one and is
+    #   assigned through `llm.tracer = ...` on the resolved provider.
     # @return [void]
     def self.configure(model, options = EMPTY_HASH)
       options = DEFAULTS.merge(options)
@@ -276,6 +276,7 @@ module LLM::Sequel
     def resolve_option(option)
       case option
       when Proc then instance_exec(&option)
+      when Symbol then public_send(option)
       when Hash then option.dup
       else option
       end

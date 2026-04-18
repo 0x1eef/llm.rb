@@ -6,6 +6,11 @@ Changes since `v4.17.0`.
 
 ### Change
 
+* **Support symbol-based ORM option hooks** <br>
+  Let `provider:`, `context:`, and `tracer:` on the Sequel plugin and
+  the ActiveRecord `acts_as_llm` / `acts_as_agent` wrappers resolve through
+  model method names as well as procs.
+
 * **Add experimental ractor tool concurrency** <br>
   Add `:ractor` support to `LLM::Function#spawn`, `LLM::Function::Array#wait`,
   `LLM::Stream#wait`, and `LLM::Agent.concurrency` so class-based tools with

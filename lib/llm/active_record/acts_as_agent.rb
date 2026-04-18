@@ -68,9 +68,9 @@ module LLM::ActiveRecord
     #   Storage format for the serialized agent state. Use `:string` for text
     #   columns, or `:json` / `:jsonb` for structured JSON columns with
     #   ActiveRecord JSON typecasting enabled.
-    # @option options [Proc, LLM::Tracer, nil] :tracer
-    #   Optional tracer or proc that resolves to one and is assigned through
-    #   `llm.tracer = ...` on the resolved provider.
+    # @option options [Proc, Symbol, LLM::Tracer, nil] :tracer
+    #   Optional tracer, method name, or proc that resolves to one and is
+    #   assigned through `llm.tracer = ...` on the resolved provider.
     # @return [void]
     def acts_as_agent(options = EMPTY_HASH)
       options = DEFAULTS.merge(options)
@@ -134,6 +134,7 @@ module LLM::ActiveRecord
       def resolve_option(option)
         case option
         when Proc then instance_exec(&option)
+        when Symbol then public_send(option)
         when Hash then option.dup
         else option
         end

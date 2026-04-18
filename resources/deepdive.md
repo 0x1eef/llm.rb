@@ -459,6 +459,8 @@ in a `jsonb` column instead of plain text:
   typecasting enabled for the model.
 - `tracer:` accepts a tracer or proc and assigns it through `llm.tracer = ...`
   on the resolved provider, which is useful for fiber-local request tracing.
+- `provider:`, `context:`, and `tracer:` can also be symbols that call
+  methods on the model.
 
 ```ruby
 create_table :contexts do |t|
@@ -537,6 +539,9 @@ The `acts_as_agent` method wraps
 [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) and manages
 tool execution for you.
 
+Its `provider:`, `context:`, and `tracer:` hooks can also be configured as
+symbols that call methods on the model.
+
 ```ruby
 require "llm"
 require "net/http/persistent"
@@ -571,6 +576,8 @@ instead of plain text:
   enabled for the model.
 - `tracer:` accepts a tracer or proc and assigns it through `llm.tracer = ...`
   on the resolved provider, which is useful for fiber-local request tracing.
+- `provider:`, `context:`, and `tracer:` can also be symbols that call
+  methods on the model.
 
 **Migration:**
 
