@@ -485,7 +485,7 @@ require "llm/active_record"
 
 class Context < ApplicationRecord
   acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
-              tracer: -> { LLM::Tracer::Logger.new($stdout) }
+              tracer: -> { LLM::Tracer::Logger.new(llm, io: $stdout) }
 end
 
 ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
@@ -608,7 +608,7 @@ require "sequel/plugins/llm"
 class Context < Sequel::Model
   plugin :llm,
     provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
-    tracer: -> { LLM::Tracer::Logger.new($stdout) },
+    tracer: -> { LLM::Tracer::Logger.new(llm, io: $stdout) },
     format: :jsonb
 end
 
