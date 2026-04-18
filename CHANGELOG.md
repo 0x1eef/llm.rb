@@ -4,6 +4,12 @@
 
 Changes since `v4.20.1`.
 
+### Fix
+
+* **Expose Google completion response IDs through `.id`** <br>
+  Add `LLM::Response#id` support to Google completion responses so tracer
+  and caller code can rely on the same API used by other providers.
+
 ## v4.20.1
 
 Changes since `v4.20.0`.

@@ -10,6 +10,12 @@ module LLM::Google::ResponseAdapter
     alias_method :choices, :messages
 
     ##
+    # (see LLM::Contract::Completion#id)
+    def id
+      body["responseId"]
+    end
+
+    ##
     # (see LLM::Contract::Completion#input_tokens)
     def input_tokens
       body.usageMetadata.promptTokenCount || 0
