@@ -301,7 +301,7 @@ module LLM
     #  Might raise a number of SystemCallError subclasses
     # @return [void]
     def serialize(path:)
-      ::File.binwrite path, LLM.json.dump(self)
+      ::File.binwrite path, LLM.json.dump(to_h)
     end
     alias_method :save, :serialize
 
