@@ -74,7 +74,7 @@ RSpec.describe LLM::Provider do
     end
   end
 
-  describe "#tracer=" do
+  describe "#tracer" do
     let(:started) { Queue.new }
     let(:release) { Queue.new }
     let(:tracer1) { tracer.new }
@@ -89,15 +89,13 @@ RSpec.describe LLM::Provider do
         end
     end
 
-    context "without in-flight requests" do
-      it "replaces the tracer" do
+    describe "#tracer=" do
+      it "replaces the provider default tracer" do
         provider.tracer = tracer1
         provider.tracer = tracer2
         expect(provider.tracer).to equal(tracer2)
       end
-    end
 
-    context "with concurrent tracer writes" do
       let(:count) { 20 }
       let(:errors) { Queue.new }
       let(:mutators) do
@@ -113,50 +111,67 @@ RSpec.describe LLM::Provider do
         end
       end
 
-      it "does not raise errors" do
+      it "does not raise errors under concurrent writes" do
         mutators.each(&:join)
         expect(errors).to be_empty
       end
 
-      it "assigns the tracer" do
+      it "assigns the provider default tracer" do
         mutators.each(&:join)
-        expect(provider.tracer).not_to be_nil
+        expect([tracer.class, LLM::Tracer::Null]).to include(provider.tracer.class)
       end
     end
 
-    context "when request runs in another thread" do
-      it "uses the request thread tracer" do
+    describe "#with_tracer" do
+      it "overrides the tracer inside the block" do
+        provider.tracer = tracer1
+        provider.with_tracer(tracer2) do
+          expect(provider.tracer).to equal(tracer2)
+        end
+        expect(provider.tracer).to equal(tracer1)
+      end
+
+      it "restores an existing override" do
+        provider.with_tracer(tracer1) do
+          provider.with_tracer(tracer2) do
+            expect(provider.tracer).to equal(tracer2)
+          end
+          expect(provider.tracer).to equal(tracer1)
+        end
+      end
+
+      it "does not leak the override into another thread" do
+        provider.tracer = tracer1
+        _res, _span, request_tracer = run_in_flight_request do
+          provider.with_tracer(tracer2) do
+            release << true
+          end
+        end
+        expect(request_tracer).to equal(tracer1)
+      end
+
+      it "restores the default tracer after the block" do
+        provider.tracer = tracer1
+        provider.with_tracer(tracer2) {}
+        expect(provider.tracer).to equal(tracer1)
+      end
+    end
+
+    describe "request execution" do
+      it "uses the provider default tracer across threads" do
+        provider.tracer = tracer1
         _res, _span, request_tracer = run_in_flight_request
         expect(request_tracer).to equal(tracer1)
       end
 
-      it "ignores tracer changes from other threads" do
-        _res, _span, request_tracer = run_in_flight_request do
-          provider.tracer = tracer2
-        end
-        expect(request_tracer).to equal(tracer1)
-      end
-
-      it "finishes on the request thread tracer" do
-        _res, span, request_tracer = run_in_flight_request do
-          provider.tracer = tracer2
-        end
-        request_tracer.on_request_finish(operation: "chat", model: "gpt-test", res: Object.new, span:)
-        expect(tracer1.finishes.size).to eq(1)
-        expect(tracer2.finishes).to eq([])
-      end
-    end
-
-    context "when request thread tracer is nil" do
-      it "uses null tracer for that thread" do
-        _res, _span, request_tracer = run_in_flight_request(request_thread_tracer: nil)
+      it "uses null tracer when no default or override is set" do
+        _res, _span, request_tracer = run_in_flight_request
         expect(request_tracer).to be_a(LLM::Tracer::Null)
       end
     end
 
-    def run_in_flight_request(request_thread_tracer: tracer1)
+    def run_in_flight_request
       t = Thread.new do
-        provider.tracer = request_thread_tracer
         req = Net::HTTP::Get.new("/v1/models", provider.headers)
         provider.execute(request: req, operation: "chat", model: "gpt-test")
       end

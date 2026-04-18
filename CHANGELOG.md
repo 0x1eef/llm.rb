@@ -6,6 +6,17 @@ Changes since `v4.17.0`.
 
 ### Change
 
+* **Make provider tracers default to the provider instance** <br>
+  Change `llm.tracer = ...` so it sets a provider default tracer instead of
+  relying on scoped fiber-local state alone. This makes tracer configuration
+  behave more predictably across normal tasks, threads, and fibers that share
+  the same provider instance.
+
+* **Add `LLM::Provider#with_tracer` for scoped overrides** <br>
+  Add `with_tracer` as the opt-in escape hatch for request- or turn-scoped
+  tracer overrides. Use it when you want temporary tracing on the current
+  fiber without replacing the provider's default tracer.
+
 * **Support symbol-based ORM option hooks** <br>
   Let `provider:`, `context:`, and `tracer:` on the Sequel plugin and
   the ActiveRecord `acts_as_llm` / `acts_as_agent` wrappers resolve through
@@ -29,8 +40,8 @@ This release expands agent support across llm.rb. It brings `LLM::Agent`
 closer to `LLM::Context`, adds configurable automatic tool concurrency
 including experimental ractor support for class-based tools,
 extends persisted ORM wrappers with more of the context runtime surface and
-fiber-local tracer hooks, and introduces built-in ActiveRecord agent
-persistence through `acts_as_agent`.
+tracer hooks, and introduces built-in ActiveRecord agent persistence through
+`acts_as_agent`.
 
 ### Change
 
@@ -54,8 +65,8 @@ persistence through `acts_as_agent`.
 
 * **Add ORM tracer hooks for persisted contexts** <br>
   Add `tracer:` to both the Sequel plugin and `acts_as_llm` so models
-  can resolve and assign fiber-local tracers onto the provider used by
-  their persisted `LLM::Context`.
+  can resolve and assign tracers onto the provider used by their persisted
+  `LLM::Context`.
 
 * **Bring persisted ORM wrappers closer to `LLM::Context`** <br>
   Expand both the Sequel plugin and `acts_as_llm` so record-backed

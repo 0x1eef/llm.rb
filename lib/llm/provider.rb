@@ -271,34 +271,46 @@ class LLM::Provider
 
   ##
   # @return [LLM::Tracer]
-  #  Returns a fiber-local tracer
+  #  Returns the current scoped tracer override or provider default tracer
   def tracer
-    weakmap[self] || LLM::Tracer::Null.new(self)
+    weakmap[self] || @tracer || LLM::Tracer::Null.new(self)
   end
 
   ##
-  # Set a fiber-local tracer
+  # Set the provider's default tracer
+  # This tracer is shared by the provider instance and becomes the fallback
+  # whenever no scoped override is active.
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   Thread.new do
-  #     llm.tracer = LLM::Tracer::Logger.new(llm, path: "/path/to/log/1.txt")
-  #   end
-  #   Thread.new do
-  #     llm.tracer = LLM::Tracer::Logger.new(llm, path: "/path/to/log/2.txt")
-  #   end
-  #   # ...
+  #   llm.tracer = LLM::Tracer::Logger.new(llm, path: "/path/to/log.txt")
   # @param [LLM::Tracer] tracer
   #  A tracer
   # @return [void]
   def tracer=(tracer)
-    if tracer.nil?
-      if weakmap.respond_to?(:delete)
-        weakmap.delete(self)
-      else
-        weakmap[self] = nil
-      end
+    @tracer = tracer
+  end
+
+  ##
+  # Override the tracer for the current fiber while the block runs.
+  # This is useful when you want per-request or per-turn tracing without
+  # replacing the provider's default tracer.
+  # @example
+  #   llm.with_tracer(LLM::Tracer::Logger.new(llm, io: $stdout)) do
+  #     llm.complete("hello", model: "gpt-5.4-mini")
+  #   end
+  # @param [LLM::Tracer] tracer
+  # @yield
+  # @return [Object]
+  def with_tracer(tracer)
+    had_override = weakmap.key?(self)
+    previous = weakmap[self]
+    weakmap[self] = tracer
+    yield
+  ensure
+    if had_override
+      weakmap[self] = previous
     else
-      weakmap[self] = tracer
+      weakmap.delete(self)
     end
   end
 

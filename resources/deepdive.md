@@ -458,7 +458,10 @@ in a `jsonb` column instead of plain text:
   These formats expect a real JSON column type with ActiveRecord JSON
   typecasting enabled for the model.
 - `tracer:` accepts a tracer or proc and assigns it through `llm.tracer = ...`
-  on the resolved provider, which is useful for fiber-local request tracing.
+  on the resolved provider. That sets the provider's default tracer so it
+  keeps working across normal tasks, threads, and fibers that share the same
+  provider instance. Use `llm.with_tracer(...)` when you want a temporary
+  scoped override for the current fiber.
 - `provider:`, `context:`, and `tracer:` can also be symbols that call
   methods on the model.
 
@@ -575,7 +578,10 @@ instead of plain text:
   These formats expect a real JSON column type with Sequel JSON typecasting
   enabled for the model.
 - `tracer:` accepts a tracer or proc and assigns it through `llm.tracer = ...`
-  on the resolved provider, which is useful for fiber-local request tracing.
+  on the resolved provider. That sets the provider's default tracer so it
+  keeps working across normal tasks, threads, and fibers that share the same
+  provider instance. Use `llm.with_tracer(...)` when you want a temporary
+  scoped override for the current fiber.
 - `provider:`, `context:`, and `tracer:` can also be symbols that call
   methods on the model.
 
