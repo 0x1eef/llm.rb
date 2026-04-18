@@ -109,6 +109,8 @@ class LLM::Anthropic
       fn = (registered || LLM::Function.new(tool["name"])).dup.tap do |fn|
         fn.id = tool["id"]
         fn.arguments = LLM::Anthropic.parse_tool_input(tool["input"])
+        fn.tracer = @stream.extra[:tracer]
+        fn.model = @stream.extra[:model]
       end
       [fn, (registered ? nil : @stream.tool_not_found(fn))]
     end

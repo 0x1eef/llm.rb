@@ -86,6 +86,7 @@ module LLM
       return respond(prompt, params) if mode == :responses
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
+      bind!(params[:stream], params[:model])
       res = @llm.complete(prompt, params)
       role = params[:role] || @llm.user_role
       role = @llm.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
@@ -110,6 +111,7 @@ module LLM
     #   puts res.output_text
     def respond(prompt, params = {})
       params = @params.merge(params)
+      bind!(params[:stream], params[:model])
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
       params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
       res = @llm.responses.create(prompt, params)
@@ -355,6 +357,14 @@ module LLM
         .context
     rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError
       0
+    end
+
+    private
+
+    def bind!(stream, model)
+      return unless LLM::Stream === stream
+      stream.extra[:tracer] = tracer
+      stream.extra[:model] = model
     end
   end
 

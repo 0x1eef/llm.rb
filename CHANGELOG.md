@@ -22,6 +22,11 @@ Changes since `v4.17.0`.
   `:task`, or `:fiber` concurrency. Experimental `:ractor` execution still
   does not emit tool tracer events.
 
+* **Trace streamed tool calls, including MCP tools** <br>
+  Bind stream metadata through `LLM::Stream#extra` so streamed tool calls
+  inherit tracer and model context before they are handed to `on_tool_call`.
+  This restores tool tracing for streamed MCP and local tool execution.
+
 * **Support symbol-based ORM option hooks** <br>
   Let `provider:`, `context:`, and `tracer:` on the Sequel plugin and
   the ActiveRecord `acts_as_llm` / `acts_as_agent` wrappers resolve through

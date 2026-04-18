@@ -273,6 +273,8 @@ class LLM::OpenAI
       fn = (registered || LLM::Function.new(tool["name"])).dup.tap do |fn|
         fn.id = tool["call_id"]
         fn.arguments = arguments
+        fn.tracer = @stream.extra[:tracer]
+        fn.model = @stream.extra[:model]
       end
       [fn, (registered ? nil : @stream.tool_not_found(fn))]
     end

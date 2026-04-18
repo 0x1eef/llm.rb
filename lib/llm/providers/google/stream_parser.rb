@@ -157,6 +157,8 @@ class LLM::Google
       fn = (registered || LLM::Function.new(call["name"])).dup.tap do |fn|
         fn.id = LLM::Google.tool_id(part:, cindex:, pindex:)
         fn.arguments = call["args"]
+        fn.tracer = @stream.extra[:tracer]
+        fn.model = @stream.extra[:model]
       end
       [fn, (registered ? nil : @stream.tool_not_found(fn))]
     end

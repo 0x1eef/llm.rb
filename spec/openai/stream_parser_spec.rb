@@ -7,11 +7,13 @@ RSpec.describe LLM::OpenAI::StreamParser do
   let(:stream) do
     Class.new do
       attr_reader :content, :reasoning_content, :calls
+      attr_reader :extra
 
       def initialize
         @content = +""
         @reasoning_content = +""
         @calls = []
+        @extra = LLM::Object.from({})
       end
 
       def on_content(value)
@@ -48,6 +50,8 @@ RSpec.describe LLM::OpenAI::StreamParser do
   end
 
   it "emits tool calls after arguments become complete" do
+    stream.extra[:tracer] = Object.new
+    stream.extra[:model] = "deepseek-chat"
     parser.parse!(
       "choices" => [
         {
@@ -83,6 +87,8 @@ RSpec.describe LLM::OpenAI::StreamParser do
     expect(fn.id).to eq("call_1")
     expect(fn.name).to eq("missing")
     expect(fn.arguments).to eq({"command" => "date"})
+    expect(fn.tracer).to equal(stream.extra[:tracer])
+    expect(fn.model).to eq("deepseek-chat")
     expect(error).to eq(id: "call_1", name: "missing", value: {error: true})
   end
 end

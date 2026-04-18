@@ -23,6 +23,17 @@ module LLM
     require_relative "stream/queue"
 
     ##
+    # Returns extra context associated with the current streamed request.
+    # @return [Hash]
+    attr_reader :extra
+
+    ##
+    # @return [LLM::Stream]
+    def initialize
+      @extra = LLM::Object.from({})
+    end
+
+    ##
     # Returns a lazily-initialized queue for tool results or spawned work.
     # @return [LLM::Stream::Queue]
     def queue
