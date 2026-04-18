@@ -4,6 +4,11 @@
 
 Changes since `v4.19.0`.
 
+* **Round-trip tagged prompt objects through `LLM::Context`** <br>
+  Teach `LLM::Context` serialization and restore to preserve
+  `image_url`, `local_file`, and `remote_file` content across
+  `to_json` / `restore`.
+
 ## v4.19.0
 
 Changes since `v4.18.0`.

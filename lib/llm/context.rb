@@ -34,7 +34,9 @@ module LLM
   #   ctx.talk(prompt)
   #   ctx.messages.each { |m| puts "[#{m.role}] #{m.content}" }
   class Context
+    require_relative "context/serializer"
     require_relative "context/deserializer"
+    include Serializer
     include Deserializer
 
     ##
@@ -279,7 +281,7 @@ module LLM
     ##
     # @return [Hash]
     def to_h
-      {schema_version: 1, model:, messages:}
+      {schema_version: 1, model:, messages: @messages.map { serialize_message(_1) }}
     end
 
     ##
@@ -302,32 +304,6 @@ module LLM
       ::File.binwrite path, LLM.json.dump(self)
     end
     alias_method :save, :serialize
-
-    ##
-    # Restore a saved context state
-    # @param [String, nil] path
-    #  The path to a JSON file
-    # @param [String, nil] string
-    #  A raw JSON string
-    # @param [Hash, nil] data
-    #  A parsed context payload
-    # @raise [SystemCallError]
-    #  Might raise a number of SystemCallError subclasses
-    # @return [LLM::Context]
-    def deserialize(path: nil, string: nil, data: nil)
-      ctx = if data
-        data
-      elsif path.nil? and string.nil?
-        raise ArgumentError, "a path, string, or data payload is required"
-      elsif path
-        LLM.json.load(::File.binread(path))
-      else
-        LLM.json.load(string)
-      end
-      @messages.concat [*ctx["messages"]].map { deserialize_message(_1) }
-      self
-    end
-    alias_method :restore, :deserialize
 
     ##
     # @return [LLM::Cost]
@@ -366,6 +342,7 @@ module LLM
       stream.extra[:tracer] = tracer
       stream.extra[:model] = model
     end
+
   end
 
   # Backward-compatible alias

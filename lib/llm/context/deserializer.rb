@@ -5,6 +5,32 @@ class LLM::Context
   # @api private
   module Deserializer
     ##
+    # Restore a saved context state
+    # @param [String, nil] path
+    #  The path to a JSON file
+    # @param [String, nil] string
+    #  A raw JSON string
+    # @param [Hash, nil] data
+    #  A parsed context payload
+    # @raise [SystemCallError]
+    #  Might raise a number of SystemCallError subclasses
+    # @return [LLM::Context]
+    def deserialize(path: nil, string: nil, data: nil)
+      ctx = if data
+        data
+      elsif path.nil? and string.nil?
+        raise ArgumentError, "a path, string, or data payload is required"
+      elsif path
+        LLM.json.load(::File.binread(path))
+      else
+        LLM.json.load(string)
+      end
+      @messages.concat [*ctx["messages"]].map { deserialize_message(_1) }
+      self
+    end
+    alias_method :restore, :deserialize
+
+    ##
     # @param [Hash] payload
     # @return [LLM::Message]
     def deserialize_message(payload)
@@ -14,11 +40,35 @@ class LLM::Context
       usage = payload["usage"]
       reasoning_content = payload["reasoning_content"]
       extra = {tool_calls:, original_tool_calls:, tools: @params[:tools], usage:, reasoning_content:}.compact
-      content = returns.nil? ? payload["content"] : returns
+      content = returns.nil? ? deserialize_content(payload["content"]) : returns
       LLM::Message.new(payload["role"], content, extra)
     end
 
     private
+
+    def deserialize_content(content)
+      case content
+      when Array
+        content.map { deserialize_content(_1) }
+      when Hash
+        deserialize_object(content)
+      else
+        content
+      end
+    end
+
+    def deserialize_object(object)
+      case object["__llm_kind__"]
+      when "image_url"
+        LLM::Object.from(value: object["value"], kind: :image_url)
+      when "local_file"
+        LLM::Object.from(value: LLM.File(object["path"]), kind: :local_file)
+      when "remote_file"
+        LLM::Object.from(value: LLM::Object.from(object["value"] || {}), kind: :remote_file)
+      else
+        object
+      end
+    end
 
     def deserialize_tool_calls(items)
       items ||= []

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "setup"
+require "tempfile"
 
 RSpec.describe LLM::Context do
   let(:ctx) { LLM::Context.new(provider, model:) }
@@ -67,6 +68,70 @@ RSpec.describe LLM::Context do
       expect(responses).to receive(:create).with("What is the capital of France?", hash_including(model:))
         .and_return(response)
       expect(ctx.talk("What is the capital of France?")).to eq(response)
+    end
+  end
+
+  context "when serializing tagged prompt objects" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:image_url) { "https://example.com/cat.png" }
+    let(:remote_file) do
+      LLM::Object.from(
+        "file?" => true,
+        "id" => "file_123",
+        "filename" => "photo.png",
+        "mime_type" => "image/png",
+        "uri" => "https://example.com/photo.png",
+        "file_type" => "image"
+      )
+    end
+    let(:tempfile) do
+      Tempfile.new(["llmrb", ".txt"]).tap do |file|
+        file.write("hello")
+        file.flush
+      end
+    end
+    let(:message) do
+      LLM::Message.new("user", [
+        ctx.image_url(image_url),
+        ctx.local_file(tempfile.path),
+        ctx.remote_file(remote_file)
+      ])
+    end
+    let(:restored) do
+      described_class.new(provider, model:).tap do |other|
+        other.restore(string: ctx.to_json)
+      end
+    end
+    let(:content) { restored.messages.first.content }
+
+    before do
+      ctx.messages << message
+    end
+
+    after { tempfile.close! }
+
+    context "#restore" do
+      it "restores image_url content" do
+        expect(content.fetch(0).kind).to eq(:image_url)
+        expect(content.fetch(0).value).to eq(image_url)
+      end
+
+      it "restores local_file content" do
+        expect(content.fetch(1).kind).to eq(:local_file)
+        expect(content.fetch(1).value).to be_a(LLM::File)
+        expect(content.fetch(1).value.path).to eq(tempfile.path)
+      end
+
+      it "restores remote_file content" do
+        expect(content.fetch(2).kind).to eq(:remote_file)
+        expect(content.fetch(2).value.file?).to eq(true)
+        expect(content.fetch(2).value.id).to eq("file_123")
+        expect(content.fetch(2).value.filename).to eq("photo.png")
+        expect(content.fetch(2).value.mime_type).to eq("image/png")
+        expect(content.fetch(2).value.uri).to eq("https://example.com/photo.png")
+        expect(content.fetch(2).value.file_type).to eq("image")
+      end
     end
   end
 
