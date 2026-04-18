@@ -2,7 +2,16 @@
 
 ## Unreleased
 
+Changes since `v4.20.1`.
+
+## v4.20.1
+
 Changes since `v4.20.0`.
+
+This patch release fixes ORM option resolution in the Sequel and
+ActiveRecord wrappers. Symbol-based `provider:` and `context:` hooks now
+resolve correctly, and internal default option constants are referenced
+explicitly instead of relying on nested constant lookup.
 
 ### Fix
 
