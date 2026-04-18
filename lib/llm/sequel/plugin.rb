@@ -233,7 +233,8 @@ module LLM::Sequel
       options = self.class.llm_plugin_options
       provider = self[columns[:provider_column]]
       kwargs = resolve_options(options[:provider])
-      @llm ||= LLM.method(provider).call(**kwargs)
+      return @llm if @llm
+      @llm = LLM.method(provider).call(**kwargs)
       @llm.tracer = resolve_option(options[:tracer]) if options[:tracer]
       @llm
     end
