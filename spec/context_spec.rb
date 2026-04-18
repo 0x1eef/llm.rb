@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require "setup"
+require "fileutils"
 require "tempfile"
+require "tmpdir"
 
 RSpec.describe LLM::Context do
   let(:ctx) { LLM::Context.new(provider, model:) }
@@ -91,7 +93,8 @@ RSpec.describe LLM::Context do
         file.flush
       end
     end
-    let(:serialized) { Tempfile.new(["llmrb-context", ".json"]) }
+    let(:tmpdir) { Dir.mktmpdir("llmrb-context") }
+    let(:serialized) { File.join(tmpdir, "context.json") }
     let(:message) do
       LLM::Message.new("user", [
         ctx.image_url(image_url),
@@ -112,7 +115,7 @@ RSpec.describe LLM::Context do
 
     after do
       tempfile.close!
-      serialized.close!
+      FileUtils.remove_entry(tmpdir)
     end
 
     context "#restore" do
@@ -141,8 +144,8 @@ RSpec.describe LLM::Context do
     context "#serialize" do
       let(:restored) do
         described_class.new(provider, model:).tap do |other|
-          ctx.serialize(path: serialized.path)
-          other.restore(path: serialized.path)
+          ctx.serialize(path: serialized)
+          other.restore(path: serialized)
         end
       end
 
