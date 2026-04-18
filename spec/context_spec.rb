@@ -150,7 +150,8 @@ RSpec.describe LLM::Context do
       end
 
       it "round-trips tagged prompt objects through a file" do
-        expect { restored.messages.first.content }.not_to raise_error
+        expect(restored.messages.size).to eq(1)
+        expect(restored.messages.first).to be_a(LLM::Message)
         expect(content.fetch(0).kind).to eq(:image_url)
         expect(content.fetch(0).value).to eq(image_url)
         expect(content.fetch(1).kind).to eq(:local_file)
