@@ -104,14 +104,11 @@ RSpec.describe LLM::Context do
     end
     let(:restored) do
       described_class.new(provider, model:).tap do |other|
+        ctx.messages << message
         other.restore(string: ctx.to_json)
       end
     end
     let(:content) { restored.messages.first.content }
-
-    before do
-      ctx.messages << message
-    end
 
     after do
       tempfile.close!
@@ -144,6 +141,7 @@ RSpec.describe LLM::Context do
     context "#serialize" do
       let(:restored) do
         described_class.new(provider, model:).tap do |other|
+          ctx.messages << message
           ctx.serialize(path: serialized)
           other.restore(path: serialized)
         end
