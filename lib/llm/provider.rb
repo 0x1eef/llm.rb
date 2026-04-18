@@ -309,12 +309,10 @@ class LLM::Provider
   ensure
     if had_override
       weakmap[self] = previous
+    elsif weakmap.respond_to?(:delete)
+      weakmap.delete(self)
     else
-      if weakmap.respond_to?(:delete)
-        weakmap.delete(self)
-      else
-        weakmap[self] = nil
-      end
+      weakmap[self] = nil
     end
   end
 
