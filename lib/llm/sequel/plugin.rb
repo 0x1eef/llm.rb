@@ -287,7 +287,7 @@ module LLM::Sequel
     # @return [Hash]
     def resolve_options(option)
       case option
-      when Proc, Hash then resolve_option(option)
+      when Proc, Symbol, Hash then resolve_option(option)
       else Plugin::EMPTY_HASH.dup
       end
     end

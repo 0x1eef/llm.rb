@@ -6,6 +6,11 @@ Changes since `v4.20.0`.
 
 ### Fix
 
+* **Fix symbol-based ORM option hooks for provider and context hashes** <br>
+  Make `provider:` and `context:` resolve symbol hooks through the model in
+  the Sequel plugin and ActiveRecord wrappers instead of falling back to an
+  empty hash.
+
 * **Fix ORM wrapper constant lookup for option defaults** <br>
   Qualify internal `EMPTY_HASH` / `DEFAULTS` references in the Sequel plugin
   and ActiveRecord wrappers so option resolution does not depend on nested
