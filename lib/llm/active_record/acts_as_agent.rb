@@ -71,13 +71,18 @@ module LLM::ActiveRecord
     # @option options [Proc, Symbol, LLM::Tracer, nil] :tracer
     #   Optional tracer, method name, or proc that resolves to one and is
     #   assigned through `llm.tracer = ...` on the resolved provider.
+    # @yield
+    #   Evaluated in the model class after the wrapper is installed, so agent
+    #   DSL methods such as `model`, `tools`, `schema`, `instructions`, and
+    #   `concurrency` can be configured inline.
     # @return [void]
-    def acts_as_agent(options = EMPTY_HASH)
+    def acts_as_agent(options = EMPTY_HASH, &block)
       options = DEFAULTS.merge(options)
       usage_columns = DEFAULT_USAGE_COLUMNS.merge(options[:usage_columns] || EMPTY_HASH)
       class_attribute :llm_agent_options, instance_accessor: false, default: DEFAULTS unless respond_to?(:llm_agent_options)
       self.llm_agent_options = options.merge(usage_columns: usage_columns.freeze).freeze
       extend Hooks
+      class_exec(&block) if block
     end
 
     module InstanceMethods

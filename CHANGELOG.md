@@ -4,6 +4,13 @@
 
 Changes since `v4.18.0`.
 
+### Change
+
+* **Allow inline agent DSL blocks in `acts_as_agent`** <br>
+  Let ActiveRecord models configure `model`, `tools`, `schema`,
+  `instructions`, and `concurrency` directly inside the `acts_as_agent`
+  declaration block.
+
 ## v4.18.0
 
 Changes since `v4.17.0`.

@@ -254,13 +254,19 @@ require "active_record"
 require "llm/active_record"
 
 class Ticket < ApplicationRecord
-  acts_as_agent provider: -> { { key: ENV["#{provider.upcase}_SECRET"], persistent: true } }
-  model "gpt-5.4-mini"
-  instructions "You are a concise support assistant."
-  tools SearchDocs, Escalate
-  concurrency :thread
-end
+  acts_as_agent provider: :set_provider do
+    model "gpt-5.4-mini"
+    instructions "You are a concise support assistant."
+    tools SearchDocs, Escalate
+    concurrency :thread
+  end
 
+  private
+
+  def set_provider
+    { key: ENV["#{provider.upcase}_SECRET"], persistent: true }
+  end
+end
 ticket = Ticket.create!(provider: "openai", model: "gpt-5.4-mini")
 puts ticket.talk("How do I rotate my API key?").content
 ```
