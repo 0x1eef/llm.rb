@@ -182,8 +182,10 @@ module LLM
     # exposes a non-empty queue. Otherwise it falls back to waiting on
     # the context's pending functions directly.
     #
-    # @param [Symbol] strategy
-    #  The concurrency strategy to use
+    # @param [Symbol, Array<Symbol>] strategy
+    #  The concurrency strategy to use, or the possible concurrency strategies to
+    #  wait on. For example, `[:thread, :ractor]` waits for any queued thread or
+    #  ractor work, in that order.
     # @return [Array<LLM::Function::Return>]
     def wait(strategy)
       stream = @params[:stream]

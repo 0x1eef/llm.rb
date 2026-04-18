@@ -10,6 +10,13 @@ Changes since `v4.20.1`.
   Add `LLM::Response#id` support to Google completion responses so tracer
   and caller code can rely on the same API used by other providers.
 
+### Change
+
+* **Allow mixed concurrency strategies in `wait(...)`** <br>
+  Let `LLM::Context#wait`, `LLM::Stream#wait`, and `LLM::Agent.concurrency`
+  accept arrays such as `[:thread, :ractor]` so mixed tool sets can wait on
+  more than one concurrency strategy.
+
 ## v4.20.1
 
 Changes since `v4.20.0`.

@@ -259,17 +259,38 @@ RSpec.describe LLM::Agent do
     end
 
     describe "#respond" do
-      it "uses the configured concurrency for tool loops" do
-        klass = Class.new(described_class) do
-          concurrency :thread
+      let(:agent_class) do
+        strategy = concurrency
+        Class.new(described_class) do
+          concurrency(strategy)
         end
-        agent = klass.new(provider)
-        allow(ctx).to receive(:wait).with(:thread).and_return([tool_return])
-        agent.respond("hello")
-        expect(ctx).to have_received(:wait).with(:thread)
-        expect(ctx).not_to have_received(:call)
-        expect(ctx).to have_received(:respond).with("hello", {})
-        expect(ctx).to have_received(:respond).with([tool_return], {})
+      end
+      let(:agent) { agent_class.new(provider) }
+
+      context "when concurrency is a single mode" do
+        let(:concurrency) { :thread }
+
+        it "uses the configured concurrency for tool loops" do
+          allow(ctx).to receive(:wait).with(:thread).and_return([tool_return])
+          agent.respond("hello")
+          expect(ctx).to have_received(:wait).with(:thread)
+          expect(ctx).not_to have_received(:call)
+          expect(ctx).to have_received(:respond).with("hello", {})
+          expect(ctx).to have_received(:respond).with([tool_return], {})
+        end
+      end
+
+      context "when concurrency is a list of queued task types" do
+        let(:concurrency) { [:thread, :ractor] }
+
+        it "waits for the configured task types" do
+          allow(ctx).to receive(:wait).with([:thread, :ractor]).and_return([tool_return])
+          agent.respond("hello")
+          expect(ctx).to have_received(:wait).with([:thread, :ractor])
+          expect(ctx).not_to have_received(:call)
+          expect(ctx).to have_received(:respond).with("hello", {})
+          expect(ctx).to have_received(:respond).with([tool_return], {})
+        end
       end
     end
   end

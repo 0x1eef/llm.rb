@@ -17,7 +17,8 @@ module LLM
   # * Instructions are injected only on the first request.
   # * An agent automatically executes tool loops (unlike {LLM::Context LLM::Context}).
   # * Tool loop execution can be configured with `concurrency :call`,
-  #   `:thread`, `:task`, `:fiber`, or `:ractor`.
+  #   `:thread`, `:task`, `:fiber`, `:ractor`, or a list of queued task
+  #   types such as `[:thread, :ractor]`.
   #
   # @example
   #   class SystemAdmin < LLM::Agent
@@ -83,7 +84,7 @@ module LLM
     ##
     # Set or get the tool execution concurrency.
     #
-    # @param [Symbol, nil] concurrency
+    # @param [Symbol, Array<Symbol>, nil] concurrency
     #  Controls how pending tool loops are executed:
     #  - `:call`: sequential calls
     #  - `:thread`: concurrent threads
@@ -91,7 +92,10 @@ module LLM
     #  - `:fiber`: concurrent raw fibers
     #  - `:ractor`: concurrent Ruby ractors for class-based tools; MCP tools are not supported,
     #    and this mode is especially useful for CPU-bound tool work
-    # @return [Symbol, nil]
+    #  - `[:thread, :ractor]`: the possible concurrency strategies to wait on, in the
+    #    given order. This is useful for mixed tool sets or when work may have been
+    #    spawned with more than one concurrency strategy.
+    # @return [Symbol, Array<Symbol>, nil]
     def self.concurrency(concurrency = nil)
       return @concurrency if concurrency.nil?
       @concurrency = concurrency
@@ -107,7 +111,7 @@ module LLM
     # @option params [String] :model Defaults to the provider's default model
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [#to_json, nil] :schema Defaults to nil
-    # @option params [Symbol, nil] :concurrency Defaults to the agent class concurrency
+    # @option params [Symbol, Array<Symbol>, nil] :concurrency Defaults to the agent class concurrency
     def initialize(llm, params = {})
       defaults = {model: self.class.model, tools: self.class.tools, schema: self.class.schema}.compact
       @concurrency = params.delete(:concurrency) || self.class.concurrency
@@ -270,7 +274,7 @@ module LLM
 
     ##
     # Returns the configured tool execution concurrency.
-    # @return [Symbol, nil]
+    # @return [Symbol, Array<Symbol>, nil]
     def concurrency
       @concurrency
     end
@@ -348,8 +352,8 @@ module LLM
     def call_functions
       case concurrency || :call
       when :call then call(:functions)
-      when :thread, :task, :fiber, :ractor then wait(concurrency)
-      else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. Expected :call, :thread, :task, :fiber, or :ractor"
+      when :thread, :task, :fiber, :ractor, Array then wait(concurrency)
+      else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. Expected :call, :thread, :task, :fiber, :ractor, or an array of queued task types"
       end
     end
   end

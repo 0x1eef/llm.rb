@@ -165,26 +165,33 @@ RSpec.describe LLM::Stream do
       end
 
       context "when given spawned work" do
-        before do
-          stream.queue << tool.spawn(:thread)
-        end
-
         it "waits for the spawned work" do
+          stream.queue << tool.spawn(:thread)
           expect(stream.wait(:thread).map(&:to_h)).to eq(
             [{id: "call_1", name: "system", value: {"ok" => true}}]
           )
         end
 
-        it "emits on_tool_return" do
-          events = []
-          stream = Class.new(described_class) do
-            define_method(:on_tool_return) { |fn, result| events << [fn, result] }
-          end.new
-          stream.queue << tool.spawn(:thread)
+        context "when tracking tool return callbacks" do
+          let(:stream) do
+            Class.new(described_class) do
+              attr_reader :events
 
-          returns = stream.wait(:thread)
+              def initialize
+                @events = []
+              end
 
-          expect(events).to eq([[tool, returns.fetch(0)]])
+              def on_tool_return(fn, result)
+                @events << [fn, result]
+              end
+            end.new
+          end
+
+          it "emits on_tool_return" do
+            stream.queue << tool.spawn(:thread)
+            returns = stream.wait(:thread)
+            expect(stream.events).to eq([[tool, returns.fetch(0)]])
+          end
         end
       end
 
@@ -196,6 +203,31 @@ RSpec.describe LLM::Stream do
         it "waits for the spawned work" do
           expect(stream.wait(:ractor).map(&:to_h)).to eq(
             [{id: "call_1", name: "system", value: {"ok" => true}}]
+          )
+        end
+      end
+
+      context "when given mixed spawned work" do
+        subject(:returns) { stream.wait([:thread, :ractor]).map(&:to_h) }
+
+        let(:other_tool) do
+          tool_class.function.dup.tap do |fn|
+            fn.id = "call_2"
+            fn.arguments = {"command" => "date"}
+          end
+        end
+
+        before do
+          stream.queue << tool.spawn(:thread)
+          stream.queue << other_tool.spawn(:ractor)
+        end
+
+        it "waits for all matching task types" do
+          expect(returns).to eq(
+            [
+              {id: "call_1", name: "system", value: {"ok" => true}},
+              {id: "call_2", name: "system", value: {"ok" => true}}
+            ]
           )
         end
       end
