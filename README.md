@@ -238,6 +238,26 @@ ctx.talk("Run `date` and `uname -a`.")
 ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 ```
 
+#### Request Cancellation
+
+Need to cancel a stream? llm.rb has you covered through [`LLM::Context#interrupt!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#interrupt-21-instance_method). <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+
+```ruby
+require "llm"
+require "io/console"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout)
+
+worker = Thread.new do
+  ctx.talk("Write a very long essay about network protocols.")
+end
+
+STDIN.getch
+ctx.interrupt!
+worker.join
+```
+
 #### Sequel (ORM)
 
 The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
