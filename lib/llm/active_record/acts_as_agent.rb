@@ -134,7 +134,7 @@ module LLM::ActiveRecord
       def resolve_option(option)
         case option
         when Proc then instance_exec(&option)
-        when Symbol then public_send(option)
+        when Symbol then send(option)
         when Hash then option.dup
         else option
         end
