@@ -2,7 +2,18 @@
 
 ## Unreleased
 
+Changes since `v4.20.0`.
+
+## v4.20.0
+
 Changes since `v4.19.0`.
+
+This release adds better support for tagged prompt content. `LLM::Context`
+can now serialize and restore `image_url`, `local_file`, and `remote_file`
+content cleanly, and `LLM::Message` now exposes helpers for inspecting
+tagged image and file attachments.
+
+### Change
 
 * **Round-trip tagged prompt objects through `LLM::Context`** <br>
   Teach `LLM::Context` serialization and restore to preserve
