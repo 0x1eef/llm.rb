@@ -184,12 +184,12 @@ class LLM::Function
     task = case strategy
     when :task
       require "async" unless defined?(::Async)
-      Async { call_function }
+      Async { call }
     when :thread
-      Thread.new { call_function }
+      Thread.new { call }
     when :fiber
       Fiber.new do
-        call_function
+        call
       ensure
         Fiber.yield
       end.tap(&:resume)

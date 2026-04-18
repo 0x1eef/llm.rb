@@ -17,6 +17,11 @@ Changes since `v4.17.0`.
   tracer overrides. Use it when you want temporary tracing on the current
   fiber without replacing the provider's default tracer.
 
+* **Trace concurrent tool calls outside ractors** <br>
+  Make tool tracing fire correctly when functions run through `:thread`,
+  `:task`, or `:fiber` concurrency. Experimental `:ractor` execution still
+  does not emit tool tracer events.
+
 * **Support symbol-based ORM option hooks** <br>
   Let `provider:`, `context:`, and `tracer:` on the Sequel plugin and
   the ActiveRecord `acts_as_llm` / `acts_as_agent` wrappers resolve through
