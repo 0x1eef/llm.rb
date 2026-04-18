@@ -4,6 +4,13 @@
 
 Changes since `v4.20.0`.
 
+### Fix
+
+* **Fix ORM wrapper constant lookup for option defaults** <br>
+  Qualify internal `EMPTY_HASH` / `DEFAULTS` references in the Sequel plugin
+  and ActiveRecord wrappers so option resolution does not depend on nested
+  constant lookup quirks.
+
 ## v4.20.0
 
 Changes since `v4.19.0`.

@@ -79,7 +79,7 @@ module LLM::Sequel
     ##
     # @return [Hash]
     def llm_plugin_options
-      @llm_plugin_options || DEFAULTS
+      @llm_plugin_options || Plugin::DEFAULTS
     end
   end
 
@@ -288,7 +288,7 @@ module LLM::Sequel
     def resolve_options(option)
       case option
       when Proc, Hash then resolve_option(option)
-      else EMPTY_HASH.dup
+      else Plugin::EMPTY_HASH.dup
       end
     end
 

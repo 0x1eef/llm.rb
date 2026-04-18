@@ -271,7 +271,7 @@ module LLM::ActiveRecord
       def resolve_options(option)
         case option
         when Proc, Hash then resolve_option(option)
-        else EMPTY_HASH.dup
+        else ActsAsLLM::EMPTY_HASH.dup
         end
       end
 
