@@ -25,12 +25,8 @@ module LLM
     ##
     # Returns extra context associated with the current streamed request.
     # @return [Hash]
-    attr_reader :extra
-
-    ##
-    # @return [LLM::Stream]
-    def initialize
-      @extra = LLM::Object.from({})
+    def extra
+      @extra ||= LLM::Object.from({})
     end
 
     ##
