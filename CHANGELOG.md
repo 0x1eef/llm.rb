@@ -9,6 +9,10 @@ Changes since `v4.19.0`.
   `image_url`, `local_file`, and `remote_file` content across
   `to_json` / `restore`.
 
+* **Add attachment helpers to `LLM::Message`** <br>
+  Add `image_url?`, `image_urls`, `file?`, and `files` so callers can
+  inspect messages for tagged image and file content more directly.
+
 ## v4.19.0
 
 Changes since `v4.18.0`.

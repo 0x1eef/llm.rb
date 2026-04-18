@@ -75,6 +75,36 @@ module LLM
     end
 
     ##
+    # Returns true when a message contains an image URL
+    # @return [Boolean]
+    def image_url?
+      image_urls.any?
+    end
+
+    ##
+    # Returns image URL content items from the message
+    # @return [Array<LLM::Object>]
+    def image_urls
+      content_items.select { LLM::Object === _1 && _1.kind == :image_url }
+    end
+
+    ##
+    # Returns true when a message contains a local or remote file
+    # @return [Boolean]
+    def file?
+      files.any?
+    end
+
+    ##
+    # Returns local and remote file content items from the message
+    # @return [Array<LLM::Object>]
+    def files
+      content_items.select do
+        LLM::Object === _1 && [:local_file, :remote_file].include?(_1.kind)
+      end
+    end
+
+    ##
     # @return [Array<LLM::Function>]
     def functions
       @functions ||= tool_calls.filter_map do |fn|
@@ -177,6 +207,10 @@ module LLM
     def available_tools
       tools = extra.tools || response&.__tools__ || []
       tools.map { _1.respond_to?(:function) ? _1.function : _1 }
+    end
+
+    def content_items
+      Array(content)
     end
   end
 end
