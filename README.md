@@ -108,6 +108,10 @@ same context object.
   integrations support `provider:` and `context:` hooks, plus `format:
   :string` for text columns or `format: :jsonb` for native PostgreSQL JSON
   storage when ORM JSON typecasting support is enabled.
+- **ORM models can become persistent agents** <br>
+  Turn an ActiveRecord or Sequel model into an agent-capable model with
+  built-in persistence, stored on the same table, with `jsonb` support when
+  your ORM and database support native JSON columns.
 - **Persistent HTTP pooling is shared process-wide** <br>
   When enabled, separate
   [`LLM::Provider`](https://0x1eef.github.io/x/llm.rb/LLM/Provider.html)
