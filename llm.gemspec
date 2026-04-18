@@ -17,10 +17,11 @@ Gem::Specification.new do |spec|
   persisted state, so real systems can be built out of one coherent
   execution model instead of a pile of adapters. It stays close to Ruby, runs
   on the standard library by default, loads optional pieces only when needed,
-  works naturally in Rails or ActiveRecord through acts_as_llm, includes
-  built-in Sequel support through plugin :llm, and is designed for
-  engineers who want control over long-lived, tool-capable, stateful AI
-  workflows instead of just request/response helpers.
+  includes built-in ActiveRecord support through acts_as_llm and
+  acts_as_agent, includes built-in Sequel support through plugin :llm,
+  and is designed for engineers who want control over long-lived,
+  tool-capable, stateful AI workflows instead of just request/response
+  helpers.
   DESCRIPTION
 
   spec.license = "0BSD"
