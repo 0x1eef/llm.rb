@@ -244,7 +244,7 @@ ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 
 #### Reasoning
 
-This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with the OpenAI Responses API so reasoning output is streamed separately from visible assistant output. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with the OpenAI Responses API so reasoning output is streamed separately from visible assistant output. See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
@@ -380,7 +380,7 @@ puts agent.talk("What time is it on this system?").content
 
 #### MCP
 
-This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
 
 ```ruby
 require "llm"
