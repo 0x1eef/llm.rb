@@ -101,13 +101,14 @@ same context object.
   integration stack.
 - **ActiveRecord and Sequel persistence are built in** <br>
   llm.rb includes built-in ActiveRecord support through `acts_as_llm` and
-  `acts_as_agent`, plus built-in Sequel support through `plugin :llm`.
+  `acts_as_agent`, plus built-in Sequel support through `plugin :llm` and
+  `plugin :agent`.
   Use `acts_as_llm` when you want to wrap `LLM::Context`, `acts_as_agent`
-  when you want to wrap `LLM::Agent`, or `plugin :llm` on Sequel models to
-  persist `LLM::Context` state with sensible default columns. These
-  integrations support `provider:` and `context:` hooks, plus `format:
-  :string` for text columns or `format: :jsonb` for native PostgreSQL JSON
-  storage when ORM JSON typecasting support is enabled.
+  when you want to wrap `LLM::Agent`, `plugin :llm` when you want a
+  `LLM::Context` on a Sequel model, or `plugin :agent` when you want an
+  `LLM::Agent`. These integrations support `provider:` and `context:` hooks,
+  plus `format: :string` for text columns or `format: :jsonb` for native
+  PostgreSQL JSON storage when ORM JSON typecasting support is enabled.
 - **ORM models can become persistent agents** <br>
   Turn an ActiveRecord or Sequel model into an agent-capable model with
   built-in persistence, stored on the same table, with `jsonb` support when

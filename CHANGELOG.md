@@ -30,6 +30,11 @@ completion responses.
   accept arrays such as `[:thread, :ractor]` so mixed tool sets can wait on
   more than one concurrency strategy.
 
+* **Add `plugin :agent` for Sequel models** <br>
+  Add Sequel support for `plugin :agent`, similar to ActiveRecord's
+  `acts_as_agent`, so models can wrap `LLM::Agent` with built-in
+  persistence.
+
 ## v4.20.1
 
 Changes since `v4.20.0`.

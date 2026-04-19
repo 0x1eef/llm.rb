@@ -579,11 +579,12 @@ puts ticket.talk("How do I rotate my API key?").content
 
 ### Persist With Sequel
 
-llm.rb has Sequel support built in through `plugin :llm`, which can be applied
-to any `Sequel::Model`. It is highly configurable but comes with sane defaults
-for provider selection, model selection, usage columns, and serialized context
-storage. The plugin persists `LLM::Context` as JSON, and on PostgreSQL this can
-be optimized further by storing the serialized context in a `jsonb` column
+llm.rb has Sequel support built in through `plugin :llm` and `plugin :agent`,
+which can be applied to any `Sequel::Model`. They are highly configurable but
+come with sane defaults for provider selection, model selection, usage
+columns, and serialized runtime storage. `plugin :llm` persists
+`LLM::Context`, while `plugin :agent` persists `LLM::Agent`. On PostgreSQL,
+that runtime state can be optimized further by storing it in a `jsonb` column
 instead of plain text:
 
 - `format: :string` stores the context as a JSON string in a text column.
