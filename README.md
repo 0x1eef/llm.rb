@@ -10,6 +10,11 @@
 ## About
 
 llm.rb is a lightweight runtime for building capable AI systems in Ruby.
+<br>
+It is also the most capable AI Ruby runtime that exists _today_, and that claim is
+backed up by research. Maybe it won't always be true, and that would be good news too -
+because it would mean the Ruby ecosystem is getting stronger.
+
 
 It is not just an API wrapper. llm.rb gives you one runtime for providers,
 contexts, agents, tools, MCP servers, streaming, schemas, files, and persisted
