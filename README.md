@@ -242,6 +242,34 @@ ctx.talk("Run `date` and `uname -a`.")
 ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 ```
 
+#### Reasoning
+
+This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with the OpenAI Responses API so reasoning output is streamed separately from visible assistant output. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+
+```ruby
+require "llm"
+
+class Stream < LLM::Stream
+  def on_content(content)
+    $stdout << content
+  end
+
+  def on_reasoning_content(content)
+    $stderr << content
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(
+  llm,
+  model: "gpt-5.4-mini",
+  mode: :responses,
+  reasoning: {effort: "medium"},
+  stream: Stream.new
+)
+ctx.talk("Solve 17 * 19 and show your work.")
+```
+
 #### Request Cancellation
 
 Need to cancel a stream? llm.rb has you covered through [`LLM::Context#interrupt!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#interrupt-21-instance_method). <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
