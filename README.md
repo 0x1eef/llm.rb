@@ -16,13 +16,13 @@ It is also the most capable AI Ruby runtime that exists _today_, and that claim 
 backed up by research. Maybe it won't always be true, and that would be good news too -
 because it would mean the Ruby ecosystem is getting stronger.
 
-
-It is not just an API wrapper. llm.rb gives you one runtime for providers,
+llm.rb is not just an API wrapper: it gives you one runtime for providers,
 contexts, agents, tools, MCP servers, streaming, schemas, files, and persisted
 state, so real systems can be built out of one coherent execution model instead
 of a pile of adapters.
 
-It stays close to Ruby, runs on the standard library by default (zero dependencies),
+llm.rb is designed for Ruby, and although it works great in Rails, it is not tightly
+coupled to it. It runs on the standard library by default (zero dependencies),
 loads optional pieces only when needed, includes built-in ActiveRecord support through
 `acts_as_llm` and `acts_as_agent`, includes built-in Sequel support through
 `plugin :llm` and `plugin :agent`, and is designed for engineers who want control over
