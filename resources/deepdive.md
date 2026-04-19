@@ -498,8 +498,17 @@ require "active_record"
 require "llm/active_record"
 
 class Context < ApplicationRecord
-  acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
-              tracer: -> { LLM::Tracer::Logger.new(llm, io: $stdout) }
+  acts_as_llm provider: :set_provider, tracer: :set_tracer
+
+  private
+
+  def set_provider
+    {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+  end
+
+  def set_tracer
+    LLM::Tracer::Logger.new(llm, io: $stdout)
+  end
 end
 
 ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
@@ -540,9 +549,17 @@ end
 # The ActiveRecord model owns the serialized context and injects a default
 # tool through `context:`.
 class Context < ApplicationRecord
-  acts_as_llm provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
-              context: -> { {tools: [Clock]} },
-              format: :jsonb
+  acts_as_llm provider: :set_provider, context: :set_context, format: :jsonb
+
+  private
+
+  def set_provider
+    {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+  end
+
+  def set_context
+    {tools: [Clock]}
+  end
 end
 
 ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
@@ -566,11 +583,18 @@ require "active_record"
 require "llm/active_record"
 
 class Ticket < ApplicationRecord
-  acts_as_agent provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} }
-  model "gpt-5.4-mini"
-  instructions "You are a concise support assistant."
-  tools SearchDocs, Escalate
-  concurrency :thread
+  acts_as_agent provider: :set_provider do
+    model "gpt-5.4-mini"
+    instructions "You are a concise support assistant."
+    tools SearchDocs, Escalate
+    concurrency :thread
+  end
+
+  private
+
+  def set_provider
+    {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+  end
 end
 
 ticket = Ticket.create!(provider: "openai", model: "gpt-5.4-mini")
@@ -621,10 +645,17 @@ require "sequel"
 require "sequel/plugins/llm"
 
 class Context < Sequel::Model
-  plugin :llm,
-    provider: -> { {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true} },
-    tracer: -> { LLM::Tracer::Logger.new(llm, io: $stdout) },
-    format: :jsonb
+  plugin :llm, provider: :set_provider, tracer: :set_tracer, format: :jsonb
+
+  private
+
+  def set_provider
+    {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+  end
+
+  def set_tracer
+    LLM::Tracer::Logger.new(llm, io: $stdout)
+  end
 end
 
 ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")

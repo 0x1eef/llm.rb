@@ -194,7 +194,7 @@ gem install llm.rb
 
 #### REPL
 
-This example uses [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) directly for an interactive REPL. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) directly for an interactive REPL. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -211,7 +211,7 @@ end
 
 #### Streaming
 
-This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) directly so visible output and tool execution can happen together. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) directly so visible output and tool execution can happen together. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -245,7 +245,7 @@ ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
 
 #### Reasoning
 
-This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with the OpenAI Responses API so reasoning output is streamed separately from visible assistant output. See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with the OpenAI Responses API so reasoning output is streamed separately from visible assistant output. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -273,7 +273,7 @@ ctx.talk("Solve 17 * 19 and show your work.")
 
 #### Request Cancellation
 
-Need to cancel a stream? llm.rb has you covered through [`LLM::Context#interrupt!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#interrupt-21-instance_method). <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+Need to cancel a stream? llm.rb has you covered through [`LLM::Context#interrupt!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#interrupt-21-instance_method). <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -293,7 +293,7 @@ worker.join
 
 #### Sequel (ORM)
 
-The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -313,7 +313,7 @@ puts ctx.talk("What is my favorite language?").content
 #### ActiveRecord (ORM): acts_as_llm
 
 The `acts_as_llm` method wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) and
-provides full control over tool execution. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+provides full control over tool execution. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -333,7 +333,7 @@ puts ctx.talk("What is my favorite language?").content
 #### ActiveRecord (ORM): acts_as_agent
 
 The `acts_as_agent` method wraps [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) and
-manages tool execution for you. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+manages tool execution for you. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -362,7 +362,7 @@ puts ticket.talk("How do I rotate my API key?").content
 
 #### Agent
 
-This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) directly and lets the agent manage tool execution. <br> See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) directly and lets the agent manage tool execution. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -381,7 +381,7 @@ puts agent.talk("What time is it on this system?").content
 
 #### MCP
 
-This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. See the [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) for more examples.
+This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -412,8 +412,8 @@ how capable the runtime can be in a real application:
 
 ## Resources
 
-- [deepdive](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) is the
-  examples guide.
+- [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) and
+  [deepdive (markdown)](resources/deepdive.md) are the examples guide.
 - [relay](https://github.com/llmrb/relay) shows a real application built on
   top of llm.rb.
 - [doc site](https://0x1eef.github.io/x/llm.rb?rebuild=1) has the API docs.
