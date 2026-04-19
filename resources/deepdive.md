@@ -334,7 +334,13 @@ class Stream < LLM::Stream
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: Stream.new)
+ctx = LLM::Context.new(
+  llm,
+  model: "gpt-5.4-mini",
+  mode: :responses,
+  reasoning: {effort: "medium"},
+  stream: Stream.new
+)
 ctx.talk("Solve 17 * 19 and show your work.")
 ```
 
@@ -350,8 +356,8 @@ reasoning afterward, for example in debugging or offline analysis:
 #!/usr/bin/env ruby
 require "llm"
 
-llm = LLM.llamacpp(url: ENV["URL"])
-ctx = LLM::Context.new(llm)
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, model: "deepseek-reasoner")
 res = ctx.talk("Solve 17 * 19 and show your work.")
 
 puts res.content
