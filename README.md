@@ -171,6 +171,8 @@ twist.
 ctx = LLM::Context.new(llm, stream: $stdout)
 worker = Thread.new do
   ctx.talk("Write a very long essay about network protocols.")
+rescue LLM::Interrupt
+  puts "Request was interrupted!"
 end
 STDIN.getch
 ctx.interrupt!
