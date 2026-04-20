@@ -85,6 +85,12 @@ class Ticket < ApplicationRecord
     model "gpt-5.4-mini"
     instructions "You are a support assistant."
   end
+
+  private
+
+  def set_provider
+    { key: ENV["#{provider.upcase}_SECRET"], persistent: true }
+  end
 end
 ```
 
