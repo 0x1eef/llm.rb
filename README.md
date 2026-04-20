@@ -53,6 +53,92 @@ It holds:
 Instead of switching abstractions for each feature, everything builds on the
 same context object.
 
+## Most capable? Prove it.
+
+The following list is **not exhaustive**, but it covers a lot of grounds.
+
+### Skills
+
+Skills are reusable, directory-backed capabilities loaded from `SKILL.md`.
+They run through the same runtime as tools, agents, and MCP. They do not
+require a second orchestration layer or a parallel abstraction. If you've
+used Claude or Codex, you know the general idea of skills, and llm.rb
+supports that same concept with the same execution model as the rest of the
+system.
+
+```ruby
+class Agent < LLM::Agent
+  model "gpt-5.4-mini"
+  skills "./skills/release"
+end
+```
+
+### Existing ORM Models Can Become Agents
+
+Any ActiveRecord model or Sequel model can become an agent-capable model,
+including existing business and domain models, without forcing you into a
+separate agent table or a second persistence layer.
+
+```ruby
+class Ticket < ApplicationRecord
+  acts_as_agent provider: :set_provider do
+    model "gpt-5.4-mini"
+    instructions "You are a support assistant."
+  end
+end
+```
+
+### Persistence Is Built Into The Runtime
+
+The same runtime can be serialized to disk, restored later, persisted in JSON
+or JSONB-backed ORM columns, resumed across process boundaries, or shared
+across long-lived workflows.
+
+```ruby
+ctx = LLM::Context.new(llm)
+ctx.talk("Remember that my favorite language is Ruby.")
+ctx.save(path: "context.json")
+```
+
+### Streaming And Control Flow Stay Together
+
+`LLM::Stream` is not just for printing tokens. It supports `on_content`,
+`on_reasoning_content`, `on_tool_call`, and `on_tool_return`, which means
+visible output, reasoning output, and tool execution can all be driven through
+the same execution path.
+
+```ruby
+class Stream < LLM::Stream
+  def on_tool_call(tool, error) = queue << tool.spawn(:thread)
+  def on_tool_return(tool, result) = $stdout.puts(result.value)
+end
+```
+
+### Concurrent Tool Execution Is Built In
+
+Tool execution can run sequentially with `:call` or concurrently through
+`:thread`, `:task`, `:fiber`, and experimental `:ractor`, without rewriting
+your tool layer.
+
+```ruby
+class Agent < LLM::Agent
+  model "gpt-5.4-mini"
+  tools FetchWeather, FetchNews, FetchStock
+  concurrency :thread
+end
+```
+
+### MCP Uses The Same Execution Path Too
+
+Remote MCP tools and prompts are not bolted on as a separate integration
+stack. They adapt into the same tool and prompt path used by local tools,
+skills, contexts, and agents.
+
+```ruby
+mcp = LLM::MCP.http(url: "https://api.githubcopilot.com/mcp/").persistent
+ctx = LLM::Context.new(llm, tools: mcp.tools)
+```
+
 ## Differentiators
 
 ### Execution Model
@@ -173,24 +259,31 @@ same context object.
 
 ## Capabilities
 
+Execution:
 - **Chat & Contexts** — stateless and stateful interactions with persistence
 - **Context Serialization** — save and restore state across processes or time
 - **Streaming** — visible output, reasoning output, tool-call events
 - **Request Interruption** — stop in-flight provider work cleanly
+- **Concurrent Execution** — threads, async tasks, and fibers
+
+Runtime Building Blocks:
 - **Tool Calling** — class-based tools and closure-based functions
 - **Run Tools While Streaming** — overlap model output with tool latency
-- **Concurrent Execution** — threads, async tasks, and fibers
 - **Agents** — reusable assistants with tool auto-execution
 - **Skills** — directory-backed capabilities loaded from `SKILL.md`
+- **MCP Support** — stdio and HTTP MCP clients with prompt and tool support
+
+Data and Structure:
 - **Structured Outputs** — JSON Schema-based responses
 - **Responses API** — stateful response workflows where providers support them
-- **MCP Support** — stdio and HTTP MCP clients with prompt and tool support
 - **Multimodal Inputs** — text, images, audio, documents, URLs
 - **Audio** — speech generation, transcription, translation
 - **Images** — generation and editing
 - **Files API** — upload and reference files in prompts
 - **Embeddings** — vector generation for search and RAG
 - **Vector Stores** — retrieval workflows
+
+Operations:
 - **Cost Tracking** — local cost estimation without extra API calls
 - **Observability** — tracing, logging, telemetry
 - **Model Registry** — local metadata for capabilities, limits, pricing
@@ -219,6 +312,42 @@ loop do
   ctx.talk(STDIN.gets || break)
   puts
 end
+```
+
+#### Agent
+
+This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) directly and lets the agent manage tool execution. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+
+```ruby
+require "llm"
+
+class ShellAgent < LLM::Agent
+  model "gpt-5.4-mini"
+  instructions "You are a Linux system assistant."
+  tools Shell
+  concurrency :thread
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = ShellAgent.new(llm)
+puts agent.talk("What time is it on this system?").content
+```
+
+#### Skills
+
+This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) with directory-backed skills so `SKILL.md` capabilities run through the normal tool path. If you have used skills in Claude or Codex, this is the same kind of building block. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+
+```ruby
+require "llm"
+
+class Agent < LLM::Agent
+  model "gpt-5.4-mini"
+  instructions "You are a concise release assistant."
+  skills "./skills/release", "./skills/review"
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+puts Agent.new(llm).talk("Use the review skill.").content
 ```
 
 #### Streaming
@@ -370,42 +499,6 @@ end
 
 ticket = Ticket.create!(provider: "openai", model: "gpt-5.4-mini")
 puts ticket.talk("How do I rotate my API key?").content
-```
-
-#### Agent
-
-This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) directly and lets the agent manage tool execution. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
-
-```ruby
-require "llm"
-
-class ShellAgent < LLM::Agent
-  model "gpt-5.4-mini"
-  instructions "You are a Linux system assistant."
-  tools Shell
-  concurrency :thread
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-agent = ShellAgent.new(llm)
-puts agent.talk("What time is it on this system?").content
-```
-
-#### Skills
-
-This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) with directory-backed skills so `SKILL.md` capabilities run through the normal tool path. If you have used skills in Claude or Codex, this is the same kind of building block. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
-
-```ruby
-require "llm"
-
-class Agent < LLM::Agent
-  model "gpt-5.4-mini"
-  instructions "You are a concise release assistant."
-  skills "./skills/release", "./skills/review"
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-puts Agent.new(llm).talk("Use the review skill.").content
 ```
 
 #### MCP
