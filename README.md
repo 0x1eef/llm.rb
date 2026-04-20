@@ -97,6 +97,22 @@ class Ticket < ApplicationRecord
 end
 ```
 
+#### Agentic Patterns
+
+llm.rb is especially strong when you want to build agentic systems in a Ruby
+way. Agents can be ordinary application models with state, associations,
+tools, skills, and persistence, which makes it much easier to build systems
+where users have their own specialized agents instead of treating agents as
+something outside the app.
+
+That pattern works so well in llm.rb because `LLM::Agent`, `acts_as_agent`,
+`plugin :agent`, skills, tools, and persisted runtime state all fit the same
+execution model. The runtime stays small enough that the main design work
+becomes application design, not orchestration glue.
+
+For a concrete example, see
+[How to build a platform of agents](https://0x1eef.github.io/posts/how-to-build-a-platform-of-agents).
+
 #### Persistence
 
 The same runtime can be serialized to disk, restored later, persisted in JSON
