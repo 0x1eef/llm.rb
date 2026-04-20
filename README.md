@@ -57,7 +57,7 @@ same context object.
 
 The following list is **not exhaustive**, but it covers a lot of ground.
 
-### Skills
+#### Skills
 
 Skills are reusable, directory-backed capabilities loaded from `SKILL.md`.
 They run through the same runtime as tools, agents, and MCP. They do not
@@ -73,7 +73,7 @@ class Agent < LLM::Agent
 end
 ```
 
-### ORM
+#### ORM
 
 Any ActiveRecord model or Sequel model can become an agent-capable model,
 including existing business and domain models, without forcing you into a
@@ -88,7 +88,7 @@ class Ticket < ApplicationRecord
 end
 ```
 
-### Persistence
+#### Persistence
 
 The same runtime can be serialized to disk, restored later, persisted in JSON
 or JSONB-backed ORM columns, resumed across process boundaries, or shared
@@ -100,7 +100,7 @@ ctx.talk("Remember that my favorite language is Ruby.")
 ctx.save(path: "context.json")
 ```
 
-### LLM::Stream
+#### LLM::Stream
 
 `LLM::Stream` is not just for printing tokens. It supports `on_content`,
 `on_reasoning_content`, `on_tool_call`, and `on_tool_return`, which means
@@ -119,7 +119,7 @@ class Stream < LLM::Stream
 end
 ```
 
-### Concurrency
+#### Concurrency
 
 Tool execution can run sequentially with `:call` or concurrently through
 `:thread`, `:task`, `:fiber`, and experimental `:ractor`, without rewriting
@@ -133,7 +133,7 @@ class Agent < LLM::Agent
 end
 ```
 
-### MCP
+#### MCP
 
 Remote MCP tools and prompts are not bolted on as a separate integration
 stack. They adapt into the same tool and prompt path used by local tools,
