@@ -105,10 +105,11 @@ tools, skills, and persistence, which makes it much easier to build systems
 where users have their own specialized agents instead of treating agents as
 something outside the app.
 
-That pattern works so well in llm.rb because `LLM::Agent`, `acts_as_agent`,
-`plugin :agent`, skills, tools, and persisted runtime state all fit the same
-execution model. The runtime stays small enough that the main design work
-becomes application design, not orchestration glue.
+That pattern works so well in llm.rb because
+[`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html),
+`acts_as_agent`, `plugin :agent`, skills, tools, and persisted runtime state
+all fit the same execution model. The runtime stays small enough that the
+main design work becomes application design, not orchestration glue.
 
 For a concrete example, see
 [How to build a platform of agents](https://0x1eef.github.io/posts/how-to-build-a-platform-of-agents).
