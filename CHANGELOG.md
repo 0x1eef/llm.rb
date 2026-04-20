@@ -2,7 +2,16 @@
 
 ## Unreleased
 
+Changes since `v4.21.0`.
+
+## v4.21.0
+
 Changes since `v4.20.2`.
+
+This release expands higher-level composition in llm.rb. It adds Sequel agent
+persistence through `plugin :agent` and introduces directory-backed skills
+that load from `SKILL.md`, resolve named tools, and plug directly into
+`LLM::Context` and `LLM::Agent`.
 
 ### Change
 
