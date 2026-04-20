@@ -55,7 +55,7 @@ same context object.
 
 ## Most capable? Prove it.
 
-The following list is **not exhaustive**, but it covers a lot of grounds.
+The following list is **not exhaustive**, but it covers a lot of ground.
 
 ### Skills
 
@@ -73,7 +73,7 @@ class Agent < LLM::Agent
 end
 ```
 
-### Existing ORM Models Can Become Agents
+### ORM
 
 Any ActiveRecord model or Sequel model can become an agent-capable model,
 including existing business and domain models, without forcing you into a
@@ -88,7 +88,7 @@ class Ticket < ApplicationRecord
 end
 ```
 
-### Persistence Is Built Into The Runtime
+### Persistence
 
 The same runtime can be serialized to disk, restored later, persisted in JSON
 or JSONB-backed ORM columns, resumed across process boundaries, or shared
@@ -100,7 +100,7 @@ ctx.talk("Remember that my favorite language is Ruby.")
 ctx.save(path: "context.json")
 ```
 
-### Streaming And Control Flow Stay Together
+### LLM::Stream
 
 `LLM::Stream` is not just for printing tokens. It supports `on_content`,
 `on_reasoning_content`, `on_tool_call`, and `on_tool_return`, which means
@@ -109,12 +109,17 @@ the same execution path.
 
 ```ruby
 class Stream < LLM::Stream
-  def on_tool_call(tool, error) = queue << tool.spawn(:thread)
-  def on_tool_return(tool, result) = $stdout.puts(result.value)
+  def on_tool_call(tool, error)
+    queue << tool.spawn(:thread)
+  end
+
+  def on_tool_return(tool, result)
+    $stdout.puts(result.value)
+  end
 end
 ```
 
-### Concurrent Tool Execution Is Built In
+### Concurrency
 
 Tool execution can run sequentially with `:call` or concurrently through
 `:thread`, `:task`, `:fiber`, and experimental `:ractor`, without rewriting
@@ -128,15 +133,20 @@ class Agent < LLM::Agent
 end
 ```
 
-### MCP Uses The Same Execution Path Too
+### MCP
 
 Remote MCP tools and prompts are not bolted on as a separate integration
 stack. They adapt into the same tool and prompt path used by local tools,
 skills, contexts, and agents.
 
 ```ruby
-mcp = LLM::MCP.http(url: "https://api.githubcopilot.com/mcp/").persistent
-ctx = LLM::Context.new(llm, tools: mcp.tools)
+begin
+  mcp = LLM::MCP.http(url: "https://api.githubcopilot.com/mcp/").persistent
+  mcp.start
+  ctx = LLM::Context.new(llm, tools: mcp.tools)
+ensure
+  mcp.stop
+end
 ```
 
 ## Differentiators
