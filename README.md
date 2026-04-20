@@ -77,7 +77,10 @@ end
 
 Any ActiveRecord model or Sequel model can become an agent-capable model,
 including existing business and domain models, without forcing you into a
-separate agent table or a second persistence layer.
+separate agent table or a second persistence layer. And don't be confused,
+agent state is persisted onto the same table. It is not just wrapping a
+model with a runtime object that has no persistence.
+
 
 ```ruby
 class Ticket < ApplicationRecord
