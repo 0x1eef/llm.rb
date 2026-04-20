@@ -919,13 +919,13 @@ class SearchDocs < LLM::Tool
   def call(**) = {results: ["..."]}
 end
 
-llm = LLM.openai(key: ENV["KEY"])
 class Agent < LLM::Agent
   model "gpt-5.4-mini"
   instructions "You are a concise release assistant."
   skills "./skills/release"
 end
 
+llm = LLM.openai(key: ENV["KEY"])
 puts Agent.new(llm).talk("Use the release skill.").content
 ```
 
