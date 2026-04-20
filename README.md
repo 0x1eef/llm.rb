@@ -158,6 +158,25 @@ ensure
 end
 ```
 
+#### Cancellation
+
+Cancellation is one of the harder problems to get right, and while llm.rb
+makes it possible, it still requires careful engineering to use effectively.
+The point though is that it is possible to stop in-flight provider work cleanly
+through the same runtime, and the model used by llm.rb is directly inspired by
+Go's context package. In fact, llm.rb is heavily inspired by Go but with a Ruby
+twist.
+
+```ruby
+ctx = LLM::Context.new(llm, stream: $stdout)
+worker = Thread.new do
+  ctx.talk("Write a very long essay about network protocols.")
+end
+STDIN.getch
+ctx.interrupt!
+worker.join
+```
+
 ## Differentiators
 
 ### Execution Model
