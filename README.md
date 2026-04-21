@@ -74,7 +74,7 @@ system commands.
 ```yaml
 ---
 name: release
-description: Prepare a releasep
+description: Prepare a release
 tools:
   - search_docs
   - git
@@ -87,6 +87,9 @@ class Agent < LLM::Agent
   model "gpt-5.4-mini"
   skills "./skills/release"
 end
+
+llm = LLM.openai(key: ENV["KEY"])
+Agent.new(llm).talk("Let's prepare the release!").content
 ```
 
 #### ORM
