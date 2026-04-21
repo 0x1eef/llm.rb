@@ -4,6 +4,18 @@
 
 Changes since `v4.21.0`.
 
+### Change
+
+* **Reduce ActiveRecord wrapper model surface** <br>
+  Move helper methods such as option resolution, column mapping,
+  serialization, and persistence into `Utils` for the ActiveRecord
+  wrappers so wrapped models include fewer internal helper methods.
+
+* **Reduce Sequel wrapper model surface** <br>
+  Move helper methods such as option resolution, column mapping,
+  serialization, and persistence into `Utils` for the Sequel wrappers
+  so wrapped models include fewer internal helper methods.
+
 ### Fix
 
 * **Fix Sequel `plugin :agent` load order** <br>

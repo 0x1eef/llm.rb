@@ -1,6 +1,35 @@
 # frozen_string_literal: true
 
-module LLM
+module LLM::Test
+  class Runtime
+    attr_reader :messages, :usage
+
+    def initialize
+      @messages = []
+      @usage = LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0)
+      @talk_result = Object.new
+      @respond_result = Object.new
+    end
+
+    def talk(message)
+      @messages << LLM::Message.new("user", message)
+      @talk_result
+    end
+
+    def respond(message)
+      @messages << LLM::Message.new("user", message)
+      @respond_result
+    end
+
+    def talk_result
+      @talk_result
+    end
+
+    def respond_result
+      @respond_result
+    end
+  end
+
   module Harness
     module_function
 

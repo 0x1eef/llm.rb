@@ -7,12 +7,25 @@ RSpec.shared_examples "a persisted llm record" do
     expect(record.llm.tracer).to be_a(LLM::Tracer::Logger)
   end
 
+  it "persists through #talk" do
+    runtime = LLM::Test::Runtime.new
+    record.instance_variable_set(:@ctx, runtime)
+    expect(record.talk("hello")).to be(runtime.talk_result)
+    expect(reload_record.call(record).messages.map(&:content)).to eq(["hello"])
+  end
+
+  it "persists through #respond" do
+    runtime = LLM::Test::Runtime.new
+    record.instance_variable_set(:@ctx, runtime)
+    expect(record.respond("hello")).to be(runtime.respond_result)
+    expect(reload_record.call(record).messages.map(&:content)).to eq(["hello"])
+  end
+
   it "persists runtime state on the same row" do
-    allow(record.send(:ctx)).to receive(:usage).and_return(
-      LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0)
-    )
-    record.send(:ctx).messages << LLM::Message.new("user", "hello")
-    record.send(:flush)
+    runtime = LLM::Test::Runtime.new
+    runtime.messages << LLM::Message.new("user", "hello")
+    record.instance_variable_set(:@ctx, runtime)
+    flush_record.call(record)
     expect(reload_record.call(record).messages.map(&:content)).to eq(["hello"])
   end
 end

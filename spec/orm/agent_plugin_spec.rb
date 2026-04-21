@@ -7,7 +7,7 @@ require "stringio"
 require "sequel/plugins/agent"
 
 RSpec.describe "plugin :agent" do
-  let(:model) { LLM::Harness.build_sequel_model(:spec_sequel_agents) }
+  let(:model) { LLM::Test::Harness.build_sequel_model(:spec_sequel_agents) }
 
   let(:agent) do
     Class.new(model) do
@@ -34,6 +34,7 @@ RSpec.describe "plugin :agent" do
 
   let(:record) { agent.create(provider: "openai", model: "gpt-5.4-mini") }
   let(:reload_record) { ->(row) { row.class[row.id] } }
+  let(:flush_record) { ->(row) { LLM::Sequel::Plugin::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
   include_examples "a persisted agent record"
 end

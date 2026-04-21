@@ -14,6 +14,7 @@ module LLM::Sequel
     EMPTY_HASH = LLM::Sequel::Plugin::EMPTY_HASH
     DEFAULT_USAGE_COLUMNS = LLM::Sequel::Plugin::DEFAULT_USAGE_COLUMNS
     DEFAULTS = LLM::Sequel::Plugin::DEFAULTS
+    Utils = LLM::Sequel::Plugin::Utils
 
     def self.apply(model, **)
       model.extend ClassMethods
@@ -72,7 +73,8 @@ module LLM::Sequel
       def ctx
         @ctx ||= begin
           options = self.class.llm_plugin_options
-          params = resolve_options(options[:context]).dup
+          columns = Agent::Utils.columns(options)
+          params = Agent::Utils.resolve_options(self, options[:context], Agent::EMPTY_HASH).dup
           params[:model] ||= self[columns[:model_column]]
           ctx = self.class.agent.new(llm, params.compact)
           data = self[columns[:data_column]]
@@ -88,21 +90,6 @@ module LLM::Sequel
         end
       end
 
-      def resolve_option(option)
-        case option
-        when Proc then instance_exec(&option)
-        when Symbol then send(option)
-        when Hash then option.dup
-        else option
-        end
-      end
-
-      def resolve_options(option)
-        case option
-        when Proc, Symbol, Hash then resolve_option(option)
-        else Agent::EMPTY_HASH.dup
-        end
-      end
     end
   end
 end

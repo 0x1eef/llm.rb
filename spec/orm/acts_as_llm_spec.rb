@@ -7,7 +7,7 @@ require "stringio"
 require "llm/active_record"
 
 RSpec.describe "acts_as_llm" do
-  let(:model) { LLM::Harness.build_active_record_model(:spec_active_record_llms) }
+  let(:model) { LLM::Test::Harness.build_active_record_model(:spec_active_record_llms) }
 
   let(:context) do
     Class.new(model) do
@@ -31,6 +31,7 @@ RSpec.describe "acts_as_llm" do
 
   let(:record) { context.create!(provider: "openai", model: "gpt-5.4-mini") }
   let(:reload_record) { ->(row) { row.class.find(row.id) } }
+  let(:flush_record) { ->(row) { LLM::ActiveRecord::ActsAsLLM::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
   include_examples "a persisted context record"
 end

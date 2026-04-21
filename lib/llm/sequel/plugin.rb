@@ -22,6 +22,76 @@ module LLM::Sequel
       output_tokens: :output_tokens,
       total_tokens: :total_tokens
     }.freeze
+
+    ##
+    # Shared helper methods for the ORM wrapper.
+    #
+    # These utilities keep persistence plumbing out of the wrapped model's
+    # method namespace so the injected surface stays focused on the runtime
+    # API itself.
+    # @api private
+    module Utils
+      ##
+      # Resolves a single configured option against a model instance.
+      # @return [Object]
+      def self.resolve_option(obj, option)
+        case option
+        when Proc then obj.instance_exec(&option)
+        when Symbol then obj.send(option)
+        when Hash then option.dup
+        else option
+        end
+      end
+
+      ##
+      # Resolves hash-like wrapper options against a model instance.
+      # @return [Hash]
+      def self.resolve_options(obj, option, empty_hash)
+        case option
+        when Proc, Symbol, Hash then resolve_option(obj, option)
+        else empty_hash.dup
+        end
+      end
+
+      ##
+      # Serializes the runtime into the configured storage format.
+      # @return [String, Hash]
+      def self.serialize_context(ctx, format)
+        case format
+        when :string then ctx.to_json
+        when :json, :jsonb then ctx.to_h
+        else raise ArgumentError, "Unknown format: #{format.inspect}"
+        end
+      end
+
+      ##
+      # Maps wrapper options onto the record's storage columns.
+      # @return [Hash]
+      def self.columns(options)
+        usage_columns = options[:usage_columns]
+        {
+          provider_column: options[:provider_column],
+          model_column: options[:model_column],
+          data_column: options[:data_column],
+          input_tokens: usage_columns[:input_tokens],
+          output_tokens: usage_columns[:output_tokens],
+          total_tokens: usage_columns[:total_tokens]
+        }.freeze
+      end
+
+      ##
+      # Persists the runtime state and usage columns back onto the record.
+      # @return [void]
+      def self.save(obj, ctx, options)
+        columns = self.columns(options)
+        obj.update(
+          columns[:data_column] => serialize_context(ctx, options[:format]),
+          columns[:input_tokens] => ctx.usage.input_tokens,
+          columns[:output_tokens] => ctx.usage.output_tokens,
+          columns[:total_tokens] => ctx.usage.total_tokens
+        )
+      end
+    end
     DEFAULTS = {
       provider_column: :provider,
       model_column: :model,
@@ -84,12 +154,15 @@ module LLM::Sequel
   end
 
   module Plugin::InstanceMethods
+    Utils = Plugin::Utils
+
     ##
     # Continues the stored context with new input and flushes it.
     # @see LLM::Context#talk
     # @return [LLM::Response]
     def talk(...)
-      ctx.talk(...).tap { flush }
+      options = self.class.llm_plugin_options
+      ctx.talk(...).tap { Utils.save(self, ctx, options) }
     end
 
     ##
@@ -97,7 +170,8 @@ module LLM::Sequel
     # @see LLM::Context#respond
     # @return [LLM::Response]
     def respond(...)
-      ctx.respond(...).tap { flush }
+      options = self.class.llm_plugin_options
+      ctx.respond(...).tap { Utils.save(self, ctx, options) }
     end
 
     ##
@@ -173,6 +247,7 @@ module LLM::Sequel
     # Returns usage from the mapped usage columns.
     # @return [LLM::Object]
     def usage
+      columns = Utils.columns(self.class.llm_plugin_options)
       LLM::Object.from(
         input_tokens: self[columns[:input_tokens]] || 0,
         output_tokens: self[columns[:output_tokens]] || 0,
@@ -229,11 +304,12 @@ module LLM::Sequel
     # @return [LLM::Provider]
     def llm
       options = self.class.llm_plugin_options
+      columns = Utils.columns(options)
       provider = self[columns[:provider_column]]
-      kwargs = resolve_options(options[:provider])
+      kwargs = Utils.resolve_options(self, options[:provider], Plugin::EMPTY_HASH)
       return @llm if @llm
       @llm = LLM.method(provider).call(**kwargs)
-      @llm.tracer = resolve_option(options[:tracer]) if options[:tracer]
+      @llm.tracer = Utils.resolve_option(self, options[:tracer]) if options[:tracer]
       @llm
     end
 
@@ -244,7 +320,8 @@ module LLM::Sequel
     def ctx
       @ctx ||= begin
         options = self.class.llm_plugin_options
-        params = resolve_options(options[:context]).dup
+        columns = Utils.columns(options)
+        params = Utils.resolve_options(self, options[:context], Plugin::EMPTY_HASH).dup
         params[:model] ||= self[columns[:model_column]]
         ctx = LLM::Context.new(llm, params.compact)
         data = self[columns[:data_column]]
@@ -257,61 +334,6 @@ module LLM::Sequel
           else raise ArgumentError, "Unknown format: #{options[:format].inspect}"
           end
         end
-      end
-    end
-
-    ##
-    # @return [void]
-    def flush
-      options = self.class.llm_plugin_options
-      update({
-        columns[:data_column] => serialize_context(options[:format]),
-        columns[:input_tokens] => ctx.usage.input_tokens,
-        columns[:output_tokens] => ctx.usage.output_tokens,
-        columns[:total_tokens] => ctx.usage.total_tokens
-      })
-    end
-
-    ##
-    # @return [Hash]
-    def resolve_option(option)
-      case option
-      when Proc then instance_exec(&option)
-      when Symbol then send(option)
-      when Hash then option.dup
-      else option
-      end
-    end
-
-    ##
-    # @return [Hash]
-    def resolve_options(option)
-      case option
-      when Proc, Symbol, Hash then resolve_option(option)
-      else Plugin::EMPTY_HASH.dup
-      end
-    end
-
-    def serialize_context(format)
-      case format
-      when :string then ctx.to_json
-      when :json, :jsonb then ctx.to_h
-      else raise ArgumentError, "Unknown format: #{format.inspect}"
-      end
-    end
-
-    def columns
-      @columns ||= begin
-        options = self.class.llm_plugin_options
-        usage_columns = options[:usage_columns]
-        {
-          provider_column: options[:provider_column],
-          model_column: options[:model_column],
-          data_column: options[:data_column],
-          input_tokens: usage_columns[:input_tokens],
-          output_tokens: usage_columns[:output_tokens],
-          total_tokens: usage_columns[:total_tokens]
-        }.freeze
       end
     end
   end
