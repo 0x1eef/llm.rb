@@ -89,7 +89,6 @@ module LLM::Sequel
           end
         end
       end
-
     end
   end
 end
