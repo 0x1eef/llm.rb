@@ -72,16 +72,16 @@ module LLM
     # instructions. The context is bound explicitly by the caller so the
     # nested agent can inherit context-level behavior such as streaming.
     # @param [LLM::Context] ctx
-    # @param [Hash] input
     # @return [Hash]
-    def call(ctx, **)
+    def call(ctx)
       instructions, tools = self.instructions, self.tools
       params = ctx.params.merge(mode: ctx.mode).reject { [:tools, :schema].include?(_1) }
       agent = Class.new(LLM::Agent) do
         instructions(instructions)
         tools(*tools)
       end.new(ctx.llm, params)
-      res = agent.talk(instructions)
+      agent.messages.concat(messages_for(ctx))
+      res = agent.talk("Solve the user's query.")
       {content: res.content}
     end
 
@@ -96,13 +96,23 @@ module LLM
         name skill.name
         description skill.description
 
-        define_method(:call) do |**input|
-          skill.call(ctx, **input)
+        define_method(:call) do
+          skill.call(ctx)
         end
       end
     end
 
     private
+
+    def messages_for(ctx)
+      messages = ctx.messages
+        .to_a
+        .select { _1.user? || _1.assistant? }
+        .reject { _1.tool_call? || _1.tool_return? }
+        .last(8)
+      return messages if messages.empty?
+      [LLM::Message.new(:user, "Recent context:"), *messages]
+    end
 
     def parse(content)
       match = content.match(/\A---\s*\n(.*?)\n---\s*\n?(.*)\z/m)

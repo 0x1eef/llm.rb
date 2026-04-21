@@ -26,7 +26,13 @@ RSpec.describe LLM::Skill do
   end
 
   let(:skill_dir) { File.join(@dir, "weather") }
-  let(:provider) { double("provider", default_model: "gpt-5.4-mini") }
+  let(:provider) do
+    double("provider",
+           default_model: "gpt-5.4-mini",
+           user_role: "user",
+           system_role: "system",
+           developer_role: "developer")
+  end
   let(:ctx) { LLM::Context.new(provider, model: "gpt-5.4-mini", stream: :stream) }
 
   def write(path, content)
@@ -106,8 +112,8 @@ RSpec.describe LLM::Skill do
     end
 
     it "binds tool execution back to the skill" do
-      expect(skill).to receive(:call).with(ctx, location: "London").and_return({content: "rain"})
-      expect(tool.new.call(location: "London")).to eq({content: "rain"})
+      expect(skill).to receive(:call).with(ctx).and_return({content: "rain"})
+      expect(tool.new.call).to eq({content: "rain"})
     end
   end
 
@@ -126,29 +132,47 @@ RSpec.describe LLM::Skill do
     let(:response) { double("response", content: "It is raining") }
 
     it "uses an internal agent and returns tool-shaped output" do
-      allow_any_instance_of(LLM::Agent).to receive(:talk).with("Use the helper tools.\n").and_return(response)
-      expect(skill.call(ctx, location: "London")).to eq({content: "It is raining"})
+      allow_any_instance_of(LLM::Agent).to receive(:talk) do |_agent, prompt|
+        expect(prompt).to eq("Solve the user's query.")
+        response
+      end
+      expect(skill.call(ctx)).to eq({content: "It is raining"})
     end
 
     it "inherits the context mode" do
       responses_ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", mode: :responses, stream: :stream)
-      expect(LLM::Context).to receive(:new).with(
-        provider,
-        hash_including(model: "gpt-5.4-mini", mode: :responses, stream: :stream)
-      ).and_call_original
+      expect(LLM::Context).to receive(:new).and_wrap_original do |original, prov, params|
+        expect(prov).to be(provider)
+        expect(params).to include(model: "gpt-5.4-mini", mode: :responses, stream: :stream)
+        original.call(prov, params)
+      end
       allow_any_instance_of(LLM::Agent).to receive(:talk).and_return(response)
       skill.call(responses_ctx)
     end
 
     it "does not inherit the context schema" do
       schema_ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", schema: :schema, stream: :stream)
-      expect(LLM::Context).to receive(:new) do |prov, params|
+      expect(LLM::Context).to receive(:new).and_wrap_original do |original, prov, params|
         expect(prov).to be(provider)
         expect(params).to include(model: "gpt-5.4-mini", stream: :stream)
         expect(params).not_to have_key(:schema)
-      end.and_call_original
+        original.call(prov, params)
+      end
       allow_any_instance_of(LLM::Agent).to receive(:talk).and_return(response)
       skill.call(schema_ctx)
+    end
+
+    it "inherits a curated slice of parent messages" do
+      ctx.messages << LLM::Message.new(:system, "Ignore this")
+      ctx.messages << LLM::Message.new(:user, "What is today's date?")
+      ctx.messages << LLM::Message.new(:assistant, "Let me check.")
+      ctx.messages << LLM::Message.new(:assistant, nil, tool_calls: [{id: "x", name: "weather", arguments: "{}"}])
+      ctx.messages << LLM::Message.new(:tool, LLM::Function::Return.new("x", "weather", {content: "sunny"}))
+      allow_any_instance_of(LLM::Agent).to receive(:talk) do |agent, _prompt|
+        expect(agent.messages.map(&:content)).to eq(["Recent context:", "What is today's date?", "Let me check."])
+        response
+      end
+      skill.call(ctx)
     end
   end
 end

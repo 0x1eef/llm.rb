@@ -21,6 +21,11 @@ Changes since `v4.21.0`.
   agent wrappers, including real SQLite-backed records and cassette-backed
   OpenAI persistence paths.
 
+* **Make skills inherit recent parent context** <br>
+  Run `LLM::Skill` with a curated slice of recent parent user and assistant
+  messages, prefixed with `Recent context:`, so skills behave more like
+  task-scoped sub-agents instead of instruction-only helpers.
+
 ### Fix
 
 * **Fix Sequel `plugin :agent` load order** <br>
@@ -33,6 +38,11 @@ Changes since `v4.21.0`.
   provider so nested skill agents inherit context-level settings such as
   `mode: :responses`, `store: false`, streaming, and other request defaults,
   while still keeping skill-local tools and avoiding parent schemas.
+
+* **Keep agent instructions when history is preseeded** <br>
+  Inject `LLM::Agent` instructions once unless a system message is already
+  present, so agents and nested skills still get their instructions when
+  they start with inherited non-system context.
 
 ## v4.21.0
 

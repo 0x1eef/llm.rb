@@ -14,7 +14,7 @@ module LLM
   # `respond`, instead of leaving tool loops to the caller.
   #
   # **Notes:**
-  # * Instructions are injected only on the first request.
+  # * Instructions are injected once unless a system message is already present.
   # * An agent automatically executes tool loops (unlike {LLM::Context LLM::Context}).
   # * Tool loop execution can be configured with `concurrency :call`,
   #   `:thread`, `:task`, `:fiber`, `:ractor`, or a list of queued task
@@ -349,14 +349,26 @@ module LLM
       instr = self.class.instructions
       return new_prompt unless instr
       if LLM::Prompt === new_prompt
-        new_prompt.system(instr) if @ctx.messages.empty?
+        new_prompt.system(instr) if inject_instructions?(new_prompt)
         new_prompt
       else
         prompt do
-          _1.system(instr) if @ctx.messages.empty?
+          _1.system(instr) if inject_instructions?
           _1.user(new_prompt)
         end
       end
+    end
+
+    ##
+    # Returns true when agent instructions should be injected for the turn.
+    # Instructions are injected once unless a system message is already
+    # present in the existing context or the prompt being sent.
+    # @param [LLM::Prompt, nil] prompt
+    # @return [Boolean]
+    def inject_instructions?(prompt = nil)
+      return false if @ctx.messages.any?(&:system?)
+      return true if prompt.nil?
+      !prompt.to_a.any?(&:system?)
     end
 
     ##

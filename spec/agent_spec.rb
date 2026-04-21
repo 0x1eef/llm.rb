@@ -85,6 +85,27 @@ RSpec.describe LLM::Agent do
           .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
         agent.talk(prompt)
       end
+
+      context "with preseeded non-system history" do
+        let(:existing_messages) { [LLM::Message.new("user", "Earlier task context")] }
+        let(:expected_prompt) do
+          LLM::Prompt.new(provider) do
+            system "You are helpful"
+            user "hello"
+          end
+        end
+
+        before do
+          agent.messages.concat(existing_messages)
+        end
+
+        it "injects instructions" do
+          expect(agent.llm).to receive(:complete)
+            .with(expected_prompt, hash_including(messages: existing_messages))
+            .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
+          agent.talk("hello")
+        end
+      end
     end
   end
 
