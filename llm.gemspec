@@ -54,4 +54,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "net-http-persistent", "~> 4.0"
   spec.add_development_dependency "opentelemetry-sdk", "~> 1.10"
   spec.add_development_dependency "logger", "~> 1.7"
+  spec.add_development_dependency "activerecord", "~> 8.0"
+  spec.add_development_dependency "sequel", "~> 5.0"
+  spec.add_development_dependency "sqlite3", "~> 2.0"
 end

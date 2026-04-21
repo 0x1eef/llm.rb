@@ -5,7 +5,7 @@ require "webmock/rspec"
 require "vcr"
 require "dotenv"
 
-Dir[File.join(__dir__, "support/shared_examples/*.rb")].each { require(_1) }
+Dir[File.join(__dir__, "support/**/*.rb")].sort.each { require(_1) }
 Dotenv.load
 
 LLM.json = ENV.fetch("JSON_PARSER", "JSON")
