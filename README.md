@@ -48,7 +48,7 @@ It holds:
 Instead of switching abstractions for each feature, everything builds on the
 same context object.
 
-## Most capable? Prove it.
+## Features you won't find elsewhere
 
 The following list is **not exhaustive**, but it covers a lot of ground.
 
