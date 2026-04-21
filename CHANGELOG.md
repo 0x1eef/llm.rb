@@ -6,6 +6,11 @@ Changes since `v4.21.0`.
 
 ### Fix
 
+* **Fix Sequel `plugin :agent` load order** <br>
+  Require the shared Sequel plugin support from `LLM::Sequel::Agent` so
+  `plugin :agent` can load independently without raising
+  `uninitialized constant LLM::Sequel::Plugin`.
+
 * **Make skill execution inherit parent context request settings** <br>
   Run `LLM::Skill` through a parent `LLM::Context` instead of a bare
   provider so nested skill agents inherit context-level settings such as

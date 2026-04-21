@@ -10,6 +10,7 @@ module LLM::Sequel
   # instructions, and concurrency are configured on the model class and
   # forwarded to an internal agent subclass.
   module Agent
+    require_relative "plugin"
     EMPTY_HASH = LLM::Sequel::Plugin::EMPTY_HASH
     DEFAULT_USAGE_COLUMNS = LLM::Sequel::Plugin::DEFAULT_USAGE_COLUMNS
     DEFAULTS = LLM::Sequel::Plugin::DEFAULTS
