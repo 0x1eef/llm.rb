@@ -9,7 +9,7 @@
 
 ## About
 
-llm.rb is a lightweight runtime for building capable AI systems in Ruby.
+llm.rb is the most capable runtime for building AI systems in Ruby.
 <br>
 
 llm.rb is designed for Ruby, and although it works great in Rails, it is not tightly
