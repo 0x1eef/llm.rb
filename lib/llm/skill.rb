@@ -45,6 +45,10 @@ module LLM
     # @return [Array<Class<LLM::Tool>>]
     attr_reader :tools
 
+    ##
+    # @param [String] path
+    #  The path to a directory
+    # @return [LLM::Skill]
     def initialize(path)
       @path = path.to_s
       @name = ::File.basename(@path)
@@ -71,11 +75,10 @@ module LLM
     # @param [Hash] input
     # @return [Hash]
     def call(ctx, **)
-      instructions = self.instructions
-      tools = self.tools
+      instructions, tools = self.instructions, self.tools
       params = ctx.params.merge(mode: ctx.mode).reject { [:tools, :schema].include?(_1) }
       agent = Class.new(LLM::Agent) do
-        instructions instructions
+        instructions(instructions)
         tools(*tools)
       end.new(ctx.llm, params)
       res = agent.talk(instructions)
