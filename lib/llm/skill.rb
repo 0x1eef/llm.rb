@@ -65,34 +65,36 @@ module LLM
 
     ##
     # Execute the skill by wrapping it in a small agent with the skill
-    # instructions. The provider is bound explicitly by the caller.
-    # @param [LLM::Provider] llm
+    # instructions. The context is bound explicitly by the caller so the
+    # nested agent can inherit context-level behavior such as streaming.
+    # @param [LLM::Context] ctx
     # @param [Hash] input
     # @return [Hash]
-    def call(llm, **)
+    def call(ctx, **)
       instructions = self.instructions
       tools = self.tools
+      params = ctx.params.merge(mode: ctx.mode).reject { [:tools, :schema].include?(_1) }
       agent = Class.new(LLM::Agent) do
         instructions instructions
         tools(*tools)
-      end.new(llm)
+      end.new(ctx.llm, params)
       res = agent.talk(instructions)
       {content: res.content}
     end
 
     ##
-    # Expose the skill as a normal LLM::Tool. The provider is bound explicitly
+    # Expose the skill as a normal LLM::Tool. The context is bound explicitly
     # when the tool class is built.
-    # @param [LLM::Provider] llm
+    # @param [LLM::Context] ctx
     # @return [Class<LLM::Tool>]
-    def to_tool(llm)
+    def to_tool(ctx)
       skill = self
       Class.new(LLM::Tool) do
         name skill.name
         description skill.description
 
         define_method(:call) do |**input|
-          skill.call(llm, **input)
+          skill.call(ctx, **input)
         end
       end
     end

@@ -55,6 +55,13 @@ module LLM
     attr_reader :mode
 
     ##
+    # Returns the default params for this context
+    # @return [Hash]
+    def params
+      @params.dup
+    end
+
+    ##
     # @param [LLM::Provider] llm
     #  A provider
     # @param [Hash] params
@@ -350,7 +357,7 @@ module LLM
     end
 
     def load_skills(skills)
-      [*skills].map { LLM::Skill.load(_1).to_tool(llm) }
+      [*skills].map { LLM::Skill.load(_1).to_tool(self) }
     end
   end
 

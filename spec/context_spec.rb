@@ -16,6 +16,11 @@ RSpec.describe LLM::Context do
       subject { ctx.context_window }
       it { is_expected.to eq(1050000) }
     end
+
+    context "#params" do
+      subject { ctx.params }
+      it { is_expected.to include(model:) }
+    end
   end
 
   context "when given anthropic" do
@@ -78,10 +83,11 @@ RSpec.describe LLM::Context do
     let(:model) { "gpt-5.4" }
     let(:skill_path) { "/tmp/weather" }
     let(:tool) { double("tool") }
-    let(:skill) { double("skill", to_tool: tool) }
+    let(:skill) { double("skill") }
 
     it "loads skills into tools" do
       expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
+      expect(skill).to receive(:to_tool).with(instance_of(described_class)).and_return(tool)
       ctx = described_class.new(provider, model:, skills: [skill_path])
       expect(ctx.instance_variable_get(:@params)[:tools]).to eq([tool])
     end
