@@ -89,7 +89,7 @@ class Agent < LLM::Agent
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-Agent.new(llm).talk("Let's prepare the release!").content
+Agent.new(llm, stream: $stdout).talk("Let's prepare the release!")
 ```
 
 #### ORM
