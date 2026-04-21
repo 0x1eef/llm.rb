@@ -72,6 +72,6 @@ jobs:
       with:
         copyback: false
         run: |
-          pkg-static install -y rubygem-bundler
+          pkg-static install -y pkgconf rubygem-bundler
           bundle install
           bundle exec rake

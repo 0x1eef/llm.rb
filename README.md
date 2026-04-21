@@ -106,10 +106,9 @@ JSON, or JSONB-backed column on the same table.
 
 ```ruby
 class Ticket < ApplicationRecord
-  acts_as_agent provider: :set_provider do
-    model "gpt-5.4-mini"
-    instructions "You are a support assistant."
-  end
+  acts_as_agent provider: :set_provider
+  model "gpt-5.4-mini"
+  instructions "You are a support assistant."
 
   private
 
@@ -562,12 +561,11 @@ require "active_record"
 require "llm/active_record"
 
 class Ticket < ApplicationRecord
-  acts_as_agent provider: :set_provider do
-    model "gpt-5.4-mini"
-    instructions "You are a concise support assistant."
-    tools SearchDocs, Escalate
-    concurrency :thread
-  end
+  acts_as_agent provider: :set_provider
+  model "gpt-5.4-mini"
+  instructions "You are a concise support assistant."
+  tools SearchDocs, Escalate
+  concurrency :thread
 
   private
 
