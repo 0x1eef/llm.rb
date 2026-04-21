@@ -159,7 +159,7 @@ class Stream < LLM::Stream
   end
 
   def on_tool_return(tool, result)
-    $stdout.puts(result.value)
+    puts(result.value)
   end
 end
 ```
