@@ -16,6 +16,11 @@ Changes since `v4.21.0`.
   serialization, and persistence into `Utils` for the Sequel wrappers
   so wrapped models include fewer internal helper methods.
 
+* **Expand ORM integration coverage** <br>
+  Add broader ActiveRecord and Sequel coverage for persisted context and
+  agent wrappers, including real SQLite-backed records and cassette-backed
+  OpenAI persistence paths.
+
 ### Fix
 
 * **Fix Sequel `plugin :agent` load order** <br>

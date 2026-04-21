@@ -34,4 +34,16 @@ RSpec.describe "plugin :llm" do
   let(:flush_record) { ->(row) { LLM::Sequel::Plugin::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
   include_examples "a persisted context record"
+
+  context "with a live OpenAI completion",
+          vcr: {cassette_name: "openai/chat/completion_contract"} do
+    let(:record) { context.create(provider: "openai", model: "gpt-4.1") }
+
+    it "persists the returned messages" do
+      result = record.talk("Hello, world!")
+      expect(result).to be_a(LLM::Response)
+      expect(reload_record.call(record).messages.last).to be_a(LLM::Message)
+      expect(reload_record.call(record).messages.last.content).not_to be_empty
+    end
+  end
 end

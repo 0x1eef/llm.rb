@@ -37,4 +37,32 @@ RSpec.describe "plugin :agent" do
   let(:flush_record) { ->(row) { LLM::Sequel::Plugin::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
   include_examples "a persisted agent record"
+
+  context "with a live OpenAI completion",
+          vcr: {cassette_name: "openai/chat/completion_contract"} do
+    let(:agent) do
+      Class.new(model) do
+        plugin :agent, provider: :set_provider, tracer: :set_tracer
+
+        private
+
+        def set_provider
+          {key: "secret"}
+        end
+
+        def set_tracer
+          LLM::Tracer::Logger.new(llm, io: StringIO.new)
+        end
+      end
+    end
+
+    let(:record) { agent.create(provider: "openai", model: "gpt-4.1") }
+
+    it "persists the returned messages" do
+      result = record.talk("Hello, world!")
+      expect(result).to be_a(LLM::Response)
+      expect(reload_record.call(record).messages.last).to be_a(LLM::Message)
+      expect(reload_record.call(record).messages.last.content).not_to be_empty
+    end
+  end
 end
