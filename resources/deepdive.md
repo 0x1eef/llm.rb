@@ -909,6 +909,28 @@ accepts `skills:` directly when you want lower-level control. If you are
 familiar with skills in Claude or Codex, llm.rb supports the same general
 pattern.
 
+The `tools` entries in skill frontmatter are tool names, not classes. Each
+name must resolve to a subclass of
+[`LLM::Tool`](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) that is
+already loaded in the current llm.rb runtime.
+
+If you want Claude/Codex-like skills that can drive scripts or shell
+commands, you would typically pair the skill with a tool that can execute
+system commands.
+
+An example `SKILL.md`:
+
+```yaml
+---
+name: release
+description: Prepare a release
+tools:
+  - search_docs
+  - git
+---
+Review the release state, summarize what changed, and prepare the release.
+```
+
 ```ruby
 #!/usr/bin/env ruby
 require "llm"

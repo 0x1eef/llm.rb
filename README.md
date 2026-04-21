@@ -66,6 +66,27 @@ used Claude or Codex, you know the general idea of skills, and llm.rb
 supports that same concept with the same execution model as the rest of the
 system.
 
+In llm.rb, a skill has frontmatter and instructions. The frontmatter can
+define `name`, `description`, and `tools`. The `tools` entries are tool names,
+and each name must resolve to a subclass of
+[`LLM::Tool`](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) that is already
+loaded in the runtime.
+
+If you want Claude/Codex-like skills that can drive scripts or shell
+commands, you would typically pair the skill with a tool that can execute
+system commands.
+
+```yaml
+---
+name: release
+description: Prepare a release
+tools:
+  - search_docs
+  - git
+---
+Review the release state, summarize what changed, and prepare the release.
+```
+
 ```ruby
 class Agent < LLM::Agent
   model "gpt-5.4-mini"
