@@ -79,7 +79,7 @@ system commands.
 ```yaml
 ---
 name: release
-description: Prepare a release
+description: Prepare a releasep
 tools:
   - search_docs
   - git
@@ -98,9 +98,12 @@ end
 
 Any ActiveRecord model or Sequel model can become an agent-capable model,
 including existing business and domain models, without forcing you into a
-separate agent table or a second persistence layer. And don't be confused,
-agent state is persisted onto the same table. It is not just wrapping a
-model with a runtime object that has no persistence.
+separate agent table or a second persistence layer.
+
+`acts_as_agent` extends a model with agent capabilities: the same runtime
+surface as [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html),
+because it actually wraps an `LLM::Agent`, plus persistence through a text,
+JSON, or JSONB-backed column on the same table.
 
 
 ```ruby
