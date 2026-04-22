@@ -24,6 +24,16 @@ module LLM
     end
 
     ##
+    # Replace the tracked messages
+    # @param [Array<LLM::Message>] messages
+    #  The replacement messages
+    # @return [LLM::Buffer]
+    def replace(messages)
+      @messages.replace(messages)
+      self
+    end
+
+    ##
     # @yield [LLM::Message]
     #  Yields each message in the conversation thread
     # @return [void]

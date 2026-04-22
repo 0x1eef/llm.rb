@@ -29,6 +29,7 @@ Most features extend these, rather than introducing new abstractions.
 - [Streaming](#streaming)
   - [Basic Streaming](#basic-streaming)
   - [Advanced Streaming](#advanced-streaming)
+  - [Stream Compaction Events](#stream-compaction-events)
 - [Reasoning](#reasoning)
   - [Stream Reasoning Output](#stream-reasoning-output)
   - [Read Reasoning From The Response](#read-reasoning-from-the-response)
@@ -300,6 +301,45 @@ ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System, *mcp_tools])
 
 ctx.talk("Check the deployment status and compare it with local system time.")
 ctx.talk(ctx.wait([:thread, :ractor])) while ctx.functions.any?
+```
+
+### Stream Compaction Events
+
+Long-lived contexts can compact older history into a summary through
+[`LLM::Compactor`](https://0x1eef.github.io/x/llm.rb/LLM/Compactor.html).
+When a stream is present, that lifecycle is exposed through
+[`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with
+`on_compaction` and `on_compaction_finish`. The compactor can also use its own
+`model:` when you want summarization to run on a different model from the main
+context.
+
+This is useful when you want to log or surface the moment a context is
+compacted without treating compaction as a tool call:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class Stream < LLM::Stream
+  def on_compaction(ctx, compactor)
+    $stdout.puts "Compacting #{ctx.messages.size} messages..."
+  end
+
+  def on_compaction_finish(ctx, compactor)
+    $stdout.puts "Compacted to #{ctx.messages.size} messages."
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(
+  llm,
+  stream: Stream.new,
+  compactor: {
+    message_threshold: 200,
+    retention_window: 8,
+    model: "gpt-5.4-mini"
+  }
+)
 ```
 
 ## Reasoning

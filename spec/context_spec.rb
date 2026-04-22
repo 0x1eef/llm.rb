@@ -76,6 +76,16 @@ RSpec.describe LLM::Context do
         .and_return(response)
       expect(ctx.talk("What is the capital of France?")).to eq(response)
     end
+
+    it "compacts before sending a responses request" do
+      compactor = instance_double(LLM::Compactor, compact?: true, compact!: nil)
+      allow(ctx).to receive(:compactor).and_return(compactor)
+      allow(provider).to receive(:responses).and_return(responses)
+      expect(compactor).to receive(:compact?).with("What is the capital of France?").ordered.and_return(true)
+      expect(compactor).to receive(:compact!).with("What is the capital of France?").ordered.and_return(nil)
+      expect(responses).to receive(:create).ordered.and_return(response)
+      ctx.respond("What is the capital of France?")
+    end
   end
 
   context "when configured with skills" do
@@ -284,6 +294,191 @@ RSpec.describe LLM::Context do
         expect(ctx.interrupt!).to be_nil
       end
       owner.resume
+    end
+  end
+
+  context "#talk" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:response) { double(choices: [LLM::Message.new("assistant", "hello")]) }
+    let(:compactor) { instance_double(LLM::Compactor, compact?: true, compact!: nil) }
+
+    it "compacts before sending a completions request" do
+      allow(ctx).to receive(:compactor).and_return(compactor)
+      expect(compactor).to receive(:compact?).with("hello").ordered.and_return(true)
+      expect(compactor).to receive(:compact!).with("hello").ordered.and_return(nil)
+      expect(provider).to receive(:complete).ordered.and_return(response)
+      ctx.talk("hello")
+    end
+
+    context "when given tool returns" do
+      let(:compactor) { instance_double(LLM::Compactor, compact?: false) }
+      let(:tool) do
+        Class.new(LLM::Tool) do
+          name "system"
+          description "run shell commands"
+        end
+      end
+      let(:result) { LLM::Function::Return.new("call_1", "system", {ok: true}) }
+
+      before do
+        ctx.messages << LLM::Message.new("assistant", nil, {
+          tools: [tool],
+          tool_calls: [
+            {id: "call_1", type: "function", function: {name: "system", arguments: {command: "date"}}}
+          ]
+        })
+      end
+
+      it "does not compact before sending tool returns" do
+        allow(ctx).to receive(:compactor).and_return(compactor)
+        expect(compactor).to receive(:compact?).with([result]).ordered.and_return(false)
+        expect(provider).to receive(:complete).ordered.and_return(response)
+        ctx.talk([result])
+      end
+    end
+
+    context "when given a stream" do
+      let(:stream) do
+        Class.new(LLM::Stream) do
+          attr_reader :events
+
+          def initialize
+            @events = []
+          end
+
+          def on_compaction(ctx, compactor)
+            @events << [:start, ctx, compactor]
+          end
+
+          def on_compaction_finish(ctx, compactor)
+            @events << [:finish, ctx, compactor]
+          end
+        end.new
+      end
+      let(:compactor_options) { {message_threshold: 2, retention_window: 1} }
+      let(:ctx) { LLM::Context.new(provider, model:, stream:, compactor: compactor_options) }
+      let(:summary_text) { "Summary of the earlier conversation" }
+      let(:summary_response) { double(content: summary_text) }
+      let(:response) { double(choices: [LLM::Message.new("assistant", "done")]) }
+
+      before do
+        ctx.messages << LLM::Message.new("system", "You are helpful")
+        ctx.messages << LLM::Message.new("user", "first")
+        ctx.messages << LLM::Message.new("assistant", "second")
+        ctx.messages << LLM::Message.new("user", "third")
+        allow(provider).to receive(:complete).and_return(summary_response, response)
+      end
+
+      it "emits compaction lifecycle callbacks" do
+        ctx.talk("hello")
+        expect(stream.events).to eq([
+          [:start, ctx, ctx.compactor],
+          [:finish, ctx, ctx.compactor]
+        ])
+      end
+    end
+  end
+
+  context "#compactor" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:compactor_options) { {message_threshold: 2, retention_window: 1} }
+    let(:ctx) { LLM::Context.new(provider, model:, compactor: compactor_options) }
+    let(:summary_text) { "Summary of the earlier conversation" }
+    let(:response) { double(content: summary_text) }
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "system"
+        description "run shell commands"
+      end
+    end
+
+    it "returns an llm compactor" do
+      expect(ctx.compactor).to be_a(LLM::Compactor)
+    end
+
+    context "#compact?" do
+      context "when non-system messages exceed the threshold" do
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "one")
+          ctx.messages << LLM::Message.new("assistant", "two")
+          ctx.messages << LLM::Message.new("user", "three")
+        end
+
+        it { expect(ctx.compactor.compact?).to eq(true) }
+      end
+
+      context "during a pending tool lifecycle" do
+        let(:result) { LLM::Function::Return.new("call_1", "system", {ok: true}) }
+
+        before do
+          ctx.messages << LLM::Message.new("assistant", nil, {
+            tools: [tool],
+            tool_calls: [
+              {id: "call_1", type: "function", function: {name: "system", arguments: {command: "date"}}}
+            ]
+          })
+        end
+
+        it { expect(ctx.compactor.compact?([result])).to eq(false) }
+      end
+    end
+
+    context "#compact!" do
+      before do
+        allow(provider).to receive(:complete).and_return(response)
+      end
+
+      context "with ordinary messages" do
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "first")
+          ctx.messages << LLM::Message.new("assistant", "second")
+          ctx.messages << LLM::Message.new("user", "third")
+        end
+
+        it "replaces older messages with a summary and keeps recent messages" do
+          summary = ctx.compactor.compact!
+
+          expect(summary).to eq(
+            LLM::Message.new("user", "[Previous conversation summary]\n\n#{summary_text}")
+          )
+          expect(ctx.messages.to_a).to eq([
+            LLM::Message.new("system", "You are helpful"),
+            summary,
+            LLM::Message.new("user", "third")
+          ])
+        end
+      end
+
+      context "when the retained window would begin on a tool return" do
+        let(:compactor_options) { {message_threshold: 2, retention_window: 2} }
+
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "first")
+          ctx.messages << LLM::Message.new("assistant", nil, {
+            tools: [tool],
+            tool_calls: [
+              {id: "call_1", type: "function", function: {name: "system", arguments: {command: "date"}}}
+            ]
+          })
+          ctx.messages << LLM::Message.new("tool", LLM::Function::Return.new("call_1", "system", {ok: true}))
+          ctx.messages << LLM::Message.new("assistant", "done")
+        end
+
+        it "keeps the preceding assistant tool call too" do
+          summary = ctx.compactor.compact!
+
+          expect(ctx.messages.to_a.map(&:role)).to eq(["system", "user", "assistant", "tool", "assistant"])
+          expect(ctx.messages[1]).to eq(summary)
+          expect(ctx.messages[2]).to be_tool_call
+          expect(ctx.messages[3]).to be_tool_return
+          expect(ctx.messages[4].content).to eq("done")
+        end
+      end
     end
   end
 end

@@ -4,6 +4,8 @@ require "setup"
 
 RSpec.describe LLM::Stream do
   let(:stream) { described_class.new }
+  let(:ctx) { LLM::Context.new(LLM.openai(key: "test"), model: "gpt-5.4") }
+  let(:compactor) { LLM::Compactor.new(ctx) }
 
   let(:tool_class) do
     Class.new(LLM::Tool) do
@@ -49,6 +51,18 @@ RSpec.describe LLM::Stream do
   describe "#on_tool_return" do
     it "returns nil" do
       expect(stream.on_tool_return(tool, stream.tool_not_found(tool))).to be_nil
+    end
+  end
+
+  describe "#on_compaction" do
+    it "returns nil" do
+      expect(stream.on_compaction(ctx, compactor)).to be_nil
+    end
+  end
+
+  describe "#on_compaction_finish" do
+    it "returns nil" do
+      expect(stream.on_compaction_finish(ctx, compactor)).to be_nil
     end
   end
 
@@ -101,13 +115,14 @@ RSpec.describe LLM::Stream do
   context "when a subclass overrides callbacks" do
     let(:stream) do
       Class.new(described_class) do
-        attr_reader :content, :reasoning_content, :calls, :returns
+        attr_reader :content, :reasoning_content, :calls, :returns, :compaction_events
 
         def initialize
           @content = +""
           @reasoning_content = +""
           @calls = []
           @returns = []
+          @compaction_events = []
         end
 
         def on_content(value)
@@ -124,6 +139,14 @@ RSpec.describe LLM::Stream do
 
         def on_tool_return(fn, result)
           @returns << [fn, result]
+        end
+
+        def on_compaction(ctx, compactor)
+          @compaction_events << [:start, ctx, compactor]
+        end
+
+        def on_compaction_finish(ctx, compactor)
+          @compaction_events << [:finish, ctx, compactor]
         end
       end.new
     end
@@ -147,6 +170,16 @@ RSpec.describe LLM::Stream do
       ret = stream.tool_not_found(tool)
       stream.on_tool_return(tool, ret)
       expect(stream.returns).to eq([[tool, ret]])
+    end
+
+    it "handles compaction start" do
+      stream.on_compaction(ctx, compactor)
+      expect(stream.compaction_events).to eq([[:start, ctx, compactor]])
+    end
+
+    it "handles compaction finish" do
+      stream.on_compaction_finish(ctx, compactor)
+      expect(stream.compaction_events).to eq([[:finish, ctx, compactor]])
     end
   end
 

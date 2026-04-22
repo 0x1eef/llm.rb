@@ -147,12 +147,34 @@ ctx.talk("Remember that my favorite language is Ruby.")
 ctx.save(path: "context.json")
 ```
 
+#### Context Compaction
+
+Long-lived contexts can compact older history into a summary instead of
+growing forever. Compaction is built into [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
+through [`LLM::Compactor`](https://0x1eef.github.io/x/llm.rb/LLM/Compactor.html),
+and when a stream is present it emits `on_compaction` and
+`on_compaction_finish` through [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html).
+The compactor can also use a different model from the main context, which is
+useful when you want summarization to run on a cheaper or faster model.
+
+```ruby
+ctx = LLM::Context.new(
+  llm,
+  compactor: {
+    message_threshold: 200,
+    retention_window: 8,
+    model: "gpt-5.4-mini"
+  }
+)
+```
+
 #### LLM::Stream
 
 `LLM::Stream` is not just for printing tokens. It supports `on_content`,
-`on_reasoning_content`, `on_tool_call`, and `on_tool_return`, which means
-visible output, reasoning output, and tool execution can all be driven through
-the same execution path.
+`on_reasoning_content`, `on_tool_call`, `on_tool_return`, `on_compaction`,
+and `on_compaction_finish`, which means visible output, reasoning output, tool
+execution, and context compaction can all be driven through the same
+execution path.
 
 ```ruby
 class Stream < LLM::Stream
@@ -350,6 +372,7 @@ Runtime Building Blocks:
 - **Agents** — reusable assistants with tool auto-execution
 - **Skills** — directory-backed capabilities loaded from `SKILL.md`
 - **MCP Support** — stdio and HTTP MCP clients with prompt and tool support
+- **Context Compaction** — summarize older history in long-lived contexts
 
 Data and Structure:
 - **Structured Outputs** — JSON Schema-based responses
@@ -462,6 +485,42 @@ ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
 
 ctx.talk("Run `date` and `uname -a`.")
 ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
+```
+
+#### Context Compaction
+
+This example uses [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html),
+[`LLM::Compactor`](https://0x1eef.github.io/x/llm.rb/LLM/Compactor.html), and
+[`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) together so
+long-lived contexts can summarize older history and expose the lifecycle
+through stream hooks. This approach is inspired by General Intelligence
+Systems' [Brute](https://github.com/general-intelligence-systems/brute). The
+compactor can also use its own `model:` if you want summarization to run on a
+different model from the main context. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+
+```ruby
+require "llm"
+
+class Stream < LLM::Stream
+  def on_compaction(ctx, compactor)
+    puts "Compacting #{ctx.messages.size} messages..."
+  end
+
+  def on_compaction_finish(ctx, compactor)
+    puts "Compacted to #{ctx.messages.size} messages."
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(
+  llm,
+  stream: Stream.new,
+  compactor: {
+    message_threshold: 200,
+    retention_window: 8,
+    model: "gpt-5.4-mini"
+  }
+)
 ```
 
 #### Reasoning

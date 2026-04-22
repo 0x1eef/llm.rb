@@ -34,6 +34,7 @@ module LLM
   #   ctx.talk(prompt)
   #   ctx.messages.each { |m| puts "[#{m.role}] #{m.content}" }
   class Context
+    require_relative "compactor"
     require_relative "context/serializer"
     require_relative "context/deserializer"
     include Serializer
@@ -75,10 +76,22 @@ module LLM
     def initialize(llm, params = {})
       @llm = llm
       @mode = params.delete(:mode) || :completions
+      @compactor = params.delete(:compactor)
       tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @params[:tools] = tools unless tools.empty?
       @messages = LLM::Buffer.new(llm)
+    end
+
+    ##
+    # Returns a context compactor
+    # This feature is inspired by the compaction approach developed by
+    # General Intelligence Systems in
+    # [Brute](https://github.com/general-intelligence-systems/brute).
+    # @return [LLM::Compactor]
+    def compactor
+      @compactor = LLM::Compactor.new(self, **(@compactor || {})) unless LLM::Compactor === @compactor
+      @compactor
     end
 
     ##
@@ -96,6 +109,12 @@ module LLM
     def talk(prompt, params = {})
       return respond(prompt, params) if mode == :responses
       @owner = Fiber.current
+      if compactor.compact?(prompt)
+        stream = @params[:stream]
+        stream.on_compaction(self, compactor) if LLM::Stream === stream
+        compactor.compact!(prompt)
+        stream.on_compaction_finish(self, compactor) if LLM::Stream === stream
+      end
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
       bind!(params[:stream], params[:model])
@@ -123,6 +142,12 @@ module LLM
     #   puts res.output_text
     def respond(prompt, params = {})
       @owner = Fiber.current
+      if compactor.compact?(prompt)
+        stream = @params[:stream]
+        stream.on_compaction(self, compactor) if LLM::Stream === stream
+        compactor.compact!(prompt)
+        stream.on_compaction_finish(self, compactor) if LLM::Stream === stream
+      end
       params = @params.merge(params)
       bind!(params[:stream], params[:model])
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id

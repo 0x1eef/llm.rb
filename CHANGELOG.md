@@ -4,6 +4,14 @@
 
 Changes since `v4.22.0`.
 
+### Change
+
+* **Add `LLM::Compactor` for long-lived contexts** <br>
+  Add built-in context compaction through `LLM::Compactor`, so older history
+  can be summarized, retained windows can stay bounded, compaction can run on
+  its own `model:`, and `LLM::Stream` can observe the lifecycle through
+  `on_compaction` and `on_compaction_finish`.
+
 ### Fix
 
 * **Fix xAI/OpenAI-compatible no-arg tool schemas** <br>
