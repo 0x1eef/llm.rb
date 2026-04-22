@@ -301,11 +301,11 @@ worker.join
 - **Tools are explicit** <br>
   Run local tools, provider-native tools, and MCP tools through the same path
   with fewer special cases.
-- **Skills are just tools loaded from directories** <br>
+- **Skills become bounded runtime capabilities** <br>
   Point llm.rb at directories with a `SKILL.md`, resolve named tools through
-  the registry, and run those skills through `LLM::Context` or `LLM::Agent`
-  without creating a second execution model. If you are familiar with skills
-  in Claude or Codex, llm.rb supports the same general idea.
+  the registry, and adapt each skill into its own callable capability through
+  the normal runtime. Unlike a generic skill-discovery tool, each skill runs
+  with its own bounded tool subset and behaves like a task-scoped sub-agent.
 - **Providers are normalized, not flattened** <br>
   Share one API surface across providers without losing access to provider-
   specific capabilities where they matter.
@@ -413,7 +413,9 @@ puts agent.talk("What time is it on this system?").content
 
 #### Skills
 
-This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) with directory-backed skills so `SKILL.md` capabilities run through the normal tool path. If you have used skills in Claude or Codex, this is the same kind of building block. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) with directory-backed skills so `SKILL.md` capabilities run through the normal tool path. In llm.rb, a skill is exposed as a tool in the runtime. When that tool is called, it spawns a sub-agent with relevant context plus the instructions and tool subset declared in its own `SKILL.md`. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+
+Each skill runs only with the tools declared in its own frontmatter.
 
 ```ruby
 require "llm"

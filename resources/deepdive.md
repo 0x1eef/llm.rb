@@ -909,6 +909,13 @@ accepts `skills:` directly when you want lower-level control. If you are
 familiar with skills in Claude or Codex, llm.rb supports the same general
 pattern.
 
+In llm.rb, a skill is not just a prompt pack or discovery document. It is
+adapted into a callable tool through the normal runtime, and when that tool
+is called it spawns a sub-agent through
+[`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) with
+relevant context plus the instructions and tool subset declared in its own
+`SKILL.md`.
+
 The `tools` entries in skill frontmatter are tool names, not classes. Each
 name must resolve to a subclass of
 [`LLM::Tool`](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) that is
@@ -931,15 +938,25 @@ tools:
 Review the release state, summarize what changed, and prepare the release.
 ```
 
+The execution flow is:
+
+1. `skills "...path..."` loads `SKILL.md`.
+2. Frontmatter `tools:` entries resolve by name through the
+   [`LLM::Tool`](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) registry.
+3. The skill is adapted into a callable tool in the runtime.
+4. When called, the skill spawns a sub-agent through
+   [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html).
+5. That sub-agent inherits selected parent context settings and relevant
+   context, but it runs only with the instructions and tools declared by the
+   skill.
+
+The release skill runs only with the tools declared in its own frontmatter.
+That is what makes skills feel like bounded executable capabilities instead
+of generic instruction documents.
+
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
-
-class SearchDocs < LLM::Tool
-  name "search_docs"
-  description "Search the docs"
-  def call(**) = {results: ["..."]}
-end
 
 class Agent < LLM::Agent
   model "gpt-5.4-mini"
