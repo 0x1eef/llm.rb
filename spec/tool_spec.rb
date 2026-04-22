@@ -120,4 +120,21 @@ RSpec.describe LLM::Tool do
         .to raise_error(LLM::NoSuchToolError, 'no such tool "missing"')
     end
   end
+
+  describe ".function" do
+    it "adapts a no-arg tool for xai with an object schema" do
+      provider = LLM.xai(key: "TOKEN")
+      payload = shell.function.adapt(provider)
+
+      expect(payload).to eq(
+        type: "function",
+        name: "shell",
+        function: {
+          name: "shell",
+          description: "run shell commands",
+          parameters: {type: "object", properties: {}}
+        }
+      )
+    end
+  end
 end

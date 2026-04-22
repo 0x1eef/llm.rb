@@ -266,9 +266,10 @@ class LLM::Function
         parameters: (@params || {type: "object", properties: {}}).to_h.merge(additionalProperties: false), strict: false
       }.compact
     else
+      params = @params || {type: "object", properties: {}}
       {
         type: "function", name: @name,
-        function: {name: @name, description: @description, parameters: @params}
+        function: {name: @name, description: @description, parameters: params}
       }.compact
     end
   end

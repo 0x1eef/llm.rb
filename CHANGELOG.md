@@ -4,6 +4,13 @@
 
 Changes since `v4.22.0`.
 
+### Fix
+
+* **Fix xAI/OpenAI-compatible no-arg tool schemas** <br>
+  Send an empty object schema for tools without declared parameters instead
+  of `null`, so stricter providers such as xAI accept mixed tool sets that
+  include no-arg tools.
+
 ## v4.22.0
 
 Changes since `v4.21.0`.
