@@ -2,7 +2,16 @@
 
 ## Unreleased
 
+Changes since `v4.22.0`.
+
+## v4.22.0
+
 Changes since `v4.21.0`.
+
+This release deepens the runtime shape of llm.rb. It reduces helper-method
+surface on persisted ORM models, expands real ORM coverage, and makes skills
+behave more like bounded sub-agents with inherited recent context and proper
+instruction injection.
 
 ### Change
 
