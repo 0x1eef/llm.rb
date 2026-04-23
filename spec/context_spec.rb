@@ -398,6 +398,19 @@ RSpec.describe LLM::Context do
       expect(ctx.compactor).to be_a(LLM::Compactor)
     end
 
+    it "defaults the token threshold from the context window" do
+      expect(ctx.compactor.config[:token_threshold]).to eq(945000)
+    end
+
+    context "when the context window is unknown" do
+      let(:provider) { LLM.deepseek(key: "test") }
+      let(:model) { "does-not-exist" }
+
+      it "falls back to 100_000" do
+        expect(ctx.compactor.config[:token_threshold]).to eq(100000)
+      end
+    end
+
     context "#compact?" do
       context "when non-system messages exceed the threshold" do
         before do

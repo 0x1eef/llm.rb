@@ -9,10 +9,12 @@
 # [Brute](https://github.com/general-intelligence-systems/brute).
 #
 # The compactor can also use a different model from the main context by
-# setting `model:` in the compactor config.
+# setting `model:` in the compactor config. By default, `token_threshold` is
+# 10% less than the current context window, or `100_000` when the context
+# window is unknown.
 class LLM::Compactor
+  DEFAULT_TOKEN_THRESHOLD = 100_000
   DEFAULTS = {
-    token_threshold: 100_000,
     message_threshold: 200,
     retention_window: 8,
     model: nil
@@ -26,6 +28,8 @@ class LLM::Compactor
   # @param [LLM::Context] ctx
   # @param [Hash] config
   # @option config [Integer] :token_threshold
+  #  Defaults to 10% less than the current context window, or `100_000` when
+  #  the context window is unknown.
   # @option config [Integer] :message_threshold
   # @option config [Integer] :retention_window
   # @option config [String, nil] :model
@@ -33,7 +37,7 @@ class LLM::Compactor
   #  context model.
   def initialize(ctx, **config)
     @ctx = ctx
-    @config = DEFAULTS.merge(config)
+    @config = DEFAULTS.merge(token_threshold: default_token_threshold).merge(config)
   end
 
   ##
@@ -69,6 +73,12 @@ class LLM::Compactor
   private
 
   attr_reader :ctx
+
+  def default_token_threshold
+    window = ctx.context_window
+    return DEFAULT_TOKEN_THRESHOLD if window.zero?
+    window - (window / 10)
+  end
 
   def retained_messages
     messages = ctx.messages.reject(&:system?)
