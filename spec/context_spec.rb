@@ -407,17 +407,8 @@ RSpec.describe LLM::Context do
       expect(ctx.compactor).to be_a(LLM::Compactor)
     end
 
-    it "defaults the token threshold from the context window" do
-      expect(ctx.compactor.config[:token_threshold]).to eq(945000)
-    end
-
-    context "when the context window is unknown" do
-      let(:provider) { LLM.deepseek(key: "test") }
-      let(:model) { "does-not-exist" }
-
-      it "falls back to 100_000" do
-        expect(ctx.compactor.config[:token_threshold]).to eq(100000)
-      end
+    it "does not enable token threshold by default" do
+      expect(ctx.compactor.config[:token_threshold]).to be_nil
     end
 
     context "#compact?" do
@@ -429,7 +420,19 @@ RSpec.describe LLM::Context do
           ctx.messages << LLM::Message.new("user", "three")
         end
 
-        it { expect(ctx.compactor.compact?).to eq(true) }
+        it { expect(ctx.compactor).to be_compact }
+      end
+
+      context "when token threshold is configured" do
+        let(:compactor_options) { {token_threshold: 10, retention_window: 1} }
+
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "one")
+          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 50))
+        end
+
+        it { expect(ctx.compactor).to be_compact }
       end
 
       context "during a pending tool lifecycle" do
@@ -444,11 +447,11 @@ RSpec.describe LLM::Context do
           })
         end
 
-        it { expect(ctx.compactor.compact?([result])).to eq(false) }
+        it { expect(ctx.compactor).not_to be_compact([result]) }
       end
 
       context "when message threshold is disabled" do
-        let(:compactor_options) { {message_threshold: nil, token_threshold: 10, retention_window: 1} }
+        let(:compactor_options) { {token_threshold: 10, retention_window: 1} }
 
         before do
           ctx.messages << LLM::Message.new("system", "You are helpful")
@@ -458,11 +461,11 @@ RSpec.describe LLM::Context do
           allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 5))
         end
 
-        it { expect(ctx.compactor.compact?).to eq(false) }
+        it { expect(ctx.compactor).not_to be_compact }
       end
 
       context "when token threshold is disabled" do
-        let(:compactor_options) { {message_threshold: 10, token_threshold: nil, retention_window: 1} }
+        let(:compactor_options) { {message_threshold: 10, retention_window: 1} }
 
         before do
           ctx.messages << LLM::Message.new("system", "You are helpful")
@@ -470,7 +473,21 @@ RSpec.describe LLM::Context do
           allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 50_000_000))
         end
 
-        it { expect(ctx.compactor.compact?).to eq(false) }
+        it { expect(ctx.compactor).not_to be_compact }
+      end
+
+      context "when no thresholds are configured" do
+        let(:compactor_options) { {retention_window: 1} }
+
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "one")
+          ctx.messages << LLM::Message.new("assistant", "two")
+          ctx.messages << LLM::Message.new("user", "three")
+          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 50_000_000))
+        end
+
+        it { expect(ctx.compactor).not_to be_compact }
       end
     end
 

@@ -4,6 +4,14 @@
 
 Changes since `v4.23.0`.
 
+### Change
+
+* **Make compactor thresholds explicit** <br>
+  Require `message_threshold:` and `token_threshold:` to be opted into
+  explicitly, so `LLM::Compactor` only compacts automatically when one of
+  those thresholds is configured. Context-window-derived token limits can be
+  computed by the caller when needed.
+
 ## v4.23.0
 
 Changes since `v4.22.0`.
@@ -18,8 +26,9 @@ OpenAI-compatible no-arg tool schemas for stricter providers such as xAI.
 * **Add `LLM::Compactor` for long-lived contexts** <br>
   Add built-in context compaction through `LLM::Compactor`, so older history
   can be summarized, retained windows can stay bounded, compaction can run on
-  its own `model:`, and `LLM::Stream` can observe the lifecycle through
-  `on_compaction` and `on_compaction_finish`.
+  its own `model:`, thresholds can be configured explicitly, and
+  `LLM::Stream` can observe the lifecycle through `on_compaction` and
+  `on_compaction_finish`.
 
 * **Allow bound tool instances in explicit tool lists** <br>
   Let explicit `tools:` arrays accept `LLM::Tool` instances such as
