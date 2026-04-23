@@ -63,9 +63,10 @@ class LLM::Compactor
   #  The next prompt or turn input
   # @return [LLM::Message, nil]
   def compact!(prompt = nil)
+    return nil if ctx.functions.any? || [*prompt].grep(LLM::Function::Return).any?
     messages = ctx.messages.reject(&:system?)
     retention_window = [config[:retention_window], messages.size].min
-    return nil unless compact?(prompt) && messages.size > retention_window
+    return nil unless messages.size > retention_window
     stream = ctx.params[:stream]
     stream.on_compaction(ctx, self) if LLM::Stream === stream
     recent = retained_messages

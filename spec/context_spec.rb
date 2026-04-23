@@ -501,6 +501,37 @@ RSpec.describe LLM::Context do
         end
       end
 
+      context "when thresholds are disabled" do
+        let(:compactor_options) { {message_threshold: nil, token_threshold: nil, retention_window: 1} }
+
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "first")
+          ctx.messages << LLM::Message.new("assistant", "second")
+          ctx.messages << LLM::Message.new("user", "third")
+        end
+
+        it "still allows forced manual compaction" do
+          summary = ctx.compactor.compact!
+          expect(summary).to eq(
+            LLM::Message.new("user", "[Previous conversation summary]\n\n#{summary_text}")
+          )
+        end
+      end
+
+      context "during a pending tool lifecycle" do
+        let(:compactor_options) { {message_threshold: nil, token_threshold: nil, retention_window: 1} }
+
+        before do
+          allow(ctx).to receive(:functions).and_return([tool.function].extend(LLM::Function::Array))
+          ctx.messages << LLM::Message.new("user", "third")
+        end
+
+        it "does not force compaction" do
+          expect(ctx.compactor.compact!).to be_nil
+        end
+      end
+
       context "when the retained window would begin on a tool return" do
         let(:compactor_options) { {message_threshold: 2, retention_window: 2} }
 
