@@ -350,7 +350,6 @@ RSpec.describe LLM::Context do
         ctx.talk([result])
       end
     end
-
   end
 
   context "#compactor" do
