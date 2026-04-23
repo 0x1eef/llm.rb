@@ -34,6 +34,7 @@ module LLM
     # @return [Hash]
     def to_h
       {role:, content:, reasoning_content:,
+       compaction: extra.compaction,
        tools: extra.tool_calls,
        usage:,
        original_tool_calls: extra.original_tool_calls}.compact
@@ -72,6 +73,13 @@ module LLM
     # @return [String, nil]
     def reasoning_content
       extra.reasoning_content
+    end
+
+    ##
+    # Returns true when a message was created by context compaction
+    # @return [Boolean]
+    def compaction?
+      !!extra.compaction
     end
 
     ##

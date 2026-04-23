@@ -17,6 +17,11 @@ Changes since `v4.23.0`.
   constructor `compactor:` option, so compactor config can be assigned or
   replaced after context initialization.
 
+* **Mark compaction summaries in message metadata** <br>
+  Mark compaction summaries with `extra[:compaction]` and
+  `LLM::Message#compaction?`, so applications can detect or hide synthetic
+  summary messages in conversation history.
+
 ## v4.23.0
 
 Changes since `v4.22.0`.

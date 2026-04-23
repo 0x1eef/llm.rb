@@ -545,6 +545,9 @@ RSpec.describe LLM::Context do
       end
 
       context "with ordinary messages" do
+        let(:summary) { ctx.compactor.compact! }
+        let(:compacted_messages) { summary ? ctx.messages.to_a : [] }
+
         before do
           ctx.messages << LLM::Message.new("system", "You are helpful")
           ctx.messages << LLM::Message.new("user", "first")
@@ -552,22 +555,32 @@ RSpec.describe LLM::Context do
           ctx.messages << LLM::Message.new("user", "third")
         end
 
-        it "replaces older messages with a summary and keeps recent messages" do
-          summary = ctx.compactor.compact!
+        it "marks the summary as a compaction message" do
+          expect(summary).to be_compaction
+        end
 
+        it "returns the summary message" do
           expect(summary).to eq(
-            LLM::Message.new("user", "[Previous conversation summary]\n\n#{summary_text}")
+            LLM::Message.new("user", "[Previous conversation summary]\n\n#{summary_text}", {compaction: true})
           )
-          expect(ctx.messages.to_a).to eq([
+        end
+
+        it "replaces older messages with the summary" do
+          expect(compacted_messages).to eq([
             LLM::Message.new("system", "You are helpful"),
             summary,
             LLM::Message.new("user", "third")
           ])
         end
+
+        it "keeps the compaction flag in the message history" do
+          expect(compacted_messages[1]).to be_compaction
+        end
       end
 
       context "when thresholds are disabled" do
         let(:compactor_options) { {message_threshold: nil, token_threshold: nil, retention_window: 1} }
+        let(:summary) { ctx.compactor.compact! }
 
         before do
           ctx.messages << LLM::Message.new("system", "You are helpful")
@@ -577,9 +590,8 @@ RSpec.describe LLM::Context do
         end
 
         it "still allows forced manual compaction" do
-          summary = ctx.compactor.compact!
           expect(summary).to eq(
-            LLM::Message.new("user", "[Previous conversation summary]\n\n#{summary_text}")
+            LLM::Message.new("user", "[Previous conversation summary]\n\n#{summary_text}", {compaction: true})
           )
         end
       end
