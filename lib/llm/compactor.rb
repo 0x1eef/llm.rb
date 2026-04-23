@@ -33,7 +33,7 @@ class LLM::Compactor
   # @option config [String, nil] :model
   #  The model to use for the summarization request. Defaults to the current
   #  context model.
-  def initialize(ctx, **config)
+  def initialize(ctx, config = {})
     @ctx = ctx
     @config = DEFAULTS.merge(config)
   end
