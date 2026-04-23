@@ -249,7 +249,14 @@ module LLM
     # messages.
     # @return [LLM::Object, nil]
     def usage
-      @messages.find(&:assistant?)&.usage
+      usage = @messages.find(&:assistant?)&.usage
+      return unless usage
+      LLM::Object.from(
+        input_tokens: usage.input_tokens || 0,
+        output_tokens: usage.output_tokens || 0,
+        reasoning_tokens: usage.reasoning_tokens || 0,
+        total_tokens: usage.total_tokens || 0
+      )
     end
 
     ##

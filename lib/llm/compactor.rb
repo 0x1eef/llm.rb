@@ -11,7 +11,8 @@
 # The compactor can also use a different model from the main context by
 # setting `model:` in the compactor config. By default, `token_threshold` is
 # 10% less than the current context window, or `100_000` when the context
-# window is unknown.
+# window is unknown. Set `message_threshold:` or `token_threshold:` to `nil`
+# to disable that constraint.
 class LLM::Compactor
   DEFAULT_TOKEN_THRESHOLD = 100_000
   DEFAULTS = {
@@ -29,8 +30,10 @@ class LLM::Compactor
   # @param [Hash] config
   # @option config [Integer] :token_threshold
   #  Defaults to 10% less than the current context window, or `100_000` when
-  #  the context window is unknown.
+  #  the context window is unknown. Set to `nil` to disable token-based
+  #  compaction.
   # @option config [Integer] :message_threshold
+  #  Set to `nil` to disable message-count-based compaction.
   # @option config [Integer] :retention_window
   # @option config [String, nil] :model
   #  The model to use for the summarization request. Defaults to the current
@@ -48,9 +51,9 @@ class LLM::Compactor
   def compact?(prompt = nil)
     return false if ctx.functions.any? || [*prompt].grep(LLM::Function::Return).any?
     messages = ctx.messages.reject(&:system?)
-    return true if messages.size > config[:message_threshold]
+    return true if config[:message_threshold] && messages.size > config[:message_threshold]
     usage = ctx.usage
-    return true if usage && (usage.total_tokens || 0) > config[:token_threshold]
+    return true if config[:token_threshold] && usage && usage.total_tokens > config[:token_threshold]
     false
   end
 

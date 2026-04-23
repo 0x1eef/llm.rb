@@ -244,6 +244,19 @@ RSpec.describe LLM::Context do
     end
   end
 
+  context "#usage" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+
+    it "zero-fills missing token fields" do
+      ctx.messages << LLM::Message.new("assistant", "hello", usage: LLM::Object.from(input_tokens: 3))
+      expect(ctx.usage.input_tokens).to eq(3)
+      expect(ctx.usage.output_tokens).to eq(0)
+      expect(ctx.usage.reasoning_tokens).to eq(0)
+      expect(ctx.usage.total_tokens).to eq(0)
+    end
+  end
+
   context "when configured with a stream that supports wait" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
@@ -436,6 +449,32 @@ RSpec.describe LLM::Context do
         end
 
         it { expect(ctx.compactor.compact?([result])).to eq(false) }
+      end
+
+      context "when message threshold is disabled" do
+        let(:compactor_options) { {message_threshold: nil, token_threshold: 10, retention_window: 1} }
+
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "one")
+          ctx.messages << LLM::Message.new("assistant", "two")
+          ctx.messages << LLM::Message.new("user", "three")
+          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 5))
+        end
+
+        it { expect(ctx.compactor.compact?).to eq(false) }
+      end
+
+      context "when token threshold is disabled" do
+        let(:compactor_options) { {message_threshold: 10, token_threshold: nil, retention_window: 1} }
+
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "one")
+          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 50_000_000))
+        end
+
+        it { expect(ctx.compactor.compact?).to eq(false) }
       end
     end
 
