@@ -90,8 +90,16 @@ module LLM
     # [Brute](https://github.com/general-intelligence-systems/brute).
     # @return [LLM::Compactor]
     def compactor
-      @compactor = LLM::Compactor.new(self, **(@compactor || {})) unless LLM::Compactor === @compactor
+      @compactor = LLM::Compactor.new(self, @compactor || {}) unless LLM::Compactor === @compactor
       @compactor
+    end
+
+    ##
+    # Sets a context compactor or compactor config
+    # @param [LLM::Compactor, Hash, nil] compactor
+    # @return [LLM::Compactor, Hash, nil]
+    def compactor=(compactor)
+      @compactor = compactor
     end
 
     ##

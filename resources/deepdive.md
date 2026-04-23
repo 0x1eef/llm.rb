@@ -344,6 +344,21 @@ ctx = LLM::Context.new(
 )
 ```
 
+### Manual Compaction
+
+You can also assign a compactor to a context and manage compaction manually.
+If you do not configure `message_threshold:` or `token_threshold:`, automatic
+compaction stays disabled and you can call `compact!` yourself when the
+workflow decides it is time:
+
+```ruby
+ctx = LLM::Context.new(llm)
+ctx.compactor = {retention_window: 8, model: "gpt-5.4-mini"}
+
+# ...later...
+ctx.compactor.compact!
+```
+
 ### Token Threshold From The Context Window
 
 Compaction thresholds are explicit, but you can still derive a token threshold
@@ -352,16 +367,10 @@ pattern is to set the compactor threshold to 10% less than the context window,
 with a `100_000` fallback when the context window is unknown:
 
 ```ruby
-window = LLM::Context.new(llm, model: "gpt-5.4-mini").context_window
+ctx = LLM::Context.new(llm, model: "gpt-5.4-mini")
+window = ctx.context_window
 token_threshold = window.zero? ? 100_000 : window - (window / 10)
-
-ctx = LLM::Context.new(
-  llm,
-  compactor: {
-    token_threshold:,
-    retention_window: 8
-  }
-)
+ctx.compactor = {token_threshold:, retention_window: 8}
 ```
 
 ## Reasoning

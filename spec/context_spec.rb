@@ -407,6 +407,18 @@ RSpec.describe LLM::Context do
       expect(ctx.compactor).to be_a(LLM::Compactor)
     end
 
+    it "allows assigning compactor config" do
+      ctx.compactor = {message_threshold: 4, retention_window: 2}
+      expect(ctx.compactor).to be_a(LLM::Compactor)
+      expect(ctx.compactor.config).to include(message_threshold: 4, retention_window: 2)
+    end
+
+    it "allows assigning an llm compactor" do
+      compactor = LLM::Compactor.new(ctx, message_threshold: 4, retention_window: 2)
+      ctx.compactor = compactor
+      expect(ctx.compactor).to equal(compactor)
+    end
+
     it "does not enable token threshold by default" do
       expect(ctx.compactor.config[:token_threshold]).to be_nil
     end

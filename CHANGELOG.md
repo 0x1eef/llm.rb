@@ -12,6 +12,11 @@ Changes since `v4.23.0`.
   those thresholds is configured. Context-window-derived token limits can be
   computed by the caller when needed.
 
+* **Allow assigning a compactor through `LLM::Context`** <br>
+  Let `LLM::Context` accept `ctx.compactor = ...` in addition to the
+  constructor `compactor:` option, so compactor config can be assigned or
+  replaced after context initialization.
+
 ## v4.23.0
 
 Changes since `v4.22.0`.
