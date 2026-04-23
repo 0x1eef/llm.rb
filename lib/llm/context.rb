@@ -109,12 +109,7 @@ module LLM
     def talk(prompt, params = {})
       return respond(prompt, params) if mode == :responses
       @owner = Fiber.current
-      if compactor.compact?(prompt)
-        stream = @params[:stream]
-        stream.on_compaction(self, compactor) if LLM::Stream === stream
-        compactor.compact!(prompt)
-        stream.on_compaction_finish(self, compactor) if LLM::Stream === stream
-      end
+      compactor.compact!(prompt) if compactor.compact?(prompt)
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
       bind!(params[:stream], params[:model])
@@ -142,12 +137,7 @@ module LLM
     #   puts res.output_text
     def respond(prompt, params = {})
       @owner = Fiber.current
-      if compactor.compact?(prompt)
-        stream = @params[:stream]
-        stream.on_compaction(self, compactor) if LLM::Stream === stream
-        compactor.compact!(prompt)
-        stream.on_compaction_finish(self, compactor) if LLM::Stream === stream
-      end
+      compactor.compact!(prompt) if compactor.compact?(prompt)
       params = @params.merge(params)
       bind!(params[:stream], params[:model])
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id

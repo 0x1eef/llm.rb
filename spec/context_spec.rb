@@ -351,46 +351,6 @@ RSpec.describe LLM::Context do
       end
     end
 
-    context "when given a stream" do
-      let(:stream) do
-        Class.new(LLM::Stream) do
-          attr_reader :events
-
-          def initialize
-            @events = []
-          end
-
-          def on_compaction(ctx, compactor)
-            @events << [:start, ctx, compactor]
-          end
-
-          def on_compaction_finish(ctx, compactor)
-            @events << [:finish, ctx, compactor]
-          end
-        end.new
-      end
-      let(:compactor_options) { {message_threshold: 2, retention_window: 1} }
-      let(:ctx) { LLM::Context.new(provider, model:, stream:, compactor: compactor_options) }
-      let(:summary_text) { "Summary of the earlier conversation" }
-      let(:summary_response) { double(content: summary_text) }
-      let(:response) { double(choices: [LLM::Message.new("assistant", "done")]) }
-
-      before do
-        ctx.messages << LLM::Message.new("system", "You are helpful")
-        ctx.messages << LLM::Message.new("user", "first")
-        ctx.messages << LLM::Message.new("assistant", "second")
-        ctx.messages << LLM::Message.new("user", "third")
-        allow(provider).to receive(:complete).and_return(summary_response, response)
-      end
-
-      it "emits compaction lifecycle callbacks" do
-        ctx.talk("hello")
-        expect(stream.events).to eq([
-          [:start, ctx, ctx.compactor],
-          [:finish, ctx, ctx.compactor]
-        ])
-      end
-    end
   end
 
   context "#compactor" do
@@ -481,6 +441,42 @@ RSpec.describe LLM::Context do
     context "#compact!" do
       before do
         allow(provider).to receive(:complete).and_return(response)
+      end
+
+      context "when given a stream" do
+        let(:stream) do
+          Class.new(LLM::Stream) do
+            attr_reader :events
+
+            def initialize
+              @events = []
+            end
+
+            def on_compaction(ctx, compactor)
+              @events << [:start, ctx, compactor]
+            end
+
+            def on_compaction_finish(ctx, compactor)
+              @events << [:finish, ctx, compactor]
+            end
+          end.new
+        end
+        let(:ctx) { LLM::Context.new(provider, model:, stream:, compactor: compactor_options) }
+
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "first")
+          ctx.messages << LLM::Message.new("assistant", "second")
+          ctx.messages << LLM::Message.new("user", "third")
+        end
+
+        it "emits compaction lifecycle callbacks" do
+          ctx.compactor.compact!
+          expect(stream.events).to eq([
+            [:start, ctx, ctx.compactor],
+            [:finish, ctx, ctx.compactor]
+          ])
+        end
       end
 
       context "with ordinary messages" do
