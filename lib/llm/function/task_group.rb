@@ -66,6 +66,7 @@ class LLM::Function
       @tasks.each(&:interrupt!)
       nil
     end
+    alias_method :cancel!, :interrupt!
 
     ##
     # Waits for all tasks in the group to finish and returns

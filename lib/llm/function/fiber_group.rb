@@ -65,6 +65,7 @@ class LLM::Function
       @fibers.each(&:interrupt!)
       nil
     end
+    alias_method :cancel!, :interrupt!
 
     ##
     # Waits for all fibers in the group to finish and returns

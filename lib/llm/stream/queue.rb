@@ -37,6 +37,7 @@ class LLM::Stream
       @items.each(&:interrupt!)
       nil
     end
+    alias_method :cancel!, :interrupt!
 
     ##
     # Waits for queued work to finish and returns function results.

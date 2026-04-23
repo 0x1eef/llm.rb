@@ -25,6 +25,7 @@ class LLM::Function
       @tasks.each(&:interrupt!)
       nil
     end
+    alias_method :cancel!, :interrupt!
 
     ##
     # @return [Array<LLM::Function::Return>]

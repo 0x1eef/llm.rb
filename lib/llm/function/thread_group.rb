@@ -71,6 +71,7 @@ class LLM::Function
       @threads.each(&:interrupt!)
       nil
     end
+    alias_method :cancel!, :interrupt!
 
     ##
     # Waits for all threads in the group to finish and returns

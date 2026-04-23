@@ -68,6 +68,7 @@ class LLM::Function
     def interrupt!
       nil
     end
+    alias_method :cancel!, :interrupt!
   end
 
   ##
@@ -230,9 +231,11 @@ class LLM::Function
   # `on_interrupt`.
   # @return [nil]
   def interrupt!
-    @runner.on_interrupt if @runner.respond_to?(:on_interrupt)
+    hook = %i[on_cancel on_interrupt].find { @runner.respond_to?(_1) }
+    @runner.public_send(hook) if hook
     nil
   end
+  alias_method :cancel!, :interrupt!
 
   ##
   # Returns true when a function has been called

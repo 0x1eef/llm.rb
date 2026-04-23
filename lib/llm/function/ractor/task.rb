@@ -31,6 +31,7 @@ class LLM::Function
     def interrupt!
       nil
     end
+    alias_method :cancel!, :interrupt!
 
     ##
     # @return [LLM::Function::Return]

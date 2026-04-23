@@ -192,5 +192,11 @@ class LLM::Tool
   # @return [nil]
   def on_interrupt
   end
-  alias_method :on_cancel, :on_interrupt
+
+  ##
+  # Called when an in-flight tool run is cancelled.
+  # @return [nil]
+  def on_cancel
+    on_interrupt
+  end
 end
