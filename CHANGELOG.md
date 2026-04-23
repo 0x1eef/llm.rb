@@ -12,6 +12,11 @@ Changes since `v4.22.0`.
   its own `model:`, and `LLM::Stream` can observe the lifecycle through
   `on_compaction` and `on_compaction_finish`.
 
+* **Allow bound tool instances in explicit tool lists** <br>
+  Let explicit `tools:` arrays accept `LLM::Tool` instances such as
+  `MyTool.new(foo: 1)`, so tools can carry bound state without changing the
+  global tool registry model.
+
 ### Fix
 
 * **Fix xAI/OpenAI-compatible no-arg tool schemas** <br>

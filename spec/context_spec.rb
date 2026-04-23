@@ -221,6 +221,43 @@ RSpec.describe LLM::Context do
     end
   end
 
+  context "when configured with a tool instance" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "echo"
+
+        def initialize(prefix:)
+          @prefix = prefix
+        end
+
+        def call(value:)
+          {"value" => "#{@prefix}: #{value}"}
+        end
+      end.new(prefix: "stateful")
+    end
+    let(:ctx) { LLM::Context.new(provider, model:, tools: [tool]) }
+
+    before do
+      ctx.messages << LLM::Message.new("assistant", nil, {
+        tools: [tool],
+        tool_calls: [
+          {id: "call_1", name: "echo", arguments: {"value" => "hello"}}
+        ]
+      })
+    end
+
+    it "resolves and calls the bound tool instance" do
+      result = ctx.functions.fetch(0).call
+      expect(result.to_h).to eq(
+        id: "call_1",
+        name: "echo",
+        value: {"value" => "stateful: hello"}
+      )
+    end
+  end
+
   context "#call" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }

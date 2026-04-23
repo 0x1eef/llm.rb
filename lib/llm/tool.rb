@@ -171,4 +171,18 @@ class LLM::Tool
   def self.mcp?
     false
   end
+
+  ##
+  # Returns a function bound to this tool instance.
+  # @return [LLM::Function]
+  def function
+    @function ||= self.class.function.dup.tap { _1.register(self) }
+  end
+
+  ##
+  # Returns true if the tool is an MCP tool
+  # @return [Boolean]
+  def mcp?
+    self.class.mcp?
+  end
 end

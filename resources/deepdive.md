@@ -41,6 +41,7 @@ Most features extend these, rather than introducing new abstractions.
   - [Persist With Sequel](#persist-with-sequel)
 - [Tools](#tools)
   - [Tool Calling](#tool-calling)
+  - [Stateful Tool Instances](#stateful-tool-instances)
   - [Cancelling A Function](#cancelling-a-function)
   - [Closure-Based Tools](#closure-based-tools)
   - [Concurrent Tools](#concurrent-tools)
@@ -788,6 +789,44 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout, tools: [System])
 ctx.talk("Run `date`.")
+ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+```
+
+### Stateful Tool Instances
+
+Explicit `tools:` arrays can also include bound
+[`LLM::Tool`](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) instances, not
+just tool classes. That is useful when a tool needs to wrap local state such
+as configuration, credentials, or an object from the surrounding application.
+
+The execution model stays the same. The instance is adapted into a normal
+tool call, so it still works with
+[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html),
+`ctx.functions`, `ctx.wait(:thread)`, `ctx.wait(:task)`, `ctx.wait(:fiber)`,
+and streamed callbacks such as `on_tool_call` and `on_tool_return`. The
+current `:ractor` mode still requires class-based tools:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class SearchDocs < LLM::Tool
+  name "search_docs"
+  description "Search a documentation index"
+  param :query, String, "Query to search", required: true
+
+  def initialize(index:)
+    @index = index
+  end
+
+  def call(query:)
+    {results: @index.search(query)}
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: [SearchDocs.new(index: docs_index)])
+ctx.talk("Search the docs for context compaction.")
 ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 ```
 
