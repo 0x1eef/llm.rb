@@ -2,7 +2,16 @@
 
 ## Unreleased
 
+Changes since `v4.23.0`.
+
+## v4.23.0
+
 Changes since `v4.22.0`.
+
+This release expands llm.rb's runtime surface for long-lived contexts and
+stateful tools. It adds built-in context compaction through `LLM::Compactor`,
+lets explicit `tools:` arrays accept bound `LLM::Tool` instances, and fixes
+OpenAI-compatible no-arg tool schemas for stricter providers such as xAI.
 
 ### Change
 
