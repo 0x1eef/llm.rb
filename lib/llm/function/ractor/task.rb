@@ -27,6 +27,12 @@ class LLM::Function
     end
 
     ##
+    # @return [nil]
+    def interrupt!
+      nil
+    end
+
+    ##
     # @return [LLM::Function::Return]
     def wait
       id, name, value = mailbox.wait

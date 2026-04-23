@@ -43,6 +43,7 @@ Most features extend these, rather than introducing new abstractions.
   - [Tool Calling](#tool-calling)
   - [Stateful Tool Instances](#stateful-tool-instances)
   - [Cancelling A Function](#cancelling-a-function)
+  - [Cooperative Tool Interruption](#cooperative-tool-interruption)
   - [Closure-Based Tools](#closure-based-tools)
   - [Concurrent Tools](#concurrent-tools)
 - [Agents](#agents)
@@ -902,6 +903,49 @@ returns = ctx.functions.map do |fn|
 end
 
 ctx.talk(returns)
+```
+
+### Cooperative Tool Interruption
+
+`ctx.interrupt!` cancels the active provider request first, then notifies any
+queued tool work through `on_interrupt`. This is cooperative cleanup, not
+forced termination, so it is most useful for tools that manage local resources
+such as subprocesses, sockets, or temporary files.
+
+`LLM::Context` is still a stateful object and is best kept thread-local for
+normal use. But interruption is a valid cross-thread control path. That makes
+it a good fit for cases like a websocket, where one connection can carry many
+messages and a later message may need to cancel an earlier in-flight request.
+
+Override `on_interrupt` on a tool when it needs to react to cancellation:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class System < LLM::Tool
+  attr_reader :pid
+
+  name "system"
+  description "Run a shell command"
+  param :command, String, "Command to execute", required: true
+
+  def call(command:)
+    @pid = spawn(command)
+    Process.wait(pid)
+    {success: $?.success?}
+  end
+
+  def on_interrupt
+    Process.kill("TERM", pid) if pid
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: [System], stream: LLM::Stream.new)
+Thread.new { ctx.talk("Run `sleep 30`.") }
+sleep 0.5
+ctx.interrupt!
 ```
 
 ### Closure-Based Tools

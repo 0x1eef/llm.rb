@@ -311,14 +311,13 @@ RSpec.describe LLM::Context do
 
     it "forwards #wait to the configured stream when the queue has work" do
       stream.queue << LLM::Function::Return.new("call_1", "system", {"ok" => true})
-      expect(stream).to receive(:wait).with(:thread).and_return([])
-      expect(ctx.wait(:thread)).to eq([])
+      expect(ctx.wait(:thread)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
     end
 
     it "falls back to pending functions when the queue is empty" do
       pending = [].extend(LLM::Function::Array)
       expect(ctx).to receive(:functions).and_return(pending)
-      expect(pending).to receive(:wait).with(:thread).and_return([])
+      expect(pending).to receive(:spawn).with(:thread).and_return(LLM::Function::ThreadGroup.new([]))
       expect(ctx.wait(:thread)).to eq([])
     end
   end
@@ -344,6 +343,48 @@ RSpec.describe LLM::Context do
         expect(ctx.interrupt!).to be_nil
       end
       owner.resume
+    end
+
+    context "when queued tool work is running through a stream" do
+      let(:stream) { LLM::Stream.new }
+      let(:ctx) { LLM::Context.new(provider, model:, stream:) }
+      let(:tool) do
+        Class.new(LLM::Tool) do
+          attr_reader :interrupted
+
+          name "echo"
+          description "echoes a value"
+
+          def call(value:)
+            sleep 0.01 until @interrupted
+            {value:}
+          end
+
+          def on_interrupt
+            @interrupted = true
+          end
+        end.new
+      end
+
+      it "interrupts the queued tool" do
+        task = tool.function.tap { _1.arguments = {value: "hello"} }.spawn(:thread)
+        stream.queue << task
+        expect(provider).to receive(:interrupt!).with(nil).ordered.and_return(nil)
+        expect(ctx.interrupt!).to be_nil
+        expect(tool.interrupted).to eq(true)
+        expect(task.wait.value).to eq({value: "hello"})
+      end
+    end
+
+    context "when waiting on running tool work directly" do
+      let(:queue) { instance_double(LLM::Function::ThreadGroup, interrupt!: nil) }
+
+      it "interrupts the active queue" do
+        ctx.instance_variable_set(:@queue, queue)
+        expect(provider).to receive(:interrupt!).with(nil).ordered.and_return(nil)
+        expect(queue).to receive(:interrupt!).ordered.and_return(nil)
+        expect(ctx.interrupt!).to be_nil
+      end
     end
   end
 

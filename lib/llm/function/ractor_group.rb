@@ -20,6 +20,13 @@ class LLM::Function
     end
 
     ##
+    # @return [nil]
+    def interrupt!
+      @tasks.each(&:interrupt!)
+      nil
+    end
+
+    ##
     # @return [Array<LLM::Function::Return>]
     def wait
       @tasks.map(&:wait)

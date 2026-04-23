@@ -32,6 +32,13 @@ class LLM::Stream
     end
 
     ##
+    # @return [nil]
+    def interrupt!
+      @items.each(&:interrupt!)
+      nil
+    end
+
+    ##
     # Waits for queued work to finish and returns function results.
     # @param [Symbol, Array<Symbol>] strategy
     #   Controls concurrency strategy, or lists the possible concurrency strategies

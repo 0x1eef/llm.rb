@@ -224,10 +224,14 @@ module LLM
     def wait(strategy)
       stream = @params[:stream]
       if LLM::Stream === stream && !stream.queue.empty?
-        stream.wait(strategy)
+        @queue = stream.queue
+        @queue.wait(strategy)
       else
-        functions.wait(strategy)
+        @queue = functions.spawn(strategy)
+        @queue.wait
       end
+    ensure
+      @queue = nil
     end
 
     ##
@@ -236,6 +240,7 @@ module LLM
     # @return [nil]
     def interrupt!
       llm.interrupt!(@owner)
+      queue&.interrupt!
     end
     alias_method :cancel!, :interrupt!
 
@@ -384,6 +389,12 @@ module LLM
       return unless LLM::Stream === stream
       stream.extra[:tracer] = tracer
       stream.extra[:model] = model
+    end
+
+    def queue
+      return @queue if @queue
+      stream = @params[:stream]
+      stream.queue if LLM::Stream === stream
     end
 
     def load_skills(skills)

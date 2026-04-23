@@ -66,6 +66,13 @@ class LLM::Function
     end
 
     ##
+    # @return [nil]
+    def interrupt!
+      @threads.each(&:interrupt!)
+      nil
+    end
+
+    ##
     # Waits for all threads in the group to finish and returns
     # their {LLM::Function::Return} values.
     #

@@ -30,6 +30,13 @@ class LLM::Function
     end
 
     ##
+    # @return [nil]
+    def interrupt!
+      function&.interrupt!
+      nil
+    end
+
+    ##
     # @return [LLM::Function::Return]
     def wait
       if Thread === task

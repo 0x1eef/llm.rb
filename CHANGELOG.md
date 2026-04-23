@@ -22,6 +22,10 @@ Changes since `v4.23.0`.
   `LLM::Message#compaction?`, so applications can detect or hide synthetic
   summary messages in conversation history.
 
+* **Add cooperative tool interruption hooks** <br>
+  Let `ctx.interrupt!` notify queued tool work through `on_interrupt`, so
+  running tools can clean up cooperatively when a context is cancelled.
+
 ## v4.23.0
 
 Changes since `v4.22.0`.

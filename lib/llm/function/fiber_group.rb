@@ -60,6 +60,13 @@ class LLM::Function
     end
 
     ##
+    # @return [nil]
+    def interrupt!
+      @fibers.each(&:interrupt!)
+      nil
+    end
+
+    ##
     # Waits for all fibers in the group to finish and returns
     # their {LLM::Function::Return} values.
     #

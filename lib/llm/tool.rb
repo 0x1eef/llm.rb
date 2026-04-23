@@ -185,4 +185,12 @@ class LLM::Tool
   def mcp?
     self.class.mcp?
   end
+
+  ##
+  # Called when an in-flight tool run is interrupted.
+  # Tools can override this to implement cooperative cleanup.
+  # @return [nil]
+  def on_interrupt
+  end
+  alias_method :on_cancel, :on_interrupt
 end

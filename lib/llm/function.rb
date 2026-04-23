@@ -62,6 +62,12 @@ class LLM::Function
     def to_json(...)
       LLM.json.dump(to_h, ...)
     end
+
+    ##
+    # @return [nil]
+    def interrupt!
+      nil
+    end
   end
 
   ##
@@ -216,6 +222,16 @@ class LLM::Function
     Return.new(id, name, {cancelled: true, reason:})
   ensure
     @cancelled = true
+  end
+
+  ##
+  # Notifies the function runner that the call was interrupted.
+  # This is cooperative and only applies to runners that implement
+  # `on_interrupt`.
+  # @return [nil]
+  def interrupt!
+    @runner.on_interrupt if @runner.respond_to?(:on_interrupt)
+    nil
   end
 
   ##

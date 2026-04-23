@@ -61,6 +61,13 @@ class LLM::Function
     end
 
     ##
+    # @return [nil]
+    def interrupt!
+      @tasks.each(&:interrupt!)
+      nil
+    end
+
+    ##
     # Waits for all tasks in the group to finish and returns
     # their {LLM::Function::Return} values.
     #
