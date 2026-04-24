@@ -2,7 +2,28 @@
 
 ## Unreleased
 
+Changes since `v5.1.0`.
+
+## v5.1.0
+
 Changes since `v5.0.0`.
+
+This release tightens streamed tool execution around the actual request-local
+runtime state. It fixes streamed resolution of per-request tools and makes
+that streamed path work cleanly with `LLM.function(...)`, MCP tools, bound
+tool instances, and normal tool classes.
+
+### Fix
+
+* **Resolve request-local tools during streaming** <br>
+  Resolve streamed tool calls through `LLM::Stream` request-local tools
+  before falling back to the global registry, so per-request tools and bound
+  tool instances work correctly during streaming.
+
+* **Support `LLM.function(...)` and MCP tools in streamed tool resolution** <br>
+  Let streamed tool resolution use the current request tool set, so
+  `LLM.function(...)`, MCP tools, bound tool instances, and normal
+  `LLM::Tool` classes all work through the same streamed tool path.
 
 ## v5.0.0
 

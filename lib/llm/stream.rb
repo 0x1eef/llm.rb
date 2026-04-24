@@ -83,12 +83,12 @@ module LLM
     #   `tool.mcp? ? ctx.spawn(tool, :task) : ctx.spawn(tool, :ractor)`.
     #   When a streamed tool cannot be resolved, `error` is passed as an
     #   {LLM::Function::Return}. It can be sent back to the model, allowing
-    #   the tool-call path to recover and the session to continue. Tool
-    #   resolution depends on
-    #   {LLM::Function.registry}, which includes {LLM::Tool LLM::Tool}
-    #   subclasses, including MCP tools, but not functions defined with
-    #   {LLM.function}. The current `:ractor` mode is for class-based tools
-    #   and does not support MCP tools.
+    #   the tool-call path to recover and the session to continue. Streamed
+    #   tool resolution now prefers the current request tools, so
+    #   {LLM.function}, MCP tools, bound tool instances, and normal
+    #   {LLM::Tool LLM::Tool} classes can all resolve through the same
+    #   request-local path. The current `:ractor` mode is for class-based
+    #   tools and does not support MCP tools.
     # @param [LLM::Function] tool
     #  The parsed tool call.
     # @param [LLM::Function::Return, nil] error

@@ -987,9 +987,12 @@ For smaller cases, `LLM.function` gives you a closure-based alternative to
 
 This is useful when you want a quick function without defining a class. The
 main limitation is that `LLM.function` does not register a tool class in
-`LLM::Tool.registry`, so features that depend on tool-class registration, such
-as streamed tool resolution through `LLM::Stream`, only work with `LLM::Tool`
-subclasses:
+`LLM::Tool.registry`, so features that depend specifically on global
+tool-class registration still only apply to `LLM::Tool` subclasses.
+Request-local streamed tool resolution is no longer one of those limits:
+`LLM::Stream` now resolves the current request tools first, so
+`LLM.function(...)`, MCP tools, bound tool instances, and normal tool classes
+all work through the same streamed tool path:
 
 ```ruby
 #!/usr/bin/env ruby
