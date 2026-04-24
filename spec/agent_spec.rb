@@ -314,7 +314,6 @@ RSpec.describe LLM::Agent do
           expect(ctx).to have_received(:respond).with("hello", {})
           expect(ctx).to have_received(:respond).with([tool_return], {})
         end
-
       end
 
       context "when concurrency is a list of queued task types" do

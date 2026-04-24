@@ -494,7 +494,6 @@ module LLM
         message: warning
       })
     end
-
   end
 
   # Backward-compatible alias
