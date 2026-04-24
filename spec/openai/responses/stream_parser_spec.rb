@@ -5,15 +5,13 @@ require "llm/providers/openai"
 
 RSpec.describe LLM::OpenAI::Responses::StreamParser do
   let(:stream) do
-    Class.new do
+    Class.new(LLM::Stream) do
       attr_reader :content, :reasoning_content, :calls
-      attr_reader :extra
 
       def initialize
         @content = +""
         @reasoning_content = +""
         @calls = []
-        @extra = LLM::Object.from({})
       end
 
       def on_content(value)
