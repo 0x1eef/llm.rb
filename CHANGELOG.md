@@ -2,7 +2,17 @@
 
 ## Unreleased
 
+Changes since `v5.0.0`.
+
+## v5.0.0
+
 Changes since `v4.23.0`.
+
+This release expands llm.rb from an execution runtime into a more explicit
+supervision and transformation runtime. It adds context-level guards,
+transformers, and loop supervision through `LLM::LoopGuard`, while deepening
+long-lived context behavior through compaction, interruption hooks, and
+streamed `ctx.spawn(...)` tool execution.
 
 ### Change
 
