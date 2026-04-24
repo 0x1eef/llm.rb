@@ -177,7 +177,7 @@ module LLM
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
       prompt, params = transform(prompt, params)
-      bind!(params[:stream], params[:model])
+      bind!(params[:stream], params[:model], params[:tools])
       res = @llm.complete(prompt, params)
       role = params[:role] || @llm.user_role
       role = @llm.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
@@ -205,7 +205,7 @@ module LLM
       compactor.compact!(prompt) if compactor.compact?(prompt)
       params = @params.merge(params)
       prompt, params = transform(prompt, params)
-      bind!(params[:stream], params[:model])
+      bind!(params[:stream], params[:model], params[:tools])
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
       params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
       res = @llm.responses.create(prompt, params)
@@ -459,11 +459,12 @@ module LLM
 
     private
 
-    def bind!(stream, model)
+    def bind!(stream, model, tools)
       return unless LLM::Stream === stream
       stream.extra[:ctx] = self
       stream.extra[:tracer] = tracer
       stream.extra[:model] = model
+      stream.extra[:tools] = tools
     end
 
     def queue

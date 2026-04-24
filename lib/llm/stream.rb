@@ -148,6 +148,34 @@ module LLM
       })
     end
 
+    ##
+    # Returns the tool definitions available for the current streamed request.
+    # This prefers request-local tools attached to the stream and falls back
+    # to the current context defaults when present.
+    # @return [Array<LLM::Function, LLM::Tool>]
+    def tools
+      extra[:tools] || ctx&.params&.dig(:tools) || []
+    end
+
+    ##
+    # Resolves a streamed tool call against the current request tools first,
+    # then falls back to the global function registry.
+    # @param [String] name
+    # @return [LLM::Function, nil]
+    def find_tool(name)
+      tool = tools.find do |candidate|
+        candidate_name =
+          if candidate.respond_to?(:function)
+            candidate.function.name
+          else
+            candidate.name
+          end
+        candidate_name.to_s == name.to_s
+      end
+      tool&.then { _1.respond_to?(:function) ? _1.function : _1 } ||
+        LLM::Function.find_by_name(name)
+    end
+
     # @endgroup
   end
 end
