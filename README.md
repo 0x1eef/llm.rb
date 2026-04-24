@@ -281,6 +281,10 @@ Go's context package. In fact, llm.rb is heavily inspired by Go but with a Ruby
 twist.
 
 ```ruby
+require "llm"
+require "io/console"
+
+llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout)
 worker = Thread.new do
   ctx.talk("Write a very long essay about network protocols.")
@@ -615,9 +619,10 @@ require "io/console"
 
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout)
-
 worker = Thread.new do
   ctx.talk("Write a very long essay about network protocols.")
+rescue LLM::Interrupt
+  puts "Request was interrupted!"
 end
 
 STDIN.getch

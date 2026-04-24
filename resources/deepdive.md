@@ -949,7 +949,26 @@ normal use. But interruption is a valid cross-thread control path. That makes
 it a good fit for cases like a websocket, where one connection can carry many
 messages and a later message may need to cancel an earlier in-flight request.
 
-Override `on_interrupt` on a tool when it needs to react to cancellation:
+The basic request-cancellation path looks like this:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+require "io/console"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout)
+worker = Thread.new do
+  ctx.talk("Write a very long essay about network protocols.")
+rescue LLM::Interrupt
+  puts "Request was interrupted!"
+end
+STDIN.getch
+ctx.interrupt!
+worker.join
+```
+
+Override `on_interrupt` on a tool when it needs to react to cancellation too:
 
 ```ruby
 #!/usr/bin/env ruby
