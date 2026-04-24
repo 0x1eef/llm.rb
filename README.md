@@ -187,6 +187,40 @@ ctx = LLM::Context.new(llm)
 ctx.guard = MyGuard.new
 ```
 
+#### Transformers
+
+Transformers let llm.rb rewrite outgoing prompts and params before a request
+is sent to the provider. They also live on
+[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html), but
+they solve a different problem from guards: instead of blocking execution,
+they can normalize or scrub what gets sent.
+
+That makes them a good fit for things like PII scrubbing, prompt
+normalization, or request-level param injection. A transformer just needs to
+implement `call(ctx, prompt, params)` and return `[prompt, params]`.
+
+```ruby
+class ScrubPII
+  EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+
+  def call(ctx, prompt, params)
+    [scrub(prompt), params]
+  end
+
+  private
+
+  def scrub(prompt)
+    case prompt
+    when String then prompt.gsub(EMAIL, "[REDACTED_EMAIL]")
+    else prompt
+    end
+  end
+end
+
+ctx = LLM::Context.new(llm)
+ctx.transformer = ScrubPII.new
+```
+
 #### LLM::Stream
 
 `LLM::Stream` is not just for printing tokens. It supports `on_content`,

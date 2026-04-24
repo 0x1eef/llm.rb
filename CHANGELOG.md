@@ -32,6 +32,12 @@ Changes since `v4.23.0`.
   repeated tool-call patterns and stops stuck agentic loops through in-band
   `LLM::GuardError` returns. `LLM::Agent` enables this guard by default.
 
+* **Add `LLM::Context` transformers** <br>
+  Add a new `transformer` capability to `LLM::Context` so prompts and params
+  can be rewritten before provider requests are sent. This makes it possible
+  to apply context-wide behaviors such as PII scrubbing or request-level
+  param injection without rewriting every `talk` and `respond` call site.
+
 ## v4.23.0
 
 Changes since `v4.22.0`.

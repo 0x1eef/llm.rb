@@ -281,6 +281,41 @@ RSpec.describe LLM::Context do
     end
   end
 
+  context "when configured with a transformer" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:transformer) do
+      Class.new do
+        def call(_ctx, prompt, params)
+          ["#{prompt} [scrubbed]", params.merge(store: false)]
+        end
+      end.new
+    end
+    let(:ctx) { LLM::Context.new(provider, model:, transformer:) }
+    let(:response) { double(choices: [LLM::Message.new("assistant", "hello")]) }
+
+    it "rewrites the prompt before talk" do
+      allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
+      expect(provider).to receive(:complete).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
+      ctx.talk("hello")
+    end
+
+    it "stores the transformed prompt in message history" do
+      allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
+      allow(provider).to receive(:complete).and_return(response)
+      ctx.talk("hello")
+      expect(ctx.messages.first.content).to eq("hello [scrubbed]")
+    end
+
+    it "rewrites the prompt before respond" do
+      responses = double
+      allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
+      allow(provider).to receive(:responses).and_return(responses)
+      expect(responses).to receive(:create).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
+      ctx.respond("hello")
+    end
+  end
+
   context "#spawn" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }

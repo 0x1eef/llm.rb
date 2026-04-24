@@ -78,6 +78,7 @@ module LLM
       @mode = params.delete(:mode) || :completions
       @compactor = params.delete(:compactor)
       @guard = params.delete(:guard)
+      @transformer = params.delete(:transformer)
       tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @params[:tools] = tools unless tools.empty?
@@ -136,6 +137,28 @@ module LLM
     end
 
     ##
+    # Returns a transformer, if configured.
+    #
+    # Transformers can rewrite outgoing prompts and params before a request is
+    # sent to the provider.
+    #
+    # @return [#call, nil]
+    def transformer
+      @transformer
+    end
+
+    ##
+    # Sets a transformer.
+    #
+    # Transformers must implement `call(ctx, prompt, params)` and return a
+    # two-element array of `[prompt, params]`.
+    #
+    # @param [#call, nil] transformer
+    # @return [#call, nil]
+    def transformer=(transformer)
+      @transformer = transformer
+    end
+
     # Interact with the context via the chat completions API.
     # This method immediately sends a request to the LLM and returns the response.
     #
@@ -153,6 +176,7 @@ module LLM
       compactor.compact!(prompt) if compactor.compact?(prompt)
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
+      prompt, params = transform(prompt, params)
       bind!(params[:stream], params[:model])
       res = @llm.complete(prompt, params)
       role = params[:role] || @llm.user_role
@@ -180,6 +204,7 @@ module LLM
       @owner = Fiber.current
       compactor.compact!(prompt) if compactor.compact?(prompt)
       params = @params.merge(params)
+      prompt, params = transform(prompt, params)
       bind!(params[:stream], params[:model])
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
       params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
@@ -455,6 +480,11 @@ module LLM
       warning = guard&.call(self)
       return unless warning
       functions.map { guarded_return_for(_1, warning) }
+    end
+
+    def transform(prompt, params)
+      return [prompt, params] unless transformer
+      transformer.call(self, prompt, params)
     end
 
     def guarded_return_for(function, warning)

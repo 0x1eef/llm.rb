@@ -49,6 +49,7 @@ Most features extend these, rather than introducing new abstractions.
   - [Concurrent Tools](#concurrent-tools)
 - [Agents](#agents)
   - [Guards](#guards)
+  - [Transformers](#transformers)
 - [Skills](#skills)
 - [MCP](#mcp)
   - [MCP Tools Over Stdio](#mcp-tools-over-stdio)
@@ -1148,6 +1149,59 @@ class Guard
 end
 
 ctx = LLM::Context.new(llm, tools: [SearchDocs, Shell], guard: Guard.new)
+```
+
+### Transformers
+
+Transformers are the companion capability to guards. Where a guard decides
+whether execution should continue, a transformer rewrites the outgoing prompt
+and params before a request is sent to the provider.
+
+The public interface is intentionally small: a transformer implements
+`call(ctx, prompt, params)` and returns `[prompt, params]`. That makes it a
+good fit for cross-cutting concerns such as PII scrubbing, prompt
+normalization, or injecting request-level defaults like `store: false`.
+
+This is especially useful when you want context-wide behavior without
+rewriting every `talk` and `respond` call site by hand.
+
+For example, a simple transformer can scrub email addresses before the model
+ever sees them:
+
+```ruby
+class ScrubPII
+  EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+
+  def call(ctx, prompt, params)
+    [scrub(prompt), params]
+  end
+
+  private
+
+  def scrub(prompt)
+    case prompt
+    when String then prompt.gsub(EMAIL, "[REDACTED_EMAIL]")
+    else prompt
+    end
+  end
+end
+
+ctx = LLM::Context.new(llm)
+ctx.transformer = ScrubPII.new
+ctx.talk("Email me at developer@example.com")
+```
+
+Transformers can also rewrite params, not just prompt content:
+
+```ruby
+class Transformer
+  def call(ctx, prompt, params)
+    [prompt, params.merge(store: false)]
+  end
+end
+
+ctx = LLM::Context.new(llm, mode: :responses)
+ctx.transformer = Transformer.new
 ```
 
 ## Skills
