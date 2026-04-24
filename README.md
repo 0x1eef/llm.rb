@@ -25,6 +25,7 @@ schemas, files, and persisted state, so real systems can be built out of one coh
 execution model instead of a pile of adapters.
 
 Want to see some code? Jump to [the examples](#examples) section. <br>
+Want to see an agentic framework built on top of llm.rb? Check out [general-intelligence-systems/brute](https://github.com/general-intelligence-systems/brute). <br>
 Want a taste of what llm.rb can build? See [the screencast](#screencast).
 
 ## Architecture
