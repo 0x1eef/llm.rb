@@ -23,6 +23,7 @@ module LLM
   require_relative "llm/stream"
   require_relative "llm/provider"
   require_relative "llm/context"
+  require_relative "llm/loop_guard"
   require_relative "llm/agent"
   require_relative "llm/buffer"
   require_relative "llm/function"

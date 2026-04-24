@@ -26,6 +26,12 @@ Changes since `v4.23.0`.
   Let `ctx.interrupt!` notify queued tool work through `on_interrupt`, so
   running tools can clean up cooperatively when a context is cancelled.
 
+* **Add `LLM::Context` guards** <br>
+  Add a new `guard` capability to `LLM::Context` so execution can be
+  supervised at the runtime level. The built-in `LLM::LoopGuard` detects
+  repeated tool-call patterns and stops stuck agentic loops through in-band
+  `LLM::GuardError` returns. `LLM::Agent` enables this guard by default.
+
 ## v4.23.0
 
 Changes since `v4.22.0`.

@@ -16,6 +16,9 @@ module LLM
   # **Notes:**
   # * Instructions are injected once unless a system message is already present.
   # * An agent automatically executes tool loops (unlike {LLM::Context LLM::Context}).
+  # * The automatic tool loop enables the wrapped context's `guard` by default.
+  #   The built-in {LLM::LoopGuard LLM::LoopGuard} detects repeated tool-call
+  #   patterns and blocks stuck execution before more tool work is queued.
   # * Tool loop execution can be configured with `concurrency :call`,
   #   `:thread`, `:task`, `:fiber`, `:ractor`, or a list of queued task
   #   types such as `[:thread, :ractor]`.
@@ -128,7 +131,7 @@ module LLM
       defaults = {model: self.class.model, tools: self.class.tools, skills: self.class.skills, schema: self.class.schema}.compact
       @concurrency = params.delete(:concurrency) || self.class.concurrency
       @llm = llm
-      @ctx = LLM::Context.new(llm, defaults.merge(params))
+      @ctx = LLM::Context.new(llm, defaults.merge({guard: true}).merge(params))
     end
 
     ##
@@ -137,7 +140,7 @@ module LLM
     #
     # @param prompt (see LLM::Provider#complete)
     # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
-    # @option params [Integer] :tool_attempts The maxinum number of tool call iterations (default 10)
+    # @option params [Integer] :tool_attempts The maxinum number of tool call iterations (default 25)
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
@@ -145,14 +148,7 @@ module LLM
     #   response = agent.talk("Hello, what is your name?")
     #   puts response.choices[0].content
     def talk(prompt, params = {})
-      max = Integer(params.delete(:tool_attempts) || 10)
-      res = @ctx.talk(apply_instructions(prompt), params)
-      max.times do
-        break if @ctx.functions.empty?
-        res = @ctx.talk(call_functions, params)
-      end
-      raise LLM::ToolLoopError, "pending tool calls remain" unless @ctx.functions.empty?
-      res
+      run_loop(:talk, prompt, params)
     end
     alias_method :chat, :talk
 
@@ -163,7 +159,7 @@ module LLM
     # @note Not all LLM providers support this API
     # @param prompt (see LLM::Provider#complete)
     # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
-    # @option params [Integer] :tool_attempts The maxinum number of tool call iterations (default 10)
+    # @option params [Integer] :tool_attempts The maxinum number of tool call iterations (default 25)
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
@@ -171,14 +167,7 @@ module LLM
     #   res = agent.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
-      max = Integer(params.delete(:tool_attempts) || 10)
-      res = @ctx.respond(apply_instructions(prompt), params)
-      max.times do
-        break if @ctx.functions.empty?
-        res = @ctx.respond(call_functions, params)
-      end
-      raise LLM::ToolLoopError, "pending tool calls remain" unless @ctx.functions.empty?
-      res
+      run_loop(:respond, prompt, params)
     end
 
     ##
@@ -379,6 +368,17 @@ module LLM
       when :thread, :task, :fiber, :ractor, Array then wait(concurrency)
       else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. Expected :call, :thread, :task, :fiber, :ractor, or an array of queued task types"
       end
+    end
+
+    def run_loop(method, prompt, params)
+      max = Integer(params.delete(:tool_attempts) || 25)
+      res = @ctx.public_send(method, apply_instructions(prompt), params)
+      max.times do
+        break if @ctx.functions.empty?
+        res = @ctx.public_send(method, call_functions, params)
+      end
+      raise LLM::ToolLoopError, "pending tool calls remain" unless @ctx.functions.empty?
+      res
     end
   end
 end

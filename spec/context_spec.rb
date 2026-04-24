@@ -281,6 +281,45 @@ RSpec.describe LLM::Context do
     end
   end
 
+  context "#spawn" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "system"
+
+        def call(command:)
+          {"ok" => command == "date"}
+        end
+      end.function.tap do |fn|
+        fn.id = "call_1"
+        fn.arguments = {"command" => "date"}
+      end
+    end
+
+    it "spawns the function when no guard blocks it" do
+      task = ctx.spawn(tool, :thread)
+      expect(task.wait.to_h).to eq(
+        id: "call_1",
+        name: "system",
+        value: {"ok" => true}
+      )
+    end
+
+    it "returns a guarded tool error when the guard blocks it" do
+      ctx.guard = Class.new do
+        def call(_ctx)
+          "stop"
+        end
+      end.new
+      expect(ctx.spawn(tool, :thread).to_h).to eq(
+        id: "call_1",
+        name: "system",
+        value: {error: true, type: LLM::GuardError.name, message: "stop"}
+      )
+    end
+  end
+
   context "#usage" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
@@ -299,6 +338,13 @@ RSpec.describe LLM::Context do
     let(:model) { "gpt-5.4" }
     let(:stream) { LLM::Stream.new }
     let(:ctx) { LLM::Context.new(provider, model:, stream:) }
+    let(:guard) do
+      Class.new do
+        def call(_ctx)
+          "stop"
+        end
+      end.new
+    end
     let(:tool) do
       Class.new(LLM::Tool) do
         name "system"
@@ -314,11 +360,41 @@ RSpec.describe LLM::Context do
       expect(ctx.wait(:thread)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
     end
 
+    it "waits queued stream work even when a guard is configured" do
+      ctx.guard = guard
+      stream.queue << LLM::Function::Return.new("call_1", "system", {"ok" => true})
+      expect(ctx.wait(:thread)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
+    end
+
     it "falls back to pending functions when the queue is empty" do
       pending = [].extend(LLM::Function::Array)
       expect(ctx).to receive(:functions).and_return(pending)
       expect(pending).to receive(:spawn).with(:thread).and_return(LLM::Function::ThreadGroup.new([]))
       expect(ctx.wait(:thread)).to eq([])
+    end
+
+    context "with a guard that wants to stop execution" do
+      let(:guard) do
+        Class.new do
+          def call(_ctx)
+            "stop"
+          end
+        end.new
+      end
+
+      it "returns guarded results before spawning pending functions" do
+        ctx.guard = guard
+        ctx.messages << LLM::Message.new("assistant", nil, {
+          tools: [tool],
+          tool_calls: [
+            {id: "call_1", name: "system", arguments: {"command" => "date"}}
+          ]
+        })
+        pending = ctx.functions
+        expect(pending).not_to receive(:spawn)
+        allow(ctx).to receive(:functions).and_return(pending)
+        expect(ctx.wait(:thread).map(&:value)).to eq([{error: true, type: LLM::GuardError.name, message: "stop"}])
+      end
     end
   end
 
@@ -400,6 +476,15 @@ RSpec.describe LLM::Context do
       expect(compactor).to receive(:compact!).with("hello").ordered.and_return(nil)
       expect(provider).to receive(:complete).ordered.and_return(response)
       ctx.talk("hello")
+    end
+
+    it "binds the current context onto the stream" do
+      stream = LLM::Stream.new
+      ctx = described_class.new(provider, model:, stream:)
+      allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
+      expect(provider).to receive(:complete).ordered.and_return(response)
+      ctx.talk("hello")
+      expect(stream.ctx).to eq(ctx)
     end
 
     context "when given tool returns" do

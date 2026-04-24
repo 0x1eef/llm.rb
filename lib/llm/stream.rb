@@ -31,6 +31,13 @@ module LLM
     end
 
     ##
+    # Returns the current context, if one was attached to the stream.
+    # @return [LLM::Context, nil]
+    def ctx
+      extra[:ctx]
+    end
+
+    ##
     # Returns a lazily-initialized queue for tool results or spawned work.
     # @return [LLM::Stream::Queue]
     def queue
@@ -70,13 +77,14 @@ module LLM
     ##
     # Called when a streamed tool call has been fully constructed.
     # @note A stream implementation may start tool execution here, for
-    #   example by pushing `tool.spawn(:thread)`, `tool.spawn(:fiber)`, or
-    #   `tool.spawn(:task)` onto {#queue}. Mixed strategies can also be
-    #   selected per tool, such as `tool.mcp? ? tool.spawn(:task) :
-    #   tool.spawn(:ractor)`. When a streamed tool cannot be resolved, `error`
-    #   is passed as an {LLM::Function::Return}. It can be sent back to the
-    #   model, allowing the tool-call path to recover and the session to
-    #   continue. Tool resolution depends on
+    #   example by pushing `ctx.spawn(tool, :thread)`,
+    #   `ctx.spawn(tool, :fiber)`, or `ctx.spawn(tool, :task)` onto {#queue}.
+    #   Mixed strategies can also be selected per tool, such as
+    #   `tool.mcp? ? ctx.spawn(tool, :task) : ctx.spawn(tool, :ractor)`.
+    #   When a streamed tool cannot be resolved, `error` is passed as an
+    #   {LLM::Function::Return}. It can be sent back to the model, allowing
+    #   the tool-call path to recover and the session to continue. Tool
+    #   resolution depends on
     #   {LLM::Function.registry}, which includes {LLM::Tool LLM::Tool}
     #   subclasses, including MCP tools, but not functions defined with
     #   {LLM.function}. The current `:ractor` mode is for class-based tools
@@ -93,8 +101,8 @@ module LLM
     ##
     # Called when queued streamed tool work returns.
     # @note This callback runs when {#wait} resolves work that was queued from
-    #   {#on_tool_call}, such as values returned by `tool.spawn(:thread)`,
-    #   `tool.spawn(:fiber)`, or `tool.spawn(:task)`.
+    #   {#on_tool_call}, such as values returned by `ctx.spawn(tool, :thread)`,
+    #   `ctx.spawn(tool, :fiber)`, or `ctx.spawn(tool, :task)`.
     # @param [LLM::Function] tool
     #  The tool that returned.
     # @param [LLM::Function::Return] result

@@ -169,6 +169,24 @@ ctx = LLM::Context.new(
 )
 ```
 
+#### Guards
+
+Guards let llm.rb supervise agentic execution, not just run it.
+They live on [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html),
+can inspect the current runtime state, and can step in when a context is no
+longer making progress.
+
+[`LLM::LoopGuard`](https://0x1eef.github.io/x/llm.rb/LLM/LoopGuard.html) is
+the built-in implementation. It detects repeated tool-call patterns and
+blocks pending tool execution with in-band guarded tool errors instead of
+letting the loop keep spinning. [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html)
+enables that guard by default through its wrapped context.
+
+```ruby
+ctx = LLM::Context.new(llm)
+ctx.guard = MyGuard.new
+```
+
 #### LLM::Stream
 
 `LLM::Stream` is not just for printing tokens. It supports `on_content`,
@@ -180,7 +198,7 @@ execution path.
 ```ruby
 class Stream < LLM::Stream
   def on_tool_call(tool, error)
-    queue << tool.spawn(:thread)
+    queue << (error || ctx.spawn(tool, :thread))
   end
 
   def on_tool_return(tool, result)
@@ -469,7 +487,7 @@ class Stream < LLM::Stream
   def on_tool_call(tool, error)
     return queue << error if error
     $stdout << "\nRunning tool #{tool.name}...\n"
-    queue << tool.spawn(:thread)
+    queue << ctx.spawn(tool, :thread)
   end
 
   def on_tool_return(tool, result)
@@ -482,7 +500,8 @@ class Stream < LLM::Stream
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
+stream = Stream.new
+ctx = LLM::Context.new(llm, stream:, tools: [System])
 
 ctx.talk("Run `date` and `uname -a`.")
 ctx.talk(ctx.wait(:thread)) while ctx.functions.any?

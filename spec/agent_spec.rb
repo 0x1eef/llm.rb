@@ -37,7 +37,7 @@ RSpec.describe LLM::Agent do
       it "passes DSL defaults to the context" do
         expect(LLM::Context).to receive(:new).with(
           provider,
-          {model: "gpt-4.1", tools: [tool], schema:}
+          {model: "gpt-4.1", tools: [tool], schema:, guard: true}
         ).and_call_original
         agent_class.new(provider)
       end
@@ -49,7 +49,7 @@ RSpec.describe LLM::Agent do
         end
         expect(LLM::Context).to receive(:new).with(
           provider,
-          {model: "gpt-4.1", tools: []}
+          {model: "gpt-4.1", tools: [], guard: true}
         ).and_call_original
         expect(klass.new(provider).concurrency).to eq(:thread)
       end
@@ -64,7 +64,7 @@ RSpec.describe LLM::Agent do
         expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
         expect(LLM::Context).to receive(:new).with(
           provider,
-          {model: "gpt-4.1", tools: [], skills: [skill_path]}
+          {model: "gpt-4.1", tools: [], skills: [skill_path], guard: true}
         ).and_call_original
         klass.new(provider)
       end
@@ -314,6 +314,7 @@ RSpec.describe LLM::Agent do
           expect(ctx).to have_received(:respond).with("hello", {})
           expect(ctx).to have_received(:respond).with([tool_return], {})
         end
+
       end
 
       context "when concurrency is a list of queued task types" do
@@ -328,6 +329,42 @@ RSpec.describe LLM::Agent do
           expect(ctx).to have_received(:respond).with([tool_return], {})
         end
       end
+    end
+  end
+
+  describe "tool attempt limit" do
+    let(:pending_functions) { [double("pending")].extend(LLM::Function::Array) }
+    let(:ctx) do
+      instance_double(
+        LLM::Context,
+        messages: [],
+        functions: pending_functions,
+        returns: [],
+        usage: LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0),
+        mode: :completions,
+        cost: double("cost"),
+        context_window: 0,
+        model: "gpt-4.1",
+        to_h: {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []},
+        prompt: nil,
+        image_url: nil,
+        local_file: nil,
+        remote_file: nil,
+        tracer: nil
+      )
+    end
+    let(:agent) { described_class.new(provider) }
+
+    before do
+      allow(LLM::Context).to receive(:new).and_return(ctx)
+      allow(ctx).to receive(:talk).and_return(double("first_response"), *Array.new(25) { double("response") })
+      allow(ctx).to receive(:call).with(:functions).and_return([double("return")])
+      allow(ctx).to receive(:functions).and_return(*Array.new(26, pending_functions))
+    end
+
+    it "defaults to 25 tool loop attempts" do
+      expect { agent.talk("hello") }.to raise_error(LLM::ToolLoopError)
+      expect(ctx).to have_received(:call).with(:functions).exactly(25).times
     end
   end
 

@@ -48,6 +48,7 @@ Most features extend these, rather than introducing new abstractions.
   - [Closure-Based Tools](#closure-based-tools)
   - [Concurrent Tools](#concurrent-tools)
 - [Agents](#agents)
+  - [Guards](#guards)
 - [Skills](#skills)
 - [MCP](#mcp)
   - [MCP Tools Over Stdio](#mcp-tools-over-stdio)
@@ -265,7 +266,7 @@ class Stream < LLM::Stream
 
   def on_tool_call(tool, error)
     $stdout << "Running tool #{tool.name}\n"
-    queue << (error || tool.spawn(:thread))
+    queue << (error || ctx.spawn(tool, :thread))
   end
 
   def on_tool_return(tool, result)
@@ -278,7 +279,8 @@ class Stream < LLM::Stream
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System])
+stream = Stream.new
+ctx = LLM::Context.new(llm, stream:, tools: [System])
 
 ctx.talk("Run `date` and `uname -a`.")
 ctx.talk(ctx.wait(:thread)) while ctx.functions.any?
@@ -295,12 +297,13 @@ on whichever of those strategies are actually present:
 class Stream < LLM::Stream
   def on_tool_call(tool, error)
     return queue << error if error
-    queue << (tool.mcp? ? tool.spawn(:thread) : tool.spawn(:ractor))
+    queue << (tool.mcp? ? ctx.spawn(tool, :thread) : ctx.spawn(tool, :ractor))
   end
 end
 
 llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: Stream.new, tools: [System, *mcp_tools])
+stream = Stream.new
+ctx = LLM::Context.new(llm, stream:, tools: [System, *mcp_tools])
 
 ctx.talk("Check the deployment status and compare it with local system time.")
 ctx.talk(ctx.wait([:thread, :ractor])) while ctx.functions.any?
@@ -1052,6 +1055,12 @@ experimental `:ractor` depending on how you want pending functions resolved.
 The current `:ractor` mode is intended for class-based tools with ractor-safe
 arguments and return values. MCP tools are not supported.
 
+Built into that loop is the wrapped context's `guard`, which gives llm.rb a
+way to supervise agentic execution when a context is no longer making
+progress. `LLM::Agent` enables a guard by default, but the capability itself
+lives on [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
+so it can also be used outside the agent DSL.
+
 Those agent-level defaults are not fixed. You can still override things like
 `model`, `tools`, `schema`, `stream`, or `concurrency` when you initialize the
 agent, and you can continue overriding request-level options again at the
@@ -1075,6 +1084,70 @@ llm = LLM.openai(key: ENV["KEY"])
 agent = SystemAdmin.new(llm)
 res = agent.talk("Run 'date' and summarize the result.")
 puts res.content
+```
+
+### Guards
+
+Guards are a context-level capability for supervising agentic execution.
+Instead of blindly allowing a context to keep issuing tool calls, a guard can
+inspect the current runtime state and decide whether pending tool work should
+be blocked.
+
+The public interface is intentionally small: a guard only needs to implement
+`call(ctx)`. It should return `nil` when execution should continue, or return
+a warning string when the context should stop the current tool loop and turn
+that warning into in-band guarded tool errors.
+
+[`LLM::LoopGuard`](https://0x1eef.github.io/x/llm.rb/LLM/LoopGuard.html) is
+the built-in implementation. It is directly inspired by General Intelligence
+Systems' [Brute](https://github.com/general-intelligence-systems/brute) and
+detects repeated assistant tool-call patterns by reducing them to
+`[tool_name, arguments]` signatures.
+
+It catches both:
+- repeated identical calls such as `[A, A, A]`
+- repeated sequences such as `[A, B, C, A, B, C, A, B, C]`
+
+When a repeating tail is found, the context does not queue more tool work.
+Instead it returns guarded tool errors, which gives the model a chance to
+recover without breaking tool-call ordering or wasting more turns.
+
+This does not replace the overall tool-loop attempt cap. Guards help the
+runtime intervene earlier, while the attempt limit still gives the loop a
+hard stop for long or non-repeating bad behavior.
+
+The built-in `LLM::Agent` path enables `guard: true` by default:
+
+```ruby
+class Agent < LLM::Agent
+  model "gpt-5.4-mini"
+  tools SearchDocs, Shell
+end
+```
+
+You can also configure a guard directly on a context:
+
+```ruby
+ctx = LLM::Context.new(llm, tools: [SearchDocs, Shell], guard: true)
+```
+
+Or supply your own guard implementation:
+
+```ruby
+class Guard
+  def call(ctx)
+    return unless suspicious?(ctx)
+    "Repeated tool pattern detected. Stop and try a different strategy."
+  end
+
+  private
+
+  def suspicious?(ctx)
+    ctx.functions.any? && ctx.messages.to_a.size > 20
+  end
+end
+
+ctx = LLM::Context.new(llm, tools: [SearchDocs, Shell], guard: Guard.new)
 ```
 
 ## Skills
