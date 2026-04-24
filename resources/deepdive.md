@@ -30,6 +30,7 @@ Most features extend these, rather than introducing new abstractions.
   - [Basic Streaming](#basic-streaming)
   - [Advanced Streaming](#advanced-streaming)
   - [Stream Compaction Events](#stream-compaction-events)
+  - [Creating Your Own Compactor](#creating-your-own-compactor)
 - [Reasoning](#reasoning)
   - [Stream Reasoning Output](#stream-reasoning-output)
   - [Read Reasoning From The Response](#read-reasoning-from-the-response)
@@ -372,6 +373,33 @@ ctx = LLM::Context.new(llm, model: "gpt-5.4-mini")
 window = ctx.context_window
 token_threshold = window.zero? ? 100_000 : window - (window / 10)
 ctx.compactor = {token_threshold:, retention_window: 8}
+```
+
+### Creating Your Own Compactor
+
+If the built-in policy is not the right fit, create your own compactor by
+subclassing [`LLM::Compactor`](https://0x1eef.github.io/x/llm.rb/LLM/Compactor.html).
+The intended extension point is to implement both `compact?` and `compact!`:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class Compactor < LLM::Compactor
+  def compact?(prompt = nil)
+    ctx.messages.size > 100
+  end
+
+  def compact!(prompt = nil)
+    return unless compact?(prompt)
+    summary = LLM::Message.new("user", "Summary goes here")
+    ctx.messages.replace([summary, *ctx.messages.last(8)])
+    summary
+  end
+end
+
+ctx = LLM::Context.new(llm)
+ctx.compactor = Compactor.new(ctx)
 ```
 
 ## Reasoning
