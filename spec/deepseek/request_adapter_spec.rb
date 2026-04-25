@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 require "setup"
+require "tempfile"
 require "llm/providers/deepseek"
 
 RSpec.describe "LLM::DeepSeek::RequestAdapter::Completion" do
   describe "#adapt" do
     subject(:payload) { LLM::DeepSeek::RequestAdapter::Completion.new(message).adapt }
+
+    let(:provider) { LLM.deepseek(key: "test") }
 
     context "with assistant content" do
       let(:message) do
@@ -15,9 +18,40 @@ RSpec.describe "LLM::DeepSeek::RequestAdapter::Completion" do
       it "preserves reasoning content" do
         expect(payload).to eq(
           role: "assistant",
-          content: "answer",
+          content: [{type: :text, text: "answer"}],
           reasoning_content: "thought"
         )
+      end
+    end
+
+    context "with image content" do
+      let(:message) do
+        LLM::Message.new("user", [ctx.image_url("https://example.com/cat.png")])
+      end
+
+      let(:ctx) { LLM::Context.new(provider) }
+
+      it "raises a prompt error" do
+        expect { payload }.to raise_error(LLM::PromptError, /image_url/)
+      end
+    end
+
+    context "with local file content" do
+      let(:tempfile) do
+        Tempfile.create(["example", ".pdf"]).tap {
+          _1.write("%PDF-1.4\n")
+          _1.rewind
+        }
+      end
+
+      let(:message) do
+        LLM::Message.new("user", [ctx.local_file(tempfile.path)])
+      end
+
+      let(:ctx) { LLM::Context.new(provider) }
+
+      it "raises a prompt error" do
+        expect { payload }.to raise_error(LLM::PromptError, /local_file/)
       end
     end
 

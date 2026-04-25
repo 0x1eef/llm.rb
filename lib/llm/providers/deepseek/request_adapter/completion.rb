@@ -30,16 +30,25 @@ module LLM::DeepSeek::RequestAdapter
 
     def adapt_content(content)
       case content
+      when LLM::Object
+        adapt_object(content)
       when String
-        content.to_s
+        [{type: :text, text: content.to_s}]
       when LLM::Message
         adapt_content(content.content)
       when LLM::Function::Return
         throw(:abort, {role: "tool", tool_call_id: content.id, content: LLM.json.dump(content.value)})
-      when LLM::Object
-        prompt_error!(content)
       else
         prompt_error!(content)
+      end
+    end
+
+    def adapt_object(object)
+      case object.kind
+      when :image_url, :local_file, :remote_file
+        prompt_error!(object)
+      else
+        prompt_error!(object)
       end
     end
 
@@ -64,7 +73,7 @@ module LLM::DeepSeek::RequestAdapter
 
     def prompt_error!(object)
       if LLM::Object === object
-        raise LLM::PromptError, "The given LLM::Object with kind '#{content.kind}' is not " \
+        raise LLM::PromptError, "The given LLM::Object with kind '#{object.kind}' is not " \
                                 "supported by the DeepSeek API"
       else
         raise LLM::PromptError, "The given object (an instance of #{object.class}) " \

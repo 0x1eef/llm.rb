@@ -17,6 +17,11 @@ Changes since `v5.1.0`.
 
 ### Fix
 
+* **Reject unsupported DeepSeek multimodal prompt objects early** <br>
+  Raise `LLM::PromptError` for `image_url`, `local_file`, and
+  `remote_file` in DeepSeek chat requests instead of sending invalid
+  OpenAI-compatible payloads that the provider rejects at runtime.
+
 * **Preserve DeepSeek reasoning content across tool turns** <br>
   Replay `reasoning_content` when serializing prior assistant messages for
   DeepSeek chat completions, so thinking-mode tool calls can continue into
