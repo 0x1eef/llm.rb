@@ -38,7 +38,7 @@ RSpec.describe LLM::Message do
     end
 
     it "normalizes tool calls to hashes" do
-      expect(message.to_h[:tool_calls]).to eq([{"id" => "call_1"}])
+      expect(message.to_h[:tools]).to eq([{"id" => "call_1"}])
     end
   end
 

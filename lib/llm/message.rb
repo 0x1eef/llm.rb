@@ -38,7 +38,7 @@ module LLM
         content:,
         reasoning_content:,
         compaction: extra.compaction,
-        tool_calls: extra.tool_calls&.map { LLM::Object === _1 ? _1.to_h : _1 },
+        tools: extra.tool_calls&.map { LLM::Object === _1 ? _1.to_h : _1 },
         usage:,
         original_tool_calls: extra.original_tool_calls
       }.compact.then { preserve_nil_content(_1) }

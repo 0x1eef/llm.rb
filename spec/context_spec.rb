@@ -189,6 +189,56 @@ RSpec.describe LLM::Context do
         expect(content.fetch(2).value.file?).to eq(true)
         expect(content.fetch(2).value.id).to eq("file_123")
       end
+
+      context "with assistant tool calls" do
+        let(:message) do
+          LLM::Message.new("assistant", nil, {
+            tool_calls: [
+              {id: "call_1", name: "system", arguments: {command: "date"}}
+            ],
+            original_tool_calls: [
+              {"id" => "call_1", "type" => "function", "function" => {"name" => "system", "arguments" => "{\"command\":\"date\"}"}}
+            ]
+          })
+        end
+        before do
+          restored
+        end
+        let(:restored_message) { restored.messages.first }
+        let(:serialized_message) { JSON.parse(File.read(serialized)).fetch("messages").fetch(0) }
+        let(:tool_calls) do
+          restored_message.extra[:tool_calls].map do |tool|
+            tool.to_h.merge("arguments" => tool.arguments.to_h)
+          end
+        end
+        let(:original_tool_calls) do
+          restored_message.extra[:original_tool_calls].map do |tool|
+            tool.to_h.merge("function" => tool.function.to_h)
+          end
+        end
+
+        it "restores the message as a tool call" do
+          expect(restored_message.tool_call?).to eq(true)
+        end
+
+        it "serializes parsed tool calls under the tools key" do
+          expect(serialized_message.fetch("tools")).to eq([
+            {"id" => "call_1", "name" => "system", "arguments" => {"command" => "date"}}
+          ])
+        end
+
+        it "round-trips parsed tool calls" do
+          expect(tool_calls).to eq([
+            {"id" => "call_1", "name" => "system", "arguments" => {"command" => "date"}}
+          ])
+        end
+
+        it "round-trips original tool calls" do
+          expect(original_tool_calls).to eq([
+            {"id" => "call_1", "type" => "function", "function" => {"name" => "system", "arguments" => "{\"command\":\"date\"}"}}
+          ])
+        end
+      end
     end
   end
 
