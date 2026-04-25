@@ -26,7 +26,7 @@ execution model instead of a pile of adapters.
 
 Want to see some code? Jump to [the examples](#examples) section. <br>
 Want to see an agentic framework built on top of llm.rb? Check out [general-intelligence-systems/brute](https://github.com/general-intelligence-systems/brute). <br>
-Want a taste of what llm.rb can build? See [the screencast](#screencast).
+Want to see a self-hosted LLM environment built on llm.rb? Check out [Relay](https://github.com/llmrb/relay).
 
 ## Architecture
 
@@ -737,13 +737,6 @@ mcp.run do
   ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 end
 ```
-
-## Screencast
-
-This screencast was built on an older version of llm.rb, but it still shows
-how capable the runtime can be in a real application:
-
-[![Watch the llm.rb screencast](https://img.youtube.com/vi/Jb7LNUYlCf4/maxresdefault.jpg)](https://www.youtube.com/watch?v=x1K4wMeO_QA)
 
 ## Resources
 
