@@ -295,7 +295,6 @@ module LLM
     #  ractor work, in that order.
     # @return [Array<LLM::Function::Return>]
     def wait(strategy)
-      stream = @params[:stream]
       if LLM::Stream === stream && !stream.queue.empty?
         @queue = stream.queue
         @queue.wait(strategy)
@@ -461,6 +460,7 @@ module LLM
 
     def bind!(stream, model, tools)
       return unless LLM::Stream === stream
+      @stream = stream
       stream.extra[:ctx] = self
       stream.extra[:tracer] = tracer
       stream.extra[:model] = model
@@ -469,8 +469,11 @@ module LLM
 
     def queue
       return @queue if @queue
-      stream = @params[:stream]
       stream.queue if LLM::Stream === stream
+    end
+
+    def stream
+      @stream || @params[:stream]
     end
 
     def load_skills(skills)

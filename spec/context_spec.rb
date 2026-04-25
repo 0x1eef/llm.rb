@@ -373,6 +373,8 @@ RSpec.describe LLM::Context do
     let(:model) { "gpt-5.4" }
     let(:stream) { LLM::Stream.new }
     let(:ctx) { LLM::Context.new(provider, model:, stream:) }
+    let(:per_call_stream) { LLM::Stream.new }
+    let(:response) { double(choices: [LLM::Message.new("assistant", "hello", model:)]) }
     let(:guard) do
       Class.new do
         def call(_ctx)
@@ -406,6 +408,22 @@ RSpec.describe LLM::Context do
       expect(ctx).to receive(:functions).and_return(pending)
       expect(pending).to receive(:spawn).with(:thread).and_return(LLM::Function::ThreadGroup.new([]))
       expect(ctx.wait(:thread)).to eq([])
+    end
+
+    context "when given a per-call stream" do
+      let(:ctx) { LLM::Context.new(provider, model:) }
+      let(:result) { LLM::Function::Return.new("call_1", "system", {"ok" => true}) }
+
+      before do
+        allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
+        allow(provider).to receive(:complete).and_return(response)
+        ctx.talk("hello", stream: per_call_stream)
+        per_call_stream.queue << result
+      end
+
+      it "waits queued stream work" do
+        expect(ctx.wait(:thread)).to eq([result])
+      end
     end
 
     context "with a guard that wants to stop execution" do

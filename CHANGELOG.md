@@ -4,6 +4,14 @@
 
 Changes since `v5.1.0`.
 
+### Fix
+
+* **Use per-call streams when waiting on streamed tool work** <br>
+  Track request-local streams bound through `talk(..., stream:)` and
+  `respond(..., stream:)` so `LLM::Context#wait` and interruption-aware
+  queue handling use the active stream instead of falling back to pending
+  function spawning.
+
 ## v5.1.0
 
 Changes since `v5.0.0`.
