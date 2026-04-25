@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "setup"
+require "llm/providers/deepseek"
 
 RSpec.describe "LLM::DeepSeek::RequestAdapter::Completion" do
   describe "#adapt" do

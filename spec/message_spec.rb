@@ -23,6 +23,25 @@ RSpec.describe LLM::Message do
     end
   end
 
+  describe "#to_h" do
+    subject(:message) do
+      described_class.new(
+        "assistant",
+        nil,
+        reasoning_content: "thought",
+        tool_calls: [LLM::Object.from("id" => "call_1")]
+      )
+    end
+
+    it "preserves nil content" do
+      expect(message.to_h[:content]).to be_nil
+    end
+
+    it "normalizes tool calls to hashes" do
+      expect(message.to_h[:tool_calls]).to eq([{"id" => "call_1"}])
+    end
+  end
+
   describe "#image_url?" do
     subject(:message) { described_class.new("user", content) }
 

@@ -73,11 +73,21 @@ module LLM::DeepSeek::RequestAdapter
     end
 
     def wrap(content:, tool_calls: nil)
-      {role: message.role, content:, tool_calls:, reasoning_content: message.reasoning_content}.compact
+      {
+        role: message.role,
+        content:,
+        tool_calls: tool_calls&.map { LLM::Object === _1 ? _1.to_h : _1 },
+        reasoning_content: message.reasoning_content
+      }.compact.then { preserve_nil_content(_1) }
     end
 
     def message = @message
     def content = message.content
     def returns = content.grep(LLM::Function::Return)
+
+    def preserve_nil_content(hash)
+      hash[:content] = content if content.nil?
+      hash
+    end
   end
 end

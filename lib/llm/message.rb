@@ -33,11 +33,15 @@ module LLM
     # Returns a Hash representation of the message.
     # @return [Hash]
     def to_h
-      {role:, content:, reasoning_content:,
-       compaction: extra.compaction,
-       tools: extra.tool_calls,
-       usage:,
-       original_tool_calls: extra.original_tool_calls}.compact
+      {
+        role:,
+        content:,
+        reasoning_content:,
+        compaction: extra.compaction,
+        tool_calls: extra.tool_calls&.map { LLM::Object === _1 ? _1.to_h : _1 },
+        usage:,
+        original_tool_calls: extra.original_tool_calls
+      }.compact.then { preserve_nil_content(_1) }
     end
 
     ##
@@ -207,6 +211,11 @@ module LLM
     end
 
     private
+
+    def preserve_nil_content(hash)
+      hash[:content] = content if content.nil?
+      hash
+    end
 
     def tool_calls
       @tool_calls ||= LLM::Object.from(extra.tool_calls || [])
