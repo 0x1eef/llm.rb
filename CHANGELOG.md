@@ -4,6 +4,12 @@
 
 Changes since `v5.1.0`.
 
+### Change
+
+* **Refresh provider model metadata** <br>
+  Add current DeepSeek and OpenAI model metadata to `data/` and update the
+  Google Gemma model entry to match the current provider naming.
+
 ### Fix
 
 * **Preserve DeepSeek reasoning content across tool turns** <br>
