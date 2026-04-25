@@ -461,7 +461,7 @@ RSpec.describe LLM::Context do
     end
 
     context "when given a per-call stream" do
-      let(:ctx) { LLM::Context.new(provider, model:) }
+      let(:ctx) { LLM::Context.new(provider, model:, stream:) }
       let(:result) { LLM::Function::Return.new("call_1", "system", {"ok" => true}) }
 
       before do
@@ -473,6 +473,12 @@ RSpec.describe LLM::Context do
 
       it "waits queued stream work" do
         expect(ctx.wait(:thread)).to eq([result])
+      end
+
+      it "clears the per-call stream after wait" do
+        expect(ctx.instance_variable_get(:@stream)).to eq(per_call_stream)
+        ctx.wait(:thread)
+        expect(ctx.instance_variable_get(:@stream)).to be_nil
       end
     end
 

@@ -2,7 +2,24 @@
 
 ## Unreleased
 
+Changes since `v5.2.1`.
+
+## v5.2.1
+
 Changes since `v5.2.0`.
+
+This release tightens the streamed queue fix from `v5.2.0` for concurrent
+workloads. Request-local streams now stay bound long enough for `wait` to
+drain queued work and then clear cleanly so later waits fall back to the
+context's configured stream.
+
+### Fix
+
+* **Reset request-local streams after `wait` drains queued work** <br>
+  Keep per-call `stream:` bindings alive through `LLM::Context#wait` so
+  queued streamed tool work still resolves correctly, then clear the
+  request-local stream after the wait completes to avoid leaking it into
+  later turns.
 
 ## v5.2.0
 

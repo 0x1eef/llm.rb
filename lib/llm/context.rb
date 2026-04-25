@@ -305,6 +305,7 @@ module LLM
       end
     ensure
       @queue = nil
+      @stream = nil
     end
 
     ##
