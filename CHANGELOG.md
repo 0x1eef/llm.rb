@@ -2,7 +2,16 @@
 
 ## Unreleased
 
+Changes since `v5.2.0`.
+
+## v5.2.0
+
 Changes since `v5.1.0`.
+
+This release adds current DeepSeek V4 support through refreshed provider
+metadata, including `deepseek-v4-flash` and `deepseek-v4-pro`, while fixing
+request-local queue handling for concurrent streamed workloads so `wait` and
+interruption use the active per-call stream correctly.
 
 ### Change
 
