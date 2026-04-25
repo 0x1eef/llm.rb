@@ -263,7 +263,10 @@ skills, contexts, and agents.
 
 ```ruby
 begin
-  mcp = LLM::MCP.http(url: "https://api.githubcopilot.com/mcp/").persistent
+  mcp = LLM::MCP.http(
+    url: "https://api.githubcopilot.com/mcp/",
+    headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+  ).persistent
   mcp.start
   ctx = LLM::Context.new(llm, tools: mcp.tools)
 ensure
@@ -700,7 +703,7 @@ puts ticket.talk("How do I rotate my API key?").content
 
 #### MCP
 
-This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+This example uses [`LLM::MCP`](https://0x1eef.github.io/x/llm.rb/LLM/MCP.html) over HTTP so remote GitHub MCP tools run through the same `LLM::Context` tool path as local tools. It expects a GitHub token in `ENV["GITHUB_PAT"]`. See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"

@@ -1337,7 +1337,8 @@ If you expect repeated tool calls, use `persistent` to reuse a process-wide
 HTTP connection pool. This requires the optional `net-http-persistent` gem:
 
 Use HTTP when the MCP server is remote or shared across machines. The
-persistent client helps when the workflow makes repeated MCP requests.
+persistent client helps when the workflow makes repeated MCP requests. The
+GitHub example below expects a token in `ENV["GITHUB_PAT"]`.
 
 ```ruby
 #!/usr/bin/env ruby
