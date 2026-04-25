@@ -73,10 +73,10 @@ module LLM
 
     ##
     # Returns the default model for chat completions
-    # @see https://api-docs.deepseek.com/quick_start/pricing deepseek-chat
+    # @see https://api-docs.deepseek.com/quick_start/pricing deepseek-v4-flash
     # @return [String]
     def default_model
-      "deepseek-chat"
+      "deepseek-v4-flash"
     end
   end
 end

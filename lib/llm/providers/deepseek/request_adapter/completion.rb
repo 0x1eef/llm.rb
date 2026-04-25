@@ -19,7 +19,7 @@ module LLM::DeepSeek::RequestAdapter
         if Hash === message
           {role: message[:role], content: adapt_content(message[:content])}
         elsif message.tool_call?
-          {role: message.role, content: nil, tool_calls: message.extra[:original_tool_calls]}
+          wrap(content: nil, tool_calls: message.extra[:original_tool_calls])
         else
           adapt_message
         end
@@ -48,7 +48,7 @@ module LLM::DeepSeek::RequestAdapter
       when Array
         adapt_array
       else
-        {role: message.role, content: adapt_content(content)}
+        wrap(content: adapt_content(content))
       end
     end
 
@@ -58,7 +58,7 @@ module LLM::DeepSeek::RequestAdapter
       elsif returns.any?
         returns.map { {role: "tool", tool_call_id: _1.id, content: LLM.json.dump(_1.value)} }
       else
-        {role: message.role, content: content.flat_map { adapt_content(_1) }}
+        wrap(content: content.flat_map { adapt_content(_1) })
       end
     end
 
@@ -70,6 +70,10 @@ module LLM::DeepSeek::RequestAdapter
         raise LLM::PromptError, "The given object (an instance of #{object.class}) " \
                                 "is not supported by the DeepSeek API"
       end
+    end
+
+    def wrap(content:, tool_calls: nil)
+      {role: message.role, content:, tool_calls:, reasoning_content: message.reasoning_content}.compact
     end
 
     def message = @message

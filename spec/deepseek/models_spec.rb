@@ -6,6 +6,12 @@ RSpec.describe "LLM::Deepseek::Models" do
   let(:key) { ENV["DEEPSEEK_SECRET"] || "TOKEN" }
   let(:provider) { LLM.deepseek(key:) }
 
+  describe "#default_model" do
+    it "returns deepseek-v4-flash" do
+      expect(provider.default_model).to eq("deepseek-v4-flash")
+    end
+  end
+
   context "when given a successful list operation",
           vcr: {cassette_name: "deepseek/models/successful_list"} do
     subject(:response) { provider.models.all }

@@ -6,6 +6,16 @@ Changes since `v5.1.0`.
 
 ### Fix
 
+* **Preserve DeepSeek reasoning content across tool turns** <br>
+  Replay `reasoning_content` when serializing prior assistant messages for
+  DeepSeek chat completions, so thinking-mode tool calls can continue into
+  follow-up requests without triggering invalid request errors.
+
+* **Default DeepSeek to `deepseek-v4-flash`** <br>
+  Change `LLM::DeepSeek#default_model` to `deepseek-v4-flash` so new
+  contexts and default provider usage align with the current preferred chat
+  model.
+
 * **Use per-call streams when waiting on streamed tool work** <br>
   Track request-local streams bound through `talk(..., stream:)` and
   `respond(..., stream:)` so `LLM::Context#wait` and interruption-aware
