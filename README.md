@@ -477,6 +477,29 @@ loop do
 end
 ```
 
+#### Multimodal: Local Files
+
+In llm.rb, a prompt can be a string, an [`LLM::Prompt`](https://0x1eef.github.io/x/llm.rb/LLM/Prompt.html), or an array.
+When you use an array, each element can be plain text or a tagged object such as
+[`ctx.image_url(...)`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#image_url-instance_method),
+[`ctx.local_file(...)`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#local_file-instance_method),
+or [`ctx.remote_file(...)`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#remote_file-instance_method).
+Those tagged objects carry the metadata the provider adapter needs to turn one
+Ruby prompt into the provider-specific multimodal request schema.
+
+`ctx.local_file(path)` tags a local path as a `:local_file` object around
+`LLM.File(path)`. If the model understands that file type, you can include it
+directly in the prompt array instead of uploading it first through a provider
+Files API:
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk ["Summarize this document.", ctx.local_file("README.md")]
+```
+
 #### Agent
 
 This example uses [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) directly and lets the agent manage tool execution. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.

@@ -1417,6 +1417,16 @@ These helpers normalize non-text inputs before they reach the provider
 adapter. That keeps the prompt-building code in Ruby while still letting each
 provider receive the shape it expects.
 
+In practice, that means a prompt can be:
+- a string
+- an `LLM::Prompt`
+- an array of prompt parts
+
+When you use an array, each element can be plain text or a tagged object such
+as `ctx.image_url(...)`, `ctx.local_file(...)`, or `ctx.remote_file(...)`.
+Those tagged objects carry enough information for the provider adapter to turn
+the prompt into the provider-specific multimodal shape.
+
 ### Image Input
 
 Image helpers let you build multimodal prompts without manually assembling
@@ -1495,6 +1505,19 @@ puts res.embeddings[0].size
 
 When you want provider-side retrieval, file uploads and vector stores let the
 provider index your content and search over it directly.
+
+When you already have a local file and the model understands that file type,
+you can also pass it inline through `ctx.local_file(...)` without using the
+provider Files API first:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk ["Summarize this document.", ctx.local_file("README.md")]
+```
 
 ```ruby
 #!/usr/bin/env ruby
