@@ -91,4 +91,37 @@ RSpec.describe LLM::MCP do
       expect(prompt.messages.first.extra.original_content.text).to eq("Hello")
     end
   end
+
+  describe "#run" do
+    let(:messages) { [] }
+
+    before do
+      allow(transport).to receive(:start)
+      allow(transport).to receive(:stop)
+      allow(mcp).to receive(:call)
+    end
+
+    it "starts and stops around a block" do
+      result = mcp.run { mcp }
+      expect(transport).to have_received(:start).ordered
+      expect(transport).to have_received(:stop).ordered
+      expect(result).to eq(mcp)
+    end
+
+    it "stops when the block raises" do
+      expect do
+        mcp.run { raise "boom" }
+      end.to raise_error("boom")
+      expect(transport).to have_received(:start).ordered
+      expect(transport).to have_received(:stop).ordered
+    end
+
+    it "requires a block" do
+      expect do
+        mcp.run
+      end.to raise_error(LocalJumpError)
+      expect(transport).to have_received(:start).ordered
+      expect(transport).to have_received(:stop).ordered
+    end
+  end
 end

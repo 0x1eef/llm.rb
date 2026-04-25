@@ -261,16 +261,17 @@ Remote MCP tools and prompts are not bolted on as a separate integration
 stack. They adapt into the same tool and prompt path used by local tools,
 skills, contexts, and agents.
 
+Use `mcp.run do ... end` for scoped work where the client should start and
+stop around one block. Use `mcp.start` and `mcp.stop` directly when you need
+finer sequential control across several steps before shutting the client down.
+
 ```ruby
-begin
-  mcp = LLM::MCP.http(
-    url: "https://api.githubcopilot.com/mcp/",
-    headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
-  ).persistent
-  mcp.start
+mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+).persistent
+mcp.run do
   ctx = LLM::Context.new(llm, tools: mcp.tools)
-ensure
-  mcp.stop
 end
 ```
 
@@ -294,6 +295,7 @@ worker = Thread.new do
 rescue LLM::Interrupt
   puts "Request was interrupted!"
 end
+
 STDIN.getch
 ctx.interrupt!
 worker.join
@@ -715,13 +717,24 @@ mcp = LLM::MCP.http(
   headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
 ).persistent
 
-begin
-  mcp.start
+mcp.start
+ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
+ctx.talk("Pull information about my GitHub account.")
+ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+mcp.stop
+```
+
+For scoped work, `mcp.run do ... end` is shorter and handles cleanup for you:
+
+```ruby
+mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+).persistent
+mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("Pull information about my GitHub account.")
   ctx.talk(ctx.call(:functions)) while ctx.functions.any?
-ensure
-  mcp.stop
 end
 ```
 

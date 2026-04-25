@@ -1312,6 +1312,10 @@ contexts and agents.
 Use stdio when the MCP server runs as a local process. This is the most direct
 way to connect local utilities and developer tools into a context.
 
+Use `mcp.run do ... end` when the client only needs to live for one scoped
+block. Use `mcp.start` and `mcp.stop` directly when you want finer sequential
+control across multiple steps before cleanup.
+
 ```ruby
 #!/usr/bin/env ruby
 require "llm"
@@ -1320,14 +1324,10 @@ llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.stdio(
   argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd]
 )
-
-begin
-  mcp.start
+mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the directories in this project.")
   ctx.talk(ctx.call(:functions)) while ctx.functions.any?
-ensure
-  mcp.stop
 end
 ```
 
@@ -1349,15 +1349,31 @@ mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
   headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
 ).persistent
-
-begin
-  mcp.start
+mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the available GitHub MCP toolsets.")
   ctx.talk(ctx.call(:functions)) while ctx.functions.any?
-ensure
-  mcp.stop
 end
+```
+
+When you need more control over ordering, start the client explicitly and stop
+it yourself after the sequential steps are done:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+).persistent
+
+mcp.start
+ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
+ctx.talk("List the available GitHub MCP toolsets.")
+ctx.talk(ctx.call(:functions)) while ctx.functions.any?
+mcp.stop
 ```
 
 ### MCP Prompts
@@ -1376,10 +1392,7 @@ context or agent:
 require "llm"
 
 mcp = LLM::MCP.stdio(argv: ["npx", "-y", "@mcpservers/prompt-library"])
-
-begin
-  mcp.start
-
+mcp.run do
   prompts = mcp.prompts
   prompt = mcp.find_prompt(
     name: "suggest_code_error_fix",
@@ -1392,8 +1405,6 @@ begin
   puts prompts.map(&:name)
   puts prompt.messages.first.content
   puts prompt.messages.first.extra.original_content.type
-ensure
-  mcp.stop
 end
 ```
 

@@ -104,6 +104,21 @@ class LLM::MCP
   end
 
   ##
+  # Starts the MCP client for the duration of a block and then stops it.
+  # @yield Runs with the MCP client started
+  # @raise [LocalJumpError]
+  #  When called without a block
+  # @raise [StandardError]
+  #  Propagates errors raised by {#start}, the block itself, or {#stop}
+  # @return [void]
+  def run
+    start
+    yield
+  ensure
+    stop
+  end
+
+  ##
   # Configures an HTTP MCP transport to use a persistent connection pool
   # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
   # @example

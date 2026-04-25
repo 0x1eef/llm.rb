@@ -6,6 +6,11 @@ Changes since `v5.1.0`.
 
 ### Change
 
+* **Add `LLM::MCP#run` for scoped MCP client lifecycle** <br>
+  Add `LLM::MCP#run` so MCP clients can be started for the duration of a
+  block and then stopped automatically, which simplifies the usual
+  `start`/`stop` pattern in examples and application code.
+
 * **Refresh provider model metadata** <br>
   Add current DeepSeek and OpenAI model metadata to `data/` and update the
   Google Gemma model entry to match the current provider naming.
