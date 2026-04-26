@@ -45,13 +45,13 @@ class LLM::Tool
     alias_method :parameter, :param
 
     ##
-    # Mark one or more existing parameters as required.
+    # Mark existing parameters as required.
     # @param names [Array<Symbol,String>]
     # @return [LLM::Schema::Object]
-    def required(*names)
+    def required(names)
       lock do
         function.params.tap do |schema|
-          names.flatten.each { Utils.fetch(schema.properties, _1).required }
+          [*names].each { Utils.fetch(schema.properties, _1).required }
         end
       end
     end
