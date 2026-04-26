@@ -212,7 +212,18 @@ class ScrubPII
   def scrub(prompt)
     case prompt
     when String then prompt.gsub(EMAIL, "[REDACTED_EMAIL]")
+    when Array then prompt.map { scrub(_1) }
+    when LLM::Function::Return then LLM::Function::Return.new(prompt.id, prompt.name, scrub_value(prompt.value))
     else prompt
+    end
+  end
+
+  def scrub_value(value)
+    case value
+    when String then value.gsub(EMAIL, "[REDACTED_EMAIL]")
+    when Array then value.map { scrub_value(_1) }
+    when Hash then value.transform_values { scrub_value(_1) }
+    else value
     end
   end
 end
