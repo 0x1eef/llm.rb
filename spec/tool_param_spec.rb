@@ -44,4 +44,45 @@ RSpec.describe LLM::Tool::Param do
       expect(provider_param.to_h[:enum]).to eq(%w[openai google])
     end
   end
+
+  context "when using parameter as an alias of param" do
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "weather"
+        description "Lookup the weather for a location"
+        parameter :location, String, "A location"
+      end
+    end
+
+    subject(:location_param) { tool.function.params.properties[:location] }
+
+    it "defines the parameter" do
+      expect(location_param).to be_a(LLM::Schema::String)
+    end
+
+    it "preserves the description" do
+      expect(location_param.description).to eq("A location")
+    end
+  end
+
+  context "when required fields are declared separately" do
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "weather"
+        description "Lookup the weather for a location"
+        parameter :location, String, "A location"
+        required %i[location]
+      end
+    end
+
+    subject(:schema) { tool.function.params }
+
+    it "marks the parameter as required" do
+      expect(schema.properties[:location]).to be_required
+    end
+
+    it "serializes the required field list" do
+      expect(schema.to_h[:required]).to eq([:location])
+    end
+  end
 end

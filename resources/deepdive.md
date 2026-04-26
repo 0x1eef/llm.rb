@@ -821,7 +821,8 @@ require "sequel/plugins/llm"
 class System < LLM::Tool
   name "system"
   description "Run a shell command"
-  param :command, String, "Command to execute", required: true
+  parameter :command, String, "Command to execute"
+  required %i[command]
 
   def call(command:)
     {output: `#{command}`}
@@ -874,7 +875,8 @@ require "llm"
 class System < LLM::Tool
   name "system"
   description "Run a shell command"
-  param :command, String, "Command to execute", required: true
+  parameter :command, String, "Command to execute"
+  required %i[command]
 
   def call(command:)
     {success: system(command)}
@@ -908,7 +910,8 @@ require "llm"
 class SearchDocs < LLM::Tool
   name "search_docs"
   description "Search a documentation index"
-  param :query, String, "Query to search", required: true
+  parameter :query, String, "Query to search"
+  required %i[query]
 
   def initialize(index:)
     @index = index
@@ -941,7 +944,8 @@ require "llm"
 class System < LLM::Tool
   name "system"
   description "Run a shell command"
-  param :command, String, "Command to execute", required: true
+  parameter :command, String, "Command to execute"
+  required %i[command]
 
   def call(command:)
     {success: system(command)}
@@ -1011,7 +1015,8 @@ class System < LLM::Tool
 
   name "system"
   description "Run a shell command"
-  param :command, String, "Command to execute", required: true
+  parameter :command, String, "Command to execute"
+  required %i[command]
 
   def call(command:)
     @pid = spawn(command)

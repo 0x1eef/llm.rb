@@ -11,6 +11,11 @@ Changes since `v5.2.1`.
   `LLM::Stream` so UIs can surface request rewriting work such as PII
   scrubbing before a request is sent to the model.
 
+* **Add a separate `required` tool DSL form** <br>
+  Add `parameter` as an alias of `param` and support `required %i[...]`
+  as a separate declaration, inspired by OmniAI-style tools, while keeping
+  the existing `param ... required: true` form working too.
+
 ## v5.2.1
 
 Changes since `v5.2.0`.
