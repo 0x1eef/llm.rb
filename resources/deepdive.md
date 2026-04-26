@@ -1182,7 +1182,11 @@ and params before a request is sent to the provider.
 The public interface is intentionally small: a transformer implements
 `call(ctx, prompt, params)` and returns `[prompt, params]`. That makes it a
 good fit for cross-cutting concerns such as PII scrubbing, prompt
-normalization, or injecting request-level defaults like `store: false`.
+normalization, or injecting request-level defaults like `store: false`. It
+also means a transformer can scrub plain text prompts or
+[`LLM::Function::Return`](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
+values. In other words, you can intercept a tool call's return value and
+modify it before sending it back to the LLM.
 
 This is especially useful when you want context-wide behavior without
 rewriting every `talk` and `respond` call site by hand.
@@ -1205,9 +1209,17 @@ class ScrubPII
     case prompt
     when String then prompt.gsub(EMAIL, "[REDACTED_EMAIL]")
     when Array then prompt.map { scrub(_1) }
-    when LLM::Function::Return then LLM::Function::Return.new(prompt.id, prompt.name, scrub_value(prompt.value))
+    when LLM::Function::Return then on_tool_return(prompt)
     else prompt
     end
+  end
+
+  def on_tool_return(result)
+    value = case result.name
+    when "lookup-customer" then scrub_value(result.value)
+    else result.value
+    end
+    LLM::Function::Return.new(result.id, result.name, value)
   end
 
   def scrub_value(value)

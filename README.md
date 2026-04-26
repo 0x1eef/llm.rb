@@ -197,7 +197,11 @@ they can normalize or scrub what gets sent.
 
 That makes them a good fit for things like PII scrubbing, prompt
 normalization, or request-level param injection. A transformer just needs to
-implement `call(ctx, prompt, params)` and return `[prompt, params]`.
+implement `call(ctx, prompt, params)` and return `[prompt, params]`. That
+means a transformer can scrub plain text prompts, but it can also scrub
+[`LLM::Function::Return`](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
+values. In other words, you can intercept a tool call's return value and
+modify it before sending it back to the LLM.
 
 ```ruby
 class ScrubPII
@@ -213,9 +217,17 @@ class ScrubPII
     case prompt
     when String then prompt.gsub(EMAIL, "[REDACTED_EMAIL]")
     when Array then prompt.map { scrub(_1) }
-    when LLM::Function::Return then LLM::Function::Return.new(prompt.id, prompt.name, scrub_value(prompt.value))
+    when LLM::Function::Return then on_tool_return(prompt)
     else prompt
     end
+  end
+
+  def on_tool_return(result)
+    value = case result.name
+    when "lookup-customer" then scrub_value(result.value)
+    else result.value
+    end
+    LLM::Function::Return.new(result.id, result.name, value)
   end
 
   def scrub_value(value)
