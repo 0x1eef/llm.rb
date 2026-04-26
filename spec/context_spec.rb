@@ -343,15 +343,36 @@ RSpec.describe LLM::Context do
     end
     let(:ctx) { LLM::Context.new(provider, model:, transformer:) }
     let(:response) { double(choices: [LLM::Message.new("assistant", "hello")]) }
+    let(:compactor) { instance_double(LLM::Compactor, compact?: false) }
+    let(:stream_class) do
+      Class.new(LLM::Stream) do
+        attr_reader :events
+
+        def initialize
+          @events = []
+        end
+
+        def on_transform(ctx, transformer)
+          @events << [:start, ctx, transformer]
+        end
+
+        def on_transform_finish(ctx, transformer)
+          @events << [:finish, ctx, transformer]
+        end
+      end
+    end
+    let(:stream) { stream_class.new }
+
+    before do
+      allow(ctx).to receive(:compactor).and_return(compactor)
+    end
 
     it "rewrites the prompt before talk" do
-      allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
       expect(provider).to receive(:complete).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
       ctx.talk("hello")
     end
 
     it "stores the transformed prompt in message history" do
-      allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
       allow(provider).to receive(:complete).and_return(response)
       ctx.talk("hello")
       expect(ctx.messages.first.content).to eq("hello [scrubbed]")
@@ -359,10 +380,21 @@ RSpec.describe LLM::Context do
 
     it "rewrites the prompt before respond" do
       responses = double
-      allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
       allow(provider).to receive(:responses).and_return(responses)
       expect(responses).to receive(:create).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
       ctx.respond("hello")
+    end
+
+    it "notifies the stream when transform starts" do
+      allow(provider).to receive(:complete).and_return(response)
+      ctx.talk("hello", stream:)
+      expect(stream.events.first).to eq([:start, ctx, transformer])
+    end
+
+    it "notifies the stream when transform finishes" do
+      allow(provider).to receive(:complete).and_return(response)
+      ctx.talk("hello", stream:)
+      expect(stream.events.last).to eq([:finish, ctx, transformer])
     end
   end
 

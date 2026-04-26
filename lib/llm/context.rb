@@ -489,7 +489,11 @@ module LLM
 
     def transform(prompt, params)
       return [prompt, params] unless transformer
+      stream = params[:stream]
+      stream.on_transform(self, transformer) if LLM::Stream === stream
       transformer.call(self, prompt, params)
+    ensure
+      stream.on_transform_finish(self, transformer) if LLM::Stream === stream
     end
 
     def guarded_return_for(function, warning)

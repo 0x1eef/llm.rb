@@ -350,6 +350,38 @@ ctx = LLM::Context.new(
 )
 ```
 
+### Stream Transform Events
+
+Context transformers can also surface lifecycle events through
+[`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html). This is a
+good fit for UI messaging around request rewriting, such as showing that data
+is being anonymized before the request goes out:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+class Stream < LLM::Stream
+  def on_transform(ctx, transformer)
+    $stdout << "Anonymizing your data...\n"
+  end
+
+  def on_transform_finish(ctx, transformer)
+    $stdout << "Data anonymized.\n"
+  end
+end
+
+class ScrubPII
+  def call(ctx, prompt, params)
+    [prompt, params]
+  end
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: Stream.new, transformer: ScrubPII.new)
+ctx.talk("Email me at developer@example.com")
+```
+
 ### Manual Compaction
 
 You can also assign a compactor to a context and manage compaction manually.
@@ -1190,6 +1222,12 @@ modify it before sending it back to the LLM.
 
 This is especially useful when you want context-wide behavior without
 rewriting every `talk` and `respond` call site by hand.
+
+When a stream is present, transformer lifecycle hooks are also exposed through
+[`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with
+`on_transform` and `on_transform_finish`. That gives a UI a clean way to say
+`Anonymizing your data...` before a scrubber runs and `Data anonymized.`
+after it finishes.
 
 For example, a simple transformer can scrub email addresses before the model
 ever sees them. It can also handle `Array` prompts and

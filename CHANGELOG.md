@@ -4,6 +4,13 @@
 
 Changes since `v5.2.1`.
 
+### Change
+
+* **Add transformer stream lifecycle hooks** <br>
+  Add `on_transform` and `on_transform_finish` to
+  `LLM::Stream` so UIs can surface request rewriting work such as PII
+  scrubbing before a request is sent to the model.
+
 ## v5.2.1
 
 Changes since `v5.2.0`.

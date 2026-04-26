@@ -19,7 +19,7 @@ module LLM
   # The most common callback is {#on_content}, which also maps to {#<<}.
   # Providers may also call {#on_reasoning_content} and {#on_tool_call} when
   # that data is available. Runtime features such as context compaction may
-  # also emit lifecycle callbacks like {#on_compaction}.
+  # also emit lifecycle callbacks like {#on_transform} or {#on_compaction}.
   class Stream
     require_relative "stream/queue"
 
@@ -109,6 +109,24 @@ module LLM
     #  The completed tool return.
     # @return [nil]
     def on_tool_return(tool, result)
+      nil
+    end
+
+    ##
+    # Called before a context transformer rewrites a prompt.
+    # @param [LLM::Context] ctx
+    # @param [#call] transformer
+    # @return [nil]
+    def on_transform(ctx, transformer)
+      nil
+    end
+
+    ##
+    # Called after a context transformer finishes rewriting a prompt.
+    # @param [LLM::Context] ctx
+    # @param [#call] transformer
+    # @return [nil]
+    def on_transform_finish(ctx, transformer)
       nil
     end
 

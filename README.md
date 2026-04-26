@@ -193,7 +193,10 @@ Transformers let llm.rb rewrite outgoing prompts and params before a request
 is sent to the provider. They also live on
 [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html), but
 they solve a different problem from guards: instead of blocking execution,
-they can normalize or scrub what gets sent.
+they can normalize or scrub what gets sent. When a stream is present, that
+lifecycle is also exposed through
+[`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with
+`on_transform` and `on_transform_finish`.
 
 That makes them a good fit for things like PII scrubbing, prompt
 normalization, or request-level param injection. A transformer just needs to
@@ -202,6 +205,10 @@ means a transformer can scrub plain text prompts, but it can also scrub
 [`LLM::Function::Return`](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html)
 values. In other words, you can intercept a tool call's return value and
 modify it before sending it back to the LLM.
+
+That is also a useful UI hook. A stream can surface messages like
+`Anonymizing your data...` before a scrubber runs and `Data anonymized.`
+after it finishes.
 
 ```ruby
 class ScrubPII
@@ -244,13 +251,17 @@ ctx = LLM::Context.new(llm)
 ctx.transformer = ScrubPII.new
 ```
 
+When a stream is present, that transformer lifecycle is also exposed through
+`on_transform` and `on_transform_finish` on
+[`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html).
+
 #### LLM::Stream
 
 `LLM::Stream` is not just for printing tokens. It supports `on_content`,
-`on_reasoning_content`, `on_tool_call`, `on_tool_return`, `on_compaction`,
-and `on_compaction_finish`, which means visible output, reasoning output, tool
-execution, and context compaction can all be driven through the same
-execution path.
+`on_reasoning_content`, `on_tool_call`, `on_tool_return`, `on_transform`,
+`on_transform_finish`, `on_compaction`, and `on_compaction_finish`, which
+means visible output, reasoning output, request rewriting, tool execution,
+and context compaction can all be driven through the same execution path.
 
 ```ruby
 class Stream < LLM::Stream
