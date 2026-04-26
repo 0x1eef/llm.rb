@@ -2,7 +2,17 @@
 
 ## Unreleased
 
+Changes since `v5.3.0`.
+
+## v5.3.0
+
 Changes since `v5.2.1`.
+
+This release deepens llm.rb's request-rewriting and tool-definition surface.
+It adds transformer lifecycle hooks to `LLM::Stream` so UIs can surface work
+like PII scrubbing before a request is sent, and it adds a more explicit
+OmniAI-style tool DSL form with `parameter` plus separate `required`
+declarations while keeping the older `param ... required: true` style working.
 
 ### Change
 
