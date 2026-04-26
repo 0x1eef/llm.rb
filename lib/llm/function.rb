@@ -42,6 +42,33 @@ class LLM::Function
   extend LLM::Function::Registry
   prepend LLM::Function::Tracing
 
+  ##
+  # {LLM::Function::Return LLM::Function::Return} represents the result of a
+  # tool call.
+  #
+  # In llm.rb, tool execution is not complete until the requested function is
+  # answered with a return object and that return is sent back through the
+  # context. This is the object that closes that loop.
+  #
+  # The return carries:
+  # - the tool call ID
+  # - the tool name
+  # - the tool's return value
+  #
+  # That value is usually a `Hash`, but it can be any JSON-like structure your
+  # tool returns. `LLM::Function#call` produces one automatically, and
+  # `LLM::Function#cancel` produces one that represents a cancelled tool call.
+  #
+  # You can also construct one directly when you need to intercept, scrub, or
+  # synthesize a tool return before sending it back to the model.
+  #
+  # @example Returning a normal tool result
+  #   ret = LLM::Function::Return.new("call_1", "weather", {forecast: "sunny"})
+  #   ctx.talk(ret)
+  #
+  # @example Returning a tool result after rewriting its payload
+  #   value = ret.value.merge(email: "[REDACTED_EMAIL]")
+  #   ctx.talk(LLM::Function::Return.new(ret.id, ret.name, value))
   Return = Struct.new(:id, :name, :value) do
     ##
     # Returns true when the return value represents an error.
