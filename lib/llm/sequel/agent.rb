@@ -62,6 +62,11 @@ module LLM::Sequel
         agent.concurrency(concurrency)
       end
 
+      def tracer(tracer = nil, &block)
+        return agent.tracer if tracer.nil? && !block
+        agent.tracer(tracer, &block)
+      end
+
       def agent
         @agent ||= Class.new(LLM::Agent)
       end

@@ -68,6 +68,21 @@ RSpec.describe LLM::Agent do
         ).and_call_original
         klass.new(provider)
       end
+
+      context "when configured with a tracer block" do
+        let(:tracer) { Object.new }
+        let(:agent) do
+          tracer = self.tracer
+          Class.new(described_class) do
+            tracer { tracer }
+          end.new(provider)
+        end
+
+        it "resolves the tracer without mutating the provider default" do
+          expect(agent.tracer).to equal(tracer)
+          expect(provider.tracer).to be_a(LLM::Tracer::Null)
+        end
+      end
     end
 
     describe "#talk" do
@@ -327,6 +342,62 @@ RSpec.describe LLM::Agent do
           expect(ctx).to have_received(:respond).with("hello", {})
           expect(ctx).to have_received(:respond).with([tool_return], {})
         end
+      end
+    end
+  end
+
+  describe "DSL tracer scoping" do
+    let(:tracer) { Object.new }
+    let(:res) { Struct.new(:choices).new([LLM::Message.new("assistant", "hello")]) }
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "echo"
+        description "Echo a value"
+        param :value, String, "Value", required: true
+
+        def call(value:) = {value:}
+      end
+    end
+    let(:agent) do
+      tracer = self.tracer
+      tool_class = tool
+      Class.new(described_class) do
+        tools tool_class
+        tracer { tracer }
+      end.new(provider)
+    end
+
+    describe "#talk" do
+      it "scopes the tracer to the turn" do
+        expect(provider).to receive(:complete) do
+          expect(provider.tracer).to equal(tracer)
+          res
+        end
+        agent.talk("hello")
+        expect(provider.tracer).to be_a(LLM::Tracer::Null)
+      end
+    end
+
+    describe "#functions" do
+      subject(:functions) { agent.functions }
+
+      let(:message) do
+        LLM::Message.new("assistant", nil, {
+          tool_calls: [
+            {id: "call_1", name: "echo", arguments: {value: "hello"}}
+          ],
+          tools: [tool]
+        })
+      end
+
+      before do
+        agent.messages << message
+      end
+
+      it "scopes the tracer to pending function access" do
+        expect(functions.size).to eq(1)
+        expect(functions.first.tracer).to equal(tracer)
+        expect(provider.tracer).to be_a(LLM::Tracer::Null)
       end
     end
   end

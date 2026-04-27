@@ -4,6 +4,14 @@
 
 Changes since `v5.3.0`.
 
+### Change
+
+* **Add agent-scoped tracers** <br>
+  Let `LLM::Agent` classes define `tracer ...` or `tracer { ... }` so an
+  agent can carry its own tracer without replacing the provider's default
+  tracer. The resolved tracer is scoped to that agent's turns and pending
+  tool access.
+
 ## v5.3.0
 
 Changes since `v5.2.1`.

@@ -1359,6 +1359,7 @@ class Agent < LLM::Agent
   model "gpt-5.4-mini"
   instructions "You are a concise release assistant."
   skills "./skills/release"
+  tracer { LLM::Tracer::Logger.new(llm, path: "logs/release-agent.log") }
 end
 
 llm = LLM.openai(key: ENV["KEY"])

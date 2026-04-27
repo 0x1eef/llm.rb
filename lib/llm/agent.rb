@@ -116,6 +116,26 @@ module LLM
     end
 
     ##
+    # Set or get the default tracer.
+    #
+    # When a block is provided, it is stored and evaluated lazily against the
+    # agent instance during initialization so it can build a tracer from the
+    # resolved provider.
+    #
+    # @example
+    #   class Agent < LLM::Agent
+    #     tracer { LLM::Tracer::Logger.new(llm, io: $stdout) }
+    #   end
+    #
+    # @param [LLM::Tracer, Proc, nil] tracer
+    # @yieldreturn [LLM::Tracer, nil]
+    # @return [LLM::Tracer, Proc, nil]
+    def self.tracer(tracer = nil, &block)
+      return @tracer if tracer.nil? && !block
+      @tracer = block || tracer
+    end
+
+    ##
     # @param [LLM::Provider] provider
     #  A provider
     # @param [Hash] params
@@ -131,6 +151,7 @@ module LLM
       defaults = {model: self.class.model, tools: self.class.tools, skills: self.class.skills, schema: self.class.schema}.compact
       @concurrency = params.delete(:concurrency) || self.class.concurrency
       @llm = llm
+      @tracer = resolve_option(self.class.tracer) unless self.class.tracer.nil?
       @ctx = LLM::Context.new(llm, defaults.merge({guard: true}).merge(params))
     end
 
@@ -179,7 +200,7 @@ module LLM
     ##
     # @return [Array<LLM::Function>]
     def functions
-      @ctx.functions
+      @tracer ? @llm.with_tracer(@tracer) { @ctx.functions } : @ctx.functions
     end
 
     ##
@@ -193,14 +214,14 @@ module LLM
     # @see LLM::Context#call
     # @return [Object]
     def call(...)
-      @ctx.call(...)
+      @tracer ? @llm.with_tracer(@tracer) { @ctx.call(...) } : @ctx.call(...)
     end
 
     ##
     # @see LLM::Context#wait
     # @return [Array<LLM::Function::Return>]
     def wait(...)
-      @ctx.wait(...)
+      @tracer ? @llm.with_tracer(@tracer) { @ctx.wait(...) } : @ctx.wait(...)
     end
 
     ##
@@ -257,7 +278,7 @@ module LLM
     # @return [LLM::Tracer]
     #  Returns an LLM tracer
     def tracer
-      @ctx.tracer
+      @tracer || @ctx.tracer
     end
 
     ##
@@ -371,14 +392,21 @@ module LLM
     end
 
     def run_loop(method, prompt, params)
-      max = Integer(params.delete(:tool_attempts) || 25)
-      res = @ctx.public_send(method, apply_instructions(prompt), params)
-      max.times do
-        break if @ctx.functions.empty?
-        res = @ctx.public_send(method, call_functions, params)
+      loop = proc do
+        max = Integer(params.delete(:tool_attempts) || 25)
+        res = @ctx.public_send(method, apply_instructions(prompt), params)
+        max.times do
+          break if @ctx.functions.empty?
+          res = @ctx.public_send(method, call_functions, params)
+        end
+        raise LLM::ToolLoopError, "pending tool calls remain" unless @ctx.functions.empty?
+        res
       end
-      raise LLM::ToolLoopError, "pending tool calls remain" unless @ctx.functions.empty?
-      res
+      @tracer ? @llm.with_tracer(@tracer, &loop) : loop.call
+    end
+
+    def resolve_option(option)
+      Proc === option ? instance_exec(&option) : option
     end
   end
 end
