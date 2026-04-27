@@ -4,6 +4,15 @@
 
 Changes since `v5.3.0`.
 
+### Change
+
+* **Add agent-scoped tracers** <br>
+  Let `LLM::Agent` classes define `tracer ...` or `tracer { ... }` so an
+  agent can carry its own tracer without replacing the provider's default
+  tracer. The resolved tracer is scoped to that agent's turns, tool loops,
+  and pending tool access. Available through the `acts_as_agent` and Sequel
+  agent plugin `tracer` DSL too.
+
 ### Fix
 
 * **Preserve scoped tracers across concurrent tool work** <br>
