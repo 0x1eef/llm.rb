@@ -55,6 +55,29 @@ RSpec.describe LLM::Function do
         "Ractor concurrency only supports class-based tools"
       )
     end
+
+    context "when configured with a tracer" do
+      let(:tracer) { double("tracer", on_tool_start: :span, on_tool_finish: nil) }
+
+      before do
+        tool.tracer = tracer
+        tool.model = "gpt-4.1"
+      end
+
+      it "traces the ractor-backed tool call" do
+        expect(task.wait.to_h).to eq(id: "call_1", name: "system", value: {"ok" => true})
+        expect(tracer).to have_received(:on_tool_start).with(
+          id: "call_1",
+          name: "system",
+          arguments: {"command" => "date"},
+          model: "gpt-4.1"
+        )
+        expect(tracer).to have_received(:on_tool_finish).with(
+          result: have_attributes(id: "call_1", name: "system", value: {"ok" => true}),
+          span: :span
+        )
+      end
+    end
   end
 
   describe LLM::Function::Array do

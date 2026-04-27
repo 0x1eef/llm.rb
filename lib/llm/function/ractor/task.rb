@@ -15,8 +15,12 @@ class LLM::Function
     # @param [String, nil] id
     # @param [String] name
     # @param [Hash, Array, nil] arguments
+    # @param [LLM::Tracer, nil] tracer
+    # @param [Object, nil] span
     # @return [LLM::Function::Ractor::Task]
-    def initialize(runner_class, id, name, arguments)
+    def initialize(runner_class, id, name, arguments, tracer: nil, span: nil)
+      @tracer = tracer
+      @span = span
       @mailbox = Ractor::Mailbox.new(build_task(runner_class, id, name, arguments))
     end
 
@@ -37,7 +41,9 @@ class LLM::Function
     # @return [LLM::Function::Return]
     def wait
       id, name, value = mailbox.wait
-      Return.new(id, name, value)
+      result = Return.new(id, name, value)
+      @tracer&.on_tool_finish(result:, span: @span)
+      result
     end
     alias_method :value, :wait
 

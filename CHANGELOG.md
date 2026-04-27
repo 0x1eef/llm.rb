@@ -4,6 +4,13 @@
 
 Changes since `v5.4.0`.
 
+### Fix
+
+* **Trace ractor-backed tool callbacks** <br>
+  Make tool tracers fire `on_tool_start` and `on_tool_finish` for
+  class-based `:ractor` execution too, so ractor-backed tool calls show up
+  in tracer callbacks like the other concurrent tool paths.
+
 ## v5.4.0
 
 Changes since `v5.3.0`.

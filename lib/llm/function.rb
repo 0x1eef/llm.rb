@@ -229,7 +229,8 @@ class LLM::Function
       end.tap(&:resume)
     when :ractor
       raise ArgumentError, "Ractor concurrency only supports class-based tools" unless Class === @runner
-      Ractor::Task.new(@runner, id, name, arguments)
+      span = @tracer&.on_tool_start(id:, name:, arguments:, model:)
+      Ractor::Task.new(@runner, id, name, arguments, tracer: @tracer, span:)
     else
       raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, or :ractor"
     end

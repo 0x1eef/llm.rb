@@ -375,7 +375,8 @@ worker.join
   Use threads, fibers, async tasks, or experimental ractors without
   rewriting your tool layer. The current `:ractor` mode is for class-based
   tools and does not support MCP tools, but mixed workloads can branch on
-  `tool.mcp?` and choose a supported strategy per tool. `:ractor` is
+  `tool.mcp?` and choose a supported strategy per tool. Class-based
+  `:ractor` tools still emit normal tool tracer callbacks. `:ractor` is
   especially useful for CPU-bound tools, while `:task`, `:fiber`, or
   `:thread` may be a better fit for I/O-bound work.
 - **Advanced workloads are built in, not bolted on** <br>
