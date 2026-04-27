@@ -308,6 +308,36 @@ RSpec.describe LLM::Context do
     end
   end
 
+  context "when configured with a class-based tool" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:model) { "gpt-5.4" }
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "system"
+
+        def call(command:)
+          {"ok" => command == "date"}
+        end
+      end
+    end
+    let(:ctx) { LLM::Context.new(provider, model:, tools: [tool]) }
+
+    before do
+      ctx.messages << LLM::Message.new("assistant", nil, {
+        tools: [tool],
+        tool_calls: [
+          {id: "call_1", name: "system", arguments: {"command" => "date"}}
+        ]
+      })
+    end
+
+    it "waits pending tool work with ractor concurrency" do
+      expect(ctx.wait(:ractor).map(&:to_h)).to eq([
+        {id: "call_1", name: "system", value: {"ok" => true}}
+      ])
+    end
+  end
+
   context "#call" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
