@@ -2,7 +2,16 @@
 
 ## Unreleased
 
+Changes since `v5.4.0`.
+
+## v5.4.0
+
 Changes since `v5.3.0`.
+
+This release expands tracer support around agentic execution. It lets
+`LLM::Agent` define scoped tracers through the agent DSL and fixes concurrent
+tool execution so those scoped tracers stay attached when work crosses
+thread, task, fiber, and skill boundaries.
 
 ### Change
 
@@ -20,7 +29,6 @@ Changes since `v5.3.0`.
   crosses `:thread`, `:task`, or `:fiber` boundaries, including skill
   execution, so spawned work does not fall back to the provider default
   tracer.
-
 
 ## v5.3.0
 
