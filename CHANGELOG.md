@@ -12,6 +12,19 @@ Changes since `v5.3.0`.
   tracer. The resolved tracer is scoped to that agent's turns and pending
   tool access.
 
+### Fix
+
+* **Inherit scoped tracers in skill sub-agents** <br>
+  Carry the active tracer into sub-agents created by `LLM::Skill` so
+  skill execution keeps the agent- or request-scoped tracing context
+  instead of falling back to the provider default tracer.
+
+* **Preserve scoped tracers when skills run tools** <br>
+  Keep the current tracer attached when a skill runs a tool on a thread
+  so the skill does not lose its agent-scoped tracer and fall back to
+  the provider default.
+
+
 ## v5.3.0
 
 Changes since `v5.2.1`.
