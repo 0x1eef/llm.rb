@@ -64,6 +64,10 @@ module LLM
   Interrupt = Class.new(Error)
 
   ##
+  # When a concurrency strategy cannot execute a given tool
+  RactorError = Class.new(Error)
+
+  ##
   # When a tool call cannot be mapped to a local tool
   NoSuchToolError = Class.new(Error)
 

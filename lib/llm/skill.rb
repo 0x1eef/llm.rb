@@ -98,6 +98,10 @@ module LLM
         description skill.description
         attr_accessor :tracer
 
+        define_singleton_method(:skill?) do
+          true
+        end
+
         define_method(:call) do
           skill.call(ctx)
         end

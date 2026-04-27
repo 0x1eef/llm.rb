@@ -51,7 +51,7 @@ RSpec.describe LLM::Function do
       fn.arguments = {"value" => "hello"}
       fn.define { |value:| {value:} }
       expect { fn.spawn(:ractor) }.to raise_error(
-        ArgumentError,
+        LLM::RactorError,
         "Ractor concurrency only supports class-based tools"
       )
     end

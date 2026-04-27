@@ -118,6 +118,17 @@ RSpec.describe LLM::Skill do
       expect(tool.new.call).to eq({content: "rain"})
     end
 
+    it "disables ractor concurrency" do
+      function = tool.function.dup.tap do |fn|
+        fn.id = "call_1"
+        fn.arguments = {}
+      end
+      expect { function.spawn(:ractor) }.to raise_error(
+        LLM::RactorError,
+        "Ractor concurrency does not support skill-backed tools"
+      )
+    end
+
     it "passes the function tracer back to the skill" do
       provider = LLM.openai(key: "test")
       ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", stream:)

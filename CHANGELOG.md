@@ -11,6 +11,11 @@ Changes since `v5.4.0`.
   class-based `:ractor` execution too, so ractor-backed tool calls show up
   in tracer callbacks like the other concurrent tool paths.
 
+* **Raise `LLM::RactorError` for unsupported ractor tool work** <br>
+  Add `LLM::RactorError` and fail fast when `:ractor` execution is requested
+  for unsupported tool types such as skill-backed tools, instead of letting
+  deeper Ruby isolation errors leak out later in execution.
+
 ## v5.4.0
 
 Changes since `v5.3.0`.

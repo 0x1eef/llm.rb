@@ -228,7 +228,10 @@ class LLM::Function
         Fiber.yield
       end.tap(&:resume)
     when :ractor
-      raise ArgumentError, "Ractor concurrency only supports class-based tools" unless Class === @runner
+      raise LLM::RactorError, "Ractor concurrency only supports class-based tools" unless Class === @runner
+      if @runner.respond_to?(:skill?) && @runner.skill?
+        raise LLM::RactorError, "Ractor concurrency does not support skill-backed tools"
+      end
       span = @tracer&.on_tool_start(id:, name:, arguments:, model:)
       Ractor::Task.new(@runner, id, name, arguments, tracer: @tracer, span:)
     else
