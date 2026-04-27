@@ -114,7 +114,7 @@ module LLM
     # @param [LLM::Response] res
     # @api private
     def finish_attributes(operation, res)
-      case @provider.class.to_s
+      case @llm.class.to_s
       when "LLM::OpenAI" then openai_attributes(operation, res)
       else {}
       end

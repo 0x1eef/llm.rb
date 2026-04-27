@@ -15,12 +15,16 @@ module LLM
     require_relative "tracer/null"
 
     ##
+    # @return [LLM::Provider]
+    attr_reader :llm
+
+    ##
     # @param [LLM::Provider] provider
     #  A provider
     # @param [Hash] options
     #  A hash of options
     def initialize(provider, options = {})
-      @provider = provider
+      @llm = provider
       @options = {}
     end
 
@@ -124,7 +128,7 @@ module LLM
     ##
     # @return [String]
     def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)} @provider=#{@provider.class} @tracer=#{@tracer.inspect}>"
+      "#<#{self.class.name}:0x#{object_id.to_s(16)} @provider=#{@llm.class} @tracer=#{@tracer.inspect}>"
     end
 
     ##
@@ -245,19 +249,19 @@ module LLM
     ##
     # @return [String]
     def provider_name
-      @provider.class.name.split("::").last.downcase
+      @llm.class.name.split("::").last.downcase
     end
 
     ##
     # @return [String]
     def provider_host
-      @provider.instance_variable_get(:@host)
+      @llm.instance_variable_get(:@host)
     end
 
     ##
     # @return [String]
     def provider_port
-      @provider.instance_variable_get(:@port)
+      @llm.instance_variable_get(:@port)
     end
   end
 end

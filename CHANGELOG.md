@@ -4,25 +4,13 @@
 
 Changes since `v5.3.0`.
 
-### Change
-
-* **Add agent-scoped tracers** <br>
-  Let `LLM::Agent` classes define `tracer ...` or `tracer { ... }` so an
-  agent can carry its own tracer without replacing the provider's default
-  tracer. The resolved tracer is scoped to that agent's turns and pending
-  tool access.
-
 ### Fix
 
-* **Inherit scoped tracers in skill sub-agents** <br>
-  Carry the active tracer into sub-agents created by `LLM::Skill` so
-  skill execution keeps the agent- or request-scoped tracing context
-  instead of falling back to the provider default tracer.
-
-* **Preserve scoped tracers when skills run tools** <br>
-  Keep the current tracer attached when a skill runs a tool on a thread
-  so the skill does not lose its agent-scoped tracer and fall back to
-  the provider default.
+* **Preserve scoped tracers across concurrent tool work** <br>
+  Keep agent- and request-scoped tracers attached when tool execution
+  crosses `:thread`, `:task`, or `:fiber` boundaries, including skill
+  execution, so spawned work does not fall back to the provider default
+  tracer.
 
 
 ## v5.3.0

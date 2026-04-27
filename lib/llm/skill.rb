@@ -99,7 +99,7 @@ module LLM
         attr_accessor :tracer
 
         define_method(:call) do
-          tracer ? ctx.llm.with_tracer(tracer) { skill.call(ctx) } : skill.call(ctx)
+          skill.call(ctx)
         end
       end
     end

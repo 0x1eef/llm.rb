@@ -218,12 +218,12 @@ class LLM::Function
     task = case strategy
     when :task
       require "async" unless defined?(::Async)
-      Async { call }
+      Async { call! }
     when :thread
-      Thread.new { call }
+      Thread.new { call! }
     when :fiber
       Fiber.new do
-        call
+        call!
       ensure
         Fiber.yield
       end.tap(&:resume)
@@ -333,5 +333,11 @@ class LLM::Function
     Return.new(id, name, runner.call(**kwargs))
   rescue => ex
     Return.new(id, name,  {error: true, type: ex.class.name, message: ex.message})
+  end
+
+  def call!
+    llm = @tracer&.llm
+    return call unless llm.respond_to?(:with_tracer)
+    llm.with_tracer(@tracer) { call }
   end
 end
