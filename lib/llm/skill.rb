@@ -96,9 +96,10 @@ module LLM
       Class.new(LLM::Tool) do
         name skill.name
         description skill.description
+        attr_accessor :tracer
 
         define_method(:call) do
-          skill.call(ctx)
+          tracer ? ctx.llm.with_tracer(tracer) { skill.call(ctx) } : skill.call(ctx)
         end
       end
     end

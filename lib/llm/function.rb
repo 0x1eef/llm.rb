@@ -328,6 +328,7 @@ class LLM::Function
   #   Returns a Return object with either the function result or error information.
   def call_function
     runner = ((Class === @runner) ? @runner.new : @runner)
+    runner.tracer = @tracer if runner.respond_to?(:tracer=)
     kwargs = Hash === arguments ? arguments.transform_keys(&:to_sym) : arguments
     Return.new(id, name, runner.call(**kwargs))
   rescue => ex

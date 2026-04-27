@@ -117,6 +117,25 @@ RSpec.describe LLM::Skill do
       expect(skill).to receive(:call).with(ctx).and_return({content: "rain"})
       expect(tool.new.call).to eq({content: "rain"})
     end
+
+    it "passes the function tracer back to the skill" do
+      tracer = double("tracer", on_tool_start: nil, on_tool_finish: nil, on_tool_error: nil)
+      provider = LLM.openai(key: "test")
+      ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", stream:)
+      tool = skill.to_tool(ctx)
+      function = tool.function.dup.tap do |fn|
+        fn.id = "call_1"
+        fn.arguments = {}
+        fn.tracer = tracer
+      end
+      expect(skill).to receive(:call).with(ctx) do
+        expect(ctx.llm.tracer).to equal(tracer)
+        {content: "rain"}
+      end
+      expect(function.spawn(:thread).value.to_h).to eq(
+        id: "call_1", name: "weather", value: {content: "rain"}
+      )
+    end
   end
 
   describe "#call" do
@@ -163,19 +182,6 @@ RSpec.describe LLM::Skill do
       end
       allow_any_instance_of(LLM::Agent).to receive(:talk).and_return(response)
       skill.call(schema_ctx)
-    end
-
-    it "inherits the active tracer" do
-      tracer = Object.new
-      provider = LLM.openai(key: "test")
-      ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", stream:)
-      expect(provider).to receive(:complete) do
-        expect(provider.tracer).to equal(tracer)
-        res
-      end
-      provider.with_tracer(tracer) do
-        expect(skill.call(ctx)).to eq({content: "It is raining"})
-      end
     end
 
     it "inherits a curated slice of parent messages" do
