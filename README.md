@@ -87,6 +87,7 @@ Review the release state, summarize what changed, and prepare the release.
 class Agent < LLM::Agent
   model "gpt-5.4-mini"
   skills "./skills/release"
+  tracer { LLM::Tracer::Logger.new(llm, path: "logs/release-agent.log") }
 end
 
 llm = LLM.openai(key: ENV["KEY"])

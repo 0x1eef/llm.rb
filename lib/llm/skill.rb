@@ -74,11 +74,12 @@ module LLM
     # @param [LLM::Context] ctx
     # @return [Hash]
     def call(ctx)
-      instructions, tools = self.instructions, self.tools
+      instructions, tools, tracer = self.instructions, self.tools, ctx.llm.tracer
       params = ctx.params.merge(mode: ctx.mode).reject { [:tools, :schema].include?(_1) }
       agent = Class.new(LLM::Agent) do
         instructions(instructions)
         tools(*tools)
+        tracer(tracer)
       end.new(ctx.llm, params)
       agent.messages.concat(messages_for(ctx))
       res = agent.talk("Solve the user's query.")

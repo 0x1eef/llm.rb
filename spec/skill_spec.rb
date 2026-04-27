@@ -29,11 +29,13 @@ RSpec.describe LLM::Skill do
   let(:provider) do
     double("provider",
            default_model: "gpt-5.4-mini",
+           tracer: nil,
            user_role: "user",
            system_role: "system",
            developer_role: "developer")
   end
-  let(:ctx) { LLM::Context.new(provider, model: "gpt-5.4-mini", stream: :stream) }
+  let(:stream) { LLM::Stream.new }
+  let(:ctx) { LLM::Context.new(provider, model: "gpt-5.4-mini", stream:) }
 
   def write(path, content)
     full = File.join(skill_dir, path)
@@ -130,6 +132,7 @@ RSpec.describe LLM::Skill do
 
     let(:skill) { described_class.load(skill_dir) }
     let(:response) { double("response", content: "It is raining") }
+    let(:res) { double("response", content: "It is raining", choices: [LLM::Message.new("assistant", "It is raining")]) }
 
     it "uses an internal agent and returns tool-shaped output" do
       allow_any_instance_of(LLM::Agent).to receive(:talk) do |_agent, prompt|
@@ -140,10 +143,10 @@ RSpec.describe LLM::Skill do
     end
 
     it "inherits the context mode" do
-      responses_ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", mode: :responses, stream: :stream)
+      responses_ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", mode: :responses, stream:)
       expect(LLM::Context).to receive(:new).and_wrap_original do |original, prov, params|
         expect(prov).to be(provider)
-        expect(params).to include(model: "gpt-5.4-mini", mode: :responses, stream: :stream)
+        expect(params).to include(model: "gpt-5.4-mini", mode: :responses, stream:)
         original.call(prov, params)
       end
       allow_any_instance_of(LLM::Agent).to receive(:talk).and_return(response)
@@ -151,15 +154,28 @@ RSpec.describe LLM::Skill do
     end
 
     it "does not inherit the context schema" do
-      schema_ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", schema: :schema, stream: :stream)
+      schema_ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", schema: :schema, stream:)
       expect(LLM::Context).to receive(:new).and_wrap_original do |original, prov, params|
         expect(prov).to be(provider)
-        expect(params).to include(model: "gpt-5.4-mini", stream: :stream)
+        expect(params).to include(model: "gpt-5.4-mini", stream:)
         expect(params).not_to have_key(:schema)
         original.call(prov, params)
       end
       allow_any_instance_of(LLM::Agent).to receive(:talk).and_return(response)
       skill.call(schema_ctx)
+    end
+
+    it "inherits the active tracer" do
+      tracer = Object.new
+      provider = LLM.openai(key: "test")
+      ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", stream:)
+      expect(provider).to receive(:complete) do
+        expect(provider.tracer).to equal(tracer)
+        res
+      end
+      provider.with_tracer(tracer) do
+        expect(skill.call(ctx)).to eq({content: "It is raining"})
+      end
     end
 
     it "inherits a curated slice of parent messages" do
