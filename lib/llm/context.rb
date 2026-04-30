@@ -453,12 +453,12 @@ module LLM
     #  Returns an _approximate_ cost for a given context
     #  based on both the provider, and model
     def cost
-      return LLM::Cost.new(0, 0) unless usage
       cost = LLM.registry_for(llm).cost(model:)
-      LLM::Cost.new(
-        (cost.input.to_f / 1_000_000.0)  * usage.input_tokens,
-        (cost.output.to_f / 1_000_000.0) * usage.output_tokens
-      )
+      input_cost = (cost.input.to_f / 1_000_000.0)  * usage.input_tokens
+      output_cost = (cost.output.to_f / 1_000_000.0) * usage.output_tokens
+      LLM::Cost.new(input_cost, output_cost)
+    rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError
+      LLM::Cost.new(0, 0)
     end
 
     ##
