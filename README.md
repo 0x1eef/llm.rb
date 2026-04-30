@@ -163,12 +163,15 @@ and when a stream is present it emits `on_compaction` and
 `on_compaction_finish` through [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html).
 The compactor can also use a different model from the main context, which is
 useful when you want summarization to run on a cheaper or faster model.
+`token_threshold:` accepts either a fixed token count or a percentage string
+like `"90%"`, which resolves against the active model context window and
+triggers compaction once total token usage goes over that percentage.
 
 ```ruby
 ctx = LLM::Context.new(
   llm,
   compactor: {
-    message_threshold: 200,
+    token_threshold: "90%",
     retention_window: 8,
     model: "gpt-5.4-mini"
   }
@@ -624,7 +627,10 @@ long-lived contexts can summarize older history and expose the lifecycle
 through stream hooks. This approach is inspired by General Intelligence
 Systems' [Brute](https://github.com/general-intelligence-systems/brute). The
 compactor can also use its own `model:` if you want summarization to run on a
-different model from the main context. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+different model from the main context. `token_threshold:` accepts either a
+fixed token count or a percentage string like `"90%"`, which resolves
+against the active model context window and triggers compaction once total
+token usage goes over that percentage. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -644,7 +650,7 @@ ctx = LLM::Context.new(
   llm,
   stream: Stream.new,
   compactor: {
-    message_threshold: 200,
+    token_threshold: "90%",
     retention_window: 8,
     model: "gpt-5.4-mini"
   }

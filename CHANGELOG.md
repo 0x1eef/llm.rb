@@ -19,6 +19,15 @@
   restore that state through context serialization, and clear it after the
   next successful model response.
 
+* **Support percentage compaction token thresholds** <br>
+  Let `LLM::Compactor` accept `token_threshold:` values like `"90%"` so
+  compaction can trigger at a percentage of the active model context
+  window.
+
+* **Return zero-valued usage objects from contexts** <br>
+  Make `LLM::Context#usage` consistently return an `LLM::Object`, using a
+  zero-valued usage object when no provider usage has been recorded yet.
+
 ## v6.0.0
 
 Changes since `v5.4.0`.

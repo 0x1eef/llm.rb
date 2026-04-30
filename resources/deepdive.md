@@ -318,8 +318,10 @@ When a stream is present, that lifecycle is exposed through
 [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) with
 `on_compaction` and `on_compaction_finish`. The compactor can also use its own
 `model:` when you want summarization to run on a different model from the main
-context. Thresholds are explicit, so if you want a token threshold derived
-from the context window you compute it at the call site.
+context. `token_threshold:` accepts either a fixed token count or a
+percentage string like `"90%"`, which resolves against the current model
+context window and triggers compaction once total token usage goes over that
+percentage.
 
 This is useful when you want to log or surface the moment a context is
 compacted without treating compaction as a tool call:
@@ -343,7 +345,7 @@ ctx = LLM::Context.new(
   llm,
   stream: Stream.new,
   compactor: {
-    message_threshold: 200,
+    token_threshold: "90%",
     retention_window: 8,
     model: "gpt-5.4-mini"
   }
@@ -397,25 +399,33 @@ ctx.compactor = {retention_window: 8, model: "gpt-5.4-mini"}
 ctx.compactor.compact!
 ```
 
-### Token Threshold From The Context Window
+### Percentage Token Thresholds
 
-Compaction thresholds are explicit, but you can still derive a token threshold
-from the model's context window when that is the policy you want. One simple
-pattern is to set the compactor threshold to 10% less than the context window,
-with a `100_000` fallback when the context window is unknown:
+`token_threshold:` can be a percentage string like `"90%"`. In that form,
+llm.rb resolves the threshold against `ctx.context_window` and compares the
+resulting token count to the current `usage.total_tokens`. This is useful when
+you want compaction to begin near the edge of the model's real context window
+without hard-coding a provider-specific token count.
+
+Plainly: `"90%"` means compaction starts once total token usage goes over 90%
+of the context window.
+
+If the context window is unknown and `ctx.context_window` returns `0`, the
+percentage threshold is treated as disabled. In that case, pair it with a
+`message_threshold:` or use a fixed integer `token_threshold:` if you want a
+fallback policy.
 
 ```ruby
 ctx = LLM::Context.new(llm, model: "gpt-5.4-mini")
-window = ctx.context_window
-token_threshold = window.zero? ? 100_000 : window - (window / 10)
-ctx.compactor = {token_threshold:, retention_window: 8}
+ctx.compactor = {token_threshold: "90%", retention_window: 8}
 ```
 
 ### Creating Your Own Compactor
 
 If the built-in policy is not the right fit, create your own compactor by
 subclassing [`LLM::Compactor`](https://0x1eef.github.io/x/llm.rb/LLM/Compactor.html).
-The intended extension point is to implement both `compact?` and `compact!`:
+The intended extension point is to implement both `compactable?` and
+`compact!`:
 
 ```ruby
 #!/usr/bin/env ruby
