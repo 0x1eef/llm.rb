@@ -43,8 +43,8 @@ module LLM::Test
     def create_active_record_table(name)
       return if active_record_connection.data_source_exists?(name)
       active_record_connection.create_table(name) do |t|
-        t.string :provider, null: false
-        t.string :model, null: false
+        t.string :provider
+        t.string :model
         t.text :data
         t.integer :input_tokens
         t.integer :output_tokens
@@ -68,8 +68,8 @@ module LLM::Test
       return if sequel_db.table_exists?(name)
       sequel_db.create_table(name) do
         primary_key :id
-        String :provider, null: false
-        String :model, null: false
+        String :provider
+        String :model
         String :data, text: true
         Integer :input_tokens
         Integer :output_tokens

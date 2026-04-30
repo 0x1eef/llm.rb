@@ -4,6 +4,16 @@
 
 Changes since `v5.4.0`.
 
+### Change
+
+* **Simplify ORM persistence to serialized `data` state** <br>
+  Change the built-in ActiveRecord and Sequel wrappers to treat serialized
+  `data` as the persistence contract, instead of assuming reserved
+  `provider`, `model`, and usage columns. Provider selection must now come
+  from `provider:` hooks that resolve a real `LLM::Provider` instance, model
+  defaults come from `context:` or agent DSL, and `usage` is read from the
+  serialized runtime state.
+
 ### Fix
 
 * **Trace ractor-backed tool callbacks** <br>

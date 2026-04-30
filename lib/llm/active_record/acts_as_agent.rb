@@ -11,7 +11,6 @@ module LLM::ActiveRecord
   # class and forwarded to an internal agent subclass.
   module ActsAsAgent
     EMPTY_HASH = LLM::ActiveRecord::ActsAsLLM::EMPTY_HASH
-    DEFAULT_USAGE_COLUMNS = LLM::ActiveRecord::ActsAsLLM::DEFAULT_USAGE_COLUMNS
     DEFAULTS = LLM::ActiveRecord::ActsAsLLM::DEFAULTS
     Utils = LLM::ActiveRecord::ActsAsLLM::Utils
 
@@ -58,8 +57,6 @@ module LLM::ActiveRecord
       # @param [Class] model
       # @return [void]
       def self.extended(model)
-        options = model.llm_plugin_options
-        model.validates options[:provider_column], options[:model_column], presence: true
         model.include LLM::ActiveRecord::ActsAsLLM::InstanceMethods unless model.ancestors.include?(LLM::ActiveRecord::ActsAsLLM::InstanceMethods)
         model.include InstanceMethods unless model.ancestors.include?(InstanceMethods)
         model.extend ClassMethods unless model.singleton_class.ancestors.include?(ClassMethods)
@@ -77,6 +74,8 @@ module LLM::ActiveRecord
     # @option options [Proc, Symbol, LLM::Tracer, nil] :tracer
     #   Optional tracer, method name, or proc that resolves to one and is
     #   assigned through `llm.tracer = ...` on the resolved provider.
+    # @option options [Proc, Symbol, LLM::Provider] :provider
+    #   Must resolve to an `LLM::Provider` instance for the current record.
     # @yield
     #   Evaluated in the model class after the wrapper is installed, so agent
     #   DSL methods such as `model`, `tools`, `schema`, `instructions`, and
@@ -84,9 +83,8 @@ module LLM::ActiveRecord
     # @return [void]
     def acts_as_agent(options = EMPTY_HASH, &block)
       options = DEFAULTS.merge(options)
-      usage_columns = DEFAULT_USAGE_COLUMNS.merge(options[:usage_columns] || EMPTY_HASH)
       class_attribute :llm_plugin_options, instance_accessor: false, default: DEFAULTS unless respond_to?(:llm_plugin_options)
-      self.llm_plugin_options = options.merge(usage_columns: usage_columns.freeze).freeze
+      self.llm_plugin_options = options.freeze
       extend Hooks
       class_exec(&block) if block
     end
@@ -97,11 +95,8 @@ module LLM::ActiveRecord
       # @return [LLM::Provider]
       def llm
         options = self.class.llm_plugin_options
-        columns = Utils.columns(options)
-        provider = self[columns[:provider_column]]
-        kwargs = Utils.resolve_options(self, options[:provider], ActsAsAgent::EMPTY_HASH)
         return @llm if @llm
-        @llm = LLM.method(provider).call(**kwargs)
+        @llm = Utils.resolve_provider(self, options, ActsAsAgent::EMPTY_HASH)
         @llm.tracer = Utils.resolve_option(self, options[:tracer]) if options[:tracer]
         @llm
       end
@@ -113,10 +108,9 @@ module LLM::ActiveRecord
       def ctx
         @ctx ||= begin
           options = self.class.llm_plugin_options
-          columns = Utils.columns(options)
           params = Utils.resolve_options(self, options[:context], ActsAsAgent::EMPTY_HASH).dup
-          params[:model] ||= self[columns[:model_column]]
           ctx = self.class.agent.new(llm, params.compact)
+          columns = Utils.columns(options)
           data = self[columns[:data_column]]
           if data.nil? || data == ""
             ctx

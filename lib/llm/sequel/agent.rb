@@ -12,7 +12,6 @@ module LLM::Sequel
   module Agent
     require_relative "plugin"
     EMPTY_HASH = LLM::Sequel::Plugin::EMPTY_HASH
-    DEFAULT_USAGE_COLUMNS = LLM::Sequel::Plugin::DEFAULT_USAGE_COLUMNS
     DEFAULTS = LLM::Sequel::Plugin::DEFAULTS
     Utils = LLM::Sequel::Plugin::Utils
 
@@ -24,11 +23,7 @@ module LLM::Sequel
 
     def self.configure(model, options = EMPTY_HASH, &block)
       options = DEFAULTS.merge(options)
-      usage_columns = DEFAULT_USAGE_COLUMNS.merge(options[:usage_columns] || EMPTY_HASH)
-      model.instance_variable_set(
-        :@llm_agent_options,
-        options.merge(usage_columns: usage_columns.freeze).freeze
-      )
+      model.instance_variable_set(:@llm_agent_options, options.freeze)
       model.instance_exec(&block) if block
     end
 
@@ -80,7 +75,6 @@ module LLM::Sequel
           options = self.class.llm_plugin_options
           columns = Agent::Utils.columns(options)
           params = Agent::Utils.resolve_options(self, options[:context], Agent::EMPTY_HASH).dup
-          params[:model] ||= self[columns[:model_column]]
           ctx = self.class.agent.new(llm, params.compact)
           data = self[columns[:data_column]]
           if data.nil? || data == ""

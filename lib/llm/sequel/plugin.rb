@@ -17,11 +17,6 @@ module LLM::Sequel
   # can also be configured as symbols that are called on the model.
   module Plugin
     EMPTY_HASH = {}.freeze
-    DEFAULT_USAGE_COLUMNS = {
-      input_tokens: :input_tokens,
-      output_tokens: :output_tokens,
-      total_tokens: :total_tokens
-    }.freeze
 
     ##
     # Shared helper methods for the ORM wrapper.
@@ -68,15 +63,18 @@ module LLM::Sequel
       # Maps wrapper options onto the record's storage columns.
       # @return [Hash]
       def self.columns(options)
-        usage_columns = options[:usage_columns]
         {
-          provider_column: options[:provider_column],
-          model_column: options[:model_column],
-          data_column: options[:data_column],
-          input_tokens: usage_columns[:input_tokens],
-          output_tokens: usage_columns[:output_tokens],
-          total_tokens: usage_columns[:total_tokens]
+          data_column: options[:data_column]
         }.freeze
+      end
+
+      ##
+      # Resolves the provider runtime for a record.
+      # @return [LLM::Provider]
+      def self.resolve_provider(obj, options, empty_hash)
+        provider = resolve_option(obj, options[:provider])
+        return provider if LLM::Provider === provider
+        raise ArgumentError, "provider: must resolve to an LLM::Provider instance"
       end
 
       ##
@@ -84,22 +82,14 @@ module LLM::Sequel
       # @return [void]
       def self.save(obj, ctx, options)
         columns = self.columns(options)
-        obj.update(
-          columns[:data_column] => serialize_context(ctx, options[:format]),
-          columns[:input_tokens] => ctx.usage.input_tokens,
-          columns[:output_tokens] => ctx.usage.output_tokens,
-          columns[:total_tokens] => ctx.usage.total_tokens
-        )
+        obj.update(columns[:data_column] => serialize_context(ctx, options[:format]))
       end
     end
     DEFAULTS = {
-      provider_column: :provider,
-      model_column: :model,
       data_column: :data,
       format: :string,
-      usage_columns: DEFAULT_USAGE_COLUMNS,
       tracer: nil,
-      provider: EMPTY_HASH,
+      provider: nil,
       context: EMPTY_HASH
     }.freeze
 
@@ -134,14 +124,12 @@ module LLM::Sequel
     # @option options [Proc, Symbol, LLM::Tracer, nil] :tracer
     #   Optional tracer, method name, or proc that resolves to one and is
     #   assigned through `llm.tracer = ...` on the resolved provider.
+    # @option options [Proc, Symbol, LLM::Provider] :provider
+    #   Must resolve to an `LLM::Provider` instance for the current record.
     # @return [void]
     def self.configure(model, options = EMPTY_HASH)
       options = DEFAULTS.merge(options)
-      usage_columns = DEFAULT_USAGE_COLUMNS.merge(options[:usage_columns] || EMPTY_HASH)
-      model.instance_variable_set(
-        :@llm_plugin_options,
-        options.merge(usage_columns: usage_columns.freeze).freeze
-      )
+      model.instance_variable_set(:@llm_plugin_options, options.freeze)
     end
   end
 
@@ -247,12 +235,7 @@ module LLM::Sequel
     # Returns usage from the mapped usage columns.
     # @return [LLM::Object]
     def usage
-      columns = Utils.columns(self.class.llm_plugin_options)
-      LLM::Object.from(
-        input_tokens: self[columns[:input_tokens]] || 0,
-        output_tokens: self[columns[:output_tokens]] || 0,
-        total_tokens: self[columns[:total_tokens]] || 0
-      )
+      ctx.usage || LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0)
     end
 
     ##
@@ -304,11 +287,8 @@ module LLM::Sequel
     # @return [LLM::Provider]
     def llm
       options = self.class.llm_plugin_options
-      columns = Utils.columns(options)
-      provider = self[columns[:provider_column]]
-      kwargs = Utils.resolve_options(self, options[:provider], Plugin::EMPTY_HASH)
       return @llm if @llm
-      @llm = LLM.method(provider).call(**kwargs)
+      @llm = Utils.resolve_provider(self, options, Plugin::EMPTY_HASH)
       @llm.tracer = Utils.resolve_option(self, options[:tracer]) if options[:tracer]
       @llm
     end
@@ -322,7 +302,6 @@ module LLM::Sequel
         options = self.class.llm_plugin_options
         columns = Utils.columns(options)
         params = Utils.resolve_options(self, options[:context], Plugin::EMPTY_HASH).dup
-        params[:model] ||= self[columns[:model_column]]
         ctx = LLM::Context.new(llm, params.compact)
         data = self[columns[:data_column]]
         if data.nil? || data == ""

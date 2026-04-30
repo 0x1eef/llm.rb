@@ -16,11 +16,11 @@ RSpec.describe "acts_as_llm" do
       private
 
       def set_provider
-        {key: "secret"}
+        LLM.openai(key: "secret")
       end
 
       def set_context
-        {store: false}
+        {model: "gpt-5.4-mini", mode: :responses, store: false}
       end
 
       def set_tracer
@@ -29,7 +29,7 @@ RSpec.describe "acts_as_llm" do
     end
   end
 
-  let(:record) { context.create!(provider: "openai", model: "gpt-5.4-mini") }
+  let(:record) { context.create! }
   let(:reload_record) { ->(row) { row.class.find(row.id) } }
   let(:flush_record) { ->(row) { LLM::ActiveRecord::ActsAsLLM::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
@@ -37,7 +37,27 @@ RSpec.describe "acts_as_llm" do
 
   context "with a live OpenAI completion",
           vcr: {cassette_name: "openai/chat/completion_contract"} do
-    let(:record) { context.create!(provider: "openai", model: "gpt-4.1") }
+    let(:context) do
+      Class.new(model) do
+        acts_as_llm provider: :set_provider, context: :set_context, tracer: :set_tracer
+
+        private
+
+        def set_provider
+          LLM.openai(key: "secret")
+        end
+
+        def set_context
+          {model: "gpt-4.1"}
+        end
+
+        def set_tracer
+          LLM::Tracer::Logger.new(llm, io: StringIO.new)
+        end
+      end
+    end
+
+    let(:record) { context.create! }
 
     it "persists the returned messages" do
       result = record.talk("Hello, world!")

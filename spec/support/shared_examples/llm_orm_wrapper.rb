@@ -7,6 +7,10 @@ RSpec.shared_examples "a persisted llm record" do
     expect(record.llm.tracer).to be_a(LLM::Tracer::Logger)
   end
 
+  it "reads usage from the runtime state" do
+    expect(record.usage.total_tokens).to eq(0)
+  end
+
   it "persists through #talk" do
     runtime = LLM::Test::Runtime.new
     record.instance_variable_set(:@ctx, runtime)

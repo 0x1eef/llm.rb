@@ -19,7 +19,7 @@ RSpec.describe "acts_as_agent" do
       private
 
       def set_provider
-        {key: "secret"}
+        LLM.openai(key: "secret")
       end
 
       def set_context
@@ -32,7 +32,7 @@ RSpec.describe "acts_as_agent" do
     end
   end
 
-  let(:record) { agent.create!(provider: "openai", model: "gpt-5.4-mini") }
+  let(:record) { agent.create! }
   let(:reload_record) { ->(row) { row.class.find(row.id) } }
   let(:flush_record) { ->(row) { LLM::ActiveRecord::ActsAsAgent::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
@@ -43,11 +43,12 @@ RSpec.describe "acts_as_agent" do
     let(:agent) do
       Class.new(model) do
         acts_as_agent provider: :set_provider, tracer: :set_tracer
+        model "gpt-4.1"
 
         private
 
         def set_provider
-          {key: "secret"}
+          LLM.openai(key: "secret")
         end
 
         def set_tracer
@@ -56,7 +57,7 @@ RSpec.describe "acts_as_agent" do
       end
     end
 
-    let(:record) { agent.create!(provider: "openai", model: "gpt-4.1") }
+    let(:record) { agent.create! }
 
     it "persists the returned messages" do
       result = record.talk("Hello, world!")

@@ -716,36 +716,76 @@ puts ctx.talk("What is my favorite language?").content
 #### ActiveRecord (ORM): acts_as_llm
 
 The `acts_as_llm` method wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) and
-provides full control over tool execution. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+provides full control over tool execution. Its built-in persistence contract is
+just a serialized `data` column. The wrapper does not assume `provider`,
+`model`, or token-usage columns. Instead, `provider:` should resolve an
+`LLM::Provider` instance and `context:` can inject defaults such as `model:`.
+
+See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
-require "net/http/persistent"
 require "active_record"
 require "llm/active_record"
 
 class Context < ApplicationRecord
-  acts_as_llm provider: -> { { key: ENV["#{provider.upcase}_SECRET"], persistent: true } }
+  acts_as_llm provider: :set_provider, context: :set_context
+
+  private
+
+  def set_provider
+    LLM.openai(key: ENV["OPENAI_SECRET"])
+  end
+
+  def set_context
+    {model: "gpt-5.4-mini", mode: :responses, store: false}
+  end
 end
 
-ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
+ctx = Context.create!
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
+```
+
+```ruby
+require "llm"
+require "active_record"
+require "llm/active_record"
+
+class Context < ApplicationRecord
+  acts_as_llm provider: :set_provider, context: :set_context
+
+  # Optional application columns can still drive the provider and context.
+  # For example, `provider_name` and `model_name` could be normal columns.
+
+  private
+
+  def set_provider
+    LLM.public_send(provider_name, key: provider_key)
+  end
+
+  def set_context
+    {model: model_name, mode: :responses, store: false}
+  end
+end
 ```
 
 #### ActiveRecord (ORM): acts_as_agent
 
 The `acts_as_agent` method wraps [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) and
-manages tool execution for you. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+manages tool execution for you. Like `acts_as_llm`, its built-in persistence
+contract is a serialized `data` column. Provider selection and model defaults
+come from your hooks and agent DSL, not reserved database columns.
+
+See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
-require "net/http/persistent"
 require "active_record"
 require "llm/active_record"
 
 class Ticket < ApplicationRecord
-  acts_as_agent provider: :set_provider
+  acts_as_agent provider: :set_provider, context: :set_context
   model "gpt-5.4-mini"
   instructions "You are a concise support assistant."
   tools SearchDocs, Escalate
@@ -754,12 +794,38 @@ class Ticket < ApplicationRecord
   private
 
   def set_provider
-    { key: ENV["#{provider.upcase}_SECRET"], persistent: true }
+    LLM.openai(key: ENV["OPENAI_SECRET"])
+  end
+
+  def set_context
+    {mode: :responses, store: false}
   end
 end
 
-ticket = Ticket.create!(provider: "openai", model: "gpt-5.4-mini")
+ticket = Ticket.create!
 puts ticket.talk("How do I rotate my API key?").content
+```
+
+```ruby
+require "llm"
+require "active_record"
+require "llm/active_record"
+
+class Ticket < ApplicationRecord
+  acts_as_agent provider: :set_provider, context: :set_context
+  model "gpt-5.4-mini"
+  instructions "You are a concise support assistant."
+
+  private
+
+  def set_provider
+    LLM.public_send(provider_name, key: provider_key)
+  end
+
+  def set_context
+    {mode: :responses, store: false}
+  end
+end
 ```
 
 #### MCP

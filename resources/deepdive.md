@@ -598,10 +598,23 @@ puts restored.talk("What is my favorite language?").content
 
 llm.rb has ActiveRecord support built in through `acts_as_llm`, which can be
 applied to any ActiveRecord model. It is highly configurable but comes with
-sane defaults for provider selection, model selection, usage columns, and
-serialized context storage. The wrapper persists `LLM::Context` as JSON, and
-on PostgreSQL this can be optimized further by storing the serialized context
-in a `jsonb` column instead of plain text:
+sane defaults for serialized context storage. The built-in persistence contract
+is one `data` column that stores the serialized runtime. Provider selection,
+model selection, and any extra mirrored fields are application concerns exposed
+through `provider:`, `context:`, and `tracer:` hooks.
+
+That means:
+
+- `provider:` should resolve an `LLM::Provider` instance
+- `context:` can inject defaults such as `model:`, `mode:`, `store:`, or tools
+- usage comes from the serialized runtime state through `ctx.usage`, not from
+  dedicated database columns
+- if your app wants `provider`, `model`, or token columns, you can still add
+  them and read them from your own hook methods
+
+The wrapper persists `LLM::Context` as JSON, and on PostgreSQL this can be
+optimized further by storing the serialized context in a `jsonb` column instead
+of plain text:
 
 - `format: :string` stores the context as a JSON string in a text column.
 - `format: :json` or `format: :jsonb` stores the context as a structured JSON
@@ -618,12 +631,7 @@ in a `jsonb` column instead of plain text:
 
 ```ruby
 create_table :contexts do |t|
-  t.string :provider, null: false
-  t.string :model
   t.text :data
-  t.integer :input_tokens
-  t.integer :output_tokens
-  t.integer :total_tokens
   t.timestamps
 end
 ```
@@ -635,23 +643,64 @@ require "active_record"
 require "llm/active_record"
 
 class Context < ApplicationRecord
-  acts_as_llm provider: :set_provider, tracer: :set_tracer
+  acts_as_llm provider: :set_provider, context: :set_context, tracer: :set_tracer
 
   private
 
   def set_provider
-    {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+    LLM.openai(key: ENV.fetch("OPENAI_KEY")).persistent
   end
 
   def set_tracer
     LLM::Tracer::Logger.new(llm, io: $stdout)
   end
+
+  def set_context
+    {model: "gpt-5.4-mini", mode: :responses, store: false}
+  end
 end
 
-ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
+ctx = Context.create!
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
 puts ctx.usage.total_tokens
+```
+
+If you want extra application columns, wire them through your own hooks instead
+of relying on reserved wrapper columns:
+
+```ruby
+create_table :contexts do |t|
+  t.string :provider_name
+  t.string :provider_key
+  t.string :model_name
+  t.text :data
+  t.timestamps
+end
+```
+
+```ruby
+require "llm"
+require "active_record"
+require "llm/active_record"
+
+class Context < ApplicationRecord
+  acts_as_llm provider: :set_provider, context: :set_context
+
+  private
+
+  def set_provider
+    LLM.public_send(provider_name, key: provider_key)
+  end
+
+  def set_context
+    {model: model_name, mode: :responses, store: false}
+  end
+end
+
+ctx = Context.create!(provider_name: "openai", provider_key: ENV.fetch("OPENAI_KEY"), model_name: "gpt-5.4-mini")
+ctx.talk("Remember that my favorite language is Ruby")
+puts ctx.talk("What is my favorite language?").content
 ```
 
 The `acts_as_llm` method wraps
@@ -711,11 +760,13 @@ The `acts_as_agent` method wraps
 tool execution for you.
 
 Its `provider:`, `context:`, and `tracer:` hooks can also be configured as
-symbols that call methods on the model.
+symbols that call methods on the model. It follows the same data-column-only
+contract as `acts_as_llm`: provider instances come from your hooks, model
+defaults come from agent DSL or `context:`, and usage is read from serialized
+runtime state.
 
 ```ruby
 require "llm"
-require "net/http/persistent"
 require "active_record"
 require "llm/active_record"
 
@@ -730,11 +781,55 @@ class Ticket < ApplicationRecord
   private
 
   def set_provider
-    {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+    LLM.openai(key: ENV.fetch("OPENAI_KEY"))
+  end
+
+  def set_context
+    {mode: :responses, store: false}
   end
 end
 
-ticket = Ticket.create!(provider: "openai", model: "gpt-5.4-mini")
+ticket = Ticket.create!
+puts ticket.talk("How do I rotate my API key?").content
+```
+
+If you want custom columns for provider or model selection, plug them into the
+same hooks:
+
+```ruby
+create_table :tickets do |t|
+  t.string :provider_name
+  t.string :provider_key
+  t.text :data
+  t.timestamps
+end
+```
+
+```ruby
+require "llm"
+require "active_record"
+require "llm/active_record"
+
+class Ticket < ApplicationRecord
+  acts_as_agent provider: :provider_instance, context: :set_context do
+    model "gpt-5.4-mini"
+    instructions "You are a concise support assistant."
+    tools SearchDocs, Escalate
+    concurrency :thread
+  end
+
+  private
+
+  def provider_instance
+    LLM.public_send(provider_name, key: provider_key)
+  end
+
+  def set_context
+    {mode: :responses, store: false}
+  end
+end
+
+ticket = Ticket.create!(provider_name: "openai", provider_key: ENV.fetch("OPENAI_KEY"))
 puts ticket.talk("How do I rotate my API key?").content
 ```
 
