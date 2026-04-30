@@ -9,6 +9,11 @@
   stream so nested skill agents keep using queued `wait(...)` tool
   execution instead of falling back to direct `:call` execution.
 
+* **Add `LLM::Buffer#rindex`** <br>
+  Add `LLM::Buffer#rindex` as a direct forward to the underlying message
+  array so callers can find the last matching message index through the
+  buffer API.
+
 ## v6.0.0
 
 Changes since `v5.4.0`.

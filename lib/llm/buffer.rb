@@ -53,6 +53,14 @@ module LLM
     end
 
     ##
+    # Returns the index of the last message matching the given block.
+    # @yield [LLM::Message]
+    # @return [Integer, nil]
+    def rindex(...)
+      @messages.rindex(...)
+    end
+
+    ##
     # Returns the last message(s) in the buffer
     # @param [Integer, nil] n
     #  The number of messages to return
