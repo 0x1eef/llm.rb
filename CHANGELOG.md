@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+* **Preserve concurrent skill tool loops on streamed agents** <br>
+  Propagate the active agent concurrency through the effective request
+  stream so nested skill agents keep using queued `wait(...)` tool
+  execution instead of falling back to direct `:call` execution.
+
 ## v6.0.0
 
 Changes since `v5.4.0`.

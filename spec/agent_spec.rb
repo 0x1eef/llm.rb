@@ -279,6 +279,7 @@ RSpec.describe LLM::Agent do
         cost: double("cost"),
         context_window: 0,
         model: "gpt-4.1",
+        params: {},
         to_h: {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []},
         prompt: nil,
         image_url: nil,
@@ -420,6 +421,7 @@ RSpec.describe LLM::Agent do
         image_url: nil,
         local_file: nil,
         remote_file: nil,
+        params: {},
         tracer: nil
       )
     end
