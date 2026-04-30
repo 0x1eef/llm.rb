@@ -648,7 +648,7 @@ class Context < ApplicationRecord
   private
 
   def set_provider
-    LLM.openai(key: ENV.fetch("OPENAI_KEY")).persistent
+    LLM.openai(key: ENV["OPENAI_KEY"]).persistent
   end
 
   def set_tracer
@@ -698,7 +698,7 @@ class Context < ApplicationRecord
   end
 end
 
-ctx = Context.create!(provider_name: "openai", provider_key: ENV.fetch("OPENAI_KEY"), model_name: "gpt-5.4-mini")
+ctx = Context.create!(provider_name: "openai", provider_key: ENV["OPENAI_KEY"], model_name: "gpt-5.4-mini")
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
 ```
@@ -740,15 +740,15 @@ class Context < ApplicationRecord
   private
 
   def set_provider
-    {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+    LLM.openai(key: ENV["OPENAI_KEY"]).persistent
   end
 
   def set_context
-    {tools: [Clock]}
+    {model: "gpt-5.4-mini", tools: [Clock]}
   end
 end
 
-ctx = Context.create!(provider: "openai", model: "gpt-5.4-mini")
+ctx = Context.create!
 ctx.talk("What time is it in UTC right now?")
 while ctx.functions.any?
   puts ctx.talk(ctx.call(:functions)).content
@@ -781,7 +781,7 @@ class Ticket < ApplicationRecord
   private
 
   def set_provider
-    LLM.openai(key: ENV.fetch("OPENAI_KEY"))
+    LLM.openai(key: ENV["OPENAI_KEY"])
   end
 
   def set_context
@@ -811,7 +811,7 @@ require "active_record"
 require "llm/active_record"
 
 class Ticket < ApplicationRecord
-  acts_as_agent provider: :provider_instance, context: :set_context do
+  acts_as_agent provider: :set_provider, context: :set_context do
     model "gpt-5.4-mini"
     instructions "You are a concise support assistant."
     tools SearchDocs, Escalate
@@ -820,7 +820,7 @@ class Ticket < ApplicationRecord
 
   private
 
-  def provider_instance
+  def set_provider
     LLM.public_send(provider_name, key: provider_key)
   end
 
@@ -829,16 +829,17 @@ class Ticket < ApplicationRecord
   end
 end
 
-ticket = Ticket.create!(provider_name: "openai", provider_key: ENV.fetch("OPENAI_KEY"))
+ticket = Ticket.create!(provider_name: "openai", provider_key: ENV["OPENAI_KEY"])
 puts ticket.talk("How do I rotate my API key?").content
 ```
 
 ### Persist With Sequel
 
 llm.rb has Sequel support built in through `plugin :llm` and `plugin :agent`,
-which can be applied to any `Sequel::Model`. They are highly configurable but
-come with sane defaults for provider selection, model selection, usage
-columns, and serialized runtime storage. `plugin :llm` persists
+which can be applied to any `Sequel::Model`. Their built-in persistence
+contract is the serialized `data` column. Provider selection, model defaults,
+and any extra mirrored fields are application concerns exposed through
+`provider:`, `context:`, and `tracer:` hooks. `plugin :llm` persists
 `LLM::Context`, while `plugin :agent` persists `LLM::Agent`. On PostgreSQL,
 that runtime state can be optimized further by storing it in a `jsonb` column
 instead of plain text:
@@ -861,12 +862,7 @@ instead of plain text:
 ```ruby
 create_table :contexts do
   primary_key :id
-  String :provider, null: false
-  String :model
   String :data, text: true
-  Integer :input_tokens
-  Integer :output_tokens
-  Integer :total_tokens
 end
 ```
 
@@ -877,20 +873,24 @@ require "sequel"
 require "sequel/plugins/llm"
 
 class Context < Sequel::Model
-  plugin :llm, provider: :set_provider, tracer: :set_tracer, format: :jsonb
+  plugin :llm, provider: :set_provider, context: :set_context, tracer: :set_tracer, format: :jsonb
 
   private
 
   def set_provider
-    {key: ENV.fetch("#{provider.upcase}_KEY"), persistent: true}
+    LLM.openai(key: ENV["OPENAI_KEY"]).persistent
   end
 
   def set_tracer
     LLM::Tracer::Logger.new(llm, io: $stdout)
   end
+
+  def set_context
+    {model: "gpt-5.4-mini", mode: :responses, store: false}
+  end
 end
 
-ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
+ctx = Context.create
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
 puts ctx.usage.total_tokens
@@ -929,15 +929,23 @@ end
 # configurable but lets keep it simple :) The 'persistent' option opts
 # into a process-wide net-http-persistent connection pool.
 class Context < Sequel::Model
-  plugin :llm,
-    provider: -> { {key: ENV["#{provider.upcase}_KEY"], persistent: true} },
-    context: -> { {tools: [System]} }
+  plugin :llm, provider: :set_provider, context: :set_context
+
+  private
+
+  def set_provider
+    LLM.openai(key: ENV["OPENAI_KEY"]).persistent
+  end
+
+  def set_context
+    {model: "gpt-5.4-mini", tools: [System]}
+  end
 end
 
 ##
 # We create a new record, then update the record every time we call
 # 'talk' on the model.
-ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
+ctx = Context.create
 ctx.talk("What files are in my home directory?")
 res = ctx.talk(ctx.functions.call)
 puts res.content

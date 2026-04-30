@@ -302,7 +302,7 @@ finer sequential control across several steps before shutting the client down.
 ```ruby
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"}
 ).persistent
 mcp.run do
   ctx = LLM::Context.new(llm, tools: mcp.tools)
@@ -696,7 +696,7 @@ worker.join
 
 #### Sequel (ORM)
 
-The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
+The `plugin :llm` integration wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) on a `Sequel::Model` and keeps tool execution explicit. Like the ActiveRecord wrappers, its built-in persistence contract is the serialized `data` column, while `provider:` resolves a real `LLM::Provider` instance and `context:` injects defaults such as `model:`. <br> See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
 ```ruby
 require "llm"
@@ -705,10 +705,20 @@ require "sequel"
 require "sequel/plugins/llm"
 
 class Context < Sequel::Model
-  plugin :llm, provider: -> { { key: ENV["#{provider.upcase}_SECRET"], persistent: true } }
+  plugin :llm, provider: :set_provider, context: :set_context
+
+  private
+
+  def set_provider
+    LLM.openai(key: ENV["OPENAI_SECRET"])
+  end
+
+  def set_context
+    {model: "gpt-5.4-mini", mode: :responses, store: false}
+  end
 end
 
-ctx = Context.create(provider: "openai", model: "gpt-5.4-mini")
+ctx = Context.create
 ctx.talk("Remember that my favorite language is Ruby")
 puts ctx.talk("What is my favorite language?").content
 ```
@@ -839,7 +849,7 @@ require "net/http/persistent"
 llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"}
 ).persistent
 
 mcp.start
@@ -854,7 +864,7 @@ For scoped work, `mcp.run do ... end` is shorter and handles cleanup for you:
 ```ruby
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
+  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"}
 ).persistent
 mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
