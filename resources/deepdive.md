@@ -597,11 +597,10 @@ puts restored.talk("What is my favorite language?").content
 ### Persist With ActiveRecord
 
 llm.rb has ActiveRecord support built in through `acts_as_llm`, which can be
-applied to any ActiveRecord model. It is highly configurable but comes with
-sane defaults for serialized context storage. The built-in persistence contract
-is one `data` column that stores the serialized runtime. Provider selection,
-model selection, and any extra mirrored fields are application concerns exposed
-through `provider:`, `context:`, and `tracer:` hooks.
+applied to any ActiveRecord model. The built-in persistence contract is one
+`data` column that stores the serialized runtime. Provider selection, model
+selection, and any extra mirrored fields are application concerns that you
+provide to llm.rb through `provider:`, `context:`, and `tracer:` hooks.
 
 That means:
 
@@ -612,9 +611,8 @@ That means:
 - if your app wants `provider`, `model`, or token columns, you can still add
   them and read them from your own hook methods
 
-The wrapper persists `LLM::Context` as JSON, and on PostgreSQL this can be
-optimized further by storing the serialized context in a `jsonb` column instead
-of plain text:
+The wrapper persists `LLM::Context` as JSON. On PostgreSQL, you can store that
+runtime state in a `jsonb` column instead of plain text:
 
 - `format: :string` stores the context as a JSON string in a text column.
 - `format: :json` or `format: :jsonb` stores the context as a structured JSON
@@ -666,8 +664,8 @@ puts ctx.talk("What is my favorite language?").content
 puts ctx.usage.total_tokens
 ```
 
-If you want extra application columns, wire them through your own hooks instead
-of relying on reserved wrapper columns:
+If your app already has provider or model columns, wire them through your own
+hooks:
 
 ```ruby
 create_table :contexts do |t|
@@ -707,11 +705,10 @@ The `acts_as_llm` method wraps
 [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) and
 provides full control over tool execution.
 
-`context:` works the same way here as it does with the Sequel plugin. It lets
-the model inject default options into the constructed `LLM::Context`, while
-still allowing individual `talk` and `respond` calls to override them when a
-specific turn needs different behavior. One common use is setting default
-tools:
+`context:` lets the model provide default options to the constructed
+`LLM::Context`, while still allowing individual `talk` and `respond` calls to
+override them when a specific turn needs different behavior. One common use is
+setting default tools:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -762,7 +759,7 @@ tool execution for you.
 Its `provider:`, `context:`, and `tracer:` hooks can also be configured as
 symbols that call methods on the model. It follows the same data-column-only
 contract as `acts_as_llm`: provider instances come from your hooks, model
-defaults come from agent DSL or `context:`, and usage is read from serialized
+defaults come from agent DSL or `context:`, and usage comes from serialized
 runtime state.
 
 ```ruby
@@ -793,8 +790,8 @@ ticket = Ticket.create!
 puts ticket.talk("How do I rotate my API key?").content
 ```
 
-If you want custom columns for provider or model selection, plug them into the
-same hooks:
+If your app already has provider or model columns, plug them into the same
+hooks:
 
 ```ruby
 create_table :tickets do |t|
@@ -838,11 +835,11 @@ puts ticket.talk("How do I rotate my API key?").content
 llm.rb has Sequel support built in through `plugin :llm` and `plugin :agent`,
 which can be applied to any `Sequel::Model`. Their built-in persistence
 contract is the serialized `data` column. Provider selection, model defaults,
-and any extra mirrored fields are application concerns exposed through
-`provider:`, `context:`, and `tracer:` hooks. `plugin :llm` persists
-`LLM::Context`, while `plugin :agent` persists `LLM::Agent`. On PostgreSQL,
-that runtime state can be optimized further by storing it in a `jsonb` column
-instead of plain text:
+and any extra mirrored fields are application concerns that you provide to
+llm.rb through `provider:`, `context:`, and `tracer:` hooks. `plugin :llm`
+persists `LLM::Context`, while `plugin :agent` persists `LLM::Agent`. On
+PostgreSQL, that runtime state can be stored in a `jsonb` column instead of
+plain text:
 
 - `format: :string` stores the context as a JSON string in a text column.
 - `format: :json` or `format: :jsonb` stores the context as a structured JSON

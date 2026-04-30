@@ -101,20 +101,26 @@ separate agent table or a second persistence layer.
 
 `acts_as_agent` extends a model with agent capabilities: the same runtime
 surface as [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html),
-because it actually wraps an `LLM::Agent`, plus persistence through a text,
-JSON, or JSONB-backed column on the same table.
+because it actually wraps an `LLM::Agent`, plus persistence through one text,
+JSON, or JSONB-backed `data` column on the same table. If your app also has
+provider or model columns, provide them to llm.rb through `set_provider` and
+`set_context`.
 
 
 ```ruby
 class Ticket < ApplicationRecord
-  acts_as_agent provider: :set_provider
+  acts_as_agent provider: :set_provider, context: :set_context
   model "gpt-5.4-mini"
   instructions "You are a support assistant."
 
   private
 
   def set_provider
-    { key: ENV["#{provider.upcase}_SECRET"], persistent: true }
+    LLM.openai(key: ENV["OPENAI_SECRET"])
+  end
+
+  def set_context
+    { mode: :responses, store: false }
   end
 end
 ```
@@ -727,9 +733,9 @@ puts ctx.talk("What is my favorite language?").content
 
 The `acts_as_llm` method wraps [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html) and
 provides full control over tool execution. Its built-in persistence contract is
-just a serialized `data` column. The wrapper does not assume `provider`,
-`model`, or token-usage columns. Instead, `provider:` should resolve an
-`LLM::Provider` instance and `context:` can inject defaults such as `model:`.
+one serialized `data` column. If your app has provider, model, or usage
+columns, provide them to llm.rb through `provider:` and `context:` instead of
+relying on reserved wrapper columns.
 
 See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
@@ -765,8 +771,8 @@ require "llm/active_record"
 class Context < ApplicationRecord
   acts_as_llm provider: :set_provider, context: :set_context
 
-  # Optional application columns can still drive the provider and context.
-  # For example, `provider_name` and `model_name` could be normal columns.
+  # Optional application columns can still provide the provider and context.
+  # For example, `provider_name` and `model_name` can be normal columns.
 
   private
 
@@ -784,8 +790,8 @@ end
 
 The `acts_as_agent` method wraps [`LLM::Agent`](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html) and
 manages tool execution for you. Like `acts_as_llm`, its built-in persistence
-contract is a serialized `data` column. Provider selection and model defaults
-come from your hooks and agent DSL, not reserved database columns.
+contract is one serialized `data` column. If your app has provider or model
+columns, provide them to llm.rb through your hooks and agent DSL.
 
 See the [deepdive (web)](https://0x1eef.github.io/x/llm.rb/file.deepdive.html) or [deepdive (markdown)](resources/deepdive.md) for more examples.
 
