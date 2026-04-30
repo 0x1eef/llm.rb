@@ -23,6 +23,7 @@ module LLM::Sequel
 
     def self.configure(model, options = EMPTY_HASH, &block)
       options = DEFAULTS.merge(options)
+      model.db.extension :pg_json if %i[json jsonb].include?(options[:format])
       model.instance_variable_set(:@llm_agent_options, options.freeze)
       model.instance_exec(&block) if block
     end

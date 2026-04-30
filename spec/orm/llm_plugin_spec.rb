@@ -65,5 +65,41 @@ RSpec.describe "plugin :llm" do
       expect(reload_record.call(record).messages.last).to be_a(LLM::Message)
       expect(reload_record.call(record).messages.last.content).not_to be_empty
     end
+
+    context "with PostgreSQL jsonb storage" do
+      before do
+        reason = LLM::Test::Harness.postgres_unavailable_reason
+        skip reason if reason
+      end
+
+      let(:model) do
+        LLM::Test::Harness.build_sequel_model(
+          :spec_sequel_llms_jsonb,
+          adapter: :postgres,
+          jsonb: true
+        )
+      end
+      let(:context) do
+        Class.new(model) do
+          plugin :llm, provider: :set_provider, context: :set_context, format: :jsonb
+
+          private
+
+          def set_provider
+            LLM.openai(key: "secret")
+          end
+
+          def set_context
+            {model: "gpt-4.1"}
+          end
+        end
+      end
+
+      it "persists structured response data" do
+        record.talk("Hello, world!")
+        expect(reload_record.call(record)[:data]).to respond_to(:fetch)
+        expect(reload_record.call(record).messages.last.content).not_to be_empty
+      end
+    end
   end
 end

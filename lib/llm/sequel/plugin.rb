@@ -82,7 +82,20 @@ module LLM::Sequel
       # @return [void]
       def self.save(obj, ctx, options)
         columns = self.columns(options)
-        obj.update(columns[:data_column] => serialize_context(ctx, options[:format]))
+        payload = serialize_context(ctx, options[:format])
+        payload = wrap_json_payload(payload, options[:format])
+        obj.update(columns[:data_column] => payload)
+      end
+
+      ##
+      # Wraps JSON payloads for Sequel PostgreSQL adapters when needed.
+      # @return [Object]
+      def self.wrap_json_payload(payload, format)
+        case format
+        when :json then Sequel.pg_json_wrap(payload)
+        when :jsonb then Sequel.pg_jsonb_wrap(payload)
+        else payload
+        end
       end
     end
     DEFAULTS = {
@@ -129,6 +142,7 @@ module LLM::Sequel
     # @return [void]
     def self.configure(model, options = EMPTY_HASH)
       options = DEFAULTS.merge(options)
+      model.db.extension :pg_json if %i[json jsonb].include?(options[:format])
       model.instance_variable_set(:@llm_plugin_options, options.freeze)
     end
   end

@@ -65,5 +65,38 @@ RSpec.describe "plugin :agent" do
       expect(reload_record.call(record).messages.last).to be_a(LLM::Message)
       expect(reload_record.call(record).messages.last.content).not_to be_empty
     end
+
+    context "with PostgreSQL jsonb storage" do
+      before do
+        reason = LLM::Test::Harness.postgres_unavailable_reason
+        skip reason if reason
+      end
+
+      let(:model) do
+        LLM::Test::Harness.build_sequel_model(
+          :spec_sequel_agents_jsonb,
+          adapter: :postgres,
+          jsonb: true
+        )
+      end
+      let(:agent) do
+        Class.new(model) do
+          plugin :agent, provider: :set_provider, format: :jsonb
+          model "gpt-4.1"
+
+          private
+
+          def set_provider
+            LLM.openai(key: "secret")
+          end
+        end
+      end
+
+      it "persists structured response data" do
+        record.talk("Hello, world!")
+        expect(reload_record.call(record)[:data]).to respond_to(:fetch)
+        expect(reload_record.call(record).messages.last.content).not_to be_empty
+      end
+    end
   end
 end

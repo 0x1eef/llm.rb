@@ -16,6 +16,11 @@ Changes since `v5.4.0`.
 
 ### Fix
 
+* **Fix Sequel JSON and JSONB persistence** <br>
+  Load Sequel PostgreSQL JSON support when `plugin :llm` is configured with
+  `format: :json` or `:jsonb`, and wrap structured payloads correctly so
+  persisted context state can be stored in PostgreSQL JSON columns.
+
 * **Trace ractor-backed tool callbacks** <br>
   Make tool tracers fire `on_tool_start` and `on_tool_finish` for
   class-based `:ractor` execution too, so ractor-backed tool calls show up

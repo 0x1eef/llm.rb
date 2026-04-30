@@ -57,4 +57,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "activerecord", "~> 8.0"
   spec.add_development_dependency "sequel", "~> 5.0"
   spec.add_development_dependency "sqlite3", "~> 2.0"
+  spec.add_development_dependency "pg", "~> 1.5"
 end
