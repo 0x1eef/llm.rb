@@ -76,6 +76,8 @@ module LLM
     def call(ctx)
       instructions, tools, tracer = self.instructions, self.tools, ctx.llm.tracer
       params = ctx.params.merge(mode: ctx.mode).reject { [:tools, :schema].include?(_1) }
+      concurrency = params[:stream].extra[:concurrency] if LLM::Stream === params[:stream]
+      params[:concurrency] = concurrency if concurrency
       agent = Class.new(LLM::Agent) do
         instructions(instructions)
         tools(*tools)

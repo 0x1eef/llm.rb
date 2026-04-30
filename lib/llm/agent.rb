@@ -394,6 +394,8 @@ module LLM
     def run_loop(method, prompt, params)
       loop = proc do
         max = Integer(params.delete(:tool_attempts) || 25)
+        stream = params[:stream] || @ctx.params[:stream]
+        stream.extra[:concurrency] = concurrency if LLM::Stream === stream
         res = @ctx.public_send(method, apply_instructions(prompt), params)
         max.times do
           break if @ctx.functions.empty?
