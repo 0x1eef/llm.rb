@@ -18,11 +18,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install PostgreSQL client headers
+      run: sudo apt-get update && sudo apt-get install -y libpq-dev
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
+    - name: Verify pg loads
+      run: bundle exec ruby -e 'require "pg"'
     - name: Run tests (ubuntu)
       env:
         JSON_PARSER: ${{ matrix.json-parser }}
@@ -43,7 +47,9 @@ jobs:
         envs: "bundler"
         run: |
           pkg_add ruby-3.3.9
+          pkg_add postgresql-client
           bundle33 install
+          bundle33 exec ruby -e 'require "pg"'
           bundle33 exec rake
 
 #  netbsd:
