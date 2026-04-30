@@ -40,6 +40,14 @@ module LLM
     include Serializer
     include Deserializer
 
+    ZERO_USAGE = LLM::Object.from(
+      input_tokens: 0,
+      output_tokens: 0,
+      reasoning_tokens: 0,
+      total_tokens: 0
+    )
+    private_constant :ZERO_USAGE
+
     ##
     # Returns the accumulated message history for this context
     # @return [LLM::Buffer<LLM::Message>]
@@ -344,7 +352,7 @@ module LLM
           total_tokens: usage.total_tokens || 0
         )
       else
-        LLM::Object.from(input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, total_tokens: 0)
+        ZERO_USAGE
       end
     end
 
