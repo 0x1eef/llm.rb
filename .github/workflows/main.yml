@@ -49,7 +49,7 @@ jobs:
           pkg_add ruby-3.3.9
           pkg_add postgresql-client
           bundle33 install
-          bundle33 exec ruby -e 'require "pg"'
+          bundle33 exec ruby33 -e 'require "pg"'
           bundle33 exec rake
 
 #  netbsd:
