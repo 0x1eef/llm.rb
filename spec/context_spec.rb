@@ -478,6 +478,11 @@ RSpec.describe LLM::Context do
       expect(ctx.usage.reasoning_tokens).to eq(0)
       expect(ctx.usage.total_tokens).to eq(0)
     end
+
+    it "restores persisted compaction state" do
+      ctx.restore(data: {"compacted" => true, "messages" => []})
+      expect(ctx.compacted?).to eq(true)
+    end
   end
 
   context "when configured with a stream that supports wait" do
@@ -872,6 +877,26 @@ RSpec.describe LLM::Context do
 
         it "keeps the compaction flag in the message history" do
           expect(compacted_messages[1]).to be_compaction
+        end
+
+        it "marks the context as compacted" do
+          ctx.compactor.compact!
+          expect(ctx.compacted?).to eq(true)
+        end
+      end
+
+      context "after compaction" do
+        before do
+          ctx.messages << LLM::Message.new("system", "You are helpful")
+          ctx.messages << LLM::Message.new("user", "first")
+          ctx.messages << LLM::Message.new("assistant", "second")
+          ctx.messages << LLM::Message.new("user", "third")
+          ctx.compactor.compact!
+        end
+
+        it "clears the compacted state after the next successful talk" do
+          ctx.talk("hello")
+          expect(ctx.compacted?).to eq(false)
         end
       end
 

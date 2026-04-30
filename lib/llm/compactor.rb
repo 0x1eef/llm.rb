@@ -68,6 +68,7 @@ class LLM::Compactor
     older = messages[0...(messages.size - recent.size)]
     summary = LLM::Message.new(ctx.llm.user_role, "[Previous conversation summary]\n\n#{summarize(older)}", {compaction: true})
     ctx.messages.replace([*ctx.messages.take_while(&:system?), summary, *recent])
+    ctx.compacted = true
     stream.on_compaction_finish(ctx, self) if LLM::Stream === stream
     summary
   end
