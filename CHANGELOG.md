@@ -1,8 +1,16 @@
 # Changelog
 
-## Unreleased
+## v6.0.0
 
 Changes since `v5.4.0`.
+
+This release simplifies the ORM persistence contract around serialized
+`data` state, removing the assumption of reserved `provider`, `model`, and
+usage columns. Provider selection must now come from `provider:` hooks,
+model defaults come from `context:` or agent DSL, and usage is read from the
+serialized runtime state. Alongside this breaking change, Sequel JSON and
+JSONB persistence is fixed, ractor-backed tools now fire tracer callbacks,
+and `LLM::RactorError` is raised for unsupported ractor tool work.
 
 ### Change
 
