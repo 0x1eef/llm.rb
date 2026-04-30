@@ -14,6 +14,11 @@
   array so callers can find the last matching message index through the
   buffer API.
 
+* **Track persisted compaction state on contexts** <br>
+  Mark contexts as compacted after `LLM::Compactor#compact!`, persist and
+  restore that state through context serialization, and clear it after the
+  next successful model response.
+
 ## v6.0.0
 
 Changes since `v5.4.0`.
