@@ -11,7 +11,9 @@
 # The compactor can also use a different model from the main context by
 # setting `model:` in the compactor config. Compaction thresholds are opt-in:
 # provide `message_threshold:` and/or `token_threshold:` to enable policy-
-# driven compaction.
+# driven compaction. `token_threshold:` accepts either an integer token count
+# or a percentage string like `"90%"`, which resolves against the current
+# model context window.
 class LLM::Compactor
   DEFAULTS = {
     retention_window: 8,
@@ -25,8 +27,11 @@ class LLM::Compactor
   ##
   # @param [LLM::Context] ctx
   # @param [Hash] config
-  # @option config [Integer, nil] :token_threshold
-  #  Enables token-based compaction.
+  # @option config [Integer, String, nil] :token_threshold
+  #  Enables token-based compaction. Integer values are treated as a fixed
+  #  token count. Percentage strings like `"90%"` are resolved against
+  #  {LLM::Context#context_window}; if the context window is unknown, the
+  #  percentage threshold is treated as disabled.
   # @option config [Integer, nil] :message_threshold
   #  Enables message-count-based compaction.
   # @option config [Integer] :retention_window
@@ -39,18 +44,22 @@ class LLM::Compactor
   end
 
   ##
-  # Returns true when the context should be compacted
+  # Returns true when the context should be compacted.
+  #
+  # When `token_threshold:` is a percentage string such as `"90%"`, the
+  # threshold is resolved against the current context window and compared to
+  # the current total token usage.
   # @param [Object] prompt
   #  The next prompt or turn input
   # @return [Boolean]
-  def compact?(prompt = nil)
+  def compactable?(prompt = nil)
     return false if ctx.functions.any? || [*prompt].grep(LLM::Function::Return).any?
     messages = ctx.messages.reject(&:system?)
     return true if config[:message_threshold] && messages.size > config[:message_threshold]
-    usage = ctx.usage
-    return true if config[:token_threshold] && usage && usage.total_tokens > config[:token_threshold]
+    return true if token_threshold and ctx.usage.total_tokens > token_threshold
     false
   end
+  alias_method :compact?, :compactable?
 
   ##
   # Summarize older messages and replace them with a compact summary.
@@ -83,6 +92,15 @@ class LLM::Compactor
     start = [messages.size - retention_window, 0].max
     start -= 1 while start > 0 && messages[start].tool_return?
     messages[start..] || []
+  end
+
+  def token_threshold
+    @token_threshold ||= begin
+      threshold = config[:token_threshold]
+      return threshold unless threshold.to_s.end_with?("%")
+      return if ctx.context_window <= 0
+      (ctx.context_window * threshold.delete_suffix("%").to_f / 100).floor
+    end
   end
 
   def summarize(messages)

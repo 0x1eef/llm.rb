@@ -187,7 +187,7 @@ module LLM
       prompt, params = transform(prompt, params)
       bind!(params[:stream], params[:model], params[:tools])
       res = @llm.complete(prompt, params)
-      self.compacted = nil
+      self.compacted = false
       role = params[:role] || @llm.user_role
       role = @llm.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
       @messages.concat LLM::Prompt === prompt ? prompt.to_a : [LLM::Message.new(role, prompt)]
@@ -218,7 +218,7 @@ module LLM
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
       params = params.merge(previous_response_id: res_id, input: @messages.to_a).compact
       res = @llm.responses.create(prompt, params)
-      self.compacted = nil
+      self.compacted = false
       role = params[:role] || @llm.user_role
       @messages.concat LLM::Prompt === prompt ? prompt.to_a : [LLM::Message.new(role, prompt)]
       @messages.concat [res.choices[-1]]
@@ -336,14 +336,16 @@ module LLM
     # messages.
     # @return [LLM::Object, nil]
     def usage
-      usage = @messages.find(&:assistant?)&.usage
-      return unless usage
-      LLM::Object.from(
-        input_tokens: usage.input_tokens || 0,
-        output_tokens: usage.output_tokens || 0,
-        reasoning_tokens: usage.reasoning_tokens || 0,
-        total_tokens: usage.total_tokens || 0
-      )
+      if usage = @messages.find(&:assistant?)&.usage
+        LLM::Object.from(
+          input_tokens: usage.input_tokens || 0,
+          output_tokens: usage.output_tokens || 0,
+          reasoning_tokens: usage.reasoning_tokens || 0,
+          total_tokens: usage.total_tokens || 0
+        )
+      else
+        LLM::Object.from(input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, total_tokens: 0)
+      end
     end
 
     ##
