@@ -338,11 +338,7 @@ module LLM
 
     ##
     # Returns token usage accumulated in this context
-    # @note
-    # This method returns token usage for the latest
-    # assistant message, and it returns nil for non-assistant
-    # messages.
-    # @return [LLM::Object, nil]
+    # @return [LLM::Object]
     def usage
       if usage = @messages.find(&:assistant?)&.usage
         LLM::Object.from(
