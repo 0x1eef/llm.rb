@@ -96,8 +96,7 @@ module LLM
     ##
     # Returns a context compactor
     # This feature is inspired by the compaction approach developed by
-    # General Intelligence Systems in
-    # [Brute](https://github.com/general-intelligence-systems/brute).
+    # General Intelligence Systems.
     # @return [LLM::Compactor]
     def compactor
       @compactor = LLM::Compactor.new(self, @compactor || {}) unless LLM::Compactor === @compactor

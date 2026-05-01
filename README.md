@@ -625,7 +625,7 @@ This example uses [`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context
 [`LLM::Stream`](https://0x1eef.github.io/x/llm.rb/LLM/Stream.html) together so
 long-lived contexts can summarize older history and expose the lifecycle
 through stream hooks. This approach is inspired by General Intelligence
-Systems' [Brute](https://github.com/general-intelligence-systems/brute). The
+Systems. The
 compactor can also use its own `model:` if you want summarization to run on a
 different model from the main context. `token_threshold:` accepts either a
 fixed token count or a percentage string like `"90%"`, which resolves

@@ -10,8 +10,7 @@
 #
 # {LLM::LoopGuard LLM::LoopGuard} detects when a context is repeating the same
 # tool-call pattern instead of making progress. It is directly inspired by
-# General Intelligence Systems' Brute runtime and its doom-loop detection
-# approach.
+# General Intelligence Systems and its doom-loop detection approach.
 #
 # The public interface is intentionally small:
 # - `call(ctx)` returns `nil` when no intervention is needed
@@ -22,14 +21,6 @@
 # {LLM::Agent LLM::Agent} enables this guard by default through its wrapped
 # context.
 #
-# Brute is MIT licensed. The relevant license grant is:
-#
-#   Permission is hereby granted, free of charge, to any person obtaining a copy
-#   of this software and associated documentation files (the "Software"), to deal
-#   in the Software without restriction, including without limitation the rights
-#   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#   copies of the Software, and to permit persons to whom the Software is
-#   furnished to do so.
 class LLM::LoopGuard
   ##
   # The default number of repeated tool-call patterns required before

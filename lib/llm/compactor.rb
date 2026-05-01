@@ -5,8 +5,7 @@
 # smaller replacement message when a context grows too large.
 #
 # This work is directly inspired by the compaction approach developed by
-# General Intelligence Systems in
-# [Brute](https://github.com/general-intelligence-systems/brute).
+# General Intelligence Systems.
 #
 # The compactor can also use a different model from the main context by
 # setting `model:` in the compactor config. Compaction thresholds are opt-in:

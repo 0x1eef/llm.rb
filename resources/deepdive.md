@@ -1272,8 +1272,7 @@ that warning into in-band guarded tool errors.
 
 [`LLM::LoopGuard`](https://0x1eef.github.io/x/llm.rb/LLM/LoopGuard.html) is
 the built-in implementation. It is directly inspired by General Intelligence
-Systems' [Brute](https://github.com/general-intelligence-systems/brute) and
-detects repeated assistant tool-call patterns by reducing them to
+Systems and detects repeated assistant tool-call patterns by reducing them to
 `[tool_name, arguments]` signatures.
 
 It catches both:
