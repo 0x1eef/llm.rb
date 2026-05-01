@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## v7.0.0
+
+Changes since `v6.1.0`.
+
+This release turns agent tool-loop limit errors into in-band advisory
+returns so the LLM can react to rate limits and continue the loop. It
+adds `tool_attempts: nil` as a way to opt out of advisory tool-limit
+returns entirely, and fixes the default provider HTTP path to keep
+`net-http-persistent` optional when not explicitly enabled.
+
 ### Breaking
 
 * **Return in-band tool-loop limit errors from agents** <br>
