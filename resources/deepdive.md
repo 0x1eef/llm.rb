@@ -1220,7 +1220,9 @@ model choice, tools, output shape, and tool concurrency into one class.
 
 The main difference from `LLM::Context` is control flow. An agent will apply
 its instructions automatically and keep executing tool calls until the turn
-settles or it hits the configured limit. Tool execution can stay sequential
+settles. When it exhausts the configured tool attempt budget, it sends
+advisory tool errors back through the model and keeps the loop in-band
+instead of raising out of the agent runtime. Tool execution can stay sequential
 with `concurrency :call`, or run through `:thread`, `:task`, `:fiber`, or
 experimental `:ractor` depending on how you want pending functions resolved.
 The current `:ractor` mode is intended for class-based tools with ractor-safe

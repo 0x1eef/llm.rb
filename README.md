@@ -370,6 +370,8 @@ worker.join
   or experimental `:ractor` support for class-based tools. MCP tools are not
   supported by the current `:ractor` mode, but mixed tool sets can still
   route MCP tools and local tools through different strategies at runtime.
+  When an agent exhausts its tool attempt budget, it sends advisory tool
+  errors back through the model instead of raising out of the runtime.
 - **Tool calls have an explicit lifecycle** <br>
   A tool call can be executed, cancelled through
   [`LLM::Function#cancel`](https://0x1eef.github.io/x/llm.rb/LLM/Function.html#cancel-instance_method),

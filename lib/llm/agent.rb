@@ -161,7 +161,9 @@ module LLM
     #
     # @param prompt (see LLM::Provider#complete)
     # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
-    # @option params [Integer] :tool_attempts The maxinum number of tool call iterations (default 25)
+    # @option params [Integer] :tool_attempts
+    #  The maxinum number of tool call iterations before the agent sends
+    #  in-band advisory tool errors back through the model (default 25)
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
@@ -180,7 +182,9 @@ module LLM
     # @note Not all LLM providers support this API
     # @param prompt (see LLM::Provider#complete)
     # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
-    # @option params [Integer] :tool_attempts The maxinum number of tool call iterations (default 25)
+    # @option params [Integer] :tool_attempts
+    #  The maxinum number of tool call iterations before the agent sends
+    #  in-band advisory tool errors back through the model (default 25)
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
@@ -397,11 +401,16 @@ module LLM
         stream = params[:stream] || @ctx.params[:stream]
         stream.extra[:concurrency] = concurrency if LLM::Stream === stream
         res = @ctx.public_send(method, apply_instructions(prompt), params)
-        max.times do
+        loop do
           break if @ctx.functions.empty?
-          res = @ctx.public_send(method, call_functions, params)
+          max.times do
+            break if @ctx.functions.empty?
+            res = @ctx.public_send(method, call_functions, params)
+          end
+          break if @ctx.functions.empty?
+          res = @ctx.public_send(method, @ctx.functions.map { rate_limit(_1) }, params)
         end
-        @ctx.functions.empty? ? res : @ctx.public_send(method, @ctx.functions.map { rate_limit(_1) }, params)
+        res
       end
       @tracer ? @llm.with_tracer(@tracer, &loop) : loop.call
     end
