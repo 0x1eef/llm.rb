@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## v6.1.0
+
+Changes since `v6.0.0`.
+
+This release tightens interrupt and compaction behavior for long-running
+contexts. It adds `LLM::Buffer#rindex`, supports percentage-based token
+thresholds in `LLM::Compactor`, tracks persisted compaction state through
+context serialization, reliably interrupts Async-backed requests, preserves
+valid tool-call history on cancellation, keeps concurrent skill tool loops
+running on streamed agents, and returns zero-valued usage objects when no
+provider usage has been recorded yet.
 
 ### Change
 
