@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Change
+
+* **Allow agent instance tracer overrides** <br>
+  Let `LLM::Agent.new(..., tracer: ...)` override the class-level tracer
+  for that agent instance.
+
 ## v7.0.0
 
 Changes since `v6.1.0`.
