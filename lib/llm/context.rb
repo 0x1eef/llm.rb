@@ -188,7 +188,7 @@ module LLM
     #   puts res.messages[0].content
     def talk(prompt, params = {})
       return respond(prompt, params) if mode == :responses
-      @owner = Fiber.current
+      @owner = @llm.request_owner
       compactor.compact!(prompt) if compactor.compact?(prompt)
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
@@ -218,7 +218,7 @@ module LLM
     #   res = ctx.respond("What is the capital of France?")
     #   puts res.output_text
     def respond(prompt, params = {})
-      @owner = Fiber.current
+      @owner = @llm.request_owner
       compactor.compact!(prompt) if compactor.compact?(prompt)
       params = @params.merge(params)
       prompt, params = transform(prompt, params)
@@ -331,8 +331,13 @@ module LLM
     # This is inspired by Go's context cancellation model.
     # @return [nil]
     def interrupt!
+      pending = functions.to_a
       llm.interrupt!(@owner)
       queue&.interrupt!
+      return if pending.empty?
+      pending.each(&:interrupt!)
+      returns = pending.map { _1.cancel(reason: "function call cancelled") }
+      @messages << LLM::Message.new(@llm.tool_role, returns)
     end
     alias_method :cancel!, :interrupt!
 
@@ -454,7 +459,7 @@ module LLM
     #  based on both the provider, and model
     def cost
       cost = LLM.registry_for(llm).cost(model:)
-      input_cost = (cost.input.to_f / 1_000_000.0)  * usage.input_tokens
+      input_cost = (cost.input.to_f / 1_000_000.0) * usage.input_tokens
       output_cost = (cost.output.to_f / 1_000_000.0) * usage.output_tokens
       LLM::Cost.new(input_cost, output_cost)
     rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError

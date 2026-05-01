@@ -50,9 +50,10 @@ class LLM::Provider
 
       ##
       # Returns the current request owner.
-      # @return [Fiber]
+      # @return [Object]
       def request_owner
-        Fiber.current
+        return Fiber.current unless defined?(::Async)
+        Async::Task.current || Fiber.current
       end
 
       ##
