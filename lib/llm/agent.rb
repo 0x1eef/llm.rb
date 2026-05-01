@@ -149,12 +149,14 @@ module LLM
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [Array<String>, nil] :skills Defaults to nil
     # @option params [#to_json, nil] :schema Defaults to nil
+    # @option params [LLM::Tracer, Proc, nil] :tracer Optional tracer override for this agent instance
     # @option params [Symbol, Array<Symbol>, nil] :concurrency Defaults to the agent class concurrency
     def initialize(llm, params = {})
       defaults = {model: self.class.model, tools: self.class.tools, skills: self.class.skills, schema: self.class.schema}.compact
       @concurrency = params.delete(:concurrency) || self.class.concurrency
       @llm = llm
-      @tracer = resolve_option(self.class.tracer) unless self.class.tracer.nil?
+      tracer = params.key?(:tracer) ? params.delete(:tracer) : self.class.tracer
+      @tracer = resolve_option(tracer) unless tracer.nil?
       @ctx = LLM::Context.new(llm, defaults.merge({guard: true}).merge(params))
     end
 
