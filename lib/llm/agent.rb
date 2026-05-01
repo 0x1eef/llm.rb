@@ -401,10 +401,17 @@ module LLM
           break if @ctx.functions.empty?
           res = @ctx.public_send(method, call_functions, params)
         end
-        raise LLM::ToolLoopError, "pending tool calls remain" unless @ctx.functions.empty?
-        res
+        @ctx.functions.empty? ? res : @ctx.public_send(method, @ctx.functions.map { rate_limit(_1) }, params)
       end
       @tracer ? @llm.with_tracer(@tracer, &loop) : loop.call
+    end
+
+    def rate_limit(function)
+      LLM::Function::Return.new(function.id, function.name, {
+        error: true,
+        type: LLM::ToolLoopError.name,
+        message: "tool loop rate limit reached"
+      })
     end
 
     def resolve_option(option)

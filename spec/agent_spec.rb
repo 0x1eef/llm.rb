@@ -404,7 +404,19 @@ RSpec.describe LLM::Agent do
   end
 
   describe "tool attempt limit" do
-    let(:pending_functions) { [double("pending")].extend(LLM::Function::Array) }
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "echo"
+        description "Echo a value"
+      end
+    end
+    let(:pending_function) do
+      fn = tool.function
+      fn.id = "call_1"
+      fn.arguments = {value: "hello"}
+      fn
+    end
+    let(:pending_functions) { [pending_function].extend(LLM::Function::Array) }
     let(:ctx) do
       instance_double(
         LLM::Context,
@@ -426,17 +438,25 @@ RSpec.describe LLM::Agent do
       )
     end
     let(:agent) { described_class.new(provider) }
+    let(:res) { double("response") }
 
     before do
       allow(LLM::Context).to receive(:new).and_return(ctx)
-      allow(ctx).to receive(:talk).and_return(double("first_response"), *Array.new(25) { double("response") })
+      allow(ctx).to receive(:talk).and_return(double("first_response"), *Array.new(25) { double("response") }, res)
       allow(ctx).to receive(:call).with(:functions).and_return([double("return")])
       allow(ctx).to receive(:functions).and_return(*Array.new(26, pending_functions))
     end
 
     it "defaults to 25 tool loop attempts" do
-      expect { agent.talk("hello") }.to raise_error(LLM::ToolLoopError)
+      expect(agent.talk("hello")).to eq(res)
       expect(ctx).to have_received(:call).with(:functions).exactly(25).times
+      expect(ctx).to have_received(:talk).with([
+        LLM::Function::Return.new("call_1", "echo", {
+          error: true,
+          type: LLM::ToolLoopError.name,
+          message: "tool loop rate limit reached"
+        })
+      ], {})
     end
   end
 

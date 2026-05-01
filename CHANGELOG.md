@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Breaking
+
+* **Return in-band tool-loop limit errors from agents** <br>
+  Stop raising `LLM::ToolLoopError` when an agent exhausts its tool loop
+  attempt budget, and instead send `LLM::Function::Return` errors back
+  through the model so the LLM can react to the rate limit in-band.
+
 ## v6.1.0
 
 Changes since `v6.0.0`.
