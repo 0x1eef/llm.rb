@@ -459,6 +459,20 @@ RSpec.describe LLM::Agent do
         })
       ], {})
     end
+
+    it "disables advisory tool-limit returns when tool_attempts is nil" do
+      allow(ctx).to receive(:talk).and_return(double("first_response"), res)
+      allow(ctx).to receive(:functions).and_return(pending_functions, empty_functions, empty_functions)
+      expect(agent.talk("hello", tool_attempts: nil)).to eq(res)
+      expect(ctx).to have_received(:call).with(:functions).once
+      expect(ctx).not_to have_received(:talk).with([
+        LLM::Function::Return.new("call_1", "echo", {
+          error: true,
+          type: LLM::ToolLoopError.name,
+          message: "tool loop rate limit reached"
+        })
+      ], {tool_attempts: nil})
+    end
   end
 
   context "when given openai" do

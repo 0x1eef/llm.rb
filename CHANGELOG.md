@@ -10,6 +10,11 @@
   errors back through the model so the LLM can react to the rate limit
   in-band and continue the loop.
 
+* **Allow `tool_attempts: nil` to disable advisory tool-limit returns** <br>
+  Keep the default `tool_attempts` budget at `25`, but treat an explicit
+  `tool_attempts: nil` as an opt-out that disables advisory tool-limit
+  returns entirely.
+
 ## v6.1.0
 
 Changes since `v6.0.0`.

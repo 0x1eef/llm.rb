@@ -163,7 +163,8 @@ module LLM
     # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
     # @option params [Integer] :tool_attempts
     #  The maxinum number of tool call iterations before the agent sends
-    #  in-band advisory tool errors back through the model (default 25)
+    #  in-band advisory tool errors back through the model (default 25).
+    #  Set to `nil` to disable advisory tool-limit returns.
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
@@ -184,7 +185,8 @@ module LLM
     # @param [Hash] params The params passed to the provider, including optional :stream, :tools, :schema etc.
     # @option params [Integer] :tool_attempts
     #  The maxinum number of tool call iterations before the agent sends
-    #  in-band advisory tool errors back through the model (default 25)
+    #  in-band advisory tool errors back through the model (default 25).
+    #  Set to `nil` to disable advisory tool-limit returns.
     # @return [LLM::Response] Returns the LLM's response for this turn.
     # @example
     #   llm = LLM.openai(key: ENV["KEY"])
@@ -397,18 +399,23 @@ module LLM
 
     def run_loop(method, prompt, params)
       loop = proc do
-        max = Integer(params.delete(:tool_attempts) || 25)
+        max = params.key?(:tool_attempts) ? params.delete(:tool_attempts) : 25
+        max = Integer(max) if max
         stream = params[:stream] || @ctx.params[:stream]
         stream.extra[:concurrency] = concurrency if LLM::Stream === stream
         res = @ctx.public_send(method, apply_instructions(prompt), params)
         loop do
           break if @ctx.functions.empty?
-          max.times do
+          if max
+            max.times do
+              break if @ctx.functions.empty?
+              res = @ctx.public_send(method, call_functions, params)
+            end
             break if @ctx.functions.empty?
+            res = @ctx.public_send(method, @ctx.functions.map { rate_limit(_1) }, params)
+          else
             res = @ctx.public_send(method, call_functions, params)
           end
-          break if @ctx.functions.empty?
-          res = @ctx.public_send(method, @ctx.functions.map { rate_limit(_1) }, params)
         end
         res
       end
