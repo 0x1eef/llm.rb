@@ -19,6 +19,9 @@ module LLM
   # * The automatic tool loop enables the wrapped context's `guard` by default.
   #   The built-in {LLM::LoopGuard LLM::LoopGuard} detects repeated tool-call
   #   patterns and blocks stuck execution before more tool work is queued.
+  # * The default tool attempt budget is `25`. After that, the agent sends
+  #   advisory tool errors back through the model and keeps the loop in-band.
+  #   Set `tool_attempts: nil` to disable that advisory behavior.
   # * Tool loop execution can be configured with `concurrency :call`,
   #   `:thread`, `:task`, `:fiber`, `:ractor`, or a list of queued task
   #   types such as `[:thread, :ractor]`.
