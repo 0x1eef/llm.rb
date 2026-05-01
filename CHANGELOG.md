@@ -4,6 +4,17 @@
 
 ### Fix
 
+* **Interrupt Async-backed requests reliably** <br>
+  Track request ownership through the provider transport so contexts use
+  the active Async task when available, letting `ctx.interrupt!`
+  reliably cancel streamed requests under Async runtimes and surface
+  them as `LLM::Interrupt`.
+
+* **Preserve valid tool-call history on cancellation** <br>
+  Append cancelled tool-return messages for unresolved tool calls during
+  `ctx.interrupt!` so follow-up provider requests do not fail with
+  invalid tool-call history after pending tool work is cancelled.
+
 * **Preserve concurrent skill tool loops on streamed agents** <br>
   Propagate the active agent concurrency through the effective request
   stream so nested skill agents keep using queued `wait(...)` tool
@@ -27,7 +38,6 @@
 * **Return zero-valued usage objects from contexts** <br>
   Make `LLM::Context#usage` consistently return an `LLM::Object`, using a
   zero-valued usage object when no provider usage has been recorded yet.
-
 ## v6.0.0
 
 Changes since `v5.4.0`.

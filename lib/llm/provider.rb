@@ -339,6 +339,14 @@ class LLM::Provider
   alias_method :cancel!, :interrupt!
 
   ##
+  # Returns the current request owner used by the transport.
+  # @return [Object]
+  # @api private
+  def request_owner
+    transport.request_owner
+  end
+
+  ##
   # @param [Object] stream
   # @return [Boolean]
   def streamable?(stream)

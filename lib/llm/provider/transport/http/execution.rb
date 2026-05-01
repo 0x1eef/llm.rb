@@ -38,7 +38,7 @@ module LLM::Provider::Transport
           perform_request(http, request, stream, stream_parser, &b)
         end
         [handle_response(res, tracer, span), span, tracer]
-      rescue *LLM::Provider::Transport::HTTP::Interruptible::INTERRUPT_ERRORS
+      rescue *transport.interrupt_errors
         raise LLM::Interrupt, "request interrupted" if transport.interrupted?(owner)
         raise
       end

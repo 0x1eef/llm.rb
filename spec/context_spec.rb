@@ -638,6 +638,40 @@ RSpec.describe LLM::Context do
         expect(ctx.interrupt!).to be_nil
       end
     end
+
+    context "when pending tool calls have no returns yet" do
+      let(:tool) do
+        Class.new(LLM::Tool) do
+          name "echo"
+
+          def call(value:)
+            {value:}
+          end
+        end
+      end
+
+      before do
+        fn = tool.function
+        fn.id = "call_1"
+        fn.arguments = {value: "hello"}
+        ctx.messages << LLM::Message.new(
+          "assistant",
+          nil,
+          tool_calls: [LLM::Object.from(id: fn.id, name: fn.name, arguments: LLM.json.dump(fn.arguments))],
+          original_tool_calls: [{id: fn.id, type: "function", function: {name: fn.name, arguments: LLM.json.dump(fn.arguments)}}],
+          tools: [tool]
+        )
+      end
+
+      it "appends cancellation tool returns" do
+        expect(provider).to receive(:interrupt!).with(nil).ordered.and_return(nil)
+        expect(ctx.interrupt!).to be_nil
+        expect(ctx.messages.last.role).to eq(provider.tool_role.to_s)
+        expect(ctx.messages.last.content).to all(be_a(LLM::Function::Return))
+        expect(ctx.messages.last.content.map(&:id)).to eq(["call_1"])
+        expect(ctx.messages.last.content.map(&:value)).to eq([{cancelled: true, reason: "function call cancelled"}])
+      end
+    end
   end
 
   context "#talk" do
