@@ -13,7 +13,6 @@
   `Fiber.scheduler`, instead of wrapping direct calls in raw fibers. This
   gives `:fiber` a real cooperative concurrency model instead of acting as
   a thin wrapper around sequential execution.
-
 ## v7.0.0
 
 Changes since `v6.1.0`.
