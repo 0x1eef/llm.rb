@@ -8,6 +8,12 @@
   Let `LLM::Agent.new(..., tracer: ...)` override the class-level tracer
   for that agent instance.
 
+* **Make `:fiber` use scheduler-backed fibers** <br>
+  Change `:fiber` tool execution to use `Fiber.schedule` and require
+  `Fiber.scheduler`, instead of wrapping direct calls in raw fibers. This
+  gives `:fiber` a real cooperative concurrency model instead of acting as
+  a thin wrapper around sequential execution.
+
 ## v7.0.0
 
 Changes since `v6.1.0`.

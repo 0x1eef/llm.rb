@@ -290,6 +290,8 @@ Tool execution can run sequentially with `:call` or concurrently through
 `:thread`, `:task`, `:fiber`, and experimental `:ractor`, without rewriting
 your tool layer.
 
+`:fiber` uses `Fiber.schedule`, so it requires `Fiber.scheduler`.
+
 ```ruby
 class Agent < LLM::Agent
   model "gpt-5.4-mini"
@@ -391,7 +393,8 @@ worker.join
   `tool.mcp?` and choose a supported strategy per tool. Class-based
   `:ractor` tools still emit normal tool tracer callbacks. `:ractor` is
   especially useful for CPU-bound tools, while `:task`, `:fiber`, or
-  `:thread` may be a better fit for I/O-bound work.
+  `:thread` may be a better fit for I/O-bound work. `:fiber` uses
+  `Fiber.schedule`, so it requires `Fiber.scheduler`.
 - **Advanced workloads are built in, not bolted on** <br>
   Streaming, concurrent tool execution, persistence, tracing, and MCP support
   all fit the same runtime model.

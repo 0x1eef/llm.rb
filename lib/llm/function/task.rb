@@ -3,7 +3,8 @@
 class LLM::Function
   ##
   # The {LLM::Function::Task} class wraps a single concurrent function call and
-  # provides a small, uniform interface across threads, fibers, and async tasks.
+  # provides a small, uniform interface across threads, scheduler-backed fibers,
+  # and async tasks.
   class Task
     ##
     # @return [Object]
@@ -43,12 +44,18 @@ class LLM::Function
       if Thread === task
         task.value
       elsif Fiber === task
-        task.resume if task.alive?
+        fiber.alive? ? scheduler.run : nil
         task.value
       else
         task.wait
       end
     end
     alias_method :value, :wait
+
+    private
+
+    def scheduler
+      Fiber.scheduler
+    end
   end
 end

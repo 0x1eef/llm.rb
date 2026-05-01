@@ -4,10 +4,10 @@ class LLM::Function
   ##
   # The {LLM::Function::FiberGroup} class wraps an array of
   # {Fiber} objects that are running {LLM::Function} calls
-  # concurrently using raw fibers.
+  # concurrently using scheduler-backed fibers.
   #
   # This class provides the same interface as {LLM::Function::ThreadGroup}
-  # but uses raw fibers for lightweight concurrency without the async gem.
+  # but uses scheduler-backed fibers for cooperative concurrency.
   #
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
@@ -90,10 +90,16 @@ class LLM::Function
     #   order as the original fibers.
     def wait
       @fibers.map do |fiber|
-        fiber.resume if fiber.alive?
+        fiber.alive? ? scheduler.run : nil
         fiber.value
       end
     end
     alias_method :value, :wait
+
+    private
+
+    def scheduler
+      Fiber.scheduler
+    end
   end
 end

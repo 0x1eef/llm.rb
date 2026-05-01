@@ -46,7 +46,7 @@ class LLM::Stream
     #   to wait on:
     #   - `:thread`: Use threads
     #   - `:task`: Use async tasks (requires async gem)
-    #   - `:fiber`: Use raw fibers
+    #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
     #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     #   - `[:thread, :ractor]`: Wait for any queued thread or ractor work, in the
     #     given order. This is useful when different tools were spawned with

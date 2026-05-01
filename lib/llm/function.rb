@@ -209,7 +209,7 @@ class LLM::Function
   #   Controls concurrency strategy:
   #   - `:thread`: Use threads
   #   - `:task`: Use async tasks (requires async gem)
-  #   - `:fiber`: Use raw fibers
+  #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
   #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
   #
   # @return [LLM::Function::Task]
@@ -222,11 +222,8 @@ class LLM::Function
     when :thread
       Thread.new { call! }
     when :fiber
-      Fiber.new do
-        call!
-      ensure
-        Fiber.yield
-      end.tap(&:resume)
+      raise ArgumentError, "Fiber concurrency requires Fiber.scheduler" unless Fiber.scheduler
+      Fiber.schedule { call! }
     when :ractor
       raise LLM::RactorError, "Ractor concurrency only supports class-based tools" unless Class === @runner
       if @runner.respond_to?(:skill?) && @runner.skill?

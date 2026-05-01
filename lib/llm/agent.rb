@@ -106,7 +106,7 @@ module LLM
     #  - `:call`: sequential calls
     #  - `:thread`: concurrent threads
     #  - `:task`: concurrent async tasks
-    #  - `:fiber`: concurrent raw fibers
+    #  - `:fiber`: concurrent scheduler-backed fibers
     #  - `:ractor`: concurrent Ruby ractors for class-based tools; MCP tools are not supported,
     #    and this mode is especially useful for CPU-bound tool work
     #  - `[:thread, :ractor]`: the possible concurrency strategies to wait on, in the

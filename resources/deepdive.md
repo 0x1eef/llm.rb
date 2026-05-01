@@ -1189,7 +1189,8 @@ support MCP tools, but mixed workloads can still route MCP tools and local
 tools through different strategies at runtime. Class-based `:ractor` tools
 still emit normal tool tracer callbacks. `:ractor` is especially useful for
 CPU-bound tools, while `:task`, `:fiber`, or `:thread` may be a better fit for
-I/O-bound work.
+I/O-bound work. `:fiber` uses `Fiber.schedule`, so it requires
+`Fiber.scheduler`.
 
 This matters when a turn fans out into several independent tool calls. Instead
 of blocking on each one in sequence, you can resolve them together and reduce
@@ -1228,7 +1229,8 @@ stay sequential with `concurrency :call`, or run through `:thread`, `:task`, `:f
 experimental `:ractor` depending on how you want pending functions resolved.
 The current `:ractor` mode is intended for class-based tools with ractor-safe
 arguments and return values, and class-based `:ractor` tools still emit normal
-tool tracer callbacks. MCP tools are not supported.
+tool tracer callbacks. MCP tools are not supported. `:fiber` uses
+`Fiber.schedule`, so it requires `Fiber.scheduler`.
 
 Built into that loop is the wrapped context's `guard`, which gives llm.rb a
 way to supervise agentic execution when a context is no longer making

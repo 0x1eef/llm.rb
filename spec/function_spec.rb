@@ -30,7 +30,7 @@ RSpec.describe LLM::Function do
       slow_tool = Class.new(LLM::Tool) do
         name "slow"
         def call
-          sleep 0.05
+          sleep 0.5
           {"ok" => true}
         end
       end.function.dup.tap do |fn|
@@ -40,6 +40,7 @@ RSpec.describe LLM::Function do
 
       it "tracks task liveness" do
         task = slow_tool.spawn(:ractor)
+        sleep 0.01 until task.alive?
         expect(task.alive?).to be(true)
         task.wait
         expect(task.alive?).to be(false)
@@ -75,6 +76,15 @@ RSpec.describe LLM::Function do
         expect(tracer).to have_received(:on_tool_finish).with(
           result: have_attributes(id: "call_1", name: "system", value: {"ok" => true}),
           span: :span
+        )
+      end
+    end
+
+    context "when using fiber concurrency without a scheduler" do
+      it "raises a clear error" do
+        expect { tool.spawn(:fiber) }.to raise_error(
+          ArgumentError,
+          "Fiber concurrency requires Fiber.scheduler"
         )
       end
     end
