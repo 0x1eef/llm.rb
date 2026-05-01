@@ -71,7 +71,7 @@ class LLM::Provider
       ##
       # @return [Boolean]
       def persistent?
-        !persistent_client.nil?
+        !@persistent_client.nil?
       end
 
       ##

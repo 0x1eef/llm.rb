@@ -15,6 +15,12 @@
   `tool_attempts: nil` as an opt-out that disables advisory tool-limit
   returns entirely.
 
+### Fix
+
+* **Keep `net-http-persistent` optional on normal HTTP requests** <br>
+  Stop the default provider HTTP path from loading `net/http/persistent`
+  unless persistent transport support is explicitly enabled.
+
 ## v6.1.0
 
 Changes since `v6.0.0`.
