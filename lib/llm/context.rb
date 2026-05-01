@@ -338,6 +338,7 @@ module LLM
       pending.each(&:interrupt!)
       returns = pending.map { _1.cancel(reason: "function call cancelled") }
       @messages << LLM::Message.new(@llm.tool_role, returns)
+      nil
     end
     alias_method :cancel!, :interrupt!
 
