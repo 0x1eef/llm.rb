@@ -131,7 +131,8 @@ class LLM::Object < BasicObject
   #  Returns a new LLM::Object
   def merge(other = UNDEFINED)
     return SINGLETON.get(@h, :merge) if other.equal?(UNDEFINED)
-    raise TypeError, "#{other} does not implement to_h" unless other.respond_to?(:to_h)
+    other = ::Hash.try_convert(other)
+    raise TypeError, "#{other} cannot be coerced into a Hash" unless other
     SINGLETON.from @h.merge(other)
   end
 
