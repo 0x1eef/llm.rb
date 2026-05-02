@@ -101,7 +101,7 @@ class LLM::Object < BasicObject
   ##
   # @return [Array<String>]
   def keys
-    SINGLETON.get(@h, :keys) || @h.keys
+    @h.keys
   end
 
   ##
