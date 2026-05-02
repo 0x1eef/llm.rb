@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Add
+
+* **Add `LLM::Object#merge`** <br>
+  Let `LLM::Object` return a new wrapped object when merging hash-like
+  data through `#merge`.
+
+* **Add `LLM::Object#delete`** <br>
+  Let `LLM::Object` delete keys directly through `#delete`.
+
 ### Change
 
 * **Allow agent instance tracer overrides** <br>
@@ -13,13 +22,6 @@
   `Fiber.scheduler`, instead of wrapping direct calls in raw fibers. This
   gives `:fiber` a real cooperative concurrency model instead of acting as
   a thin wrapper around sequential execution.
-
-* **Add `LLM::Object#merge`** <br>
-  Let `LLM::Object` return a new wrapped object when merging hash-like
-  data through `#merge`.
-
-* **Add `LLM::Object#delete`** <br>
-  Let `LLM::Object` delete keys directly through `#delete`.
 
 * **Read stored values from zero-argument `LLM::Object` method calls** <br>
   Let calls like `obj.delete`, `obj.fetch`, `obj.merge`, `obj.key?`,
