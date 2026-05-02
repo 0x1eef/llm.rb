@@ -96,6 +96,24 @@ class LLM::Object < BasicObject
   end
 
   ##
+  # @param [Hash, to_h] other
+  #  The hash to merge
+  # @return [LLM::Object]
+  #  Returns a new LLM::Object
+  def merge(other)
+    raise TypeError, "#{other} does not implement to_h" unless other.respond_to?(:to_h)
+    self.class.from @h.merge(other)
+  end
+
+  ##
+  # @param [#to_s, #to_sym] k
+  #  The key name
+  # @return [void]
+  def delete(k)
+    @h.delete(key(k))
+  end
+
+  ##
   # @return [Integer]
   def size
     @h.size

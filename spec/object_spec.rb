@@ -100,6 +100,32 @@ RSpec.describe LLM::Object do
     end
   end
 
+  describe "#merge" do
+    let(:obj) { described_class.from("foo" => "bar") }
+
+    it "returns a new object with merged values" do
+      merged = obj.merge("baz" => 42)
+      expect(merged).to be_a(described_class)
+      expect(merged.foo).to eq("bar")
+      expect(merged.baz).to eq(42)
+      expect(obj.baz).to be_nil
+    end
+
+    it "raises TypeError when the argument is not hash-like" do
+      expect { obj.merge(1) }.to raise_error(TypeError, "1 does not implement to_h")
+    end
+  end
+
+  describe "#delete" do
+    let(:obj) { described_class.from("foo" => "bar", "baz" => 42) }
+
+    it "deletes a key using indifferent access" do
+      expect(obj.delete(:foo)).to eq("bar")
+      expect(obj.foo).to be_nil
+      expect(obj.keys).to eq(["baz"])
+    end
+  end
+
   describe "Enumerable" do
     let(:obj) { described_class.from("a" => 1, "b" => 2, "c" => 3) }
 

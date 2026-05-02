@@ -14,6 +14,13 @@
   gives `:fiber` a real cooperative concurrency model instead of acting as
   a thin wrapper around sequential execution.
 
+* **Add `LLM::Object#merge`** <br>
+  Let `LLM::Object` return a new wrapped object when merging hash-like
+  data through `#merge`.
+
+* **Add `LLM::Object#delete`** <br>
+  Let `LLM::Object` delete keys directly through `#delete`.
+
 ## v7.0.0
 
 Changes since `v6.1.0`.
