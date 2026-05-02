@@ -5,6 +5,7 @@
 # similar in spirit to OpenStruct, and it was introduced after OpenStruct
 # became a bundled gem rather than a default gem in Ruby 3.5.
 class LLM::Object < BasicObject
+  SINGLETON = self
   UNDEFINED = ::Object.new.freeze
 
   ##
@@ -59,7 +60,7 @@ class LLM::Object < BasicObject
   # @param [Symbol, #to_sym] k
   # @return [Object]
   def [](k)
-    @h[self.class.key(@h, k)]
+    @h[SINGLETON.key(@h, k)]
   end
 
   ##
@@ -97,7 +98,7 @@ class LLM::Object < BasicObject
   ##
   # @return [Array<String>]
   def keys
-    self.class.get(@h, :keys) || @h.keys
+    SINGLETON.get(@h, :keys) || @h.keys
   end
 
   ##
@@ -110,8 +111,8 @@ class LLM::Object < BasicObject
   # @param [String, Symbol] k
   # @return [Boolean]
   def key?(k = UNDEFINED)
-    return self.class.get(@h, :key?) if k.equal?(UNDEFINED)
-    @h.key?(self.class.key(@h, k))
+    return SINGLETON.get(@h, :key?) if k.equal?(UNDEFINED)
+    @h.key?(SINGLETON.key(@h, k))
   end
   alias_method :has_key?, :key?
 
@@ -119,8 +120,8 @@ class LLM::Object < BasicObject
   # @param [String, Symbol] k
   # @return [Object]
   def fetch(k = UNDEFINED, *args, &b)
-    return self.class.get(@h, :fetch) if k.equal?(UNDEFINED)
-    @h.fetch(self.class.key(@h, k), *args, &b)
+    return SINGLETON.get(@h, :fetch) if k.equal?(UNDEFINED)
+    @h.fetch(SINGLETON.key(@h, k), *args, &b)
   end
 
   ##
@@ -129,9 +130,9 @@ class LLM::Object < BasicObject
   # @return [LLM::Object]
   #  Returns a new LLM::Object
   def merge(other = UNDEFINED)
-    return self.class.get(@h, :merge) if other.equal?(UNDEFINED)
+    return SINGLETON.get(@h, :merge) if other.equal?(UNDEFINED)
     raise TypeError, "#{other} does not implement to_h" unless other.respond_to?(:to_h)
-    self.class.from @h.merge(other)
+    SINGLETON.from @h.merge(other)
   end
 
   ##
@@ -139,8 +140,8 @@ class LLM::Object < BasicObject
   #  The key name
   # @return [void]
   def delete(k = UNDEFINED)
-    return self.class.get(@h, :delete) if k.equal?(UNDEFINED)
-    @h.delete(self.class.key(@h, k))
+    return SINGLETON.get(@h, :delete) if k.equal?(UNDEFINED)
+    @h.delete(SINGLETON.key(@h, k))
   end
 
   ##
@@ -159,14 +160,14 @@ class LLM::Object < BasicObject
   ##
   # @return [Object, nil]
   def dig(*args)
-    return self.class.get(@h, :dig) if args.empty?
+    return SINGLETON.get(@h, :dig) if args.empty?
     @h.dig(*args)
   end
 
   ##
   # @return [Hash]
   def slice(*args)
-    return self.class.get(@h, :slice) if args.empty?
+    return SINGLETON.get(@h, :slice) if args.empty?
     @h.slice(*args)
   end
 
@@ -175,7 +176,7 @@ class LLM::Object < BasicObject
   def method_missing(m, *args, &b)
     if m.to_s.end_with?("=")
       self[m[0..-2]] = args.first
-    elsif k = self.class.key(@h, m)
+    elsif k = SINGLETON.key(@h, m)
       @h[k]
     else
       nil

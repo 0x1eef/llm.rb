@@ -154,6 +154,18 @@ RSpec.describe LLM::Object do
     end
   end
 
+  describe "when given 'method_missing' as a key" do
+    let(:obj) { described_class.from("method_missing" => "bar", "foo" => "baz") }
+
+    it "reads the stored method_missing value" do
+      expect(obj.method_missing).to eq("bar")
+    end
+
+    it "still reads other dynamic keys" do
+      expect(obj.foo).to eq("baz")
+    end
+  end
+
   describe "#key?" do
     let(:obj) { described_class.from("key?" => 123) }
 
