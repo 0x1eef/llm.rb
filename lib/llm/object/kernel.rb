@@ -28,11 +28,11 @@ class LLM::Object
     alias_method :is_a?, :kind_of?
 
     def respond_to?(m, include_private = false)
-      !!__get_key(m) || self.class.method_defined?(m)
+      !!self.class.key(@h, m) || self.class.method_defined?(m)
     end
 
     def respond_to_missing?(m, include_private = false)
-      !!__get_key(m)
+      !!self.class.key(@h, m)
     end
 
     def raise(...)
