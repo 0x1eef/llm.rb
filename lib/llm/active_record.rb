@@ -70,7 +70,7 @@ module LLM::ActiveRecord
     ##
     # Persists the runtime state and usage columns back onto the record.
     # @return [void]
-    def self.save(obj, ctx, options)
+    def self.save!(obj, ctx, options)
       columns = self.columns(options)
       obj.assign_attributes(columns[:data_column] => serialize_context(ctx, options[:format]))
       obj.save!

@@ -55,7 +55,7 @@ module LLM::ActiveRecord
       # @return [LLM::Response]
       def talk(...)
         options = self.class.llm_plugin_options
-        ctx.talk(...).tap { Utils.save(self, ctx, options) }
+        ctx.talk(...).tap { Utils.save!(self, ctx, options) }
       end
 
       ##
@@ -64,7 +64,7 @@ module LLM::ActiveRecord
       # @return [LLM::Response]
       def respond(...)
         options = self.class.llm_plugin_options
-        ctx.respond(...).tap { Utils.save(self, ctx, options) }
+        ctx.respond(...).tap { Utils.save!(self, ctx, options) }
       end
 
       ##
