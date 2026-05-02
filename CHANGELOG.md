@@ -31,6 +31,12 @@
   singleton class instead, making stored keys like `method_missing`
   more resilient while preserving normal dynamic field access.
 
+### Fix
+
+* **Serialize `LLM::Object` values correctly through `LLM.json`** <br>
+  Make `LLM::Object#to_json` call `LLM.json.dump(to_h, ...)` so
+  `LLM::Object` values serialize through the llm.rb JSON adapter.
+
 ## v7.0.0
 
 Changes since `v6.1.0`.

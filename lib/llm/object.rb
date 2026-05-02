@@ -10,7 +10,8 @@ class LLM::Object < BasicObject
 
   SINGLETON = self
   UNDEFINED = ::Object.new.freeze
-  private_constant :SINGLETON, :UNDEFINED
+  LLM = ::LLM
+  private_constant :SINGLETON, :UNDEFINED, :LLM
 
   ##
   # @api private
@@ -77,7 +78,7 @@ class LLM::Object < BasicObject
   ##
   # @return [String]
   def to_json(...)
-    to_h.to_json(...)
+    LLM.json.dump(to_h, ...)
   end
 
   ##

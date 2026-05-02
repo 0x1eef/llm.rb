@@ -149,8 +149,8 @@ RSpec.describe LLM::Object do
   describe "built-in method names" do
     let(:obj) { described_class.from("keys" => 123) }
 
-    it "prefers stored values for zero-arity readers" do
-      expect(obj.keys).to eq(123)
+    it "returns the underlying keys" do
+      expect(obj.keys).to eq(["keys"])
     end
   end
 
