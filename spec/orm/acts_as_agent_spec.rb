@@ -34,7 +34,7 @@ RSpec.describe "acts_as_agent" do
 
   let(:record) { agent.create! }
   let(:reload_record) { ->(row) { row.class.find(row.id) } }
-  let(:flush_record) { ->(row) { LLM::ActiveRecord::ActsAsAgent::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
+  let(:flush_record) { ->(row) { LLM::ActiveRecord::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
   include_examples "a persisted agent record"
 

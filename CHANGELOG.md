@@ -33,6 +33,11 @@
   singleton class instead, making stored keys like `method_missing`
   more resilient while preserving normal dynamic field access.
 
+* **Deduplicate ActiveRecord wrapper plumbing** <br>
+  Move shared ActiveRecord wrapper defaults and utility methods into
+  `LLM::ActiveRecord`, reducing duplication between `acts_as_llm` and
+  `acts_as_agent`.
+
 ### Fix
 
 * **Serialize `LLM::Object` values correctly through `LLM.json`** <br>

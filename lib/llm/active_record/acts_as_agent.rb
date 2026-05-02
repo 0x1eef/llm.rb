@@ -10,10 +10,6 @@ module LLM::ActiveRecord
   # tools, schema, instructions, and concurrency are configured on the model
   # class and forwarded to an internal agent subclass.
   module ActsAsAgent
-    EMPTY_HASH = LLM::ActiveRecord::ActsAsLLM::EMPTY_HASH
-    DEFAULTS = LLM::ActiveRecord::ActsAsLLM::DEFAULTS
-    Utils = LLM::ActiveRecord::ActsAsLLM::Utils
-
     module ClassMethods
       def model(model = nil)
         return agent.model if model.nil?
@@ -96,7 +92,7 @@ module LLM::ActiveRecord
       def llm
         options = self.class.llm_plugin_options
         return @llm if @llm
-        @llm = Utils.resolve_provider(self, options, ActsAsAgent::EMPTY_HASH)
+        @llm = Utils.resolve_provider(self, options, EMPTY_HASH)
         @llm.tracer = Utils.resolve_option(self, options[:tracer]) if options[:tracer]
         @llm
       end
@@ -108,7 +104,7 @@ module LLM::ActiveRecord
       def ctx
         @ctx ||= begin
           options = self.class.llm_plugin_options
-          params = Utils.resolve_options(self, options[:context], ActsAsAgent::EMPTY_HASH).dup
+          params = Utils.resolve_options(self, options[:context], EMPTY_HASH).dup
           ctx = self.class.agent.new(llm, params.compact)
           columns = Utils.columns(options)
           data = self[columns[:data_column]]
