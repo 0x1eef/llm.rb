@@ -7,6 +7,30 @@
 class LLM::Object < BasicObject
   UNDEFINED = ::Object.new.freeze
 
+  ##
+  # @param [Hash] h
+  # @param [#to_s, #to_sym] k
+  # @return [String, Symbol, nil]
+  def self.key(h, k)
+    return nil if k.nil?
+    if h.key?(k.to_s)
+      k.to_s
+    elsif h.key?(k.to_sym)
+      k.to_sym
+    else
+      nil
+    end
+  end
+
+  ##
+  # @param [Hash] h
+  # @param [#to_s, #to_sym] k
+  # @return [Object, nil]
+  def self.get(h, k)
+    name = key(h, k)
+    h[name] if name
+  end
+
   require_relative "object/builder"
   require_relative "object/kernel"
 
@@ -35,7 +59,7 @@ class LLM::Object < BasicObject
   # @param [Symbol, #to_sym] k
   # @return [Object]
   def [](k)
-    @h[__get_key(k)]
+    @h[self.class.key(@h, k)]
   end
 
   ##
@@ -73,7 +97,7 @@ class LLM::Object < BasicObject
   ##
   # @return [Array<String>]
   def keys
-    __get_value(:keys) { @h.keys }
+    self.class.get(@h, :keys) || @h.keys
   end
 
   ##
@@ -86,8 +110,8 @@ class LLM::Object < BasicObject
   # @param [String, Symbol] k
   # @return [Boolean]
   def key?(k = UNDEFINED)
-    return __get_value(:key?) if k.equal?(UNDEFINED)
-    @h.key?(__get_key(k))
+    return self.class.get(@h, :key?) if k.equal?(UNDEFINED)
+    @h.key?(self.class.key(@h, k))
   end
   alias_method :has_key?, :key?
 
@@ -95,8 +119,8 @@ class LLM::Object < BasicObject
   # @param [String, Symbol] k
   # @return [Object]
   def fetch(k = UNDEFINED, *args, &b)
-    return __get_value(:fetch) if k.equal?(UNDEFINED)
-    @h.fetch(__get_key(k), *args, &b)
+    return self.class.get(@h, :fetch) if k.equal?(UNDEFINED)
+    @h.fetch(self.class.key(@h, k), *args, &b)
   end
 
   ##
@@ -105,7 +129,7 @@ class LLM::Object < BasicObject
   # @return [LLM::Object]
   #  Returns a new LLM::Object
   def merge(other = UNDEFINED)
-    return __get_value(:merge) if other.equal?(UNDEFINED)
+    return self.class.get(@h, :merge) if other.equal?(UNDEFINED)
     raise TypeError, "#{other} does not implement to_h" unless other.respond_to?(:to_h)
     self.class.from @h.merge(other)
   end
@@ -115,8 +139,8 @@ class LLM::Object < BasicObject
   #  The key name
   # @return [void]
   def delete(k = UNDEFINED)
-    return __get_value(:delete) if k.equal?(UNDEFINED)
-    @h.delete(__get_key(k))
+    return self.class.get(@h, :delete) if k.equal?(UNDEFINED)
+    @h.delete(self.class.key(@h, k))
   end
 
   ##
@@ -135,40 +159,23 @@ class LLM::Object < BasicObject
   ##
   # @return [Object, nil]
   def dig(*args)
-    return __get_value(:dig) if args.empty?
+    return self.class.get(@h, :dig) if args.empty?
     @h.dig(*args)
   end
 
   ##
   # @return [Hash]
   def slice(*args)
-    return __get_value(:slice) if args.empty?
+    return self.class.get(@h, :slice) if args.empty?
     @h.slice(*args)
   end
 
   private
 
-  def __get_value(m)
-    k = __get_key(m)
-    return @h[k] if k
-    yield if ::Kernel.block_given?
-  end
-
-  def __get_key(k)
-    return nil if k.nil?
-    if @h.key?(k.to_s)
-      k.to_s
-    elsif @h.key?(k.to_sym)
-      k.to_sym
-    else
-      nil
-    end
-  end
-
   def method_missing(m, *args, &b)
     if m.to_s.end_with?("=")
       self[m[0..-2]] = args.first
-    elsif k = __get_key(m)
+    elsif k = self.class.key(@h, m)
       @h[k]
     else
       nil
