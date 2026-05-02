@@ -26,6 +26,11 @@
   `obj.dig`, `obj.slice`, or `obj.keys` return a stored value when that
   method name exists as a key and no arguments are given.
 
+* **Harden `LLM::Object` against arbitrary key names** <br>
+  Move internal lookup logic off `LLM::Object` instances and onto the
+  singleton class instead, making stored keys like `method_missing`
+  more resilient while preserving normal dynamic field access.
+
 ## v7.0.0
 
 Changes since `v6.1.0`.
