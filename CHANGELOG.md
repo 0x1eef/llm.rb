@@ -21,6 +21,11 @@
 * **Add `LLM::Object#delete`** <br>
   Let `LLM::Object` delete keys directly through `#delete`.
 
+* **Read stored values from zero-argument `LLM::Object` method calls** <br>
+  Let calls like `obj.delete`, `obj.fetch`, `obj.merge`, `obj.key?`,
+  `obj.dig`, `obj.slice`, or `obj.keys` return a stored value when that
+  method name exists as a key and no arguments are given.
+
 ## v7.0.0
 
 Changes since `v6.1.0`.

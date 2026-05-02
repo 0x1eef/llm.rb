@@ -4,6 +4,8 @@ class LLM::Object
   ##
   # @private
   module Kernel
+    TypeError = ::TypeError
+
     def tap(...)
       ::Kernel.instance_method(:tap).bind(self).call(...)
     end
@@ -26,11 +28,15 @@ class LLM::Object
     alias_method :is_a?, :kind_of?
 
     def respond_to?(m, include_private = false)
-      !!key(m) || self.class.method_defined?(m)
+      !!__get_key(m) || self.class.method_defined?(m)
     end
 
     def respond_to_missing?(m, include_private = false)
-      !!key(m)
+      !!__get_key(m)
+    end
+
+    def raise(...)
+      ::Kernel.raise(...)
     end
 
     def object_id

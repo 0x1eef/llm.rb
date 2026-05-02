@@ -98,6 +98,11 @@ RSpec.describe LLM::Object do
         expect(obj.fetch("nope", "default")).to eq("default")
       end
     end
+
+    it "reads fetch as an attribute when no argument is given" do
+      obj.fetch = 123
+      expect(obj.fetch).to eq(123)
+    end
   end
 
   describe "#merge" do
@@ -114,6 +119,11 @@ RSpec.describe LLM::Object do
     it "raises TypeError when the argument is not hash-like" do
       expect { obj.merge(1) }.to raise_error(TypeError, "1 does not implement to_h")
     end
+
+    it "reads merge as an attribute when no argument is given" do
+      obj.merge = 123
+      expect(obj.merge).to eq(123)
+    end
   end
 
   describe "#delete" do
@@ -123,6 +133,32 @@ RSpec.describe LLM::Object do
       expect(obj.delete(:foo)).to eq("bar")
       expect(obj.foo).to be_nil
       expect(obj.keys).to eq(["baz"])
+    end
+
+    it "still allows delete= as a dynamic attribute writer" do
+      obj.delete = 123
+      expect(obj["delete"]).to eq(123)
+    end
+
+    it "reads delete as an attribute when delete= assigned it" do
+      obj.delete = 123
+      expect(obj.delete).to eq(123)
+    end
+  end
+
+  describe "built-in method names" do
+    let(:obj) { described_class.from("keys" => 123) }
+
+    it "prefers stored values for zero-arity readers" do
+      expect(obj.keys).to eq(123)
+    end
+  end
+
+  describe "#key?" do
+    let(:obj) { described_class.from("key?" => 123) }
+
+    it "reads key? as an attribute when no argument is given" do
+      expect(obj.key?).to eq(123)
     end
   end
 

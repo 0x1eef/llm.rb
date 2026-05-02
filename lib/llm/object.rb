@@ -5,6 +5,8 @@
 # similar in spirit to OpenStruct, and it was introduced after OpenStruct
 # became a bundled gem rather than a default gem in Ruby 3.5.
 class LLM::Object < BasicObject
+  UNDEFINED = ::Object.new.freeze
+
   require_relative "object/builder"
   require_relative "object/kernel"
 
@@ -33,7 +35,7 @@ class LLM::Object < BasicObject
   # @param [Symbol, #to_sym] k
   # @return [Object]
   def [](k)
-    @h[key(k)]
+    @h[__get_key(k)]
   end
 
   ##
@@ -71,7 +73,7 @@ class LLM::Object < BasicObject
   ##
   # @return [Array<String>]
   def keys
-    @h.keys
+    __get_value(:keys) { @h.keys }
   end
 
   ##
@@ -83,16 +85,18 @@ class LLM::Object < BasicObject
   ##
   # @param [String, Symbol] k
   # @return [Boolean]
-  def key?(k)
-    @h.key?(key(k))
+  def key?(k = UNDEFINED)
+    return __get_value(:key?) if k.equal?(UNDEFINED)
+    @h.key?(__get_key(k))
   end
   alias_method :has_key?, :key?
 
   ##
   # @param [String, Symbol] k
   # @return [Object]
-  def fetch(k, *args, &b)
-    @h.fetch(key(k), *args, &b)
+  def fetch(k = UNDEFINED, *args, &b)
+    return __get_value(:fetch) if k.equal?(UNDEFINED)
+    @h.fetch(__get_key(k), *args, &b)
   end
 
   ##
@@ -100,7 +104,8 @@ class LLM::Object < BasicObject
   #  The hash to merge
   # @return [LLM::Object]
   #  Returns a new LLM::Object
-  def merge(other)
+  def merge(other = UNDEFINED)
+    return __get_value(:merge) if other.equal?(UNDEFINED)
     raise TypeError, "#{other} does not implement to_h" unless other.respond_to?(:to_h)
     self.class.from @h.merge(other)
   end
@@ -109,8 +114,9 @@ class LLM::Object < BasicObject
   # @param [#to_s, #to_sym] k
   #  The key name
   # @return [void]
-  def delete(k)
-    @h.delete(key(k))
+  def delete(k = UNDEFINED)
+    return __get_value(:delete) if k.equal?(UNDEFINED)
+    @h.delete(__get_key(k))
   end
 
   ##
@@ -128,33 +134,42 @@ class LLM::Object < BasicObject
 
   ##
   # @return [Object, nil]
-  def dig(...)
-    @h.dig(...)
+  def dig(*args)
+    return __get_value(:dig) if args.empty?
+    @h.dig(*args)
   end
 
   ##
   # @return [Hash]
-  def slice(...)
-    @h.slice(...)
+  def slice(*args)
+    return __get_value(:slice) if args.empty?
+    @h.slice(*args)
   end
 
   private
 
-  def method_missing(m, *args, &b)
-    if m.to_s.end_with?("=")
-      self[m[0..-2]] = args.first
-    elsif k = key(m)
-      @h[k]
+  def __get_value(m)
+    k = __get_key(m)
+    return @h[k] if k
+    yield if ::Kernel.block_given?
+  end
+
+  def __get_key(k)
+    return nil if k.nil?
+    if @h.key?(k.to_s)
+      k.to_s
+    elsif @h.key?(k.to_sym)
+      k.to_sym
     else
       nil
     end
   end
 
-  def key(k)
-    if @h.key?(k.to_s)
-      k.to_s
-    elsif @h.key?(k.to_sym)
-      k.to_sym
+  def method_missing(m, *args, &b)
+    if m.to_s.end_with?("=")
+      self[m[0..-2]] = args.first
+    elsif k = __get_key(m)
+      @h[k]
     else
       nil
     end
