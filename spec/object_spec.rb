@@ -117,7 +117,7 @@ RSpec.describe LLM::Object do
     end
 
     it "raises TypeError when the argument is not hash-like" do
-      expect { obj.merge(1) }.to raise_error(TypeError, "1 does not implement to_h")
+      expect { obj.merge(1) }.to raise_error(TypeError, /cannot be coerced into a Hash/)
     end
 
     it "reads merge as an attribute when no argument is given" do
