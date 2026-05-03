@@ -32,6 +32,12 @@ experimental and comes with limitations.
 Want to see some code? Jump to [the examples](#examples) section. <br>
 Want to see a self-hosted LLM environment built on llm.rb? Check out [Relay](https://github.com/llmrb/relay).
 
+## What can I build with it?
+
+You could build something like [Relay](https://github.com/llmrb/relay) and much more. 
+
+<img alt="relay" src="relay1.png">
+
 ## Architecture
 
 <p align="center">
