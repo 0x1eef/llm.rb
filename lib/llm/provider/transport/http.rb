@@ -53,7 +53,7 @@ class LLM::Provider
       # @return [Object]
       def request_owner
         return Fiber.current unless defined?(::Async)
-        Async::Task.current || Fiber.current
+        Async::Task.current? ? Async::Task.current : Fiber.current
       end
 
       ##

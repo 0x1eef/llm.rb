@@ -40,6 +40,11 @@
 
 ### Fix
 
+* **Avoid `RuntimeError` from `Async::Task.current` lookups** <br>
+  Check `Async::Task.current?` before reading the current Async task so
+  provider transports fall back to `Fiber.current` without raising when
+  no Async task is active.
+
 * **Serialize `LLM::Object` values correctly through `LLM.json`** <br>
   Make `LLM::Object#to_json` call `LLM.json.dump(to_h, ...)` so
   `LLM::Object` values serialize through the llm.rb JSON adapter.
