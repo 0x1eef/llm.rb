@@ -33,6 +33,7 @@ class LLM::Function
     ##
     # @return [nil]
     def interrupt!
+      task.interrupt! if task.respond_to?(:interrupt!)
       function&.interrupt!
       nil
     end

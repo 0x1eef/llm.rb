@@ -24,6 +24,11 @@ It provides one runtime for providers, agents, tools, skills, MCP servers, strea
 schemas, files, and persisted state, so real systems can be built out of one coherent
 execution model instead of a pile of adapters.
 
+It provides concurrent tool execution with multiple strategies exposed through a single
+runtime: async-task, threads, fibers, ractors and processes (fork). The first three are
+good for IO-bound work and the last two are good for CPU-bound work. Ractor support is
+experimental and comes with limitations.
+
 Want to see some code? Jump to [the examples](#examples) section. <br>
 Want to see a self-hosted LLM environment built on llm.rb? Check out [Relay](https://github.com/llmrb/relay).
 
@@ -287,8 +292,11 @@ end
 #### Concurrency
 
 Tool execution can run sequentially with `:call` or concurrently through
-`:thread`, `:task`, `:fiber`, and experimental `:ractor`, without rewriting
-your tool layer.
+`:thread`, `:task`, `:fiber`, `:fork`, and experimental `:ractor`, without
+rewriting your tool layer. Async tasks, threads, and fibers are the
+I/O-bound options. Fork and ractor are the CPU-bound options. `:fork`
+requires [`xchan.rb`](https://github.com/0x1eef/xchan.rb#readme) support,
+and `:ractor` is still experimental.
 
 `:fiber` uses `Fiber.schedule`, so it requires `Fiber.scheduler`.
 
@@ -369,13 +377,13 @@ worker.join
   Use `LLM::Agent` when you want the same stateful runtime surface as
   `LLM::Context`, but with tool loops executed automatically according to a
   configured concurrency mode such as `:call`, `:thread`, `:task`, `:fiber`,
-  or experimental `:ractor` support for class-based tools. MCP tools are not
-  supported by the current `:ractor` mode, but mixed tool sets can still
-  route MCP tools and local tools through different strategies at runtime.
-  By default, the tool attempt budget is `25`. When an agent exhausts that
-  budget, it sends advisory tool errors back through the model instead of
-  raising out of the runtime. Set `tool_attempts: nil` to disable that
-  advisory behavior.
+  `:fork`, or experimental `:ractor` support for class-based tools. MCP tools
+  are not supported by the current `:ractor` mode, but mixed tool sets can
+  still route MCP tools and local tools through different strategies at
+  runtime. By default, the tool attempt budget is `25`. When an agent
+  exhausts that budget, it sends advisory tool errors back through the model
+  instead of raising out of the runtime. Set `tool_attempts: nil` to disable
+  that advisory behavior.
 - **Tool calls have an explicit lifecycle** <br>
   A tool call can be executed, cancelled through
   [`LLM::Function#cancel`](https://0x1eef.github.io/x/llm.rb/LLM/Function.html#cancel-instance_method),
@@ -387,14 +395,15 @@ worker.join
   [`LLM::Context#cancel!`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#cancel-21-instance_method)
   is inspired by Go's context cancellation model.
 - **Concurrency is a first-class feature** <br>
-  Use threads, fibers, async tasks, or experimental ractors without
-  rewriting your tool layer. The current `:ractor` mode is for class-based
-  tools and does not support MCP tools, but mixed workloads can branch on
-  `tool.mcp?` and choose a supported strategy per tool. Class-based
-  `:ractor` tools still emit normal tool tracer callbacks. `:ractor` is
-  especially useful for CPU-bound tools, while `:task`, `:fiber`, or
-  `:thread` may be a better fit for I/O-bound work. `:fiber` uses
-  `Fiber.schedule`, so it requires `Fiber.scheduler`.
+  Use async tasks, threads, fibers, forks, or experimental ractors without
+  rewriting your tool layer. Async tasks, threads, and fibers are the
+  I/O-bound options. Fork and ractor are the CPU-bound options. `:fork`
+  requires [`xchan.rb`](https://github.com/0x1eef/xchan.rb#readme) support.
+  The current `:ractor` mode is for class-based tools, and MCP tools are
+  not supported by ractor, but mixed workloads can branch on `tool.mcp?`
+  and choose a supported strategy per tool. Class-based `:ractor` tools
+  still emit normal tool tracer callbacks. `:fiber` uses `Fiber.schedule`,
+  so it requires `Fiber.scheduler`.
 - **Advanced workloads are built in, not bolted on** <br>
   Streaming, concurrent tool execution, persistence, tracing, and MCP support
   all fit the same runtime model.

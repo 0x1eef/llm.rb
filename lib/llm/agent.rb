@@ -107,6 +107,7 @@ module LLM
     #  - `:thread`: concurrent threads
     #  - `:task`: concurrent async tasks
     #  - `:fiber`: concurrent scheduler-backed fibers
+    #  - `:fork`: forked child processes
     #  - `:ractor`: concurrent Ruby ractors for class-based tools; MCP tools are not supported,
     #    and this mode is especially useful for CPU-bound tool work
     #  - `[:thread, :ractor]`: the possible concurrency strategies to wait on, in the
@@ -397,8 +398,10 @@ module LLM
     def call_functions
       case concurrency || :call
       when :call then call(:functions)
-      when :thread, :task, :fiber, :ractor, Array then wait(concurrency)
-      else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. Expected :call, :thread, :task, :fiber, :ractor, or an array of queued task types"
+      when :thread, :task, :fiber, :fork, :ractor, Array then wait(concurrency)
+      else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. " \
+                                "Expected :call, :thread, :task, :fiber, :fork, :ractor, " \
+                                "or an array of the mentioned options"
       end
     end
 

@@ -19,7 +19,6 @@ class LLM::MCP
   require_relative "mcp/mailbox"
   require_relative "mcp/router"
   require_relative "mcp/rpc"
-  require_relative "mcp/pipe"
   require_relative "mcp/transport/http"
   require_relative "mcp/transport/stdio"
 

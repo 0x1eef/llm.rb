@@ -19,9 +19,19 @@ class LLM::Function
     # @param [Object, nil] span
     # @return [LLM::Function::Ractor::Task]
     def initialize(runner_class, id, name, arguments, tracer: nil, span: nil)
+      @runner_class = runner_class
+      @id = id
+      @name = name
+      @arguments = arguments
       @tracer = tracer
       @span = span
-      @mailbox = Ractor::Mailbox.new(build_task(runner_class, id, name, arguments))
+    end
+
+    ##
+    # @return [LLM::Function::Ractor::Task]
+    def spawn
+      @mailbox = Ractor::Mailbox.new(build_task)
+      self
     end
 
     ##
@@ -49,8 +59,8 @@ class LLM::Function
 
     private
 
-    def build_task(runner_class, id, name, arguments)
-      ::Ractor.new(runner_class, id, name, arguments) do |runner_class, id, name, arguments|
+    def build_task
+      ::Ractor.new(@runner_class, @id, @name, @arguments) do |runner_class, id, name, arguments|
         LLM::Function::Ractor::Job.new(::Ractor.current, runner_class, id, name, arguments).call
       end
     end

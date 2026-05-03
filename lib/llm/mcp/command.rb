@@ -34,7 +34,7 @@ class LLM::MCP
     # @return [void]
     def start
       raise LLM::MCP::Error, "MCP command is already running" if alive?
-      @stdout, @stderr, @stdin = 3.times.map { Pipe.new }
+      @stdout, @stderr, @stdin = 3.times.map { LLM::Pipe.new }
       @buffers.clear
       @pid = Process.spawn(env.to_h, *argv, {chdir: cwd, out: stdout.w, err: stderr.w, in: stdin.r}.compact)
       [stdin.close_reader, [stdout, stderr].each(&:close_writer)]

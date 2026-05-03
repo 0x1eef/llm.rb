@@ -78,6 +78,28 @@ returns entirely, and fixes the default provider HTTP path to keep
   Stop the default provider HTTP path from loading `net/http/persistent`
   unless persistent transport support is explicitly enabled.
 
+### Change
+
+* **Add fork-based tool concurrency** <br>
+  Add `:fork` as a new concurrency strategy for `LLM::Function#spawn`,
+  `LLM::Function::Array#wait`, and `LLM::Agent.concurrency` that runs
+  class-based tools in isolated child processes. Fork-backed tools support
+  tracer callbacks, `on_interrupt`/`on_cancel` hooks, and `alive?` checks.
+  Requires the `xchan` gem for inter-process communication with `:fork`.
+  This is especially useful for tools that need process isolation, such as
+  running shell commands or handling unsafe data.
+
+* **Promote `LLM::Pipe` from MCP namespace to top-level** <br>
+  Move `LLM::MCP::Pipe` to `LLM::Pipe` so the pipe abstraction is available
+  outside MCP internals. The new class adds a `binmode:` option for binary
+  pipes. `LLM::MCP::Command` and related MCP transport code have been updated
+  to use `LLM::Pipe`.
+
+* **Expose `LLM::Function#runner` as public API** <br>
+  Promote the internal runner instantiation to a public `runner` method on
+  `LLM::Function`, so callers can inspect or reuse the resolved tool instance
+  that a function wraps.
+
 ## v6.1.0
 
 Changes since `v6.0.0`.
@@ -167,6 +189,12 @@ and `LLM::RactorError` is raised for unsupported ractor tool work.
   Add `LLM::RactorError` and fail fast when `:ractor` execution is requested
   for unsupported tool types such as skill-backed tools, instead of letting
   deeper Ruby isolation errors leak out later in execution.
+
+* **Delegate interrupt to concurrent task implementations** <br>
+  Make `LLM::Function::Task#interrupt!` delegate to the underlying fork or
+  ractor task when it supports interruption, so `ctx.interrupt!` and
+  `task.interrupt!` work correctly for fork- and ractor-backed tool
+  execution.
 
 ## v5.4.0
 
@@ -875,7 +903,7 @@ Changes since `v4.9.0`.
 
 - Add HTTP transport for MCP with `LLM::MCP::Transport::HTTP` for remote servers
 - Add JSON Schema union types (`any_of`, `all_of`, `one_of`) with parser integration
-- Add JSON Schema type array union support (e.g., `"type": ["object", "null"]`)
+- Add JSON Schema type array union support (e.g., `"type\": [\"object\", \"null\"]`)
 - Add JSON Schema type inference from `const`, `enum`, or `default` fields
 
 ### Change

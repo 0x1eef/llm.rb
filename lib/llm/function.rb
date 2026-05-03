@@ -36,6 +36,8 @@ class LLM::Function
   require_relative "function/thread_group"
   require_relative "function/fiber_group"
   require_relative "function/task_group"
+  require_relative "function/fork"
+  require_relative "function/fork_group"
   require_relative "function/ractor"
   require_relative "function/ractor_group"
 
@@ -209,7 +211,9 @@ class LLM::Function
   #   Controls concurrency strategy:
   #   - `:thread`: Use threads
   #   - `:task`: Use async tasks (requires async gem)
+  #   - `:fork`: Use a forked child process (requires xchan.rb support)
   #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
+  #   - `:fork`: Use a forked child process (requires xchan.rb support)
   #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
   #
   # @return [LLM::Function::Task]
@@ -224,15 +228,19 @@ class LLM::Function
     when :fiber
       raise ArgumentError, "Fiber concurrency requires Fiber.scheduler" unless Fiber.scheduler
       Fiber.schedule { call! }
+    when :fork
+      require "xchan" unless defined?(::Chan::UNIXSocket)
+      span = @tracer&.on_tool_start(id:, name:, arguments:, model:)
+      Fork::Task.new(self, tracer: @tracer, span:).spawn
     when :ractor
       raise LLM::RactorError, "Ractor concurrency only supports class-based tools" unless Class === @runner
       if @runner.respond_to?(:skill?) && @runner.skill?
         raise LLM::RactorError, "Ractor concurrency does not support skill-backed tools"
       end
       span = @tracer&.on_tool_start(id:, name:, arguments:, model:)
-      Ractor::Task.new(@runner, id, name, arguments, tracer: @tracer, span:)
+      Ractor::Task.new(@runner, id, name, arguments, tracer: @tracer, span:).spawn
     else
-      raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, or :ractor"
+      raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, :fork, or :ractor"
     end
     Task.new(task, self)
   ensure
@@ -303,6 +311,15 @@ class LLM::Function
     end
   end
 
+  ##
+  # Returns the bound function runner instance.
+  # @return [Object]
+  def runner
+    runner = Class === @runner ? @runner.new : @runner
+    runner.tracer = @tracer if runner.respond_to?(:tracer=)
+    runner
+  end
+
   private
 
   def format_openai(provider)
@@ -328,8 +345,7 @@ class LLM::Function
   # @return [LLM::Function::Return]
   #   Returns a Return object with either the function result or error information.
   def call_function
-    runner = ((Class === @runner) ? @runner.new : @runner)
-    runner.tracer = @tracer if runner.respond_to?(:tracer=)
+    runner = self.runner
     kwargs = Hash === arguments ? arguments.transform_keys(&:to_sym) : arguments
     Return.new(id, name, runner.call(**kwargs))
   rescue => ex

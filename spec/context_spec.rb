@@ -336,6 +336,12 @@ RSpec.describe LLM::Context do
         {id: "call_1", name: "system", value: {"ok" => true}}
       ])
     end
+
+    it "waits pending tool work with fork concurrency" do
+      expect(ctx.wait(:fork).map(&:to_h)).to eq([
+        {id: "call_1", name: "system", value: {"ok" => true}}
+      ])
+    end
   end
 
   context "#call" do

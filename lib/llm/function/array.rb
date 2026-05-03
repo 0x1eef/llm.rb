@@ -27,6 +27,7 @@ class LLM::Function
     #   - `:thread`: Use threads
     #   - `:task`: Use async tasks (requires async gem)
     #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
+    #   - `:fork`: Use forked child processes
     #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     #
     # @return [LLM::Function::ThreadGroup, LLM::Function::TaskGroup, LLM::Function::FiberGroup, LLM::Function::Ractor::Group]
@@ -38,10 +39,12 @@ class LLM::Function
         ThreadGroup.new(map { |fn| fn.spawn(:thread) })
       when :fiber
         FiberGroup.new(map { |fn| fn.spawn(:fiber) })
+      when :fork
+        Fork::Group.new(map { |fn| fn.spawn(:fork) })
       when :ractor
         Ractor::Group.new(map { |fn| fn.spawn(:ractor) })
       else
-        raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, or :ractor"
+        raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, :fork, or :ractor"
       end
     end
 
@@ -54,6 +57,7 @@ class LLM::Function
     #   - `:thread`: Use threads
     #   - `:task`: Use async tasks (requires async gem)
     #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
+    #   - `:fork`: Use forked child processes
     #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     #
     # @return [Array<LLM::Function::Return>]

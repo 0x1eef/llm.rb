@@ -275,7 +275,7 @@ RSpec.describe LLM::Agent do
         functions: pending_functions,
         returns: [],
         usage: LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0),
-        mode: :completions,
+        mode: :responses,
         cost: double("cost"),
         context_window: 0,
         model: "gpt-4.1",
@@ -300,7 +300,7 @@ RSpec.describe LLM::Agent do
 
     describe "#talk" do
       it "uses sequential calls by default" do
-        agent = described_class.new(provider)
+        agent = described_class.new(provider, mode: :responses)
         allow(ctx).to receive(:call).with(:functions).and_return([tool_return])
         agent.talk("hello")
         expect(ctx).to have_received(:call).with(:functions)
@@ -308,27 +308,29 @@ RSpec.describe LLM::Agent do
         expect(ctx).to have_received(:talk).with("hello", {})
         expect(ctx).to have_received(:talk).with([tool_return], {})
       end
-    end
 
-    describe "#respond" do
-      let(:agent_class) do
-        strategy = concurrency
-        Class.new(described_class) do
-          concurrency(strategy)
+      shared_examples "single-mode concurrency" do
+        it "uses the configured concurrency for tool loops" do
+          allow(ctx).to receive(:wait).with(concurrency).and_return([tool_return])
+          agent.talk("hello")
+          expect(ctx).to have_received(:wait).with(concurrency)
+          expect(ctx).not_to have_received(:call)
+          expect(ctx).to have_received(:talk).with("hello", {})
+          expect(ctx).to have_received(:talk).with([tool_return], {})
         end
       end
-      let(:agent) { agent_class.new(provider) }
+
+      let(:agent) { described_class.new(provider, mode: :responses, concurrency:) }
 
       context "when concurrency is a single mode" do
-        let(:concurrency) { :thread }
+        context "when configured with thread" do
+          let(:concurrency) { :thread }
+          include_examples "single-mode concurrency"
+        end
 
-        it "uses the configured concurrency for tool loops" do
-          allow(ctx).to receive(:wait).with(:thread).and_return([tool_return])
-          agent.respond("hello")
-          expect(ctx).to have_received(:wait).with(:thread)
-          expect(ctx).not_to have_received(:call)
-          expect(ctx).to have_received(:respond).with("hello", {})
-          expect(ctx).to have_received(:respond).with([tool_return], {})
+        context "when configured with fork" do
+          let(:concurrency) { :fork }
+          include_examples "single-mode concurrency"
         end
       end
 
@@ -337,11 +339,11 @@ RSpec.describe LLM::Agent do
 
         it "waits for the configured task types" do
           allow(ctx).to receive(:wait).with([:thread, :ractor]).and_return([tool_return])
-          agent.respond("hello")
+          agent.talk("hello")
           expect(ctx).to have_received(:wait).with([:thread, :ractor])
           expect(ctx).not_to have_received(:call)
-          expect(ctx).to have_received(:respond).with("hello", {})
-          expect(ctx).to have_received(:respond).with([tool_return], {})
+          expect(ctx).to have_received(:talk).with("hello", {})
+          expect(ctx).to have_received(:talk).with([tool_return], {})
         end
       end
     end

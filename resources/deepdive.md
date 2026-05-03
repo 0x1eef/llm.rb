@@ -1182,15 +1182,17 @@ ctx.talk(ctx.call(:functions)) while ctx.functions.any?
 
 ### Concurrent Tools
 
-Use `wait(:thread)`, `wait(:fiber)`, `wait(:task)`, or experimental
-`wait(:ractor)` when you want multiple pending tool calls to run concurrently.
-The current `:ractor` mode is intended for class-based tools and does not
-support MCP tools, but mixed workloads can still route MCP tools and local
-tools through different strategies at runtime. Class-based `:ractor` tools
-still emit normal tool tracer callbacks. `:ractor` is especially useful for
-CPU-bound tools, while `:task`, `:fiber`, or `:thread` may be a better fit for
-I/O-bound work. `:fiber` uses `Fiber.schedule`, so it requires
-`Fiber.scheduler`.
+Use `wait(:thread)`, `wait(:fiber)`, `wait(:task)`, `wait(:fork)`, or
+experimental `wait(:ractor)` when you want multiple pending tool calls to run
+concurrently. For CPU-intensive local work, llm.rb supports both `:fork` and
+`:ractor`. `:fork` requires
+[`xchan.rb`](https://github.com/0x1eef/xchan.rb#readme) support. The current
+`:ractor` mode is intended for class-based tools and does not support MCP
+tools, but mixed workloads can still route MCP tools and local tools through
+different strategies at runtime. Class-based `:ractor` tools still emit
+normal tool tracer callbacks, while `:task`, `:fiber`, or `:thread` may be a
+better fit for I/O-bound work.
+`:fiber` uses `Fiber.schedule`, so it requires `Fiber.scheduler`.
 
 This matters when a turn fans out into several independent tool calls. Instead
 of blocking on each one in sequence, you can resolve them together and reduce
@@ -1221,15 +1223,27 @@ model choice, tools, output shape, and tool concurrency into one class.
 
 The main difference from `LLM::Context` is control flow. An agent will apply
 its instructions automatically and keep executing tool calls until the turn
-settles. By default, the tool attempt budget is `25`. When it exhausts that
-budget, it sends advisory tool errors back through the model and keeps the
-loop in-band instead of raising out of the agent runtime. Set
-`tool_attempts: nil` to disable that advisory behavior. Tool execution can
-stay sequential with `concurrency :call`, or run through `:thread`, `:task`, `:fiber`, or
-experimental `:ractor` depending on how you want pending functions resolved.
-The current `:ractor` mode is intended for class-based tools with ractor-safe
-arguments and return values, and class-based `:ractor` tools still emit normal
-tool tracer callbacks. MCP tools are not supported. `:fiber` uses
+settles or it hits the configured limit. Tool execution can stay sequential
+with `concurrency :call`, or run through `:thread`, `:task`, `:fiber`,
+`:fork`, or experimental `:ractor` depending on how you want pending
+functions resolved. For CPU-intensive local work, llm.rb supports both
+`:fork` and `:ractor`. `:fork` requires
+[`xchan.rb`](https://github.com/0x1eef/xchan.rb#readme) support. The current
+`:ractor` mode is intended for class-based tools with ractor-safe arguments
+and return values, and class-based `:ractor` tools still emit normal tool
+tracer callbacks. MCP tools are not supported.
+or it hits the configured limit. By default, the tool attempt budget is `25`.
+When it exhausts that budget, it sends advisory tool errors back through the
+model and keeps the loop in-band instead of raising out of the agent runtime.
+Set `tool_attempts: nil` to disable that advisory behavior. Tool execution can
+stay sequential with `concurrency :call`, or run through `:thread`, `:task`,
+`:fiber`, `:fork`, or experimental `:ractor` depending on how you want
+pending functions resolved. For CPU-intensive local work, llm.rb supports both
+`:fork` and `:ractor`. `:fork` requires
+[`xchan.rb`](https://github.com/0x1eef/xchan.rb#readme) support. The current
+`:ractor` mode is intended for class-based tools with ractor-safe arguments
+and return values, and class-based `:ractor` tools still emit normal tool
+tracer callbacks. MCP tools are not supported. `:fiber` uses
 `Fiber.schedule`, so it requires `Fiber.scheduler`.
 
 Built into that loop is the wrapped context's `guard`, which gives llm.rb a

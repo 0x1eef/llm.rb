@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-class LLM::MCP
+module LLM
   ##
-  # The {LLM::MCP::Pipe LLM::MCP::Pipe} class wraps a pair of IO
-  # objects created by {IO.pipe}. It is used by
-  # {LLM::MCP::Transport::Stdio LLM::MCP::Transport::Stdio} to manage
-  # the stdin, stdout, and stderr streams of an MCP process through
-  # one small interface.
+  # The {LLM::Pipe LLM::Pipe} class wraps a pair of IO objects created by
+  # {IO.pipe}. It is used by llm.rb internals to manage process and stream
+  # communication through one small interface.
   class Pipe
     ##
     # @return [IO]
@@ -20,9 +18,12 @@ class LLM::MCP
 
     ##
     # Returns a new pipe.
-    # @return [LLM::MCP::Pipe]
-    def initialize
+    # @param [Boolean] binmode
+    #  Whether both ends of the pipe should be switched to binary mode
+    # @return [LLM::Pipe]
+    def initialize(binmode: false)
       @r, @w = IO.pipe
+      [@r, @w].each(&:binmode) if binmode
     end
 
     ##
