@@ -64,13 +64,13 @@
   `LLM::ActiveRecord`, reducing duplication between `acts_as_llm` and
   `acts_as_agent`.
 
-### Fix
-
 * **Raise clearer errors for missing optional runtime dependencies** <br>
   Route optional `async`, `xchan`, and `net/http/persistent` loads
   through `LLM.require` so missing runtime gems raise `LLM::LoadError`
   with installation guidance instead of leaking raw `LoadError`
   exceptions.
+
+### Fix
 
 * **Avoid `RuntimeError` from `Async::Task.current` lookups** <br>
   Check `Async::Task.current?` before reading the current Async task so

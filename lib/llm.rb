@@ -60,6 +60,8 @@ module LLM
   def self.require(name)
     super
   rescue ::LoadError
+    names = {"xchan" => "xchan.rb", "net/http/persistent" => "net-http-persistent"}
+    name = names[name] || name
     raise LLM::LoadError,
       "#{name} is an optional runtime dependency but it does not appear to be installed. " \
       "Consider 'gem install #{name}', adding '#{name}' to your Gemfile or " \
