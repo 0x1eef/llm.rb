@@ -78,4 +78,8 @@ module LLM
   ##
   # When {LLM::Registry} can't map a registry
   NoSuchRegistryError = Class.new(Error)
+
+  ##
+  # When an optional runtime dependency cannot be required
+  LoadError = Class.new(Error)
 end

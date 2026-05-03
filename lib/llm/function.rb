@@ -221,7 +221,7 @@ class LLM::Function
   def spawn(strategy)
     task = case strategy
     when :task
-      require "async" unless defined?(::Async)
+      LLM.require "async" unless defined?(::Async)
       Async { call! }
     when :thread
       Thread.new { call! }
@@ -229,7 +229,7 @@ class LLM::Function
       raise ArgumentError, "Fiber concurrency requires Fiber.scheduler" unless Fiber.scheduler
       Fiber.schedule { call! }
     when :fork
-      require "xchan" unless defined?(::Chan::UNIXSocket)
+      LLM.require "xchan" unless defined?(::Chan::UNIXSocket)
       span = @tracer&.on_tool_start(id:, name:, arguments:, model:)
       Fork::Task.new(self, tracer: @tracer, span:).spawn
     when :ractor

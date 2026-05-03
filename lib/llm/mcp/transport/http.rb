@@ -109,7 +109,7 @@ module LLM::MCP::Transport
     # @return [LLM::MCP::Transport::HTTP]
     def persist!
       LLM.lock(:mcp) do
-        require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
+        LLM.require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
         unless LLM::MCP.clients.key?(key)
           http = Net::HTTP::Persistent.new(name: self.class.name)
           http.read_timeout = timeout

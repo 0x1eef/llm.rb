@@ -49,7 +49,22 @@ module LLM
 
   ##
   # @api private
-  def self.clients = @clients
+  def self.clients
+    @clients
+  end
+
+  ##
+  # Requires an optional runtime dependency
+  # @raise [LLM::DependencyError]
+  #  When the dependency cannot be loaded
+  def self.require(name)
+    super
+  rescue ::LoadError
+    raise LLM::LoadError,
+      "#{name} is an optional runtime dependency but it does not appear to be installed. " \
+      "Consider 'gem install #{name}', adding '#{name}' to your Gemfile or " \
+      "opting out of the functionality provided by '#{name}'"
+  end
 
   ##
   # @param [Symbol, LLM::Provider] llm
