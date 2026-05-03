@@ -19,6 +19,26 @@
 
 ### Change
 
+* **Add fork-based tool concurrency** <br>
+  Add `:fork` as a new concurrency strategy for `LLM::Function#spawn`,
+  `LLM::Function::Array#wait`, and `LLM::Agent.concurrency` that runs
+  class-based tools in isolated child processes. Fork-backed tools support
+  tracer callbacks, `on_interrupt`/`on_cancel` hooks, and `alive?` checks.
+  Requires the `xchan` gem for inter-process communication with `:fork`.
+  This is especially useful for tools that need process isolation, such as
+  running shell commands or handling unsafe data.
+
+* **Promote `LLM::Pipe` from MCP namespace to top-level** <br>
+  Move `LLM::MCP::Pipe` to `LLM::Pipe` so the pipe abstraction is available
+  outside MCP internals. The new class adds a `binmode:` option for binary
+  pipes. `LLM::MCP::Command` and related MCP transport code have been updated
+  to use `LLM::Pipe`.
+
+* **Expose `LLM::Function#runner` as public API** <br>
+  Promote the internal runner instantiation to a public `runner` method on
+  `LLM::Function`, so callers can inspect or reuse the resolved tool instance
+  that a function wraps.
+
 * **Allow agent instance tracer overrides** <br>
   Let `LLM::Agent.new(..., tracer: ...)` override the class-level tracer
   for that agent instance.
@@ -83,28 +103,6 @@ returns entirely, and fixes the default provider HTTP path to keep
 * **Keep `net-http-persistent` optional on normal HTTP requests** <br>
   Stop the default provider HTTP path from loading `net/http/persistent`
   unless persistent transport support is explicitly enabled.
-
-### Change
-
-* **Add fork-based tool concurrency** <br>
-  Add `:fork` as a new concurrency strategy for `LLM::Function#spawn`,
-  `LLM::Function::Array#wait`, and `LLM::Agent.concurrency` that runs
-  class-based tools in isolated child processes. Fork-backed tools support
-  tracer callbacks, `on_interrupt`/`on_cancel` hooks, and `alive?` checks.
-  Requires the `xchan` gem for inter-process communication with `:fork`.
-  This is especially useful for tools that need process isolation, such as
-  running shell commands or handling unsafe data.
-
-* **Promote `LLM::Pipe` from MCP namespace to top-level** <br>
-  Move `LLM::MCP::Pipe` to `LLM::Pipe` so the pipe abstraction is available
-  outside MCP internals. The new class adds a `binmode:` option for binary
-  pipes. `LLM::MCP::Command` and related MCP transport code have been updated
-  to use `LLM::Pipe`.
-
-* **Expose `LLM::Function#runner` as public API** <br>
-  Promote the internal runner instantiation to a public `runner` method on
-  `LLM::Function`, so callers can inspect or reuse the resolved tool instance
-  that a function wraps.
 
 ## v6.1.0
 
