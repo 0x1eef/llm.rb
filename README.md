@@ -34,9 +34,15 @@ Want to see a self-hosted LLM environment built on llm.rb? Check out [Relay](htt
 
 ## What can I build with it?
 
-You could build something like [Relay](https://github.com/llmrb/relay) and much more. 
+You could build something like [Relay](https://github.com/llmrb/relay) and much more.
 
-<img alt="relay" src="relay1.png">
+**Chat**
+
+<img alt="screenshot one" src="relay1.png">
+
+**MCP**
+
+<img alt="screenshot two" src="relay2.png">
 
 ## Architecture
 
