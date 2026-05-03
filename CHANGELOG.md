@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Breaking
+
+* **Drop Ruby 3.2 support** <br>
+  Stop supporting Ruby 3.2 due to a segfault observed with the `:fork`
+  tool concurrency strategy.
+
 ### Add
 
 * **Add `LLM::Object#merge`** <br>
