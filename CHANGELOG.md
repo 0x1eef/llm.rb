@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## v8.0.0
+
+Changes since `v7.0.0`.
+
+This release adds Unix-fork concurrency for process-isolated tool
+execution, extends `LLM::Object` with `#merge` and `#delete`, and drops
+Ruby 3.2 support due to segfaults observed with the `:fork` path. It
+promotes `LLM::Pipe` to the top-level namespace and adds
+`persistent: true` on `LLM::MCP.http` for direct persistent transport
+configuration. `LLM::Function#runner` is exposed as public API, agent
+tracer overrides are supported, fiber execution now uses `Fiber.schedule`,
+missing optional dependencies raise clearer `LLM::LoadError` guidance,
+and ActiveRecord wrapper plumbing is deduplicated between `acts_as_llm`
+and `acts_as_agent`.
+
 ### Breaking
 
 * **Drop Ruby 3.2 support** <br>
