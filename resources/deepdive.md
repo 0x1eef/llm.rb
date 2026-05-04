@@ -1545,8 +1545,9 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
-).persistent
+  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"},
+  persistent: true
+)
 mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the available GitHub MCP toolsets.")
@@ -1564,8 +1565,9 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"}
-).persistent
+  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"},
+  persistent: true
+)
 
 mcp.start
 ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)

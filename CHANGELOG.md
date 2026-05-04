@@ -34,6 +34,11 @@
   pipes. `LLM::MCP::Command` and related MCP transport code have been updated
   to use `LLM::Pipe`.
 
+* **Allow `persistent: true` on `LLM::MCP.http`** <br>
+  Let `LLM::MCP.http(...)` enable persistent HTTP transport directly
+  through `persistent: true`, instead of requiring a separate
+  `.persistent` call after construction.
+
 * **Expose `LLM::Function#runner` as public API** <br>
   Promote the internal runner instantiation to a public `runner` method on
   `LLM::Function`, so callers can inspect or reuse the resolved tool instance

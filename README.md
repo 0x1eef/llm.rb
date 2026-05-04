@@ -333,8 +333,9 @@ finer sequential control across several steps before shutting the client down.
 ```ruby
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"}
-).persistent
+  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"},
+  persistent: true
+)
 mcp.run do
   ctx = LLM::Context.new(llm, tools: mcp.tools)
 end
@@ -889,8 +890,9 @@ require "net/http/persistent"
 llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"}
-).persistent
+  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"},
+  persistent: true
+)
 
 mcp.start
 ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
@@ -904,8 +906,9 @@ For scoped work, `mcp.run do ... end` is shorter and handles cleanup for you:
 ```ruby
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"}
-).persistent
+  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"},
+  persistent: true
+)
 mcp.run do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("Pull information about my GitHub account.")

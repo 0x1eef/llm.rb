@@ -24,11 +24,13 @@ class LLM::MCP
 
   include RPC
 
-  @@clients = {}
+  @clients = {}
 
   ##
   # @api private
-  def self.clients = @@clients
+  def self.clients
+    @clients
+  end
 
   ##
   # Builds an MCP client that uses the stdio transport.
@@ -79,7 +81,9 @@ class LLM::MCP
       @command = Command.new(**stdio)
       @transport = Transport::Stdio.new(command:)
     elsif http
+      persistent = http.delete(:persistent)
       @transport = Transport::HTTP.new(**http, timeout:)
+      @transport.persistent if persistent
     else
       raise ArgumentError, "stdio or http is required"
     end
@@ -121,7 +125,7 @@ class LLM::MCP
   # Configures an HTTP MCP transport to use a persistent connection pool
   # via the optional dependency [Net::HTTP::Persistent](https://github.com/drbrain/net-http-persistent)
   # @example
-  #   mcp = LLM.mcp(http: {url: "https://example.com/mcp"}).persistent
+  #   mcp = LLM::MCP.http(url: "https://example.com/mcp", persistent: true)
   #   # do something with 'mcp'
   # @return [LLM::MCP]
   def persist!
