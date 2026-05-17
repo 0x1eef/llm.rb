@@ -36,6 +36,11 @@ module LLM::ActiveRecord
         agent.concurrency(concurrency)
       end
 
+      def confirm(*tool_names, &block)
+        return agent.confirm if tool_names.empty? && !block
+        agent.confirm(*tool_names, &block)
+      end
+
       def tracer(tracer = nil, &block)
         return agent.tracer if tracer.nil? && !block
         agent.tracer(tracer, &block)
