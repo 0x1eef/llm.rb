@@ -443,7 +443,7 @@ module LLM
       return wait(strategy) unless @confirm&.any?
       confirmables = @ctx.functions.select { @confirm.include?(_1.name.to_s) }
       results = confirmables.map do |tool|
-        on_tool_confirmation(tool, strategy)
+        send(:on_tool_confirmation, tool, strategy)
       end
       @ctx.functions? ? [*results, *wait(strategy)] : results
     end

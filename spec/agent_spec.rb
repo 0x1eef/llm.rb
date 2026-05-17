@@ -542,9 +542,10 @@ RSpec.describe LLM::Agent do
 
     describe "#talk" do
       let(:concurrency) { :call }
+      let(:stub_confirmation) { true }
 
       before do
-        allow(agent).to receive(:on_tool_confirmation, &confirmation)
+        allow(agent).to receive(:on_tool_confirmation, &confirmation) if stub_confirmation
       end
 
       context "when approval executes the confirmed tool" do
@@ -590,6 +591,28 @@ RSpec.describe LLM::Agent do
         it "still executes the unconfirmed tool once" do
           agent.send(:call_functions)
           expect(plain_calls.size).to eq(1)
+        end
+      end
+
+      context "when on_tool_confirmation is private" do
+        let(:stub_confirmation) { false }
+        let(:agent_class) do
+          tool_classes = tools
+          Class.new(described_class) do
+            private
+            define_method(:on_tool_confirmation) do |fn, strategy|
+              fn.spawn(strategy).wait
+            end
+          end.tap do |klass|
+            klass.tools(*tool_classes)
+            klass.confirm("confirmed")
+          end
+        end
+        let(:agent) { agent_class.new(provider, mode: :responses, concurrency:) }
+
+        it "still invokes the callback" do
+          agent.send(:call_functions)
+          expect(confirmed_calls.size).to eq(1)
         end
       end
     end
