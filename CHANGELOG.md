@@ -35,6 +35,16 @@
   Add `key?` to providers so callers can check whether a non-blank API
   key has been configured.
 
+* **Add agent tool confirmation hooks** <br>
+  Add `LLM::Agent.confirm` and `LLM::Agent#on_tool_confirmation` so
+  selected tools can be approved or cancelled before execution. Pending
+  tool resolution now relies on `LLM::Context#functions` so confirmed
+  tools are not executed twice when mixed with unconfirmed tool calls.
+
+* **Add `LLM::Function#spawn(:call).wait`** <br>
+  Add task-shaped sequential execution support for direct
+  `LLM::Function#spawn(:call).wait`.
+
 ### Fix
 
 * **Reduce private internal methods on `LLM::Stream`** <br>

@@ -500,6 +500,101 @@ RSpec.describe LLM::Agent do
     end
   end
 
+  describe "tool confirmation" do
+    let(:confirmed_calls) { [] }
+    let(:plain_calls) { [] }
+    let(:confirmed_tool) do
+      calls = confirmed_calls
+      Class.new(LLM::Tool) do
+        name "confirmed"
+        define_method(:call) do
+          calls << :called
+          {ok: true}
+        end
+      end
+    end
+    let(:plain_tool) do
+      calls = plain_calls
+      Class.new(LLM::Tool) do
+        name "plain"
+        define_method(:call) do
+          calls << :called
+          {ok: true}
+        end
+      end
+    end
+    let(:tools) { [confirmed_tool, plain_tool] }
+    let(:agent) { described_class.new(provider, mode: :responses, tools:, confirm: ["confirmed"], concurrency:) }
+    let(:ctx) { agent.instance_variable_get(:@ctx) }
+    let(:tool_message) do
+      LLM::Message.new("assistant", nil, {
+        tool_calls: [
+          {id: "call_1", name: "confirmed", arguments: {}},
+          {id: "call_2", name: "plain", arguments: {}}
+        ],
+        tools:
+      })
+    end
+
+    before do
+      ctx.messages << tool_message
+    end
+
+    describe "#talk" do
+      let(:concurrency) { :call }
+
+      before do
+        allow(agent).to receive(:on_tool_confirmation, &confirmation)
+      end
+
+      context "when approval executes the confirmed tool" do
+        let(:confirmation) do
+          proc { |_fn, callable| callable.call }
+        end
+
+        it "does not execute the confirmed tool twice" do
+          agent.send(:call_functions)
+          expect(confirmed_calls.size).to eq(1)
+        end
+
+        it "still executes the unconfirmed tool once" do
+          agent.send(:call_functions)
+          expect(plain_calls.size).to eq(1)
+        end
+
+        context "when concurrency is thread" do
+          let(:concurrency) { :thread }
+
+          it "does not execute the confirmed tool twice" do
+            agent.send(:call_functions)
+            expect(confirmed_calls.size).to eq(1)
+          end
+
+          it "still executes the unconfirmed tool once" do
+            agent.send(:call_functions)
+            expect(plain_calls.size).to eq(1)
+          end
+        end
+      end
+
+      context "when approval cancels the confirmed tool" do
+        let(:confirmation) do
+          proc { |fn, _callable| fn.cancel(reason: "approval required") }
+        end
+
+        it "does not execute the confirmed tool" do
+          agent.send(:call_functions)
+          expect(confirmed_calls).to be_empty
+        end
+
+        it "still executes the unconfirmed tool once" do
+          agent.send(:call_functions)
+          expect(plain_calls.size).to eq(1)
+        end
+      end
+    end
+  end
+
   describe "DSL tracer scoping" do
     let(:tracer) { Object.new }
     let(:res) { Struct.new(:choices).new([LLM::Message.new("assistant", "hello")]) }

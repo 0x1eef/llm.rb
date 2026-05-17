@@ -158,6 +158,19 @@ module LLM
     end
 
     ##
+    # Set or get the tool names that require confirmation before they can run.
+    #
+    # @param [String, Symbol, Array<String, Symbol>, Proc] tool_names
+    #  One or more tool names.
+    # @param [Proc] block
+    #  An optional, lazy-evaluated Proc
+    # @return [Array<String>, Proc, nil]
+    def self.confirm(*tool_names, &block)
+      return @confirm if tool_names.empty? && !block
+      @confirm = block || tool_names.flatten.map(&:to_s)
+    end
+
+    ##
     # @param [LLM::Provider] provider
     #  A provider
     # @param [Hash] params
@@ -173,12 +186,13 @@ module LLM
     # @option params [Symbol, Array<Symbol>, nil] :concurrency Defaults to the agent class concurrency
     def initialize(llm, params = {})
       @llm = llm
-      fields = %i[model skills schema tracer stream tools concurrency instructions]
-      fields_ivar = %i[tracer concurrency instructions]
+      fields = %i[model skills schema tracer stream tools concurrency instructions confirm]
+      fields_ivar = %i[tracer concurrency instructions confirm]
       fields.each do |field|
         resolvable = params.key?(field) ? params.delete(field) : self.class.public_send(field)
-        resolve_symbol = !%i[concurrency].include?(field)
+        resolve_symbol = !%i[concurrency confirm].include?(field)
         resolved = resolvable != nil ? resolve_option(self, resolvable, resolve_symbol:) : resolvable
+        resolved = [*resolved].map(&:to_s) if field == :confirm && resolved
         if field == :model
           params[field] = resolved unless resolved.nil? || params.key?(field)
         elsif resolved && !fields_ivar.include?(field)
@@ -378,6 +392,20 @@ module LLM
     end
     alias_method :restore, :deserialize
 
+    ##
+    # This method is called when confirmation is required before a tool can run.
+    #
+    # @param [LLM::Function] fn
+    #  A function object. It can be cancelled through the {LLM::Function#cancel}
+    #  method.
+    # @param [Proc] callable
+    #  When tool exeuction is approved, call this Proc to execute the tool.
+    # @return [LLM::Function::Return]
+    #  This callback **must** return a {LLM::Function::Return} object.
+    def on_tool_confirmation(fn, callable)
+      fn.cancel
+    end
+
     private
 
     ##
@@ -410,13 +438,14 @@ module LLM
     ##
     # @return [Array<LLM::Function::Return>]
     def call_functions
-      case concurrency || :call
-      when :call then wait(:call)
-      when :thread, :task, :fiber, :fork, :ractor, Array then wait(concurrency)
-      else raise ArgumentError, "Unknown concurrency: #{concurrency.inspect}. " \
-                                "Expected :call, :thread, :task, :fiber, :fork, :ractor, " \
-                                "or an array of the mentioned options"
+      strategy = concurrency || :call
+      return wait(strategy) unless @confirm&.any?
+      confirmables = @ctx.functions.select { @confirm.include?(_1.name.to_s) }
+      results = confirmables.map do |tool|
+        callable = -> { tool.spawn(strategy).wait }
+        on_tool_confirmation(tool, callable)
       end
+      @ctx.functions? ? [*results, *wait(strategy)] : results
     end
 
     ##

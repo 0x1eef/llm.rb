@@ -25,6 +25,14 @@ RSpec.describe LLM::Function do
 
     let(:strategy) { :ractor }
 
+    context "when using call concurrency" do
+      let(:strategy) { :call }
+
+      it "returns the tool result" do
+        expect(task.wait.to_h).to eq(id: "call_1", name: "system", value: {"ok" => true})
+      end
+    end
+
     describe "#value" do
       subject { task.value.to_h }
       it { is_expected.to eq(id: "call_1", name: "system", value: {"ok" => true}) }

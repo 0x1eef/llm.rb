@@ -33,6 +33,7 @@ class LLM::Function
   require_relative "function/tracing"
   require_relative "function/array"
   require_relative "function/call_group"
+  require_relative "function/call_task"
   require_relative "function/task"
   require_relative "function/thread_group"
   require_relative "function/fiber_group"
@@ -210,6 +211,7 @@ class LLM::Function
   #
   # @param [Symbol] strategy
   #   Controls concurrency strategy:
+  #   - `:call`: Call the function sequentially without spawning
   #   - `:thread`: Use threads
   #   - `:task`: Use async tasks (requires async gem)
   #   - `:fork`: Use a forked child process (requires xchan.rb support)
@@ -221,6 +223,8 @@ class LLM::Function
   #   Returns a task whose `#value` is an {LLM::Function::Return}.
   def spawn(strategy)
     task = case strategy
+    when :call
+      CallTask.new(self)
     when :task
       LLM.require "async" unless defined?(::Async)
       Async { call! }
@@ -241,7 +245,7 @@ class LLM::Function
       span = @tracer&.on_tool_start(id:, name:, arguments:, model:)
       Ractor::Task.new(@runner, id, name, arguments, tracer: @tracer, span:).spawn
     else
-      raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :thread, :task, :fiber, :fork, or :ractor"
+      raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :call, :thread, :task, :fiber, :fork, or :ractor"
     end
     Task.new(task, self)
   ensure
