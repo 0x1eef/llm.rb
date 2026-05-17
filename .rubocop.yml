@@ -41,6 +41,8 @@ Style/IdenticalConditionalBranches:
   Enabled: false
 Layout/ExtraSpacing:
   Enabled: false
+Layout/EmptyLinesAroundAccessModifier:
+  Enabled: false
 Style/EmptyElse:
   Enabled: false
 Style/PercentLiteralDelimiters:
