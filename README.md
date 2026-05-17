@@ -84,18 +84,6 @@ tool call or approve it and execute it by calling
 ```ruby
 require "llm"
 
-class DeleteFile < LLM::Tool
-  name "delete-file"
-  description "Delete a file"
-  parameter :path, String, "The path to delete"
-  required %i[path]
-
-  def call(path:)
-    File.delete(path)
-    {ok: true}
-  end
-end
-
 class Agent < LLM::Agent
   tools DeleteFile
   confirm "delete-file"
