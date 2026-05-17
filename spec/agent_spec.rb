@@ -549,7 +549,7 @@ RSpec.describe LLM::Agent do
 
       context "when approval executes the confirmed tool" do
         let(:confirmation) do
-          proc { |_fn, callable| callable.call }
+          proc { |fn, strategy| fn.spawn(strategy).wait }
         end
 
         it "does not execute the confirmed tool twice" do
@@ -579,7 +579,7 @@ RSpec.describe LLM::Agent do
 
       context "when approval cancels the confirmed tool" do
         let(:confirmation) do
-          proc { |fn, _callable| fn.cancel(reason: "approval required") }
+          proc { |fn, _strategy| fn.cancel(reason: "approval required") }
         end
 
         it "does not execute the confirmed tool" do

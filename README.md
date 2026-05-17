@@ -77,8 +77,8 @@ agent.talk "Hello world"
 An agent can be configured to require confirmation before a tool is
 executed. When a matching tool is called, llm.rb runs
 `on_tool_confirmation`. That callback must decide whether to cancel the
-tool call or approve it and execute it, and it must always return an
-instance of
+tool call or approve it and execute it by calling
+`fn.spawn(strategy).wait`, and it must always return an instance of
 [`LLM::Function::Return`](https://0x1eef.github.io/x/llm.rb/LLM/Function/Return.html):
 
 ```ruby
@@ -100,10 +100,10 @@ class Agent < LLM::Agent
   tools DeleteFile
   confirm "delete-file"
 
-  def on_tool_confirmation(fn, callable)
+  def on_tool_confirmation(fn, strategy)
     path = fn.arguments["path"] || fn.arguments[:path]
     if path.start_with?("/tmp/")
-      callable.call
+      fn.spawn(strategy).wait
     else
       fn.cancel(reason: "Deletion requires approval")
     end

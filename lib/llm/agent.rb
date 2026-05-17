@@ -396,13 +396,14 @@ module LLM
     # This method is called when confirmation is required before a tool can run.
     #
     # @param [LLM::Function] fn
-    #  A function object. It can be cancelled through the {LLM::Function#cancel}
-    #  method.
-    # @param [Proc] callable
-    #  When tool exeuction is approved, call this Proc to execute the tool.
+    #  The pending function call. It can be cancelled through the
+    #  {LLM::Function#cancel} method.
+    # @param [Symbol, Array<Symbol>] strategy
+    #  The execution strategy that would be used for the tool call.
     # @return [LLM::Function::Return]
-    #  This callback **must** return a {LLM::Function::Return} object.
-    def on_tool_confirmation(fn, callable)
+    #  Return either `fn.spawn(strategy).wait` to approve execution or
+    #  `fn.cancel(...)` to cancel the call.
+    def on_tool_confirmation(fn, strategy)
       fn.cancel
     end
 
@@ -442,8 +443,7 @@ module LLM
       return wait(strategy) unless @confirm&.any?
       confirmables = @ctx.functions.select { @confirm.include?(_1.name.to_s) }
       results = confirmables.map do |tool|
-        callable = -> { tool.spawn(strategy).wait }
-        on_tool_confirmation(tool, callable)
+        on_tool_confirmation(tool, strategy)
       end
       @ctx.functions? ? [*results, *wait(strategy)] : results
     end
