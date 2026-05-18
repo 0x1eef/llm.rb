@@ -8,6 +8,10 @@
   Remove `LLM::Context#respond` and route responses-mode turns through
   `LLM::Context#talk` with `mode: :responses` instead.
 
+* **Remove the `LLM::Bot` alias** <br>
+  Remove the backward-compatible `LLM::Bot` alias for `LLM::Context`.
+  Use `LLM::Context` directly instead.
+
 ### Add
 
 * **Add shared option resolution through `LLM::Utils`** <br>

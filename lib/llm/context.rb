@@ -541,10 +541,4 @@ module LLM
       })
     end
   end
-
-  # Backward-compatible alias
-  Bot = Context
-
-  # Scheduled for removal in v6.0
-  deprecate_constant :Bot
 end
