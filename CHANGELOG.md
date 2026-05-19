@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## v10.0.0
+
+Changes since `v9.0.0`.
+
+This release unifies context turns under `#talk`, removes the
+deprecated `LLM::Bot` alias, and adds shared option resolution
+through `LLM::Utils`.
+
+Class-level agent tunables can now be resolved lazily via Proc,
+`Array[...]` schema/tool param types are supported, and a `key?`
+method has been added on providers.
+
+Agent tool confirmation hooks let selected tools be approved or
+cancelled before execution. Keep reading to learn more.
+
 ### Breaking
 
 * **Unify context turns under `#talk`** <br>
