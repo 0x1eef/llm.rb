@@ -96,6 +96,36 @@ RSpec.describe LLM::Tracer::Telemetry do
     end
   end
 
+  describe "#start_trace" do
+    let(:span) { tracer.on_request_start(operation: "chat", model: "test-model") }
+    let(:res) { double("LLM::Response", id: "res_123", usage: LLM::Usage.new(input_tokens: 1, output_tokens: 2), service_tier: "default", system_fingerprint: "yabadabadoo") }
+
+    before do
+      tracer.start_trace(trace_group_id: "turn-123", name: "chatbot.turn")
+      tracer.on_request_finish(operation: "chat", model: "test-model", res:, span:)
+      tracer.stop_trace
+    end
+
+    it "records the root span name" do
+      expect(tracer.spans.map(&:name)).to include("chatbot.turn")
+    end
+
+    it "groups child spans under the same trace" do
+      expect(tracer.spans.map(&:trace_id).uniq.size).to eq(1)
+    end
+  end
+
+  describe "#stop_trace" do
+    before do
+      tracer.start_trace(trace_group_id: "turn-123", name: "chatbot.turn")
+      tracer.stop_trace
+    end
+
+    it "returns self" do
+      expect(tracer.stop_trace).to equal(tracer)
+    end
+  end
+
   describe "#spans" do
     let(:tracer) { described_class.new(provider, exporter:) }
     let(:exporter) do
