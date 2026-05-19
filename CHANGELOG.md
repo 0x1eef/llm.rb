@@ -6,16 +6,15 @@
 
 Changes since `v9.0.0`.
 
-This release unifies context turns under `#talk`, removes the
-deprecated `LLM::Bot` alias, and adds shared option resolution
-through `LLM::Utils`.
-
-Class-level agent tunables can now be resolved lazily via Proc,
-`Array[...]` schema/tool param types are supported, and a `key?`
-method has been added on providers.
-
-Agent tool confirmation hooks let selected tools be approved or
-cancelled before execution. Keep reading to learn more.
+This release removes the `LLM::Context#respond` method, and
+also removes the deprecated `LLM::Bot` alias. **All** class-level
+agent tunables can now be resolved lazily via a Symbol (method name),
+or a Proc. The `LLM::Agent` class can now confirm a tool call
+before it happens, and the `LLM::Schema` class has been extended
+to support `Array[String,Integer]` as a shorthand for
+`Array[AnyOf[String, Integer]]`. The `LLM::Stream` class has
+had its public method surface reduced to help avoid accidental
+collisions.
 
 ### Breaking
 
