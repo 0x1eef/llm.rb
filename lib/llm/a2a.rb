@@ -91,7 +91,9 @@ class LLM::A2A
     http(url:, headers:, timeout:, transport:, binding: :jsonrpc, base_path:)
   end
 
-  ## @return [Symbol] The active protocol binding
+  ##
+  # Returns the active protocol binding.
+  # @return [Symbol]
   attr_reader :binding
 
   ##
