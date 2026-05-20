@@ -25,5 +25,20 @@ module LLM
       else option
       end
     end
+
+    ##
+    # Normalizes an HTTP API base path.
+    #
+    # Blank paths normalize to an empty string. Non-empty paths are
+    # prefixed with a leading slash and stripped of trailing slashes.
+    #
+    # @param [String, nil] path
+    # @return [String]
+    def normalize_base_path(path)
+      path = path.to_s.strip
+      return "" if path.empty? || path == "/"
+      path = "/#{path}" unless path.start_with?("/")
+      path.sub(%r{/+\z}, "")
+    end
   end
 end

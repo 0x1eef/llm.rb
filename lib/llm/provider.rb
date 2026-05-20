@@ -32,7 +32,7 @@ class LLM::Provider
     @port = port
     @timeout = timeout
     @ssl = ssl
-    @base_path = normalize_base_path(base_path)
+    @base_path = LLM::Utils.normalize_base_path(base_path)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
     @transport = resolve_transport(transport, persistent:)
@@ -351,13 +351,6 @@ class LLM::Provider
   def path(suffix)
     return suffix if @base_path.empty?
     "#{@base_path}#{suffix}"
-  end
-
-  def normalize_base_path(path)
-    path = path.to_s.strip
-    return "" if path.empty? || path == "/"
-    path = "/#{path}" unless path.start_with?("/")
-    path.sub(%r{/+\z}, "")
   end
 
   attr_reader :base_uri, :host, :port, :timeout, :ssl, :transport

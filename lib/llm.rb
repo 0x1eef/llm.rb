@@ -2,6 +2,7 @@
 
 module LLM
   require "stringio"
+  require "securerandom"
   require_relative "llm/json_adapter"
   require_relative "llm/tracer"
   require_relative "llm/error"
@@ -35,6 +36,7 @@ module LLM
   require_relative "llm/skill"
   require_relative "llm/server_tool"
   require_relative "llm/mcp"
+  require_relative "llm/a2a"
 
   ##
   # Thread-safe monitors for different contexts
@@ -191,6 +193,25 @@ module LLM
   # @return [LLM::MCP]
   def mcp(llm = nil, **)
     LLM::MCP.new(llm, **)
+  end
+
+  ##
+  # Creates a new A2A client connected to a remote agent.
+  #
+  # @param [Hash, nil] http
+  # @option http [String] :url
+  #  The base URL of the A2A agent (e.g., "https://agent.example.com")
+  # @option http [Hash<String, String>] :headers
+  #  Extra HTTP headers (e.g., Authorization)
+  # @option http [Integer, nil] :timeout
+  #  Request timeout in seconds
+  # @option http [LLM::Transport, Class, nil] :transport
+  #  Optional transport override
+  # @param [Symbol] binding
+  #  The protocol binding to use. One of `:rest` or `:jsonrpc`
+  # @return [LLM::A2A]
+  def a2a(http:, binding: :rest)
+    LLM::A2A.http(**http, binding:)
   end
 
   ##

@@ -75,3 +75,5 @@ Style/NonNilCheck:
   Enabled: false
 Style/RedundantArrayConstructor:
   Enabled: false
+Style/RescueModifier:
+  Enabled: false

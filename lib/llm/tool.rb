@@ -69,6 +69,34 @@ class LLM::Tool
   end
 
   ##
+  # @param [LLM::A2A] a2a
+  #  The A2A client that will execute the tool call
+  # @param [LLM::A2A::Skill]
+  #  An A2A tool
+  # @return [Class<LLM::Tool>]
+  #  Returns a subclass of LLM::Tool
+  def self.a2a(a2a, skill)
+    klass = Class.new(LLM::Tool) do
+      name skill.name
+      description skill.description
+      parameter :input, String, "The input string"
+      required %i[input]
+
+      define_singleton_method(:inspect) do
+        "<LLM::Tool:0x#{object_id.to_s(16)} name=#{tool_name} (a2a)>"
+      end
+      singleton_class.alias_method :to_s, :inspect
+
+      define_method(:call) do |input:|
+        res = a2a.send_message(input)
+        {task: res.to_h}
+      end
+    end
+    register(klass)
+    klass
+  end
+
+  ##
   # Clear the registry
   # @return [void]
   def self.clear_registry!

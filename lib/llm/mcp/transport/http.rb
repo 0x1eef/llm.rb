@@ -7,7 +7,7 @@ module LLM::MCP::Transport
   # JSON-RPC messages with HTTP POST requests and buffers response
   # messages for non-blocking reads.
   class HTTP
-    require_relative "http/event_handler"
+    include LLM::Transport::Utils
 
     ##
     # @param [String] url
@@ -22,7 +22,7 @@ module LLM::MCP::Transport
     def initialize(url:, headers: {}, timeout: nil, transport: nil)
       @uri = URI.parse(url)
       @headers = headers
-      @transport = resolve_transport(transport, timeout:)
+      @transport = resolve_transport(uri, transport, timeout)
       @queue = []
       @monitor = Monitor.new
       @running = false
@@ -101,24 +101,11 @@ module LLM::MCP::Transport
       res
     end
 
-    def resolve_transport(transport, timeout:)
-      return default_transport(timeout:) if transport.nil?
-      if Class === transport && transport <= LLM::Transport
-        return transport.new(host: uri.host, port: uri.port, timeout:, ssl: uri.scheme == "https")
-      end
-      transport
-    end
-
-    def default_transport(timeout:)
-      LLM::Transport::HTTP.new(host: uri.host, port: uri.port, timeout:, ssl: uri.scheme == "https")
-    end
-
     def read(res)
       if res["content-type"].to_s.include?("text/event-stream")
-        parser = LLM::EventStream::Parser.new
-        parser.register EventHandler.new { enqueue(_1) }
-        res.read_body { parser << _1 }
-        parser.free
+        decoder = LLM::Transport::StreamDecoder.new { enqueue(_1) }
+        res.read_body { decoder << _1 }
+        decoder.free
       else
         body = +""
         res.read_body { body << _1 }

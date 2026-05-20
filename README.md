@@ -21,8 +21,9 @@ llm.rb is Ruby's most capable AI runtime.
 
 It runs on Ruby's standard library by default. loads optional pieces
 only when needed, and offers a single runtime for providers, agents,
-tools, skills, MCP, streaming, files, and persisted state. As a bonus,
-llm.rb is also [available for mruby](https://github.com/llmrb/mruby-llm).
+tools, skills, MCP, A2A, streaming, files, and persisted state. As a
+bonus, llm.rb is also
+[available for mruby](https://github.com/llmrb/mruby-llm).
 
 It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
 Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. It
@@ -149,13 +150,65 @@ mcp.run do
 end
 ```
 
+Use persistent HTTP connections with remote MCP servers:
+
+```ruby
+require "llm"
+
+mcp = LLM::MCP.http(
+  url: "https://remote-mcp.example.com",
+  transport: LLM::Transport.net_http_persistent
+)
+```
+
+#### A2A
+
+The
+[LLM::A2A](https://0x1eef.github.io/x/llm.rb/LLM/A2A.html)
+object lets llm.rb use skills provided by a remote A2A agent. Those
+skills are exposed through the same runtime as local tools, so you can
+pass them to either
+[LLM::Context](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
+or
+[LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html).
+
+Use remote skills as local tools:
+
+```ruby
+require "llm"
+
+a2a = LLM::A2A.rest(
+  url: "https://remote-agent.example.com",
+  headers: {"Authorization" => "Bearer token"}
+)
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: a2a.skills)
+ctx.talk "Analyze this CSV and summarize the trends."
+ctx.talk(ctx.wait(:call)) while ctx.functions?
+```
+
+Use persistent HTTP connections:
+
+```ruby
+require "llm"
+
+a2a = LLM::A2A.rest(
+  url: "https://remote-agent.example.com",
+  transport: LLM::Transport.net_http_persistent
+)
+```
+
+For more on direct messaging, task operations, push notification
+configs, and JSON-RPC, see the
+[LLM::A2A API docs](https://0x1eef.github.io/x/llm.rb/LLM/A2A.html).
+
 #### Skills
 
 Skills are reusable instructions loaded from a `SKILL.md` directory. They let
-you package behavior and tool access together, and they plug into the same
-runtime as tools, agents, and MCP. When a skill runs, llm.rb spawns a
-subagent with the skill instructions, access to only the tools listed in the
-skill, and recent conversation context:
+you package behavior and tool access together, and they plug into the
+same runtime as tools, agents, MCP, and A2A. When a skill runs, llm.rb
+spawns a subagent with the skill instructions, access to only the tools
+listed in the skill, and recent conversation context:
 
 ```yaml
 ---

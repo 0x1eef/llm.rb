@@ -60,4 +60,14 @@ RSpec.describe LLM::Transport::StreamDecoder do
     decoder << %(true}\n)
     expect(parser.chunks).to eq([{"ok" => true}])
   end
+
+  context "when initialized with a block" do
+    let(:chunks) { [] }
+    subject(:decoder) { described_class.new { chunks << _1 } }
+
+    it "yields decoded sse payloads to the block" do
+      decoder << %(data: {"ok":true}\n\n)
+      expect(chunks).to eq([{"ok" => true}])
+    end
+  end
 end

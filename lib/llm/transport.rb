@@ -27,6 +27,7 @@ module LLM
   # transport-specific classes.
   class Transport
     require_relative "transport/response"
+    require_relative "transport/utils"
     require_relative "transport/stream_decoder"
     require_relative "transport/http"
     require_relative "transport/persistent_http"
