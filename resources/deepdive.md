@@ -55,6 +55,12 @@ Most features extend these, rather than introducing new abstractions.
   - [MCP Tools Over Stdio](#mcp-tools-over-stdio)
   - [MCP Tools Over HTTP](#mcp-tools-over-http)
   - [MCP Prompts](#mcp-prompts)
+- [A2A](#a2a)
+  - [A2A Skills As Tools](#a2a-skills-as-tools)
+  - [A2A Tasks](#a2a-tasks)
+  - [A2A Notifications](#a2a-notifications)
+  - [A2A Direct Messaging](#a2a-direct-messaging)
+  - [A2A HTTP Options](#a2a-http-options)
 - [Multimodal Prompts](#multimodal-prompts)
   - [Image Input](#image-input)
   - [Audio Generation](#audio-generation)
@@ -1588,6 +1594,176 @@ mcp.run do
   puts prompt.messages.first.extra.original_content.type
 end
 ```
+
+## A2A
+
+A2A (Agent2Agent) lets llm.rb connect to remote agents that expose an agent
+card, skill definitions, task operations, and optional push notification
+configuration.
+
+In llm.rb, `LLM::A2A` works in two layers:
+
+- expose remote skills as local `LLM::Tool` classes
+- use the direct client API for messaging, tasks, notifications, and streaming
+
+The tool layer is the better default when a remote agent should participate in
+the normal llm.rb tool loop. The direct client layer is useful when your
+application needs explicit task control or protocol features that do not
+belong in a model-facing tool schema.
+
+### A2A Skills As Tools
+
+`a2a.skills` adapts remote
+[`LLM::A2A::Card::Skill`](../lib/llm/a2a/card/skill.rb)
+objects into `LLM::Tool` classes. Each generated tool exposes the skill name
+and description, accepts a single `input`, and delegates the work through
+`a2a.send_message(...)`.
+
+This is the main reason A2A fits well inside llm.rb. Remote agent skills can
+be mixed with local tools and MCP tools in the same context or agent without
+introducing a separate execution model:
+
+```ruby
+#!/usr/bin/env ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+a2a = LLM::A2A.rest(
+  url: "https://remote-agent.example.com",
+  headers: {"Authorization" => "Bearer token"}
+)
+ctx = LLM::Context.new(llm, tools: a2a.skills)
+
+ctx.talk("Analyze this CSV and summarize the main trends.")
+ctx.talk(ctx.wait(:call)) while ctx.functions?
+```
+
+### A2A Tasks
+
+A2A task operations are grouped under `a2a.tasks`. Use this layer when the
+application needs explicit task inspection instead of going only through the
+tool loop.
+
+Fetch a task by id, optionally including recent history:
+
+```ruby
+task = a2a.tasks.get("task_123", history_length: 10)
+puts task.status.state
+```
+
+List tasks with filtering:
+
+```ruby
+tasks = a2a.tasks.list(
+  context_id: "ctx_123",
+  status: "TASK_STATE_COMPLETED",
+  history_length: 10,
+  status_timestamp_after: "2026-05-20T00:00:00Z",
+  include_artifacts: true,
+  page_size: 20
+)
+
+puts tasks.tasks.size
+```
+
+Cancel an in-flight task. Optional `metadata:` can be attached when the server
+supports it:
+
+```ruby
+a2a.tasks.cancel("task_123", metadata: {reason: "user_request"})
+```
+
+Subscribe to updates for an existing task:
+
+```ruby
+a2a.tasks.subscribe("task_123") do |event|
+  pp event
+end
+```
+
+### A2A Notifications
+
+Push notification configuration is grouped under `a2a.notifications`.
+
+Use it when the remote agent should call back into your application after a
+task changes state, instead of forcing your app to poll continuously:
+
+```ruby
+config = a2a.notifications.create(
+  "task_123",
+  url: "https://client.example.com/webhook",
+  token: "secret-token"
+)
+
+puts config.id
+puts a2a.notifications.get("task_123", config.id).url
+puts a2a.notifications.list("task_123").configs.map(&:id)
+
+a2a.notifications.delete("task_123", config.id)
+```
+
+### A2A Direct Messaging
+
+Use direct messaging when you want to talk to the remote agent without routing
+through `LLM::Context` or a generated tool.
+
+`#send_message` returns the task or message payload as an `LLM::Object`.
+Optional request metadata can be attached directly:
+
+```ruby
+res = a2a.send_message("What is the weather in Tokyo?", {}, metadata: {source: "chatbot"})
+puts res.task.status.state
+puts res.task.artifacts.first.parts.first.text
+```
+
+`#send_streaming_message` yields streaming A2A events:
+
+```ruby
+a2a.send_streaming_message("Plot a chart") do |event|
+  pp event
+end
+```
+
+Some servers also expose an authenticated extended agent card:
+
+```ruby
+card = a2a.extended_card
+puts card.name
+```
+
+### A2A HTTP Options
+
+`LLM::A2A` supports both REST and JSON-RPC bindings. Use `.rest(...)` for the
+normal HTTP+JSON binding, or `.jsonrpc(...)` when the remote agent expects
+JSON-RPC:
+
+```ruby
+a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com")
+```
+
+You can also override the HTTP transport. Persistent HTTP is useful when your
+application makes repeated requests to the same remote agent:
+
+```ruby
+a2a = LLM::A2A.rest(
+  url: "https://remote-agent.example.com",
+  transport: LLM::Transport.net_http_persistent
+)
+```
+
+If the remote service is mounted under a prefix, use `base_path:` to build the
+REST endpoint paths below that prefix:
+
+```ruby
+a2a = LLM::A2A.rest(
+  url: "https://agent.example.com",
+  base_path: "/tenant-1"
+)
+```
+
+The direct client methods still work with `base_path:`. Agent card discovery
+stays at `/.well-known/agent-card.json`, while REST task and message routes are
+built under the configured prefix.
 
 ## Multimodal Prompts
 
