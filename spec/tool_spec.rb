@@ -163,4 +163,19 @@ RSpec.describe LLM::Tool do
       )
     end
   end
+
+  describe ".a2a" do
+    let(:skill) do
+      LLM::A2A::Card::Skill.new(
+        "id" => "analyze",
+        "name" => "analyze",
+        "description" => "Analyze data"
+      )
+    end
+    let(:tool) { described_class.a2a(Object.new, skill) }
+
+    it "inspects as an a2a tool" do
+      expect(tool.inspect).to match(/\A<LLM::Tool:0x\h+ name=analyze \(a2a\)>\z/)
+    end
+  end
 end

@@ -71,7 +71,7 @@ class LLM::Tool
   ##
   # @param [LLM::A2A] a2a
   #  The A2A client that will execute the tool call
-  # @param [LLM::A2A::Skill]
+  # @param [LLM::A2A::Card::Skill]
   #  An A2A tool
   # @return [Class<LLM::Tool>]
   #  Returns a subclass of LLM::Tool
