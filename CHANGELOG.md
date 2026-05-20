@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Breaking
+
+* **Remove the unused `llm` argument from MCP clients** <br>
+  Remove the unused positional `llm` argument from `LLM::MCP.new`,
+  `LLM::MCP.stdio`, `LLM::MCP.http`, and `LLM.mcp`.
+
 ### Add
 
 * **Add A2A client support** <br>

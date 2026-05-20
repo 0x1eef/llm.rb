@@ -26,29 +26,23 @@ class LLM::MCP
 
   ##
   # Builds an MCP client that uses the stdio transport.
-  # @param [LLM::Provider, nil] llm
-  #  An instance of LLM::Provider. Optional.
   # @param [Hash] stdio
   #  The stdio transport configuration
   # @return [LLM::MCP]
-  def self.stdio(llm = nil, **stdio)
-    new(llm, stdio:)
+  def self.stdio(**stdio)
+    new(stdio:)
   end
 
   ##
   # Builds an MCP client that uses the HTTP transport.
-  # @param [LLM::Provider, nil] llm
-  #  An instance of LLM::Provider. Optional.
   # @param [Hash] http
   #  The HTTP transport configuration
   # @return [LLM::MCP]
-  def self.http(llm = nil, **http)
-    new(llm, http:)
+  def self.http(**http)
+    new(http:)
   end
 
   ##
-  # @param [LLM::Provider, nil] llm
-  #  The provider to use for MCP transports that need one
   # @param [Hash, nil] stdio The configuration for the stdio transport
   # @option stdio [Array<String>] :argv
   #  The command to run for the MCP process
@@ -67,8 +61,7 @@ class LLM::MCP
   # @param [Integer] timeout
   #  The maximum amount of time to wait when reading from an MCP process
   # @return [LLM::MCP] A new MCP instance
-  def initialize(llm = nil, stdio: nil, http: nil, timeout: 30)
-    @llm = llm
+  def initialize(stdio: nil, http: nil, timeout: 30)
     @timeout = timeout
     if stdio && http
       raise ArgumentError, "stdio and http are mutually exclusive"
@@ -165,7 +158,7 @@ class LLM::MCP
 
   private
 
-  attr_reader :llm, :command, :transport, :timeout
+  attr_reader :command, :transport, :timeout
 
   def adapt_content(content)
     case content

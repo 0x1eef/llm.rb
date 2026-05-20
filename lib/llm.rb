@@ -181,8 +181,6 @@ module LLM
   end
 
   ##
-  # @param [LLM::Provider, nil] llm
-  #  The provider to use for MCP transports that need one
   # @param [Hash, nil] stdio
   # @option stdio [Array<String>] :argv
   #  The command to run for the MCP process
@@ -191,8 +189,8 @@ module LLM
   # @option stdio [String, nil] :cwd
   #  The working directory for the MCP process
   # @return [LLM::MCP]
-  def mcp(llm = nil, **)
-    LLM::MCP.new(llm, **)
+  def mcp(**)
+    LLM::MCP.new(**)
   end
 
   ##
