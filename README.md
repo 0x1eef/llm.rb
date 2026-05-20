@@ -161,7 +161,7 @@ mcp = LLM::MCP.http(
 )
 ```
 
-#### A2A
+#### A2A (Agent 2 Agent)
 
 The
 [LLM::A2A](https://0x1eef.github.io/x/llm.rb/LLM/A2A.html)
