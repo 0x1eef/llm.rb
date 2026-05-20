@@ -83,7 +83,7 @@ class LLM::Tool
       required %i[input]
 
       define_singleton_method(:inspect) do
-        "<LLM::Tool:0x#{object_id.to_s(16)} name=#{tool_name} (a2a)>"
+        "<LLM::Tool:0x#{object_id.to_s(16)} name=#{skill.name} (a2a)>"
       end
       singleton_class.alias_method :to_s, :inspect
 
