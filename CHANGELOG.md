@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Add
+
+* **Add A2A client support** <br>
+  Add `LLM::A2A`, a client for the Agent2Agent (A2A) protocol with
+  REST and JSON-RPC bindings. Remote agent skills can be exposed as
+  `LLM::Tool` classes and used through `LLM::Context` or `LLM::Agent`,
+  and the client also supports direct messaging, streaming, task
+  operations, push notification configuration, extended agent cards,
+  persistent HTTP transport selection, and optional REST `base_path`
+  prefixing.
+
+  Refactor shared MCP/A2A HTTP transport setup into
+  `LLM::Transport::Utils`, and extend
+  `LLM::Transport::StreamDecoder` to accept a callback block directly.
+
 ## v10.0.0
 
 Changes since `v9.0.0`.
