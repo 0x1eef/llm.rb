@@ -43,10 +43,13 @@ class LLM::A2A
   #  The transport used to communicate with the remote A2A agent
   # @param [String] base_path
   #  Optional base path prefix for REST endpoints
+  # @param [String] protocol_version
+  #  The expected A2A protocol version. Defaults to `"1.0"`.
   # @return [LLM::A2A]
-  def initialize(transport:, binding: :rest, base_path: "")
+  def initialize(transport:, binding: :rest, base_path: "", protocol_version: "1.0")
     @binding = binding
     @base_path = LLM::Utils.normalize_base_path(base_path)
+    @protocol_version = protocol_version
     @transport = transport
   end
 
@@ -64,9 +67,22 @@ class LLM::A2A
   #  The protocol binding to use. One of `:rest` or `:jsonrpc`
   # @param [String] base_path
   #  Optional base path prefix for REST endpoints
+  # @param [String] protocol_version
+  #  The expected A2A protocol version. Defaults to `"1.0"`.
   # @return [LLM::A2A]
-  def self.http(url:, headers: {}, timeout: 30, transport: nil, binding: :rest, base_path: "")
-    new(binding:, base_path:, transport: Transport::HTTP.new(url:, headers:, timeout:, transport:))
+  def self.http(url:, headers: {}, timeout: 30, transport: nil, binding: :rest, base_path: "", protocol_version: "1.0")
+    new(
+      binding:,
+      base_path:,
+      protocol_version:,
+      transport: Transport::HTTP.new(
+        url:,
+        headers:,
+        timeout:,
+        transport:,
+        protocol_version:
+      )
+    )
   end
 
   ##
@@ -76,8 +92,16 @@ class LLM::A2A
   # @param [Integer, nil] timeout
   # @param [LLM::Transport, Class, nil] transport
   # @return [LLM::A2A]
-  def self.rest(url:, headers: {}, timeout: 30, transport: nil, base_path: "")
-    http(url:, headers:, timeout:, transport:, binding: :rest, base_path:)
+  def self.rest(url:, headers: {}, timeout: 30, transport: nil, base_path: "", protocol_version: "1.0")
+    http(
+      url:,
+      headers:,
+      timeout:,
+      transport:,
+      binding: :rest,
+      base_path:,
+      protocol_version:
+    )
   end
 
   ##
@@ -87,8 +111,16 @@ class LLM::A2A
   # @param [Integer, nil] timeout
   # @param [LLM::Transport, Class, nil] transport
   # @return [LLM::A2A]
-  def self.jsonrpc(url:, headers: {}, timeout: 30, transport: nil, base_path: "")
-    http(url:, headers:, timeout:, transport:, binding: :jsonrpc, base_path:)
+  def self.jsonrpc(url:, headers: {}, timeout: 30, transport: nil, base_path: "", protocol_version: "1.0")
+    http(
+      url:,
+      headers:,
+      timeout:,
+      transport:,
+      binding: :jsonrpc,
+      base_path:,
+      protocol_version:
+    )
   end
 
   ##

@@ -50,6 +50,13 @@ class LLM::A2A
     end
 
     ##
+    # Returns the advertised A2A protocol version.
+    # @return [String, nil]
+    def protocol_version
+      @data.protocolVersion || @data.protocol_version
+    end
+
+    ##
     # Returns the documentation URL, when present.
     # @return [String, nil]
     def documentation_url

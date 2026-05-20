@@ -18,9 +18,11 @@ class LLM::A2A
       # @param [Hash<String, String>] headers Extra HTTP headers
       # @param [Integer, nil] timeout The timeout in seconds
       # @param [LLM::Transport, Class, nil] transport Override transport
-      def initialize(url:, headers: {}, timeout: nil, transport: nil)
+      # @param [String] protocol_version The A2A protocol version header
+      def initialize(url:, headers: {}, timeout: nil, transport: nil, protocol_version: "1.0")
         @uri = URI.parse(url)
         @headers = headers
+        @protocol_version = protocol_version
         @transport = resolve_transport(@uri, transport, timeout)
       end
 
@@ -29,8 +31,7 @@ class LLM::A2A
       # @param [String] path The URL path
       # @return [Hash]
       def get(path, accept: "application/json")
-        uri = URI.join("#{@uri}/", path.delete_prefix("/"))
-        req = Net::HTTP::Get.new(uri.request_uri, headers(accept:))
+        req = Net::HTTP::Get.new(request_path(path), headers(accept:))
         res = transport.request(req, owner: self)
         parse_response(res)
       end
@@ -41,8 +42,7 @@ class LLM::A2A
       # @param [Hash] body The JSON body
       # @return [Hash]
       def post(path, body, content_type: "application/json", accept: "application/json")
-        uri = URI.join("#{@uri}/", path.delete_prefix("/"))
-        req = Net::HTTP::Post.new(uri.request_uri, headers(content_type:, accept:))
+        req = Net::HTTP::Post.new(request_path(path), headers(content_type:, accept:))
         req.body = LLM.json.dump(body)
         res = transport.request(req, owner: self)
         parse_response(res)
@@ -53,8 +53,7 @@ class LLM::A2A
       # @param [String] path The URL path
       # @return [Hash]
       def delete(path, accept: "application/json")
-        uri = URI.join("#{@uri}/", path.delete_prefix("/"))
-        req = Net::HTTP::Delete.new(uri.request_uri, headers(accept:))
+        req = Net::HTTP::Delete.new(request_path(path), headers(accept:))
         res = transport.request(req, owner: self)
         parse_response(res)
       end
@@ -67,8 +66,7 @@ class LLM::A2A
       # @yieldparam [LLM::Object] event A stream event
       # @return [void]
       def get_stream(path, &on_event)
-        uri = URI.join("#{@uri}/", path.delete_prefix("/"))
-        req = Net::HTTP::Get.new(uri.request_uri, headers(accept: "text/event-stream"))
+        req = Net::HTTP::Get.new(request_path(path), headers(accept: "text/event-stream"))
         stream(req, &on_event)
       end
 
@@ -81,8 +79,7 @@ class LLM::A2A
       # @yieldparam [LLM::Object] event A stream event
       # @return [void]
       def post_stream(path, body, content_type: "application/json", &on_event)
-        uri = URI.join("#{@uri}/", path.delete_prefix("/"))
-        req = Net::HTTP::Post.new(uri.request_uri, headers(content_type:, accept: "text/event-stream"))
+        req = Net::HTTP::Post.new(request_path(path), headers(content_type:, accept: "text/event-stream"))
         req.body = LLM.json.dump(body)
         stream(req, &on_event)
       end
@@ -93,9 +90,15 @@ class LLM::A2A
 
       def headers(content_type: "application/json", accept: "application/json")
         {
+          "A2A-Version" => @protocol_version,
           "content-type" => content_type,
           "accept" => accept
         }.merge(@headers)
+      end
+
+      def request_path(path)
+        path = LLM::Utils.normalize_base_path(path)
+        path.empty? ? "/" : path
       end
 
       def stream(req, &on_event)
@@ -110,8 +113,7 @@ class LLM::A2A
 
       def parse_response(res)
         res = LLM::Transport::Response.from(res)
-        body = +""
-        res.read_body { body << _1 }
+        body = res.body.to_s
         if res.success?
           body.empty? ? {} : LLM.json.load(body)
         else

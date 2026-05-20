@@ -76,14 +76,15 @@ class LLM::Tool
   # @return [Class<LLM::Tool>]
   #  Returns a subclass of LLM::Tool
   def self.a2a(a2a, skill)
+    name = skill.name.gsub(" ", "-")
     klass = Class.new(LLM::Tool) do
-      name skill.name
-      description skill.description
+      name(name)
+      description(skill.description)
       parameter :input, String, "The input string"
       required %i[input]
 
       define_singleton_method(:inspect) do
-        "<LLM::Tool:0x#{object_id.to_s(16)} name=#{skill.name} (a2a)>"
+        "<LLM::Tool:0x#{object_id.to_s(16)} name=#{name} (a2a)>"
       end
       singleton_class.alias_method :to_s, :inspect
 
