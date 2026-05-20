@@ -62,8 +62,7 @@ class LLM::A2A::Card
     ##
     # @return [String]
     def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
-      "@id=#{id.inspect} @name=#{name.inspect}>"
+      "#<#{LLM::Utils.object_id(self)} @id=#{id.inspect} @name=#{name.inspect}>"
     end
   end
 end

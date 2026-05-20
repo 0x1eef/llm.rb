@@ -138,8 +138,7 @@ class LLM::A2A
     ##
     # @return [String]
     def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
-      "@name=#{name.inspect} @skills=#{skills.size}>"
+      "#<#{LLM::Utils.object_id(self)} @name=#{name.inspect} @skills=#{skills.size}>"
     end
   end
 end

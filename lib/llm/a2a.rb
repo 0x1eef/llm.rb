@@ -397,7 +397,7 @@ class LLM::A2A
   ##
   # @return [String]
   def inspect
-    "#<#{self.class.name}:0x#{object_id.to_s(16)} @binding=#{@binding.inspect}>"
+    "#<#{LLM::Utils.object_id(self)} @binding=#{@binding.inspect}>"
   end
 
   private

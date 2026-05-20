@@ -128,7 +128,7 @@ module LLM
     ##
     # @return [String]
     def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)} @provider=#{@llm.class} @tracer=#{@tracer.inspect}>"
+      "#<#{LLM::Utils.object_id(self)} @provider=#{@llm.class} @tracer=#{@tracer.inspect}>"
     end
 
     ##

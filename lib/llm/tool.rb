@@ -48,7 +48,7 @@ class LLM::Tool
         params { tool["inputSchema"] || {type: "object", properties: {}} }
 
         define_singleton_method(:inspect) do
-          "<LLM::Tool:0x#{object_id.to_s(16)} name=#{tool["name"]} (mcp)>"
+          "<#{LLM::Utils.object_id(self)} name=#{tool["name"]} (mcp)>"
         end
         singleton_class.alias_method :to_s, :inspect
 
@@ -84,7 +84,7 @@ class LLM::Tool
       required %i[input]
 
       define_singleton_method(:inspect) do
-        "<LLM::Tool:0x#{object_id.to_s(16)} name=#{name} (a2a)>"
+        "<#{LLM::Utils.object_id(self)} name=#{name} (a2a)>"
       end
       singleton_class.alias_method :to_s, :inspect
 

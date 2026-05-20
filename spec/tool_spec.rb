@@ -168,14 +168,18 @@ RSpec.describe LLM::Tool do
     let(:skill) do
       LLM::A2A::Card::Skill.new(
         "id" => "analyze",
-        "name" => "analyze",
+        "name" => "Returns hello world",
         "description" => "Analyze data"
       )
     end
     let(:tool) { described_class.a2a(Object.new, skill) }
 
     it "inspects as an a2a tool" do
-      expect(tool.inspect).to match(/\A<LLM::Tool:0x\h+ name=analyze \(a2a\)>\z/)
+      expect(tool.inspect).to match(/\A<LLM::Tool:0x\h+ name=Returns-hello-world \(a2a\)>\z/)
+    end
+
+    it "normalizes spaces in the tool name" do
+      expect(tool.name).to eq("Returns-hello-world")
     end
   end
 end

@@ -44,7 +44,7 @@ class LLM::Provider
   # @return [String]
   # @note The secret key is redacted in inspect for security reasons
   def inspect
-    "#<#{self.class.name}:0x#{object_id.to_s(16)} @key=[REDACTED] @transport=#{transport.inspect} @tracer=#{tracer.inspect}>"
+    "#<#{LLM::Utils.object_id(self)} @key=[REDACTED] @transport=#{transport.inspect} @tracer=#{tracer.inspect}>"
   end
 
   ##

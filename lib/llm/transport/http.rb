@@ -83,7 +83,7 @@ class LLM::Transport
     ##
     # @return [String]
     def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)}>"
+      "#<#{LLM::Utils.object_id(self)}>"
     end
 
     private

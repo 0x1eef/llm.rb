@@ -48,7 +48,7 @@ class LLM::Object
     end
 
     def inspect
-      "#<#{self.class}:0x#{object_id.to_s(16)} properties=#{to_h.inspect}>"
+      "#<#{LLM::Utils.object_id(self)} properties=#{to_h.inspect}>"
     end
     alias_method :to_s, :inspect
 

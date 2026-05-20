@@ -205,7 +205,7 @@ module LLM
     # Returns a string representation of the message
     # @return [String]
     def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
+      "#<#{LLM::Utils.object_id(self)} " \
       "tool_call=#{tool_calls.any?} role=#{role.inspect} " \
       "content=#{content.inspect} reasoning_content=#{reasoning_content.inspect}>"
     end

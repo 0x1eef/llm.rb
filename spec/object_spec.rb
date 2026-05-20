@@ -76,6 +76,22 @@ RSpec.describe LLM::Object do
     end
   end
 
+  describe "#inspect" do
+    let(:obj) { described_class.from("user" => {"name" => "Ava"}, "active" => true) }
+    let(:inspect_pattern) do
+      /
+        \A\#<LLM::Object:0x\h+\ properties=
+        \{"user"\ =>\ \#<LLM::Object:0x\h+\ properties=
+        \{"name"\ =>\ "Ava"\}>,\ "active"\ =>\ true\}>
+        \z
+      /x
+    end
+
+    it "includes the object id and properties" do
+      expect(obj.inspect).to match(inspect_pattern)
+    end
+  end
+
   describe "#respond_to?" do
     let(:obj) { described_class.from("foo" => "bar") }
 

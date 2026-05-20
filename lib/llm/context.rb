@@ -206,7 +206,7 @@ module LLM
     ##
     # @return [String]
     def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)} " \
+      "#<#{LLM::Utils.object_id(self)} " \
       "@llm=#{@llm.class}, @mode=#{@mode.inspect}, @params=#{@params.inspect}, " \
       "@messages=#{@messages.inspect}>"
     end

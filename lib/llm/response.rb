@@ -46,7 +46,7 @@ module LLM
     # Returns an inspection of the response object
     # @return [String]
     def inspect
-      "#<#{self.class.name}:0x#{object_id.to_s(16)} @body=#{body.inspect} @res=#{@res.inspect}>"
+      "#<#{LLM::Utils.object_id(self)} @body=#{body.inspect} @res=#{@res.inspect}>"
     end
 
     ##
