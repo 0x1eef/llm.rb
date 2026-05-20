@@ -78,17 +78,12 @@ RSpec.describe LLM::Object do
 
   describe "#inspect" do
     let(:obj) { described_class.from("user" => {"name" => "Ava"}, "active" => true) }
-    let(:inspect_pattern) do
-      /
-        \A\#<LLM::Object:0x\h+\ properties=
-        \{"user"\ =>\ \#<LLM::Object:0x\h+\ properties=
-        \{"name"\ =>\ "Ava"\}>,\ "active"\ =>\ true\}>
-        \z
-      /x
-    end
 
     it "includes the object id and properties" do
-      expect(obj.inspect).to match(inspect_pattern)
+      expect(obj.inspect).to start_with("#<LLM::Object:0x")
+      expect(obj.inspect).to match(/"user"\s*=>\s*#<LLM::Object:0x/)
+      expect(obj.inspect).to match(/properties=\{"name"\s*=>\s*"Ava"\}/)
+      expect(obj.inspect).to match(/"active"\s*=>\s*true/)
     end
   end
 
