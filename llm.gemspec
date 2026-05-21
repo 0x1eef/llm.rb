@@ -14,9 +14,9 @@ Gem::Specification.new do |spec|
 
   It runs on Ruby's standard library by default. loads optional pieces
   only when needed, and offers a single runtime for providers, agents,
-  tools, skills, MCP, A2A, RAG (vector stores & embeddings), streaming,
-  files, and persisted state. As a bonus, llm.rb is also available for
-  mruby.
+  tools, skills, MCP, A2A (Agent2Agent), RAG (vector stores & embeddings),
+  streaming, files, and persisted state. As a bonus, llm.rb is also available
+  for mruby.
 
   It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
   Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. It
