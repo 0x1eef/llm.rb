@@ -9,7 +9,22 @@ Gem::Specification.new do |spec|
   spec.email = ["azantar@proton.me", "0x1eef@hardenedbsd.org"]
 
   spec.summary = "Ruby's most capable AI runtime"
-  spec.description = spec.summary
+  spec.description = <<~DESC
+  llm.rb is Ruby's most capable AI runtime.
+
+  It runs on Ruby's standard library by default. loads optional pieces
+  only when needed, and offers a single runtime for providers, agents,
+  tools, skills, MCP, A2A, RAG (vector stores & embeddings), streaming,
+  files, and persisted state. As a bonus, llm.rb is also available for
+  mruby.
+
+  It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
+  Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. It
+  also includes built-in ActiveRecord and Sequel support, plus concurrent
+  tool execution through threads, tasks (via async gem), fibers, ractors,
+  and fork (via xchan.rb gem).
+  DESC
+
   spec.license = "0BSD"
   spec.required_ruby_version = ">= 3.3.0"
 
