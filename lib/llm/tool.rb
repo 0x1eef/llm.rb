@@ -94,7 +94,7 @@ class LLM::Tool
 
       define_method(:call) do |input:|
         res = a2a.send_message(input)
-        {task: res.to_h}
+        {task: res}
       end
     end
     register(klass)

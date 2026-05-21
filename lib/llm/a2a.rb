@@ -176,12 +176,13 @@ class LLM::A2A
   #  Optional metadata to attach to the request
   # @return [LLM::Object] The task or message response
   def send_message(text, configuration = {}, metadata: nil)
-    body = build_request("SendMessage",
+    body = build_request(
+      "SendMessage",
       message: {role: "ROLE_USER", parts: [{text:}], messageId: SecureRandom.uuid},
       configuration:,
-      metadata:)
-    res = execute_request(body)
-    LLM::Object.from(res)
+      metadata:
+    )
+    execute_request(body)
   end
 
   ##
@@ -194,9 +195,11 @@ class LLM::A2A
   # @yieldparam [LLM::Object] event A stream event
   # @return [void]
   def send_streaming_message(text, configuration = {}, &on_event)
-    body = build_request("SendStreamingMessage",
+    body = build_request(
+      "SendStreamingMessage",
       message: {role: "ROLE_USER", parts: [{text:}], messageId: SecureRandom.uuid},
-      configuration:)
+      configuration:
+    )
     execute_stream(body, &on_event)
   end
 
@@ -224,8 +227,8 @@ class LLM::A2A
   ##
   # Cancels a task in progress.
   # @param [String] task_id The task ID to cancel
-  # @return [LLM::Object]
   # @param [Hash, nil] metadata Optional metadata to attach to the request
+  # @return [LLM::Object]
   def cancel_task(task_id, metadata: nil)
     body = build_request("CancelTask", id: task_id, metadata:)
     case @binding
@@ -247,10 +250,10 @@ class LLM::A2A
   def subscribe_to_task(task_id, &on_event)
     case @binding
     when :rest
-      transport.get_stream(rest_path("/tasks/#{task_id}:subscribe"), &on_event)
+      transport.get_stream(rest_path("/tasks/#{task_id}:subscribe")) { on_event&.call(LLM::Object.from(_1)) }
     when :jsonrpc
       body = build_request("SubscribeToTask", id: task_id)
-      transport.post_stream("/", body, &on_event)
+      transport.post_stream("/", body) { on_event&.call(LLM::Object.from(_1)) }
     else
       raise LLM::A2A::Error, "Invalid A2A binding: #{@binding.inspect}"
     end
@@ -416,7 +419,7 @@ class LLM::A2A
   end
 
   def execute_request(body)
-    case @binding
+    res = case @binding
     when :rest
       transport.post(rest_path("/message:send"), body)
     when :jsonrpc
@@ -428,14 +431,15 @@ class LLM::A2A
     else
       raise LLM::A2A::Error, "Invalid A2A binding: #{@binding.inspect}"
     end
+    LLM::Object.from(res)
   end
 
   def execute_stream(body, &on_event)
     case @binding
     when :rest
-      transport.post_stream(rest_path("/message:stream"), body, &on_event)
+      transport.post_stream(rest_path("/message:stream"), body) { on_event&.call(LLM::Object.from(_1)) }
     when :jsonrpc
-      transport.post_stream("/", body, &on_event)
+      transport.post_stream("/", body) { on_event&.call(LLM::Object.from(_1)) }
     else
       raise LLM::A2A::Error, "Invalid A2A binding: #{@binding.inspect}"
     end
