@@ -57,7 +57,7 @@ RSpec.describe LLM::A2A do
 
     it "includes metadata when given" do
       a2a.send_message("hello", {}, metadata: {"tenant" => "acme"})
-      expect(transport.posts.first.last[:metadata]).to eq("tenant" => "acme")
+      expect(transport.posts[0][-1][:metadata]).to eq("tenant" => "acme")
     end
   end
 
@@ -85,11 +85,11 @@ RSpec.describe LLM::A2A do
     end
 
     it "wraps signatures" do
-      expect(card.signatures.first.signature).to eq("abc123")
+      expect(card.signatures[0].signature).to eq("abc123")
     end
 
     it "wraps capability extensions" do
-      expect(card.capabilities.extensions.first.uri).to eq("https://example.com/extensions/history")
+      expect(card.capabilities.extensions[0].uri).to eq("https://example.com/extensions/history")
     end
   end
 
@@ -127,11 +127,18 @@ RSpec.describe LLM::A2A do
     end
 
     context "when listing tasks" do
+      let(:path) do
+        "/tasks?contextId=ctx_1&status=completed" \
+        "&historyLength=10" \
+        "&statusTimestampAfter=2026-05-20T00%3A00%3A00Z" \
+        "&includeArtifacts=true" \
+        "&pageSize=5" \
+        "&pageToken=next"
+      end
+
       let(:responses) do
         {
-          [:get, "/tasks?contextId=ctx_1&status=completed&historyLength=10&statusTimestampAfter=2026-05-20T00%3A00%3A00Z&includeArtifacts=true&pageSize=5&pageToken=next"] => {
-            "tasks" => []
-          }
+          [:get, path] => { "tasks" => [] }
         }
       end
 
@@ -139,7 +146,7 @@ RSpec.describe LLM::A2A do
         tasks.list(context_id: "ctx_1", status: "completed", history_length: 10,
                    status_timestamp_after: "2026-05-20T00:00:00Z",
                    include_artifacts: true, page_size: 5, page_token: "next")
-        expect(transport.gets.first).to eq("/tasks?contextId=ctx_1&status=completed&historyLength=10&statusTimestampAfter=2026-05-20T00%3A00%3A00Z&includeArtifacts=true&pageSize=5&pageToken=next")
+        expect(transport.gets[0]).to eq(path)
       end
     end
 
@@ -154,7 +161,7 @@ RSpec.describe LLM::A2A do
 
       it "includes metadata when given" do
         tasks.cancel("task_1", metadata: {"reason" => "user_request"})
-        expect(transport.posts.first.last[:metadata]).to eq("reason" => "user_request")
+        expect(transport.posts[0][-1][:metadata]).to eq("reason" => "user_request")
       end
     end
   end
@@ -173,7 +180,157 @@ RSpec.describe LLM::A2A do
     end
 
     it "lists push notification configs" do
-      expect(notifications.list("task_1").configs.first.id).to eq("cfg_1")
+      expect(notifications.list("task_1").configs[0].id).to eq("cfg_1")
+    end
+  end
+
+  describe "when given the hello-world example from a2a-samples" do
+    let(:transport) do
+      Class.new do
+        attr_reader :gets, :posts, :streams
+
+        def initialize
+          @gets = []
+          @posts = []
+          @streams = []
+        end
+
+        def get(path)
+          @gets << path
+          case path
+          when "/.well-known/agent-card.json" then public_card
+          else raise KeyError, path
+          end
+        end
+
+        def post(path, body)
+          @posts << [path, body]
+          case body[:method]
+          when "SendMessage" then task_response
+          when "GetExtendedAgentCard" then extended_card
+          else raise KeyError, body[:method]
+          end
+        end
+
+        def post_stream(path, body)
+          @streams << [path, body]
+          case body[:method]
+          when "SendStreamingMessage" then stream_events.each { yield(_1) }
+          else raise KeyError, body[:method]
+          end
+        end
+
+        private
+
+        def public_card
+          {
+            "name" => "Hello World Agent",
+            "description" => "Just a hello world agent",
+            "version" => "0.0.1",
+            "capabilities" => {"streaming" => true, "extendedAgentCard" => true},
+            "supportedInterfaces" => [
+              {"protocolBinding" => "JSONRPC", "protocolVersion" => "1.0", "url" => "http://127.0.0.1:9999"}
+            ],
+            "defaultInputModes" => ["text/plain"],
+            "defaultOutputModes" => ["text/plain"],
+            "skills" => [
+              {
+                "id" => "hello_world",
+                "name" => "Returns hello world",
+                "description" => "just returns hello world",
+                "tags" => ["hello world"],
+                "examples" => ["hi", "hello world"]
+              }
+            ]
+          }
+        end
+
+        def extended_card
+          public_card.merge(
+            "name" => "Hello World Agent - Extended Edition",
+            "version" => "0.0.2",
+            "skills" => public_card["skills"] + [
+              {
+                "id" => "super_hello_world",
+                "name" => "Returns a SUPER Hello World",
+                "description" => "A more enthusiastic greeting, only for authenticated users.",
+                "tags" => ["hello world", "super", "extended"],
+                "examples" => ["super hi", "give me a super hello"]
+              }
+            ]
+          )
+        end
+
+        def task_response
+          {
+            "task" => {
+              "id" => "task_1",
+              "status" => {"state" => "TASK_STATE_COMPLETED"},
+              "artifacts" => [
+                {"parts" => [{"text" => "Hello, World!"}]}
+              ]
+            }
+          }
+        end
+
+        def stream_events
+          [
+            {"task" => {"id" => "task_1"}},
+            {"status" => {"state" => "TASK_STATE_WORKING"}},
+            {"artifact" => {"parts" => [{"text" => "Hello, World!"}]}},
+            {"status" => {"state" => "TASK_STATE_COMPLETED"}}
+          ]
+        end
+      end.new
+    end
+    let(:a2a) { described_class.new(transport:, binding: :jsonrpc) }
+
+    describe "#card" do
+      let(:card) { a2a.card }
+
+      it "loads the public hello world card" do
+        expect(card.name).to eq("Hello World Agent")
+      end
+    end
+
+    describe "#extended_card" do
+      let(:card) { a2a.extended_card }
+      let(:skills) { card.skills }
+
+      it "loads the extended hello world card" do
+        expect(skills[-1].name).to eq("Returns a SUPER Hello World")
+      end
+    end
+
+    describe "#send_message" do
+      let(:message) { a2a.send_message("hi") }
+      let(:artifacts) { message.task.artifacts }
+
+      it "returns the hello world task artifact" do
+        expect(artifacts[0].parts[0].text).to eq("Hello, World!")
+      end
+    end
+
+    describe "#send_streaming_message" do
+      let(:events) { [] }
+
+      before do
+        a2a.send_streaming_message("hi") { events << _1 }
+      end
+
+      it "yields the hello world stream events" do
+        expect(events[-1].status.state).to eq("TASK_STATE_COMPLETED")
+      end
+    end
+
+    describe "#skills" do
+      let(:tool) { a2a.skills[0] }
+      let(:result) { tool.new.call(input: "hi") }
+      let(:artifacts) { result[:task].task.artifacts }
+
+      it "adapts the hello world skill as a tool" do
+        expect(artifacts[0].parts[0].text).to eq("Hello, World!")
+      end
     end
   end
 
@@ -190,7 +347,7 @@ RSpec.describe LLM::A2A do
 
     it "prefixes REST task paths" do
       expect(a2a.tasks.get("task_1").id).to eq("task_1")
-      expect(transport.gets.first).to eq("/tenant-1/tasks/task_1")
+      expect(transport.gets[0]).to eq("/tenant-1/tasks/task_1")
     end
   end
 end
