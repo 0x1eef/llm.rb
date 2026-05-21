@@ -138,7 +138,7 @@ RSpec.describe LLM::A2A do
 
       let(:responses) do
         {
-          [:get, path] => { "tasks" => [] }
+          [:get, path] => {"tasks" => []}
         }
       end
 
