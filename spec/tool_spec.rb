@@ -181,5 +181,15 @@ RSpec.describe LLM::Tool do
     it "normalizes spaces in the tool name" do
       expect(tool.name).to eq("Returns-hello-world")
     end
+
+    it "marks generated tools as a2a tools" do
+      expect(tool).to be_a2a
+    end
+  end
+
+  describe ".a2a?" do
+    it "returns false for normal tools" do
+      expect(shell).to_not be_a2a
+    end
   end
 end

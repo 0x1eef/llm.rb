@@ -23,6 +23,10 @@
   `LLM::Transport::Utils`, and extend
   `LLM::Transport::StreamDecoder` to accept a callback block directly.
 
+* **Add `LLM::Tool.a2a?`** <br>
+  Add `LLM::Tool.a2a?` and mark generated A2A-backed tool classes so
+  callers can distinguish them from local or MCP tools.
+
 ## v10.0.0
 
 Changes since `v9.0.0`.

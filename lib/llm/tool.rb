@@ -88,6 +88,10 @@ class LLM::Tool
       end
       singleton_class.alias_method :to_s, :inspect
 
+      define_singleton_method(:a2a?) do
+        true
+      end
+
       define_method(:call) do |input:|
         res = a2a.send_message(input)
         {task: res.to_h}
@@ -198,6 +202,13 @@ class LLM::Tool
   # Returns true if the tool is an MCP tool
   # @return [Boolean]
   def self.mcp?
+    false
+  end
+
+  ##
+  # Returns true if the tool is an A2A tool
+  # @return [Boolean]
+  def self.a2a?
     false
   end
 
