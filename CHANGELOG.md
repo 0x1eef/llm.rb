@@ -48,6 +48,17 @@
   Add `LLM::File#exist?` as a small convenience wrapper for checking
   whether a local file exists on disk.
 
+* **Fix block-form ORM agent DSL forwarding** <br>
+  Fix block-form `model { ... }`, `tools { ... }`, and
+  `schema { ... }` declarations in the ActiveRecord and Sequel agent
+  wrappers so persisted agent models configure the internal agent class
+  the same way as `LLM::Agent`.
+
+* **Fix missing `skills` in ORM agent wrappers** <br>
+  Fix the ActiveRecord and Sequel agent wrappers to expose `skills`, so
+  persisted agent models can declare skills the same way as
+  `LLM::Agent`.
+
 * **Allow one-shot stdio MCP requests outside `#session`** <br>
   Allow `mcp.tools`, `mcp.prompts`, `mcp.find_prompt(...)`, and
   `mcp.call_tool(...)` to work outside `mcp.session` by starting and

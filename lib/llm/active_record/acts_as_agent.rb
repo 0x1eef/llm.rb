@@ -11,19 +11,24 @@ module LLM::ActiveRecord
   # class and forwarded to an internal agent subclass.
   module ActsAsAgent
     module ClassMethods
-      def model(model = nil)
-        return agent.model if model.nil?
-        agent.model(model)
+      def model(model = nil, &block)
+        return agent.model if model.nil? && !block
+        agent.model(model, &block)
       end
 
-      def tools(*tools)
-        return agent.tools if tools.empty?
-        agent.tools(*tools)
+      def tools(*tools, &block)
+        return agent.tools if tools.empty? && !block
+        agent.tools(*tools, &block)
       end
 
-      def schema(schema = nil)
-        return agent.schema if schema.nil?
-        agent.schema(schema)
+      def skills(*skills, &block)
+        return agent.skills if skills.empty? && !block
+        agent.skills(*skills, &block)
+      end
+
+      def schema(schema = nil, &block)
+        return agent.schema if schema.nil? && !block
+        agent.schema(schema, &block)
       end
 
       def instructions(instructions = nil)

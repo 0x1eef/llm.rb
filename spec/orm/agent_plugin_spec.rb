@@ -8,6 +8,12 @@ require "sequel/plugins/agent"
 
 RSpec.describe "plugin :agent" do
   let(:model) { LLM::Test::Harness.build_sequel_model(:spec_sequel_agents) }
+  let(:tool) do
+    Class.new(LLM::Tool) do
+      name "echo"
+      description "Echo a value"
+    end
+  end
 
   let(:agent) do
     Class.new(model) do
@@ -39,6 +45,26 @@ RSpec.describe "plugin :agent" do
 
   it "forwards confirm to the internal agent class" do
     expect(agent.agent.confirm).to eq(["delete-file"])
+  end
+
+  context "when tools are declared with a block" do
+    let(:agent) do
+      tool = self.tool
+      Class.new(model) do
+        plugin :agent, provider: :set_provider
+        tools { [tool] }
+
+        private
+
+        def set_provider
+          LLM.openai(key: "secret")
+        end
+      end
+    end
+
+    it "forwards the block to the internal agent class" do
+      expect(agent.agent.tools).to be_a(Proc)
+    end
   end
 
   include_examples "a persisted agent record"
