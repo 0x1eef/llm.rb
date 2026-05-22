@@ -44,6 +44,10 @@
   `with:` attachments, an optional `stream:` target, and an optional
   block for streamed chunks, and returns an `LLM::Response`.
 
+* **Add `LLM::File#exist?`** <br>
+  Add `LLM::File#exist?` as a small convenience wrapper for checking
+  whether a local file exists on disk.
+
 * **Allow one-shot stdio MCP requests outside `#session`** <br>
   Allow `mcp.tools`, `mcp.prompts`, `mcp.find_prompt(...)`, and
   `mcp.call_tool(...)` to work outside `mcp.session` by starting and
