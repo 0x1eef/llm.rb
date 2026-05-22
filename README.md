@@ -53,25 +53,6 @@ ctx = LLM::Context.new(llm, stream: $stdout)
 ctx.talk "Hello world"
 ```
 
-#### ask
-
-[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
-also provides `ask`, a convenience interface that is compatible with
-RubyLLM's `ask` method. It accepts a prompt, an optional `with:`
-attachment path or paths, an optional `stream:` target, and an optional
-block that chunks are yielded to:
-
-```ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-ctx = LLM::Context.new(llm)
-
-puts ctx.ask("Hello world")
-puts ctx.ask("Summarize this document.", with: "README.md")
-ctx.ask("Stream this reply.") { $stdout << _1 }
-```
-
 #### LLM::Agent
 
 The
@@ -373,6 +354,25 @@ string = ctx1.to_json
 ctx2 = LLM::Context.new(llm, stream: $stdout)
 ctx2.restore(string:)
 ctx2.talk "What is my favorite language?"
+```
+
+#### ask
+
+[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
+also provides `ask`, a convenience interface that is compatible with
+RubyLLM's `ask` method. It accepts a prompt, an optional `with:`
+attachment path or paths, an optional `stream:` target, and an optional
+block that chunks are yielded to:
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+puts ctx.ask("Hello world")
+puts ctx.ask("Summarize this document.", with: "README.md")
+ctx.ask("Stream this reply.") { $stdout << _1 }
 ```
 
 ## Installation
