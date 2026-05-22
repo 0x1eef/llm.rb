@@ -29,6 +29,19 @@
   `LLM::Function#define` when binding a function instance to its
   implementation.
 
+* **Add `LLM::MCP#session`** <br>
+  Add `LLM::MCP#session` as an alias for `LLM::MCP#run`, and prefer it
+  in examples for scoped stdio MCP sessions that should stay alive
+  across discovery and tool calls.
+
+* **Allow one-shot stdio MCP requests outside `#session`** <br>
+  Allow `mcp.tools`, `mcp.prompts`, `mcp.find_prompt(...)`, and
+  `mcp.call_tool(...)` to work outside `mcp.session` by starting and
+  stopping a stdio transport on demand when needed. This makes stdio
+  MCP usable without an explicit session block, while keeping
+  `mcp.session` as the preferred pattern for efficient, stateful
+  stdio workflows.
+
 * **Add A2A client support** <br>
   Add `LLM::A2A`, a client for the Agent2Agent (A2A) protocol with
   REST and JSON-RPC bindings. Remote agent skills can be exposed as

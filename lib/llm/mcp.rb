@@ -109,12 +109,13 @@ class LLM::MCP
   ensure
     stop
   end
+  alias_method :session, :run
 
   ##
   # Returns the tools provided by the MCP process.
   # @return [Array<Class<LLM::Tool>>]
   def tools
-    res = call(transport, "tools/list")
+    res = with_session { call(transport, "tools/list") }
     res["tools"].map { LLM::Tool.mcp(self, _1) }
   end
 
@@ -122,7 +123,7 @@ class LLM::MCP
   # Returns the prompts provided by the MCP process.
   # @return [Array<LLM::Object>]
   def prompts
-    res = call(transport, "prompts/list")
+    res = with_session { call(transport, "prompts/list") }
     LLM::Object.from(res["prompts"])
   end
 
@@ -134,7 +135,7 @@ class LLM::MCP
   def find_prompt(name:, arguments: nil)
     params = {name:}
     params[:arguments] = arguments if arguments
-    res = call(transport, "prompts/get", params)
+    res = with_session { call(transport, "prompts/get", params) }
     res["messages"] = [*res["messages"]].map do |message|
       LLM::Message.new(
         message["role"],
@@ -152,13 +153,22 @@ class LLM::MCP
   # @param [Hash] arguments The arguments to pass to the tool
   # @return [Object] The result of the tool call
   def call_tool(name, arguments = {})
-    res = call(transport, "tools/call", {name:, arguments:})
+    res = with_session { call(transport, "tools/call", {name:, arguments:}) }
     adapt_tool_result(res)
   end
 
   private
 
   attr_reader :command, :transport, :timeout
+
+  def with_session
+    return yield if transport.running?
+    session_started = true
+    start
+    yield
+  ensure
+    stop if session_started
+  end
 
   def adapt_content(content)
     case content

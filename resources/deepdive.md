@@ -1502,9 +1502,8 @@ contexts and agents.
 Use stdio when the MCP server runs as a local process. This is the most direct
 way to connect local utilities and developer tools into a context.
 
-Use `mcp.run do ... end` when the client only needs to live for one scoped
-block. Use `mcp.start` and `mcp.stop` directly when you want finer sequential
-control across multiple steps before cleanup.
+Use `mcp.session do ... end` when the stdio client only needs to live for one
+scoped block.
 
 ```ruby
 #!/usr/bin/env ruby
@@ -1514,12 +1513,17 @@ llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.stdio(
   argv: ["npx", "-y", "@modelcontextprotocol/server-filesystem", Dir.pwd]
 )
-mcp.run do
+mcp.session do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk("List the directories in this project.")
   ctx.talk(ctx.wait(:call)) while ctx.functions?
 end
 ```
+
+For stdio transports, `mcp.session` is still the preferred pattern because it
+keeps one MCP session alive across discovery and tool calls. Calling
+`mcp.tools`, `mcp.prompts`, or `mcp.call_tool(...)` outside `session` is
+supported, but each request will start and stop a fresh stdio process.
 
 ### MCP Tools Over HTTP
 
@@ -1540,32 +1544,9 @@ mcp = LLM::MCP.http(
   headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"},
   persistent: true
 )
-mcp.run do
-  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
-  ctx.talk("List the available GitHub MCP toolsets.")
-  ctx.talk(ctx.wait(:call)) while ctx.functions?
-end
-```
-
-When you need more control over ordering, start the client explicitly and stop
-it yourself after the sequential steps are done:
-
-```ruby
-#!/usr/bin/env ruby
-require "llm"
-
-llm = LLM.openai(key: ENV["KEY"])
-mcp = LLM::MCP.http(
-  url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch("GITHUB_PAT")}"},
-  persistent: true
-)
-
-mcp.start
 ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
 ctx.talk("List the available GitHub MCP toolsets.")
 ctx.talk(ctx.wait(:call)) while ctx.functions?
-mcp.stop
 ```
 
 ### MCP Prompts
@@ -1584,7 +1565,7 @@ context or agent:
 require "llm"
 
 mcp = LLM::MCP.stdio(argv: ["npx", "-y", "@mcpservers/prompt-library"])
-mcp.run do
+mcp.session do
   prompts = mcp.prompts
   prompt = mcp.find_prompt(
     name: "suggest_code_error_fix",

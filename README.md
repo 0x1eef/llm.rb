@@ -135,7 +135,9 @@ or
 [LLM::Agent](https://0x1eef.github.io/x/llm.rb/LLM/Agent.html).
 In this example, the MCP server runs over stdio and
 [LLM::Context](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
-uses the same tool loop as local tools:
+uses the same tool loop as local tools. For **stdio**, `mcp.session`
+is the preferred pattern because it keeps one MCP session alive across
+discovery and tool calls:
 
 ```ruby
 require "llm"
@@ -143,22 +145,46 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
 
-mcp.run do
+mcp.session do
   ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
   ctx.talk "Use the available tools to inspect the environment."
   ctx.talk(ctx.wait(:call)) while ctx.functions?
 end
 ```
 
-Use persistent HTTP connections with remote MCP servers:
+MCP can also be used without `session`. Although it works it is generally
+not recommended for the **stdio** transport because it is inefficient
+to start and stop a fresh MCP process for tool discovery and each tool
+call:
 
 ```ruby
 require "llm"
 
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
+
+ctx = LLM::Context.new(llm, tools: mcp.tools)
+ctx.talk("Use the available tools to inspect the environment.")
+ctx.talk(ctx.wait(:call)) while ctx.functions?
+```
+
+The HTTP transport can be used with or without the `session` method,
+and unlike the stdio transport it can remain efficient without the
+`session` method through a persistent connection pool that is available
+through the [LLM::Transport.net_http_persistent](https://0x1eef.github.io/x/llm.rb/LLM/Transport.html#method-c-net_http_persistent) transport:
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.http(
   url: "https://remote-mcp.example.com",
   transport: LLM::Transport.net_http_persistent
 )
+
+ctx = LLM::Context.new(llm, tools: mcp.tools)
+ctx.talk("Use the available tools to inspect the environment.")
+ctx.talk(ctx.wait(:call)) while ctx.functions?
 ```
 
 #### A2A (Agent 2 Agent)
@@ -655,26 +681,9 @@ mcp = LLM::MCP.http(
   persistent: true
 )
 
-mcp.start
 ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
 ctx.talk("Pull information about my GitHub account.")
 ctx.talk(ctx.wait(:call)) while ctx.functions?
-mcp.stop
-```
-
-For scoped work, `mcp.run do ... end` is shorter and handles cleanup for you:
-
-```ruby
-mcp = LLM::MCP.http(
-  url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV["GITHUB_PAT"]}"},
-  persistent: true
-)
-mcp.run do
-  ctx = LLM::Context.new(llm, stream: $stdout, tools: mcp.tools)
-  ctx.talk("Pull information about my GitHub account.")
-  ctx.talk(ctx.wait(:call)) while ctx.functions?
-end
 ```
 
 ## Resources

@@ -78,6 +78,13 @@ module LLM::MCP::Transport
       command.wait
     end
 
+    ##
+    # @return [Boolean]
+    #  Returns true when the MCP server connection is alive
+    def running?
+      command.alive?
+    end
+
     private
 
     attr_reader :command, :stdin, :stdout, :stderr
