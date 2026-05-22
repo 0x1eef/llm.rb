@@ -8,6 +8,13 @@
   Remove the unused positional `llm` argument from `LLM::MCP.new`,
   `LLM::MCP.stdio`, `LLM::MCP.http`, and `LLM.mcp`.
 
+* **Stop globally registering generated MCP and A2A tools** <br>
+  Generated tools returned by `LLM::Tool.mcp(...)` and
+  `LLM::Tool.a2a(...)` are no longer added to the global
+  `LLM::Tool.registry` or `LLM::Function.registry`. They still work
+  when passed directly to a context or agent, but registry-based lookup
+  now only sees normal loaded `LLM::Tool` subclasses.
+
 ### Add
 
 * **Add A2A client support** <br>

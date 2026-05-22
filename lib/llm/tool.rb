@@ -40,31 +40,23 @@ class LLM::Tool
   # @return [Class<LLM::Tool>]
   #  Returns a subclass of LLM::Tool
   def self.mcp(mcp, tool)
-    lock do
-      @mcp = true
-      klass = Class.new(LLM::Tool) do
-        name tool["name"]
-        description tool["description"]
-        params { tool["inputSchema"] || {type: "object", properties: {}} }
+    Class.new(LLM::Tool) do
+      name tool["name"]
+      description tool["description"]
+      params { tool["inputSchema"] || {type: "object", properties: {}} }
 
-        define_singleton_method(:inspect) do
-          "<#{LLM::Utils.object_id(self)} name=#{tool["name"]} (mcp)>"
-        end
-        singleton_class.alias_method :to_s, :inspect
-
-        define_singleton_method(:mcp?) do
-          true
-        end
-
-        define_method(:call) do |**args|
-          mcp.call_tool(tool["name"], args)
-        end
+      define_singleton_method(:inspect) do
+        "<#{LLM::Utils.object_id(self)} name=#{tool["name"]} (mcp)>"
       end
-      @mcp = false
-      register(klass)
-      klass
-    ensure
-      @mcp = false
+      singleton_class.alias_method :to_s, :inspect
+
+      define_singleton_method(:mcp?) do
+        true
+      end
+
+      define_method(:call) do |**args|
+        mcp.call_tool(tool["name"], args)
+      end
     end
   end
 
@@ -77,7 +69,7 @@ class LLM::Tool
   #  Returns a subclass of LLM::Tool
   def self.a2a(a2a, skill)
     name = skill.name.gsub(" ", "-")
-    klass = Class.new(LLM::Tool) do
+    Class.new(LLM::Tool) do
       name(name)
       description(skill.description)
       parameter :input, String, "The input string"
@@ -97,8 +89,6 @@ class LLM::Tool
         {task: res}
       end
     end
-    register(klass)
-    klass
   end
 
   ##
@@ -139,8 +129,8 @@ class LLM::Tool
   def self.inherited(tool)
     LLM.lock(:inherited) do
       tool.instance_eval { @__monitor ||= Monitor.new }
-      tool.function.register(tool)
-      LLM::Tool.register(tool) unless lock { @mcp }
+      tool.function.define(tool)
+      LLM::Tool.register(tool) unless tool.mcp? || tool.a2a?
     end
   end
 
@@ -216,7 +206,7 @@ class LLM::Tool
   # Returns a function bound to this tool instance.
   # @return [LLM::Function]
   def function
-    @function ||= self.class.function.dup.tap { _1.register(self) }
+    @function ||= self.class.function.dup.tap { _1.define(self) }
   end
 
   ##

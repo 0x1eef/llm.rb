@@ -1141,7 +1141,10 @@ For smaller cases, `LLM.function` gives you a closure-based alternative to
 This is useful when you want a quick function without defining a class. The
 main limitation is that `LLM.function` does not register a tool class in
 `LLM::Tool.registry`, so features that depend specifically on global
-tool-class registration still only apply to `LLM::Tool` subclasses.
+tool-class registration still only apply to normal `LLM::Tool`
+subclasses. Generated MCP and A2A tools are request-local too; they are
+not stored in the global `LLM::Tool.registry` or
+`LLM::Function.registry`.
 Request-local streamed tool resolution is no longer one of those limits:
 `LLM::Stream` now resolves the current request tools first, so
 `LLM.function(...)`, MCP tools, bound tool instances, and normal tool classes
@@ -1433,7 +1436,9 @@ relevant context plus the instructions and tool subset declared in its own
 The `tools` entries in skill frontmatter are tool names, not classes. Each
 name must resolve to a subclass of
 [`LLM::Tool`](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html) that is
-already loaded in the current llm.rb runtime.
+already loaded in the current llm.rb runtime. Request-local generated
+MCP and A2A tools are not added to the global registry, so they are not
+available for skill frontmatter lookup by name.
 
 If you want Claude/Codex-like skills that can drive scripts or shell
 commands, you would typically pair the skill with a tool that can execute
