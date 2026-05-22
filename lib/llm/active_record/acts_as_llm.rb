@@ -59,12 +59,12 @@ module LLM::ActiveRecord
       end
 
       ##
-      # Continues the stored context through the Responses API and flushes it.
-      # @see LLM::Context#respond
+      # Continues the stored context with new input and flushes it.
+      # @see LLM::Context#ask
       # @return [LLM::Response]
-      def respond(...)
+      def ask(...)
         options = self.class.llm_plugin_options
-        ctx.respond(...).tap { Utils.save!(self, ctx, options) }
+        ctx.ask(...).tap { Utils.save!(self, ctx, options) }
       end
 
       ##

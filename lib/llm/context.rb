@@ -207,13 +207,16 @@ module LLM
     # Accepts `with:` for file attachments and a block for streaming.
     # This interface is compatible with RubyLLM's `ask` method.
     # @param [String] prompt
-    # @param [String, Array<String>, nil] with
+    # @param [Hash] options
+    # @option options [String, Array<String>, nil] :with
     #  File path(s) to attach
-    # @param [#<<, LLM::Stream, nil] stream
+    # @option options [#<<, LLM::Stream, nil] :stream
     #  A stream target
     # @yield [String] content chunks when streaming
     # @return [LLM::Response]
-    def ask(prompt, with: nil, stream: nil, &block)
+    def ask(prompt, options = {}, &block)
+      options = {with: nil, stream: nil}.merge!(options || {})
+      with, stream = options.values_at(:with, :stream)
       prompt = with ? [prompt, [*with].map { local_file(_1) }] : prompt
       target = if block
         blk = block.dup
