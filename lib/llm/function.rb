@@ -182,7 +182,7 @@ class LLM::Function
   def define(klass = nil, &b)
     @runner = klass || b
   end
-  alias_method :register, :define
+  alias_method :def, :define
 
   ##
   # Call the function

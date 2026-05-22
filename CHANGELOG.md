@@ -15,7 +15,19 @@
   when passed directly to a context or agent, but registry-based lookup
   now only sees normal loaded `LLM::Tool` subclasses.
 
+* **Remove `LLM::Function#register`** <br>
+  Remove the `LLM::Function#register` alias and prefer
+  `LLM::Function#define` or `LLM::Function#def` when binding a
+  function to its implementation. The `register` alias was too easy to
+  confuse with the class-level `LLM::Tool.register` and
+  `LLM::Function.register` registry APIs.
+
 ### Add
+
+* **Add `LLM::Function#def`** <br>
+  Add `LLM::Function#def` as a short alias for
+  `LLM::Function#define` when binding a function instance to its
+  implementation.
 
 * **Add A2A client support** <br>
   Add `LLM::A2A`, a client for the Agent2Agent (A2A) protocol with
