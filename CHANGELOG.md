@@ -42,7 +42,7 @@
   Add `LLM::Context#ask` and `LLM::Agent#ask` as a RubyLLM-compatible
   convenience interface over `#talk`. `#ask` accepts a prompt, optional
   `with:` attachments, an optional `stream:` target, and an optional
-  block for streamed chunks, and returns the response content string.
+  block for streamed chunks, and returns an `LLM::Response`.
 
 * **Allow one-shot stdio MCP requests outside `#session`** <br>
   Allow `mcp.tools`, `mcp.prompts`, `mcp.find_prompt(...)`, and

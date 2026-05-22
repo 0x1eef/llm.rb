@@ -1860,7 +1860,7 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm)
-puts ctx.ask("Summarize this document.", with: "README.md")
+puts ctx.ask("Summarize this document.", with: "README.md").content
 ```
 
 ```ruby

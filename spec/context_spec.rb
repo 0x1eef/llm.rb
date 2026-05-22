@@ -46,8 +46,8 @@ RSpec.describe LLM::Context do
           allow(ctx).to receive(:talk).with("Hello?").and_return(response)
         end
 
-        it "returns the response content" do
-          expect(ctx.ask("Hello?")).to eq("Hello")
+        it "returns the response" do
+          expect(ctx.ask("Hello?")).to eq(response)
         end
       end
 
@@ -69,7 +69,7 @@ RSpec.describe LLM::Context do
         end
 
         it "attaches the local file to the prompt" do
-          expect(ctx.ask("What is this?", with: tempfile.path)).to eq("Hello")
+          expect(ctx.ask("What is this?", with: tempfile.path)).to eq(response)
         end
       end
 
@@ -81,7 +81,7 @@ RSpec.describe LLM::Context do
         end
 
         it "forwards the stream target" do
-          expect(ctx.ask("Hello?", stream:)).to eq("Hello")
+          expect(ctx.ask("Hello?", stream:)).to eq(response)
         end
       end
     end

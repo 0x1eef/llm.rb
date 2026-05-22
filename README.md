@@ -362,7 +362,9 @@ ctx2.talk "What is my favorite language?"
 also provides `ask`, a convenience interface that is compatible with
 RubyLLM's `ask` method. It accepts a prompt, an optional `with:`
 attachment path or paths, an optional `stream:` target, and an optional
-block that chunks are yielded to:
+block that chunks are yielded to. It returns an
+[`LLM::Response`](https://0x1eef.github.io/x/llm.rb/LLM/Response.html),
+so use `.content` when you want the text directly:
 
 ```ruby
 require "llm"
@@ -370,8 +372,8 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm)
 
-puts ctx.ask("Hello world")
-puts ctx.ask("Summarize this document.", with: "README.md")
+puts ctx.ask("Hello world").content
+puts ctx.ask("Summarize this document.", with: "README.md").content
 ctx.ask("Stream this reply.") { $stdout << _1 }
 ```
 
@@ -424,7 +426,7 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm)
-puts ctx.ask("Summarize this document.", with: "README.md")
+puts ctx.ask("Summarize this document.", with: "README.md").content
 ```
 
 #### Context Compaction

@@ -212,7 +212,7 @@ module LLM
     # @param [#<<, LLM::Stream, nil] stream
     #  A stream target
     # @yield [String] content chunks when streaming
-    # @return [String]
+    # @return [LLM::Response]
     def ask(prompt, with: nil, stream: nil, &block)
       prompt = with ? [prompt, [*with].map { local_file(_1) }] : prompt
       target = if block
@@ -222,8 +222,7 @@ module LLM
       else
         stream
       end
-      res = target ? talk(prompt, stream: target) : talk(prompt)
-      res.content
+      target ? talk(prompt, stream: target) : talk(prompt)
     end
 
     ##
