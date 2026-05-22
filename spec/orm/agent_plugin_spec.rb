@@ -35,7 +35,7 @@ RSpec.describe "plugin :agent" do
 
   let(:record) { agent.create }
   let(:reload_record) { ->(row) { row.class[row.id] } }
-  let(:flush_record) { ->(row) { LLM::Sequel::Plugin::Utils.save(row, row.send(:ctx), row.class.llm_plugin_options) } }
+  let(:flush_record) { ->(row) { LLM::Sequel::Plugin::Utils.save!(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
   it "forwards confirm to the internal agent class" do
     expect(agent.agent.confirm).to eq(["delete-file"])

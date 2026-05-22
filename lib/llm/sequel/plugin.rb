@@ -75,11 +75,12 @@ module LLM::Sequel
       ##
       # Persists the runtime state and usage columns back onto the record.
       # @return [void]
-      def self.save(obj, ctx, options)
+      def self.save!(obj, ctx, options)
         columns = self.columns(options)
         payload = serialize_context(ctx, options[:format])
         payload = wrap_json_payload(payload, options[:format])
-        obj.update(columns[:data_column] => payload)
+        obj[columns[:data_column]] = payload
+        obj.save_changes(raise_on_failure: true)
       end
 
       ##
@@ -159,7 +160,7 @@ module LLM::Sequel
     # @return [LLM::Response]
     def talk(...)
       options = self.class.llm_plugin_options
-      ctx.talk(...).tap { Utils.save(self, ctx, options) }
+      ctx.talk(...).tap { Utils.save!(self, ctx, options) }
     end
 
     ##
@@ -168,7 +169,7 @@ module LLM::Sequel
     # @return [LLM::Response]
     def ask(...)
       options = self.class.llm_plugin_options
-      ctx.ask(...).tap { Utils.save(self, ctx, options) }
+      ctx.ask(...).tap { Utils.save!(self, ctx, options) }
     end
 
     ##
