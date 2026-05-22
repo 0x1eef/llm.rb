@@ -75,6 +75,12 @@
 
 ### Fix
 
+* **Fix `Context#functions?` queue detection** <br>
+  Fix `LLM::Context#functions?` to check all queue variants, including
+  stream-backed queues. Without this, streamed tool work could be
+  missed and agent or context tool loops could stop early even though
+  pending function work was still queued.
+
 * **Fix block-form ORM agent DSL forwarding** <br>
   Fix block-form `model { ... }`, `tools { ... }`, and
   `schema { ... }` declarations in the ActiveRecord and Sequel agent

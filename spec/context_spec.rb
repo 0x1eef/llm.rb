@@ -439,25 +439,12 @@ RSpec.describe LLM::Context do
     end
 
     context "when the bound stream queue has pending work" do
-      let(:queue) do
-        Class.new do
-          def empty?
-            false
-          end
-        end.new
-      end
-      let(:stream_class) do
-        Class.new(LLM::Stream) do
-          attr_accessor :queue
-        end
-      end
-      let(:stream) { stream_class.new }
+      let(:stream) { LLM::Stream.new }
       let(:ctx) { LLM::Context.new(provider, model:, stream:) }
-      let(:pending) { [].extend(LLM::Function::Array) }
+      let(:result) { LLM::Function::Return.new("call_1", "system", {"ok" => true}) }
 
       before do
-        stream.queue = queue
-        allow(ctx).to receive(:functions).and_return(pending)
+        stream.queue << result
       end
 
       it "returns true" do
@@ -466,12 +453,6 @@ RSpec.describe LLM::Context do
     end
 
     context "when there is no queued or unresolved tool work" do
-      let(:pending) { [].extend(LLM::Function::Array) }
-
-      before do
-        allow(ctx).to receive(:functions).and_return(pending)
-      end
-
       it "returns false" do
         expect(ctx.functions?).to eq(false)
       end
@@ -768,13 +749,30 @@ RSpec.describe LLM::Context do
     end
 
     context "when waiting on running tool work directly" do
-      let(:queue) { instance_double(LLM::Function::ThreadGroup, interrupt!: nil) }
+      let(:stream) { LLM::Stream.new }
+      let(:task_class) do
+        Class.new do
+          attr_reader :interrupted
 
-      it "interrupts the active queue" do
-        ctx.instance_variable_set(:@queue, queue)
-        expect(provider).to receive(:interrupt!).with(nil).ordered.and_return(nil)
-        expect(queue).to receive(:interrupt!).ordered.and_return(nil)
-        expect(ctx.interrupt!).to be_nil
+          def interrupt!
+            @interrupted = true
+          end
+        end
+      end
+      let(:task) { task_class.new }
+
+      before do
+        ctx.instance_variable_set(:@queue, stream.queue << task)
+        allow(provider).to receive(:interrupt!).with(nil).and_return(nil)
+        ctx.interrupt!
+      end
+
+      it "interrupts the provider request" do
+        expect(provider).to have_received(:interrupt!).with(nil)
+      end
+
+      it "interrupts the active queue task" do
+        expect(task.interrupted).to eq(true)
       end
     end
 

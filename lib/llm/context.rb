@@ -500,8 +500,9 @@ module LLM
     # Returns the bound stream queue, if available.
     # @api private
     def queue
-      return @queue if @queue
-      stream.queue if LLM::Stream === stream
+      [@queue, stream&.queue].compact.first
+    rescue NoMethodError
+      nil
     end
 
     ##
