@@ -37,6 +37,54 @@ RSpec.describe LLM::Context do
       subject { ctx.params }
       it { is_expected.to include(model:) }
     end
+
+    context "#ask" do
+      let(:response) { double(content: "Hello") }
+
+      context "when given a plain prompt" do
+        before do
+          allow(ctx).to receive(:talk).with("Hello?").and_return(response)
+        end
+
+        it "returns the response content" do
+          expect(ctx.ask("Hello?")).to eq("Hello")
+        end
+      end
+
+      context "when given file attachments" do
+        let(:tempfile) do
+          Tempfile.new(["llmrb", ".pdf"]).tap do |file|
+            file.write("%PDF-1.4")
+            file.flush
+          end
+        end
+        let(:file_prompt) { ["What is this?", [ctx.local_file(tempfile.path)]] }
+
+        before do
+          allow(ctx).to receive(:talk).with(file_prompt).and_return(response)
+        end
+
+        after do
+          tempfile.close!
+        end
+
+        it "attaches the local file to the prompt" do
+          expect(ctx.ask("What is this?", with: tempfile.path)).to eq("Hello")
+        end
+      end
+
+      context "when given a stream target" do
+        let(:stream) { StringIO.new }
+
+        before do
+          allow(ctx).to receive(:talk).with("Hello?", stream:).and_return(response)
+        end
+
+        it "forwards the stream target" do
+          expect(ctx.ask("Hello?", stream:)).to eq("Hello")
+        end
+      end
+    end
   end
 
   context "when given anthropic" do

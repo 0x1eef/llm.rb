@@ -201,7 +201,30 @@ module LLM
       @messages.concat [res.choices[-1]]
       res
     end
-    alias_method :chat, :talk
+
+    ##
+    # Ask a question and return the content string directly.
+    # Accepts `with:` for file attachments and a block for streaming.
+    # This interface is compatible with RubyLLM's `ask` method.
+    # @param [String] prompt
+    # @param [String, Array<String>, nil] with
+    #  File path(s) to attach
+    # @param [#<<, LLM::Stream, nil] stream
+    #  A stream target
+    # @yield [String] content chunks when streaming
+    # @return [String]
+    def ask(prompt, with: nil, stream: nil, &block)
+      prompt = with ? [prompt, [*with].map { local_file(_1) }] : prompt
+      target = if block
+        blk = block.dup
+        blk.singleton_class.alias_method(:<<, :call)
+        blk
+      else
+        stream
+      end
+      res = target ? talk(prompt, stream: target) : talk(prompt)
+      res.content
+    end
 
     ##
     # @return [String]

@@ -223,7 +223,12 @@ module LLM
     def talk(prompt, params = {})
       run_loop(prompt, params)
     end
-    alias_method :chat, :talk
+
+    ##
+    # @see LLM::Context#ask
+    def ask(...)
+      @ctx.ask(...)
+    end
 
     ##
     # @return [LLM::Buffer<LLM::Message>]

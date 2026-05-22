@@ -22,6 +22,10 @@
   confuse with the class-level `LLM::Tool.register` and
   `LLM::Function.register` registry APIs.
 
+* **Remove the `#chat` alias from contexts and agents** <br>
+  Remove the `LLM::Context#chat` and `LLM::Agent#chat` aliases. Prefer
+  `#talk` for all context and agent turns.
+
 ### Add
 
 * **Add `LLM::Function#def`** <br>
@@ -33,6 +37,12 @@
   Add `LLM::MCP#session` as an alias for `LLM::MCP#run`, and prefer it
   in examples for scoped stdio MCP sessions that should stay alive
   across discovery and tool calls.
+
+* **Add `#ask` to contexts and agents** <br>
+  Add `LLM::Context#ask` and `LLM::Agent#ask` as a RubyLLM-compatible
+  convenience interface over `#talk`. `#ask` accepts a prompt, optional
+  `with:` attachments, an optional `stream:` target, and an optional
+  block for streamed chunks, and returns the response content string.
 
 * **Allow one-shot stdio MCP requests outside `#session`** <br>
   Allow `mcp.tools`, `mcp.prompts`, `mcp.find_prompt(...)`, and

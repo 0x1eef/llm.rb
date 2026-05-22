@@ -53,6 +53,25 @@ ctx = LLM::Context.new(llm, stream: $stdout)
 ctx.talk "Hello world"
 ```
 
+#### ask
+
+[`LLM::Context`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html)
+also provides `ask`, a convenience interface that is compatible with
+RubyLLM's `ask` method. It accepts a prompt, an optional `with:`
+attachment path or paths, an optional `stream:` target, and an optional
+block that chunks are yielded to:
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+puts ctx.ask("Hello world")
+puts ctx.ask("Summarize this document.", with: "README.md")
+ctx.ask("Stream this reply.") { $stdout << _1 }
+```
+
 #### LLM::Agent
 
 The
@@ -394,17 +413,18 @@ or [`ctx.remote_file(...)`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#r
 Those tagged objects carry the metadata the provider adapter needs to turn one
 Ruby prompt into the provider-specific multimodal request schema.
 
-`ctx.local_file(path)` tags a local path as a `:local_file` object around
-`LLM.File(path)`. If the model understands that file type, you can include it
-directly in the prompt array instead of uploading it first through a provider
-Files API:
+If the model understands that file type, you can attach a local file directly
+with `ctx.ask(..., with: path)` instead of uploading it first through a
+provider Files API. Under the hood, llm.rb tags the path as a
+[`ctx.local_file(...)`](https://0x1eef.github.io/x/llm.rb/LLM/Context.html#local_file-instance_method)
+object:
 
 ```ruby
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm)
-ctx.talk ["Summarize this document.", ctx.local_file("README.md")]
+puts ctx.ask("Summarize this document.", with: "README.md")
 ```
 
 #### Context Compaction

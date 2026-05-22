@@ -1850,8 +1850,9 @@ When you want provider-side retrieval, file uploads and vector stores let the
 provider index your content and search over it directly.
 
 When you already have a local file and the model understands that file type,
-you can also pass it inline through `ctx.local_file(...)` without using the
-provider Files API first:
+you can attach it directly with `ctx.ask(..., with: path)` without using the
+provider Files API first. Under the hood, llm.rb tags the path with
+`ctx.local_file(...)`:
 
 ```ruby
 #!/usr/bin/env ruby
@@ -1859,7 +1860,7 @@ require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 ctx = LLM::Context.new(llm)
-ctx.talk ["Summarize this document.", ctx.local_file("README.md")]
+puts ctx.ask("Summarize this document.", with: "README.md")
 ```
 
 ```ruby
