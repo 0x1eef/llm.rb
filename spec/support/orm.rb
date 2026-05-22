@@ -8,7 +8,7 @@ module LLM::Test
       @messages = []
       @usage = LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0)
       @talk_result = Object.new
-      @respond_result = Object.new
+      @ask_result = Object.new
     end
 
     def talk(message)
@@ -16,17 +16,17 @@ module LLM::Test
       @talk_result
     end
 
-    def respond(message)
+    def ask(message)
       @messages << LLM::Message.new("user", message)
-      @respond_result
+      @ask_result
     end
 
     def talk_result
       @talk_result
     end
 
-    def respond_result
-      @respond_result
+    def ask_result
+      @ask_result
     end
   end
 

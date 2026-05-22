@@ -168,7 +168,7 @@ module LLM::Sequel
     # @return [LLM::Response]
     def ask(...)
       options = self.class.llm_plugin_options
-      ctx.ask(...).tap { Utils.save!(self, ctx, options) }
+      ctx.ask(...).tap { Utils.save(self, ctx, options) }
     end
 
     ##
