@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## v11.0.0
+
+Changes since `v10.0.0`.
+
+This release removes several deprecated or unused APIs, including the `#chat`
+alias from contexts and agents, the `LLM::Function#register` alias, and the
+unused positional `llm` argument from MCP constructors. Generated MCP and A2A
+tools are no longer added to the global tool registry by default.
+
+On the additions side, it introduces the A2A (Agent2Agent) protocol client,
+a new `#ask` convenience interface on contexts and agents, one-shot stdio MCP
+requests outside `#session`, `LLM::Function#def` as a short alias for
+`LLM::Function#define`, `LLM::File#exist?`, and `LLM::Tool.a2a?`.
+
 ### Breaking
 
 * **Remove the unused `llm` argument from MCP clients** <br>
