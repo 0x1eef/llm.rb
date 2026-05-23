@@ -126,6 +126,7 @@ module LLM::ActiveRecord
             when :json, :jsonb then ctx.restore(data:)
             else raise ArgumentError, "Unknown format: #{options[:format].inspect}"
             end
+            ctx
           end
         end
       end

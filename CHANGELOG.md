@@ -96,6 +96,11 @@
   persisted agent models can declare skills the same way as
   `LLM::Agent`.
 
+* **Fix `acts_as_agent#ctx` return type** <br>
+  Fix the ActiveRecord `acts_as_agent` wrapper so its `ctx` helper
+  returns the wrapped `LLM::Agent` instead of returning the underlying
+  `LLM::Context` directly.
+
 ## v10.0.0
 
 Changes since `v9.0.0`.
