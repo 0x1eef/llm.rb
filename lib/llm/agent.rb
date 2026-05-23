@@ -371,7 +371,7 @@ module LLM
     ##
     # @return [String]
     def to_json(...)
-      to_h.to_json(...)
+      LLM.json.dump(to_h, ...)
     end
 
     ##

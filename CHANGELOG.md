@@ -75,6 +75,10 @@
 
 ### Fix
 
+* **Fix context and agent JSON serialization through `LLM.json`** <br>
+  Fix `LLM::Context#to_json` and `LLM::Agent#to_json` to serialize
+  through `LLM.json.dump(...)` instead of plain `to_json`. 
+
 * **Fix `Context#functions?` queue detection** <br>
   Fix `LLM::Context#functions?` to check all queue variants, including
   stream-backed queues. Without this, streamed tool work could be
