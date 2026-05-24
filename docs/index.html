@@ -790,7 +790,7 @@ end</code></pre>
     persistent HTTP connections when request volume grows:
   </p>
   <pre><code class="language-ruby">LLM.json = :oj
-llm = LLM.openai(key: ENV["KEY"]).persistent</code></pre>
+llm = LLM.openai(key: ENV["KEY"], persistent: true)</code></pre>
 
   <h3>Cost tracking</h3>
   <p>
