@@ -25,7 +25,7 @@ tools, skills, MCP, A2A (Agent2Agent), RAG (vector stores & embeddings),
 streaming, files, and persisted state. As a bonus, llm.rb is also
 [available for mruby](https://github.com/llmrb/mruby-llm) and has
 first-class [Rails support](https://github.com/llmrb/rails-llm#readme)
-via a separate gem. 
+via a separate gem.
 
 It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
 Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. It
@@ -260,6 +260,19 @@ end
 
 llm = LLM.openai(key: ENV["KEY"])
 ReleaseAgent.new(llm, stream: $stdout).talk("Prepare the next release.")
+```
+
+A skill can also have its sub-agent inherit the parents tools through the
+`inherit` directive. The `inherit` directive has coverage for the "classic"
+tools (a subclass of [LLM::Tool](https://0x1eef.github.io/x/llm.rb/LLM/Tool.html)),
+MCP tools, and A2A tools that a parent context or agent has access to:
+
+```yaml
+---
+  name: release
+  description: Prepare a release
+  tools: inherit
+---
 ```
 
 #### LLM::Stream

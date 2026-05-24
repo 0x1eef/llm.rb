@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Fix
+
+* **Add support for the `inherit` directive in skills** <br>
+  Add support for the `inherit` directive so a skill sub-agent can
+  inherit access to the local, MCP, and A2A tools available to its
+  parent agent.
+
 ## v11.0.0
 
 Changes since `v10.0.0`.

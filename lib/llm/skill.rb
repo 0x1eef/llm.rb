@@ -56,6 +56,7 @@ module LLM
       @instructions = ""
       @frontmatter = LLM::Object.from({})
       @tools = []
+      @inherit_tools = false
     end
 
     ##
@@ -74,18 +75,8 @@ module LLM
     # @param [LLM::Context] ctx
     # @return [Hash]
     def call(ctx)
-      instructions, tools, tracer = self.instructions, self.tools, ctx.llm.tracer
-      params = ctx.params.merge(mode: ctx.mode).reject { [:tools, :schema].include?(_1) }
-      concurrency = params[:stream].extra[:concurrency] if LLM::Stream === params[:stream]
-      params[:concurrency] = concurrency if concurrency
-      agent = Class.new(LLM::Agent) do
-        instructions(instructions)
-        tools(*tools)
-        tracer(tracer)
-      end.new(ctx.llm, params)
-      agent.messages.concat(messages_for(ctx))
-      res = agent.talk("Solve the user's query.")
-      {content: res.content}
+      content = agent(ctx).talk("Solve the user's query.").content
+      {content:}
     end
 
     ##
@@ -96,9 +87,10 @@ module LLM
     def to_tool(ctx)
       skill = self
       Class.new(LLM::Tool) do
+        attr_accessor :tracer
+
         name skill.name
         description skill.description
-        attr_accessor :tracer
 
         define_singleton_method(:skill?) do
           true
@@ -108,6 +100,13 @@ module LLM
           skill.call(ctx)
         end
       end
+    end
+
+    ##
+    # Returns true when a skill should inherit tools from its parent
+    # @return [Boolean]
+    def inherit_tools?
+      @inherit_tools
     end
 
     private
@@ -132,8 +131,39 @@ module LLM
       @frontmatter = LLM::Object.from(YAML.safe_load(match[1]) || {})
       @name = @frontmatter.name || @name
       @description = @frontmatter.description || @description
-      @tools = [*@frontmatter.tools].map { LLM::Tool.find_by_name!(_1) }
       @instructions = match[2]
+      @inherit_tools, @tools = parse_tools(@frontmatter.tools)
+    end
+
+    def parse_tools(tools)
+      case tools
+      when String
+        tools == "inherit" ? [true, []] : raise_invalid_error!(tools)
+      when Array
+        [false, [*@frontmatter.tools].map { LLM::Tool.find_by_name!(_1) }]
+      when NilClass
+        [false, []]
+      else
+        raise_invalid_error!(tools)
+      end
+    end
+
+    def raise_invalid_error!(tools)
+      raise LLM::Error, "invalid value for tools key: '#{tools}'"
+    end
+
+    def agent(ctx)
+      instructions, tools, tracer, inherit_tools = self.instructions, self.tools, ctx.llm.tracer, inherit_tools?
+      params = ctx.params.merge(mode: ctx.mode).reject { [:tools, :schema].include?(_1) }
+      concurrency = params[:stream].extra[:concurrency] if LLM::Stream === params[:stream]
+      params[:concurrency] = concurrency if concurrency
+      agent = Class.new(LLM::Agent) do
+        instructions(instructions)
+        tools(inherit_tools ? ctx.params[:tools] : tools)
+        tracer(tracer)
+      end.new(ctx.llm, params)
+      agent.messages.concat(messages_for(ctx))
+      agent
     end
   end
 end

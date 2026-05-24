@@ -13,6 +13,15 @@ RSpec.describe LLM::Skill do
     end
   end
 
+  class EchoTool < LLM::Tool
+    name "echo"
+    description "Echos a greeting"
+
+    def call
+      {echo: "Hello world"}
+    end
+  end
+
   around do |example|
     Dir.mktmpdir do |dir|
       @dir = dir
@@ -23,122 +32,158 @@ RSpec.describe LLM::Skill do
   before do
     LLM::Tool.clear_registry!
     LLM::Tool.register(WeatherTool)
+    LLM::Tool.register(EchoTool)
   end
 
   let(:skill_dir) { File.join(@dir, "weather") }
   let(:provider) { LLM.openai(key: "test") }
   let(:stream) { LLM::Stream.new }
-  let(:ctx) { LLM::Context.new(provider, model: "gpt-5.4-mini", stream:) }
-
-  def write(path, content)
-    full = File.join(skill_dir, path)
-    FileUtils.mkdir_p(File.dirname(full))
-    File.write(full, content)
-  end
+  let(:ctx) { LLM::Context.new(provider, tools: [EchoTool], model: "gpt-5.4-mini", stream:) }
 
   describe ".load" do
-    before do
-      write("SKILL.md", <<~MD)
-        ---
-        name: weather
-        description: Get the current weather
-        ---
-        Use the helper tools to answer the user's question.
-      MD
-    end
-
     subject(:skill) { described_class.load(skill_dir) }
 
-    it "loads metadata from SKILL.md" do
-      expect(skill.name).to eq("weather")
-      expect(skill.description).to eq("Get the current weather")
-      expect(skill.frontmatter.name).to eq("weather")
-      expect(skill.frontmatter.description).to eq("Get the current weather")
+    context "when given a skill without tools" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          ---
+          Use the helper tools to answer the user's question.
+        MD
+      end
+
+      it "loads metadata from SKILL.md" do
+        expect(skill.name).to eq("weather")
+        expect(skill.description).to eq("Get the current weather")
+        expect(skill.frontmatter.name).to eq("weather")
+        expect(skill.frontmatter.description).to eq("Get the current weather")
+      end
+
+      it "exposes the instructions body" do
+        expect(skill.instructions).to include("Use the helper tools")
+      end
     end
 
-    it "exposes the instructions body" do
-      expect(skill.instructions).to include("Use the helper tools")
+    context "when given a skill with tools" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          tools: ['weather']
+          ---
+          Use the helper tools to answer the user's question.
+        MD
+      end
+
+      it "loads tools from SKILL.md" do
+        expect(skill.tools).to eq([WeatherTool])
+      end
+
+      it "raises when a tool is missing" do
+        write("SKILL.md", <<~MD)
+          ---
+          tools: ['missing']
+          ---
+          Use the helper tools to answer the user's question.
+        MD
+        expect { described_class.load(skill_dir) }.to raise_error(LLM::NoSuchToolError, /missing/)
+      end
     end
 
-    it "loads tools from SKILL.md" do
-      write("SKILL.md", <<~MD)
-        ---
-        name: weather
-        description: Get the current weather
-        tools:
-          - weather
-        ---
-        Use the helper tools to answer the user's question.
-      MD
-      expect(skill.tools).to eq([WeatherTool])
-    end
+    context "when given a skill that inherits tools" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          tools: inherit
+          ---
+          Use the available tools
+        MD
+      end
+      let(:agent) { skill.method(:agent).call(ctx) }
 
-    it "raises when a tool is missing" do
-      write("SKILL.md", <<~MD)
-        ---
-        tools:
-          - missing
-        ---
-        Use the helper tools to answer the user's question.
-      MD
-      expect { described_class.load(skill_dir) }.to raise_error(LLM::NoSuchToolError, /missing/)
+      it "inherits tools" do
+        expect(skill.inherit_tools?).to be(true)
+      end
+
+      it "includes inherited tools" do
+        expect(agent.params[:tools]).to eq([EchoTool])
+      end
     end
   end
 
   describe "#to_tool" do
-    before do
-      write("SKILL.md", <<~MD)
-        ---
-        name: weather
-        description: Get the current weather
-        tools:
-          - weather
-        ---
-        Use the helper tools.
-      MD
-    end
-
     let(:skill) { described_class.load(skill_dir) }
     let(:tool) { skill.to_tool(ctx) }
 
-    it "builds a tool with the skill metadata" do
-      expect(tool.name).to eq("weather")
-      expect(tool.description).to eq("Get the current weather")
+    context "when given a skill with tools" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          tools: ['weather']
+          ---
+          Use the helper tools.
+        MD
+      end
+
+      it "builds a tool with the skill metadata" do
+        expect(tool.name).to eq("weather")
+        expect(tool.description).to eq("Get the current weather")
+      end
+
+      it "binds tool execution back to the skill" do
+        expect(skill).to receive(:call).with(ctx).and_return({content: "rain"})
+        expect(tool.new.call).to eq({content: "rain"})
+      end
+
+      it "disables ractor concurrency" do
+        function = tool.function.dup.tap do |fn|
+          fn.id = "call_1"
+          fn.arguments = {}
+        end
+        expect { function.spawn(:ractor) }.to raise_error(
+          LLM::RactorError,
+          "Ractor concurrency does not support skill-backed tools"
+        )
+      end
+
+      it "passes the function tracer back to the skill" do
+        provider = LLM.openai(key: "test")
+        ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", stream:)
+        tracer = double("tracer", llm: provider, on_tool_start: nil, on_tool_finish: nil, on_tool_error: nil)
+        tool = skill.to_tool(ctx)
+        function = tool.function.dup.tap do |fn|
+          fn.id = "call_1"
+          fn.arguments = {}
+          fn.tracer = tracer
+        end
+        expect(skill).to receive(:call).with(ctx) do
+          expect(ctx.llm.tracer).to equal(tracer)
+          {content: "rain"}
+        end
+        expect(function.spawn(:thread).value.to_h).to eq(
+          id: "call_1", name: "weather", value: {content: "rain"}
+        )
+      end
     end
 
-    it "binds tool execution back to the skill" do
-      expect(skill).to receive(:call).with(ctx).and_return({content: "rain"})
-      expect(tool.new.call).to eq({content: "rain"})
-    end
-
-    it "disables ractor concurrency" do
-      function = tool.function.dup.tap do |fn|
-        fn.id = "call_1"
-        fn.arguments = {}
+    context "when given a skill that inherits tools" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          tools: inherit
+          ---
+          Use the helper tools.
+        MD
       end
-      expect { function.spawn(:ractor) }.to raise_error(
-        LLM::RactorError,
-        "Ractor concurrency does not support skill-backed tools"
-      )
-    end
-
-    it "passes the function tracer back to the skill" do
-      provider = LLM.openai(key: "test")
-      ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", stream:)
-      tracer = double("tracer", llm: provider, on_tool_start: nil, on_tool_finish: nil, on_tool_error: nil)
-      tool = skill.to_tool(ctx)
-      function = tool.function.dup.tap do |fn|
-        fn.id = "call_1"
-        fn.arguments = {}
-        fn.tracer = tracer
-      end
-      expect(skill).to receive(:call).with(ctx) do
-        expect(ctx.llm.tracer).to equal(tracer)
-        {content: "rain"}
-      end
-      expect(function.spawn(:thread).value.to_h).to eq(
-        id: "call_1", name: "weather", value: {content: "rain"}
-      )
     end
   end
 
@@ -246,5 +291,11 @@ RSpec.describe LLM::Skill do
         call_skill
       end
     end
+  end
+
+  def write(path, content)
+    full = File.join(skill_dir, path)
+    FileUtils.mkdir_p(File.dirname(full))
+    File.write(full, content)
   end
 end
