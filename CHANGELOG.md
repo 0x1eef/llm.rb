@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Fix
+### Add
 
 * **Add support for the `inherit` directive in skills** <br>
   Add support for the `inherit` directive so a skill sub-agent can
