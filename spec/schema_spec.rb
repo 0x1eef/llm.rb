@@ -111,6 +111,31 @@ RSpec.describe LLM::Schema do
     end
   end
 
+  context "when required fields are declared separately" do
+    let(:schema) do
+      Class.new(LLM::Schema) do
+        property :location, String, "location description"
+        required %i[location]
+      end
+    end
+
+    context "when reading the location property" do
+      subject(:location) { schema.object["location"] }
+
+      it "marks the property as required" do
+        expect(location).to be_required
+      end
+    end
+
+    context "when serializing the schema" do
+      subject(:required_items) { schema.object.to_h[:required] }
+
+      it "serializes the required field list" do
+        expect(required_items).to eq(["location"])
+      end
+    end
+  end
+
   context "when given a oneOf property type" do
     let(:schema) do
       eval(<<~RUBY, binding, __FILE__, __LINE__ + 1)

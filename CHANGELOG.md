@@ -9,6 +9,11 @@
   inherit access to the local, MCP, and A2A tools available to its
   parent agent.
 
+* **Add class-level `required %i[...]` support to `LLM::Schema`** <br>
+  Add class-level `required %i[...]` declarations to `LLM::Schema`, so
+  schema classes can mark existing properties as required the same way
+  `LLM::Tool` params already can.
+
 ## v11.0.0
 
 Changes since `v10.0.0`.

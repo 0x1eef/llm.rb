@@ -516,11 +516,12 @@ require "llm"
 require "pp"
 
 class Report < LLM::Schema
-  property :category, Enum["performance", "security", "outage"], "Report category", required: true
-  property :summary, String, "Short summary", required: true
-  property :impact, OneOf[String, Integer], "Primary impact, as text or a count", required: true
-  property :services, Array[String], "Impacted services", required: true
+  property :category, Enum["performance", "security", "outage"], "Report category"
+  property :summary, String, "Short summary"
+  property :impact, OneOf[String, Integer], "Primary impact, as text or a count"
+  property :services, Array[String], "Impacted services"
   property :timestamp, String, "When it happened", optional: true
+  required %i[category summary impact services]
 end
 
 llm = LLM.openai(key: ENV["KEY"])

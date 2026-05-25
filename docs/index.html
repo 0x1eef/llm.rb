@@ -469,9 +469,10 @@ puts res.content</code></pre>
     This works well for reusable schemas that appear across your app:
   </p>
   <pre><code class="language-ruby">class Report < LLM::Schema
-  property :category, Enum["performance", "security", "outage"], required: true
-  property :summary, String, "Short summary", required: true
-  property :services, Array[String], "Impacted services", required: true
+  property :category, Enum["performance", "security", "outage"]
+  property :summary, String, "Short summary"
+  property :services, Array[String], "Impacted services"
+  required %i[category summary services]
 end
 
 llm = LLM.openai(key: ENV["KEY"])
