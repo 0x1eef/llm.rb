@@ -23,8 +23,9 @@ It runs on Ruby's standard library by default. loads optional pieces
 only when needed, and offers a single runtime for providers, agents,
 tools, skills, MCP, A2A (Agent2Agent), RAG (vector stores & embeddings),
 streaming, files, and persisted state. As a bonus, llm.rb is also
-[available for mruby](https://github.com/llmrb/mruby-llm) and has
-first-class [Rails support](https://github.com/llmrb/rails-llm#readme)
+available to embedded systems [via mruby](https://github.com/llmrb/mruby-llm#readme),
+to the browser and edge devices [via WebAssesmbly](https://github.com/llmrb/wasm-llm#readme),
+and has first-class [Rails support](https://github.com/llmrb/rails-llm#readme)
 via a separate gem.
 
 It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
