@@ -31,7 +31,7 @@ tool execution through threads, tasks (via async gem), fibers, ractors,
 and fork (via xchan.rb gem).
 
 As a bonus, llm.rb is also available to embedded systems [via mruby](https://github.com/llmrb/mruby-llm#readme),
-to the browser and edge devices [via WebAssesmbly](https://github.com/llmrb/wasm-llm#readme),
+to the browser and edge devices [via WebAssembly](https://github.com/llmrb/wasm-llm#readme),
 and has first-class [Rails support](https://github.com/llmrb/rails-llm#readme)
 via a separate gem.
 
