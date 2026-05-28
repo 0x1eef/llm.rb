@@ -14,6 +14,11 @@
   schema classes can mark existing properties as required the same way
   `LLM::Tool` params already can.
 
+* **Wrap function arguments in `LLM::Object`** <br>
+  Wrap `LLM::Function#arguments` in `LLM::Object`, so function
+  implementations can read arguments with method-style access while
+  still invoking runners with keyword arguments.
+
 ## v11.0.0
 
 Changes since `v10.0.0`.

@@ -17,6 +17,7 @@ class LLM::Object
       case obj
       when self then from(obj.to_h)
       when Array then obj.map { |v| from(v) }
+      when String then obj
       else
         visited = {}
         obj.each { visited[_1] = visit(_2) }

@@ -109,8 +109,16 @@ class LLM::Function
 
   ##
   # Returns function arguments
-  # @return [Array, nil]
-  attr_accessor :arguments
+  # @return [Hash, Array, LLM::Object, nil]
+  attr_reader :arguments
+
+  ##
+  # Sets function arguments, wrapping them in an LLM::Object
+  # @param [Hash, LLM::Object] other
+  # @return [void]
+  def arguments=(other)
+    @arguments = LLM::Object.from(other)
+  end
 
   ##
   # Returns a tracer, or nil
@@ -373,10 +381,10 @@ class LLM::Function
   #   Returns a Return object with either the function result or error information.
   def call_function
     runner = self.runner
-    kwargs = Hash === arguments ? arguments.transform_keys(&:to_sym) : arguments
+    kwargs = arguments.respond_to?(:to_h) ? arguments.to_h.transform_keys(&:to_sym) : arguments
     Return.new(id, name, runner.call(**kwargs))
   rescue => ex
-    Return.new(id, name,  {error: true, type: ex.class.name, message: ex.message})
+    Return.new(id, name, {error: true, type: ex.class.name, message: ex.message})
   end
 
   def call!
