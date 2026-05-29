@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## v11.1.0
+
+Changes since `v11.0.0`.
+
+This release adds the `inherit` directive for skill sub-agents so they can
+inherit access to the local, MCP, and A2A tools available to their parent
+agent. It introduces class-level `required %i[...]` declarations to
+`LLM::Schema` and wraps `LLM::Function#arguments` in `LLM::Object` for
+method-style argument access. The OpenTelemetry tracer now samples all spans
+regardless of environment, and the tool-call loop repair step prevents stale
+history from being sent on follow-up requests.
+
 ### Add
 
 * **Add support for the `inherit` directive in skills** <br>
