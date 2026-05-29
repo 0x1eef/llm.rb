@@ -28,10 +28,10 @@ Gem::Specification.new do |spec|
   spec.license = "0BSD"
   spec.required_ruby_version = ">= 3.3.0"
 
-  spec.homepage = "https://github.com/llmrb/llm.rb"
-  spec.metadata["homepage_uri"] = "https://github.com/llmrb/llm.rb"
+  spec.homepage = "https://llmrb.github.io"
+  spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/llmrb/llm.rb"
-  spec.metadata["documentation_uri"] = "https://0x1eef.github.io/x/llm.rb"
+  spec.metadata["documentation_uri"] = "https://llmrb.github.io/llm.rb"
   spec.metadata["changelog_uri"] = "https://0x1eef.github.io/x/llm.rb/file.CHANGELOG.html"
 
   spec.files = Dir[
