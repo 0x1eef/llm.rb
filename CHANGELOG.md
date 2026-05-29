@@ -19,6 +19,13 @@
   implementations can read arguments with method-style access while
   still invoking runners with keyword arguments.
 
+### Fix
+
+* **Ensure all traces are sampled regardless of environment** <br>
+  Explicitly pass `Samplers::ALWAYS_ON` when creating the OpenTelemetry
+  `TracerProvider` so the in-memory exporter always captures every span,
+  regardless of the `OTEL_TRACES_SAMPLER` environment variable.
+
 ## v11.0.0
 
 Changes since `v10.0.0`.
