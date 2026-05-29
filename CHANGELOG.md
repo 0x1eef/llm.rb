@@ -26,6 +26,12 @@
   `TracerProvider` so the in-memory exporter always captures every span,
   regardless of the `OTEL_TRACES_SAMPLER` environment variable.
 
+* **Always close the tool call loop before sending follow-up requests** <br>
+  Add a repair step in `Context#talk` that closes assistant tool-call
+  messages without matching tool responses before the next provider
+  request is sent. This prevents stale tool-call history from being sent
+  on follow-up requests, which some providers reject as invalid.
+
 ## v11.0.0
 
 Changes since `v10.0.0`.
