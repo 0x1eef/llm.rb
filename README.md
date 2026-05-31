@@ -175,7 +175,9 @@ ctx.talk(ctx.wait(:call)) while ctx.functions?
 The HTTP transport can be used with or without the `session` method,
 and unlike the stdio transport it can remain efficient without the
 `session` method through a persistent connection pool that is available
-through the [LLM::Transport.net_http_persistent](https://0x1eef.github.io/x/llm.rb/LLM/Transport.html#method-c-net_http_persistent) transport:
+through the
+[LLM::Transport.net_http_persistent](https://0x1eef.github.io/x/llm.rb/LLM/Transport.html#method-c-net_http_persistent)
+transport:
 
 ```ruby
 require "llm"
@@ -231,6 +233,27 @@ a2a = LLM::A2A.rest(
 For more on direct messaging, task operations, push notification
 configs, and JSON-RPC, see the
 [LLM::A2A API docs](https://0x1eef.github.io/x/llm.rb/LLM/A2A.html).
+
+#### Transports
+
+Providers use Ruby's standard library Net::HTTP transport by default.
+You can opt into persistent Net::HTTP connections with `persistent: true`,
+or provide an explicit transport when you want a different backend.
+`LLM::Transport.curb` uses libcurl through the optional `curb` gem.
+
+Custom transports can implement the
+[LLM::Transport](https://0x1eef.github.io/x/llm.rb/LLM/Transport.html)
+interface and receive transport-agnostic
+[LLM::Transport::Request](https://0x1eef.github.io/x/llm.rb/LLM/Transport/Request.html)
+objects from providers.
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"], persistent: true)
+llm = LLM.openai(key: ENV["KEY"], transport: LLM::Transport.net_http_persistent)
+llm = LLM.openai(key: ENV["KEY"], transport: LLM::Transport.curb)
+```
 
 #### Skills
 

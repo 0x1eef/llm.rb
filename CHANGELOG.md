@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Add
+
+* **Add `LLM::Transport::Request`** <br>
+  Add `LLM::Transport::Request` as a transport-agnostic request object
+  and update providers to build requests without depending directly on
+  Net::HTTP request classes. The built-in Net::HTTP transports still
+  accept existing Net::HTTP request objects through a compatibility
+  bridge, while alternative transports can handle the generic request
+  shape directly.
+
+* **Add optional Curb transport support** <br>
+  Add `LLM::Transport::Curb`, an optional libcurl-backed transport
+  that can be selected with `LLM::Transport.curb`. Providers already
+  emit `LLM::Transport::Request` objects, so the Curb backend can
+  execute requests without routing through Net::HTTP.
+
 ## v11.1.0
 
 Changes since `v11.0.0`.
