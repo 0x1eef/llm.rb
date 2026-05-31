@@ -35,7 +35,7 @@ class LLM::Provider
     @base_path = LLM::Utils.normalize_base_path(base_path)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
-    @transport = resolve_transport(transport, persistent:)
+    @transport = LLM::Transport::Utils.resolve_transport(host:, port:, timeout:, ssl:, transport:, persistent:)
     @monitor = Monitor.new
   end
 
@@ -415,23 +415,6 @@ class LLM::Provider
   # @api private
   def lock(&)
     @monitor.synchronize(&)
-  end
-
-  ##
-  # @api private
-  def default_transport(persistent:)
-    transport_class = persistent ? LLM::Transport::PersistentHTTP : LLM::Transport::HTTP
-    transport_class.new(host:, port:, timeout:, ssl:)
-  end
-
-  ##
-  # @api private
-  def resolve_transport(transport, persistent:)
-    return default_transport(persistent:) if transport.nil?
-    if Class === transport && transport <= LLM::Transport
-      return transport.new(host:, port:, timeout:, ssl:)
-    end
-    transport
   end
 
   ##

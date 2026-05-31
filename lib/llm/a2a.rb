@@ -61,8 +61,10 @@ class LLM::A2A
   #  Extra HTTP headers to include in requests (e.g., Authorization)
   # @param [Integer, nil] timeout
   #  The timeout in seconds for HTTP requests
-  # @param [LLM::Transport, Class, nil] transport
-  #  Optional override with any {LLM::Transport} instance or subclass
+  # @param [Boolean] persistent
+  #  Whether to use persistent HTTP connections
+  # @param [LLM::Transport, Class, Symbol, nil] transport
+  #  Optional override with any {LLM::Transport} instance, subclass, or shortcut
   # @param [Symbol] binding
   #  The protocol binding to use. One of `:rest` or `:jsonrpc`
   # @param [String] base_path
@@ -70,7 +72,7 @@ class LLM::A2A
   # @param [String] protocol_version
   #  The expected A2A protocol version. Defaults to `"1.0"`.
   # @return [LLM::A2A]
-  def self.http(url:, headers: {}, timeout: 30, transport: nil, binding: :rest, base_path: "", protocol_version: "1.0")
+  def self.http(url:, headers: {}, timeout: 30, persistent: false, transport: nil, binding: :rest, base_path: "", protocol_version: "1.0")
     new(
       binding:,
       base_path:,
@@ -79,6 +81,7 @@ class LLM::A2A
         url:,
         headers:,
         timeout:,
+        persistent:,
         transport:,
         protocol_version:
       )
@@ -90,13 +93,15 @@ class LLM::A2A
   # @param [String] url
   # @param [Hash<String, String>] headers
   # @param [Integer, nil] timeout
-  # @param [LLM::Transport, Class, nil] transport
+  # @param [Boolean] persistent
+  # @param [LLM::Transport, Class, Symbol, nil] transport
   # @return [LLM::A2A]
-  def self.rest(url:, headers: {}, timeout: 30, transport: nil, base_path: "", protocol_version: "1.0")
+  def self.rest(url:, headers: {}, timeout: 30, persistent: false, transport: nil, base_path: "", protocol_version: "1.0")
     http(
       url:,
       headers:,
       timeout:,
+      persistent:,
       transport:,
       binding: :rest,
       base_path:,
@@ -109,13 +114,15 @@ class LLM::A2A
   # @param [String] url
   # @param [Hash<String, String>] headers
   # @param [Integer, nil] timeout
-  # @param [LLM::Transport, Class, nil] transport
+  # @param [Boolean] persistent
+  # @param [LLM::Transport, Class, Symbol, nil] transport
   # @return [LLM::A2A]
-  def self.jsonrpc(url:, headers: {}, timeout: 30, transport: nil, base_path: "", protocol_version: "1.0")
+  def self.jsonrpc(url:, headers: {}, timeout: 30, persistent: false, transport: nil, base_path: "", protocol_version: "1.0")
     http(
       url:,
       headers:,
       timeout:,
+      persistent:,
       transport:,
       binding: :jsonrpc,
       base_path:,

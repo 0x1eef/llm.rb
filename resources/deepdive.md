@@ -1734,7 +1734,7 @@ application makes repeated requests to the same remote agent:
 ```ruby
 a2a = LLM::A2A.rest(
   url: "https://remote-agent.example.com",
-  transport: LLM::Transport.net_http_persistent
+  transport: :net_http_persistent
 )
 ```
 

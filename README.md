@@ -185,7 +185,7 @@ require "llm"
 llm = LLM.openai(key: ENV["KEY"])
 mcp = LLM::MCP.http(
   url: "https://remote-mcp.example.com",
-  transport: LLM::Transport.net_http_persistent
+  transport: :net_http_persistent
 )
 
 ctx = LLM::Context.new(llm, tools: mcp.tools)
@@ -226,7 +226,7 @@ require "llm"
 
 a2a = LLM::A2A.rest(
   url: "https://remote-agent.example.com",
-  transport: LLM::Transport.net_http_persistent
+  transport: :net_http_persistent
 )
 ```
 
@@ -238,8 +238,8 @@ configs, and JSON-RPC, see the
 
 Providers use Ruby's standard library Net::HTTP transport by default.
 You can opt into persistent Net::HTTP connections with `persistent: true`,
-or provide an explicit transport when you want a different backend.
-`LLM::Transport.curb` uses libcurl through the optional `curb` gem.
+or provide a transport shortcut when you want a different backend.
+`transport: :curb` uses libcurl through the optional `curb` gem.
 
 Custom transports can implement the
 [LLM::Transport](https://0x1eef.github.io/x/llm.rb/LLM/Transport.html)
@@ -251,8 +251,8 @@ objects from providers.
 require "llm"
 
 llm = LLM.openai(key: ENV["KEY"], persistent: true)
-llm = LLM.openai(key: ENV["KEY"], transport: LLM::Transport.net_http_persistent)
-llm = LLM.openai(key: ENV["KEY"], transport: LLM::Transport.curb)
+llm = LLM.openai(key: ENV["KEY"], transport: :net_http_persistent)
+llm = LLM.openai(key: ENV["KEY"], transport: :curb)
 ```
 
 #### Skills

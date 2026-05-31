@@ -17,13 +17,14 @@ class LLM::A2A
       # @param [String] url The base URL of the A2A agent
       # @param [Hash<String, String>] headers Extra HTTP headers
       # @param [Integer, nil] timeout The timeout in seconds
-      # @param [LLM::Transport, Class, nil] transport Override transport
+      # @param [Boolean] persistent Whether to use persistent HTTP connections
+      # @param [LLM::Transport, Class, Symbol, nil] transport Override transport
       # @param [String] protocol_version The A2A protocol version header
-      def initialize(url:, headers: {}, timeout: nil, transport: nil, protocol_version: "1.0")
+      def initialize(url:, headers: {}, timeout: nil, persistent: false, transport: nil, protocol_version: "1.0")
         @uri = URI.parse(url)
         @headers = headers
         @protocol_version = protocol_version
-        @transport = resolve_transport(@uri, transport, timeout)
+        @transport = resolve_transport(host: @uri.host, port: uri.port, ssl: @uri.scheme == "https", timeout:, persistent:, transport:)
       end
 
       ##

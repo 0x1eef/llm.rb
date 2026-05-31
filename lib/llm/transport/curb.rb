@@ -17,8 +17,7 @@ class LLM::Transport
   # platforms where Net::HTTP is not available or desired.
   #
   # @example
-  #   LLM.openai(key: ENV["KEY"], transport: LLM::Transport.curb)
-  #   LLM.openai(key: ENV["KEY"], transport: LLM::Transport::Curb)
+  #   LLM.openai(key: ENV["KEY"], transport: :curb)
   #
   # @api private
   class Curb < self

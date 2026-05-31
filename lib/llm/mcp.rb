@@ -55,9 +55,11 @@ class LLM::MCP
   #  The URL for the MCP HTTP endpoint
   # @option http [Hash] :headers
   #  Extra headers for requests
-  # @option http [LLM::Transport, Class] :transport
-  #  Optional override with any {LLM::Transport} instance or subclass,
-  #  similar to {LLM::Provider}
+  # @option http [Boolean] :persistent
+  #  Whether to use persistent HTTP connections
+  # @option http [LLM::Transport, Class, Symbol] :transport
+  #  Optional override with any {LLM::Transport} instance, subclass, or
+  #  shortcut, similar to {LLM::Provider}
   # @param [Integer] timeout
   #  The maximum amount of time to wait when reading from an MCP process
   # @return [LLM::MCP] A new MCP instance
@@ -69,10 +71,7 @@ class LLM::MCP
       @command = Command.new(**stdio)
       @transport = Transport::Stdio.new(command:)
     elsif http
-      persistent = http.delete(:persistent)
-      transport = http.delete(:transport)
-      transport ||= LLM::Transport::PersistentHTTP if persistent
-      @transport = Transport::HTTP.new(**http, timeout:, transport:)
+      @transport = Transport::HTTP.new(**http, timeout:)
     else
       raise ArgumentError, "stdio or http is required"
     end

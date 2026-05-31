@@ -14,9 +14,19 @@
 
 * **Add optional Curb transport support** <br>
   Add `LLM::Transport::Curb`, an optional libcurl-backed transport
-  that can be selected with `LLM::Transport.curb`. Providers already
+  that can be selected with `transport: :curb`. Providers already
   emit `LLM::Transport::Request` objects, so the Curb backend can
   execute requests without routing through Net::HTTP.
+
+* **Add symbolic transport shortcuts** <br>
+  Allow providers, MCP HTTP clients, and A2A HTTP clients to accept
+  transport shortcuts such as `transport: :curb` and
+  `transport: :net_http_persistent`.
+
+* **Add persistent HTTP selection to MCP and A2A clients** <br>
+  Allow MCP and A2A HTTP clients to accept `persistent: true`, matching
+  provider configuration and selecting the persistent Net::HTTP
+  transport by default.
 
 ## v11.1.0
 

@@ -4,32 +4,57 @@ class LLM::Transport
   ##
   # Shared utility methods for HTTP-backed transports.
   #
+  # These methods resolve the transport options accepted by providers,
+  # MCP HTTP clients, and A2A HTTP clients into concrete
+  # {LLM::Transport} instances.
+  #
   # @api private
   module Utils
     extend self
-    private
 
-    def resolve_transport(uri, transport, timeout)
-      return default_transport(uri, timeout) if transport.nil?
-      if Class === transport && transport <= LLM::Transport
-        transport.new(
-          host: uri.host,
-          port: uri.port,
-          timeout:,
-          ssl: uri.scheme == "https"
-        )
+    ##
+    # Resolves a transport configuration into a transport instance.
+    #
+    # Nil values use the default Net::HTTP transport, or the persistent
+    # Net::HTTP transport when `persistent` is true. Transport subclasses
+    # are instantiated with the endpoint settings, symbols are resolved
+    # through {LLM::Transport} shortcut methods, and transport instances
+    # are returned as-is.
+    #
+    # @param [String] host
+    # @param [Integer] port
+    # @param [Integer, nil] timeout
+    # @param [Boolean] ssl
+    # @param [Boolean] persistent
+    # @param [LLM::Transport, Class, Symbol, nil] transport
+    # @return [LLM::Transport]
+    def resolve_transport(host:, port:, timeout:, ssl:, persistent:, transport:)
+      if transport.nil?
+        default_transport(host:, port:, timeout:, ssl:, persistent:)
+      elsif Class === transport && transport <= LLM::Transport
+        transport.new(host:, port:, timeout:, ssl:)
+      elsif Symbol === transport
+        transport = LLM::Transport.public_send(transport)
+        transport.new(host:, port:, timeout:, ssl:)
       else
         transport
       end
     end
 
-    def default_transport(uri, timeout)
-      LLM::Transport::HTTP.new(
-        host: uri.host,
-        port: uri.port,
-        timeout:,
-        ssl: uri.scheme == "https"
-      )
+    private
+
+    ##
+    # Builds the default Net::HTTP transport for an endpoint.
+    #
+    # @param [String] host
+    # @param [Integer] port
+    # @param [Integer, nil] timeout
+    # @param [Boolean] ssl
+    # @param [Boolean] persistent
+    # @return [LLM::Transport]
+    def default_transport(host:, port:, timeout:, ssl:, persistent:)
+      target = persistent ? LLM::Transport::PersistentHTTP : LLM::Transport::HTTP
+      target.new(host:, port:, timeout:, ssl:)
     end
   end
 end

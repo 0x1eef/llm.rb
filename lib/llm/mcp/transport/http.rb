@@ -16,16 +16,18 @@ module LLM::MCP::Transport
     #  Extra headers to send with requests
     # @param [Integer, nil] timeout
     #  The timeout in seconds. Defaults to nil
-    # @param [LLM::Transport, Class, nil] transport
-    #  Optional override with any {LLM::Transport} instance or subclass
+    # @param [Boolean] persistent
+    #  Whether to use persistent HTTP connections
+    # @param [LLM::Transport, Class, Symbol, nil] transport
+    #  Optional override with any {LLM::Transport} instance, subclass, or shortcut
     # @return [LLM::MCP::Transport::HTTP]
-    def initialize(url:, headers: {}, timeout: nil, transport: nil)
+    def initialize(url:, headers: {}, timeout: nil, persistent: false, transport: nil)
       @uri = URI.parse(url)
       @headers = headers
-      @transport = resolve_transport(uri, transport, timeout)
       @queue = []
       @monitor = Monitor.new
       @running = false
+      @transport = resolve_transport(host: uri.host, port: uri.port, ssl: uri.scheme == "https", timeout:, persistent:, transport:)
     end
 
     ##
