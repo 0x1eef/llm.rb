@@ -39,7 +39,7 @@ class LLM::OpenAI
     # @return [LLM::Response]
     def all(**params)
       query = URI.encode_www_form(params)
-      req = Net::HTTP::Get.new(path("/models?#{query}"), headers)
+      req = LLM::Transport::Request.get(path("/models?#{query}"), headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :models)
       tracer.on_request_finish(operation: "request", res:, span:)

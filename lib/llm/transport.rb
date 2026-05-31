@@ -9,10 +9,10 @@ module LLM
   # execute provider requests without changing request adapters or
   # response adapters.
   #
-  # Providers currently construct {Net::HTTPRequest Net::HTTPRequest}
-  # objects before delegating to a transport. Custom transports are
-  # therefore expected to execute those requests directly, or transform
-  # them into backend-specific request objects before execution.
+  # Providers should construct {LLM::Transport::Request} objects before
+  # delegating to a transport. Custom transports can execute those
+  # requests directly, or transform them into backend-specific request
+  # objects before execution.
   #
   # Only {#request} is required. The remaining methods are optional hooks
   # for features such as interruption, request ownership, or persistence,
@@ -26,9 +26,11 @@ module LLM
   # can rely on one normalized response contract instead of
   # transport-specific classes.
   class Transport
+    require_relative "transport/request"
     require_relative "transport/response"
     require_relative "transport/utils"
     require_relative "transport/stream_decoder"
+    require_relative "transport/net_http_adapter"
     require_relative "transport/http"
     require_relative "transport/persistent_http"
     require_relative "transport/execution"
@@ -49,7 +51,7 @@ module LLM
 
     ##
     # Performs a request through the transport.
-    # @param [Net::HTTPRequest] request
+    # @param [LLM::Transport::Request] request
     # @param [Object] owner
     # @param [LLM::Object, nil] stream
     # @yieldparam [LLM::Transport::Response] response
@@ -90,51 +92,12 @@ module LLM
     end
 
     ##
-    # @note
-    #  Custom transports may be able to reuse this helper when they
-    #  operate on Net::HTTPRequest objects, or implement their own
-    #  request body preparation path instead.
-    # @param [Net::HTTPRequest] request
+    # @param [LLM::Transport::Request] request
     # @param [IO] io
     # @return [void]
     def set_body_stream(request, io)
       request.body_stream = io
       request["transfer-encoding"] = "chunked" unless request["content-length"]
-    end
-
-    private
-
-    ##
-    # @api private
-    # @note
-    #  Custom transports may be able to reuse this helper when they
-    #  execute requests through a Net::HTTP-compatible client, or
-    #  implement their own request execution path instead.
-    def perform_request(client, request, stream, &b)
-      if stream
-        client.request(request) do |raw|
-          res = LLM::Transport::Response.from(raw)
-          if res.success?
-            parser = stream.decoder.new(stream.parser.new(stream.streamer))
-            res.read_body(parser)
-            body = parser.body
-            res.body = (Hash === body || Array === body) ? LLM::Object.from(body) : body
-          else
-            body = +""
-            res.read_body { body << _1 }
-            res.body = body
-          end
-        ensure
-          parser&.free
-        end
-      elsif b
-        client.request(request) do |raw|
-          res = LLM::Transport::Response.from(raw)
-          res.success? ? b.call(res) : res
-        end
-      else
-        LLM::Transport::Response.from(client.request(request))
-      end
     end
   end
 end

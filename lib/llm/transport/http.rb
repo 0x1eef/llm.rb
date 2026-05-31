@@ -11,8 +11,10 @@ class LLM::Transport
   #
   # @api private
   class HTTP < self
+    include NetHTTPAdapter
+
     INTERRUPT_ERRORS = [::IOError, ::EOFError, Errno::EBADF].freeze
-    Request = Struct.new(:client, keyword_init: true)
+    ActiveRequest = Struct.new(:client, keyword_init: true)
 
     ##
     # @param [String] host
@@ -67,15 +69,18 @@ class LLM::Transport
 
     ##
     # Performs a request on the current HTTP transport.
-    # @param [Net::HTTPRequest] request
+    # Accepts both {Net::HTTPRequest} and {LLM::Transport::Request}.
+    #
+    # @param [Net::HTTPRequest, LLM::Transport::Request] request
     # @param [Fiber] owner
     # @param [LLM::Object, nil] stream
     # @yieldparam [LLM::Transport::Response] response
     # @return [Object]
     def request(request, owner:, stream: nil, &b)
+      http_req = resolve_request(request)
       client = client()
-      set_request(Request.new(client:), owner)
-      perform_request(client, request, stream, &b)
+      set_request(ActiveRequest.new(client:), owner)
+      perform_request(client, http_req, stream, &b)
     ensure
       clear_request(owner)
     end

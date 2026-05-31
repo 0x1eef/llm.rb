@@ -13,7 +13,7 @@ class LLM::Transport
 
     ##
     # Executes a HTTP request
-    # @param [Net::HTTPRequest] request
+    # @param [LLM::Transport::Request] request
     #  The request to send
     # @param [Proc] b
     #  A block to yield the response to (optional)

@@ -8,7 +8,7 @@ class LLM::Bedrock
   # Signs HTTP requests and headers with AWS Signature V4.
   #
   # Returns the signed headers as a Hash through #to_h, ready to merge
-  # into a Net::HTTPRequest or other HTTP client. Everything else is
+  # into an {LLM::Transport::Request} or other HTTP client. Everything else is
   # private.
   #
   # Uses only Ruby's stdlib (openssl, digest) with no external deps.
@@ -89,8 +89,8 @@ class LLM::Bedrock
     end
 
     ##
-    # @param [Net::HTTPRequest] req
-    # @return [Net::HTTPRequest]
+    # @param [LLM::Transport::Request] req
+    # @return [LLM::Transport::Request]
     def sign!(req)
       to_h.each { |k, v| req[k] = v }
       req

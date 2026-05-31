@@ -31,7 +31,7 @@ class LLM::A2A
       # @param [String] path The URL path
       # @return [Hash]
       def get(path, accept: "application/json")
-        req = Net::HTTP::Get.new(request_path(path), headers(accept:))
+        req = LLM::Transport::Request.get(request_path(path), headers(accept:))
         res = transport.request(req, owner: self)
         parse_response(res)
       end
@@ -42,7 +42,7 @@ class LLM::A2A
       # @param [Hash] body The JSON body
       # @return [Hash]
       def post(path, body, content_type: "application/json", accept: "application/json")
-        req = Net::HTTP::Post.new(request_path(path), headers(content_type:, accept:))
+        req = LLM::Transport::Request.post(request_path(path), headers(content_type:, accept:))
         req.body = LLM.json.dump(body)
         res = transport.request(req, owner: self)
         parse_response(res)
@@ -53,7 +53,7 @@ class LLM::A2A
       # @param [String] path The URL path
       # @return [Hash]
       def delete(path, accept: "application/json")
-        req = Net::HTTP::Delete.new(request_path(path), headers(accept:))
+        req = LLM::Transport::Request.delete(request_path(path), headers(accept:))
         res = transport.request(req, owner: self)
         parse_response(res)
       end
@@ -66,7 +66,7 @@ class LLM::A2A
       # @yieldparam [LLM::Object] event A stream event
       # @return [void]
       def get_stream(path, &on_event)
-        req = Net::HTTP::Get.new(request_path(path), headers(accept: "text/event-stream"))
+        req = LLM::Transport::Request.get(request_path(path), headers(accept: "text/event-stream"))
         stream(req, &on_event)
       end
 
@@ -79,7 +79,7 @@ class LLM::A2A
       # @yieldparam [LLM::Object] event A stream event
       # @return [void]
       def post_stream(path, body, content_type: "application/json", &on_event)
-        req = Net::HTTP::Post.new(request_path(path), headers(content_type:, accept: "text/event-stream"))
+        req = LLM::Transport::Request.post(request_path(path), headers(content_type:, accept: "text/event-stream"))
         req.body = LLM.json.dump(body)
         stream(req, &on_event)
       end

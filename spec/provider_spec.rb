@@ -71,7 +71,7 @@ RSpec.describe LLM::Provider do
       http = Net::HTTP.new("example.com")
       allow(http).to receive(:active?).and_return(true)
       allow(http).to receive(:finish)
-      req = LLM::Transport::HTTP::Request.new(client: http)
+      req = LLM::Transport::HTTP::ActiveRequest.new(client: http)
       provider.send(:transport).send(:set_request, req, owner)
       provider.interrupt!(owner)
       expect(http).to have_received(:finish)
@@ -88,7 +88,7 @@ RSpec.describe LLM::Provider do
       client = persistent_class.allocate
       connection = double(:connection, http: nil)
       allow(client).to receive(:finish)
-      req = LLM::Transport::PersistentHTTP::Request.new(client:, connection:)
+      req = LLM::Transport::PersistentHTTP::ActiveRequest.new(client:, connection:)
       provider.send(:transport).send(:set_request, req, owner)
       provider.interrupt!(owner)
       expect(client).to have_received(:finish).with(connection)

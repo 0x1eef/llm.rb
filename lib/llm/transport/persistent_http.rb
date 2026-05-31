@@ -10,8 +10,10 @@ class LLM::Transport
   #
   # @api private
   class PersistentHTTP < self
+    include NetHTTPAdapter
+
     INTERRUPT_ERRORS = [::IOError, ::EOFError, Errno::EBADF].freeze
-    Request = Struct.new(:client, :connection, keyword_init: true)
+    ActiveRequest = Struct.new(:client, :connection, keyword_init: true)
     @registry = {}
     @monitor = Monitor.new
 
@@ -79,15 +81,18 @@ class LLM::Transport
 
     ##
     # Performs a request on the current HTTP transport.
-    # @param [Net::HTTPRequest] request
+    # Accepts both {Net::HTTPRequest} and {LLM::Transport::Request}.
+    #
+    # @param [Net::HTTPRequest, LLM::Transport::Request] request
     # @param [Fiber] owner
     # @param [LLM::Object, nil] stream
     # @yieldparam [LLM::Transport::Response] response
     # @return [Object]
     def request(request, owner:, stream: nil, &b)
-      client.connection_for(URI.join(base_uri, request.path)) do |connection|
-        set_request(Request.new(client:, connection:), owner)
-        perform_request(connection.http, request, stream, &b)
+      http_req = resolve_request(request)
+      client.connection_for(URI.join(base_uri, http_req.path)) do |connection|
+        set_request(ActiveRequest.new(client:, connection:), owner)
+        perform_request(connection.http, http_req, stream, &b)
       end
     ensure
       clear_request(owner)

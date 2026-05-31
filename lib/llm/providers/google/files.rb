@@ -45,7 +45,7 @@ class LLM::Google
     # @return [LLM::Response]
     def all(**params)
       query = URI.encode_www_form(params.merge!(key: key))
-      req = Net::HTTP::Get.new("/v1beta/files?#{query}", headers)
+      req = LLM::Transport::Request.get("/v1beta/files?#{query}", headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :files)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -64,7 +64,7 @@ class LLM::Google
     # @return [LLM::Response]
     def create(file:, **params)
       file = LLM.File(file)
-      req = Net::HTTP::Post.new(request_upload_url(file:), {})
+      req = LLM::Transport::Request.post(request_upload_url(file:), {})
       req["content-length"] = file.bytesize
       req["X-Goog-Upload-Offset"] = 0
       req["X-Goog-Upload-Command"] = "upload, finalize"
@@ -91,7 +91,7 @@ class LLM::Google
     def get(file:, **params)
       file_id = file.respond_to?(:name) ? file.name : file.to_s
       query = URI.encode_www_form(params.merge!(key: key))
-      req = Net::HTTP::Get.new("/v1beta/#{file_id}?#{query}", headers)
+      req = LLM::Transport::Request.get("/v1beta/#{file_id}?#{query}", headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -111,7 +111,7 @@ class LLM::Google
     def delete(file:, **params)
       file_id = file.respond_to?(:name) ? file.name : file.to_s
       query = URI.encode_www_form(params.merge!(key: key))
-      req = Net::HTTP::Delete.new("/v1beta/#{file_id}?#{query}", headers)
+      req = LLM::Transport::Request.delete("/v1beta/#{file_id}?#{query}", headers)
       res, span, tracer = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
       tracer.on_request_finish(operation: "request", res:, span:)
@@ -128,7 +128,7 @@ class LLM::Google
     private
 
     def request_upload_url(file:)
-      req = Net::HTTP::Post.new("/upload/v1beta/files?key=#{key}", headers)
+      req = LLM::Transport::Request.post("/upload/v1beta/files?key=#{key}", headers)
       req["X-Goog-Upload-Protocol"] = "resumable"
       req["X-Goog-Upload-Command"] = "start"
       req["X-Goog-Upload-Header-Content-Length"] = file.bytesize

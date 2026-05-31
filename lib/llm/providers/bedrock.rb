@@ -217,7 +217,7 @@ module LLM
       body = LLM.json.dump(payload)
       path = stream ? "/model/#{model_id}/converse-stream" \
                     : "/model/#{model_id}/converse"
-      req = Net::HTTP::Post.new(path, headers)
+      req = LLM::Transport::Request.post(path, headers)
       transport.set_body_stream(req, StringIO.new(body))
       [req, messages, body]
     end

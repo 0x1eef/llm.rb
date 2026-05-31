@@ -62,7 +62,7 @@ module LLM::MCP::Transport
     # @return [void]
     def write(message)
       raise LLM::MCP::Error, "MCP transport is not running" unless running?
-      req = Net::HTTP::Post.new(uri.request_uri, headers.merge("content-type" => "application/json"))
+      req = LLM::Transport::Request.post(uri.request_uri, headers.merge("content-type" => "application/json"))
       req.body = LLM.json.dump(message)
       res = transport.request(req, owner: self) { consume(_1) }
       res = LLM::Transport::Response.from(res)

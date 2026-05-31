@@ -57,13 +57,13 @@ class LLM::Bedrock
     ##
     # @param [String] host
     # @param [Hash] params
-    # @return [Net::HTTP::Get]
+    # @return [LLM::Transport::Request]
     def build_request(host, params)
       path = "/foundation-models"
       query = URI.encode_www_form(params) unless params.empty?
       path = "#{path}?#{query}" if query && !query.empty?
       body = ""
-      req = Net::HTTP::Get.new(path, {"Content-Type" => "application/json", "Accept" => "application/json"})
+      req = LLM::Transport::Request.get(path, {"Content-Type" => "application/json", "Accept" => "application/json"})
       req.tap { sign!(req, body, host, query) }
     end
 
@@ -84,11 +84,11 @@ class LLM::Bedrock
     end
 
     ##
-    # @param [Net::HTTPRequest] req
+    # @param [LLM::Transport::Request] req
     # @param [String] body
     # @param [String] host
     # @param [String, nil] query
-    # @return [Net::HTTPRequest]
+    # @return [LLM::Transport::Request]
     def sign!(req, body, host = credentials.host, query = nil)
       creds = credentials.tap { _1.host = host }
       Signature.new(credentials: creds, method: "GET", path: "/foundation-models", query:, body:).sign!(req)
