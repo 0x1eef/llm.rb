@@ -113,6 +113,21 @@ RSpec.describe LLM::Skill do
       it "includes inherited tools" do
         expect(agent.params[:tools]).to eq([EchoTool])
       end
+
+      context "when the parent context has a skill-backed tool" do
+        let(:parent) do
+          LLM::Context.new(provider, tools: [EchoTool], skills: [skill_dir], model: "gpt-5.4-mini", stream:)
+        end
+        let(:agent) { skill.method(:agent).call(parent) }
+
+        it "loads a skill-backed tool through the parent context" do
+          expect(parent.params[:tools].any?(&:skill?)).to be(true)
+        end
+
+        it "does not inherit skill-backed tools" do
+          expect(agent.params[:tools]).to eq([EchoTool])
+        end
+      end
     end
   end
 

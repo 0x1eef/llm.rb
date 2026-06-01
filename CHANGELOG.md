@@ -36,6 +36,13 @@
   provider configuration and selecting the persistent Net::HTTP
   transport by default.
 
+### Fix
+
+* **Prevent skills from inheriting skill-backed tools** <br>
+  Exclude skill-backed tools when a skill sub-agent uses `tools:
+  inherit`, preventing skills loaded through a parent context from
+  being recursively exposed to nested skill agents.
+
 ## v11.1.0
 
 Changes since `v11.0.0`.

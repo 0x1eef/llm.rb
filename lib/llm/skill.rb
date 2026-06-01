@@ -159,7 +159,7 @@ module LLM
       params[:concurrency] = concurrency if concurrency
       agent = Class.new(LLM::Agent) do
         instructions(instructions)
-        tools(inherit_tools ? ctx.params[:tools] : tools)
+        tools(inherit_tools ? [*ctx.params[:tools]].reject(&:skill?) : tools)
         tracer(tracer)
       end.new(ctx.llm, params)
       agent.messages.concat(messages_for(ctx))
