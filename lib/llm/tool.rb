@@ -203,6 +203,13 @@ class LLM::Tool
   end
 
   ##
+  # Returns true if the tool is a skill
+  # @return [Boolean]
+  def self.skill?
+    false
+  end
+
+  ##
   # Returns a function bound to this tool instance.
   # @return [LLM::Function]
   def function
@@ -214,6 +221,20 @@ class LLM::Tool
   # @return [Boolean]
   def mcp?
     self.class.mcp?
+  end
+
+  ##
+  # Returns true if the tool is an A2A tool
+  # @return [Boolean]
+  def a2a?
+    self.class.a2a?
+  end
+
+  ##
+  # Returns true if the tool is a skill
+  # @return [Boolean]
+  def skill?
+    self.class.skill?
   end
 
   ##

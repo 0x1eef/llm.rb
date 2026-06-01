@@ -4,6 +4,14 @@
 
 ### Add
 
+* **Add `LLM::Function#skill?`** <br>
+  Add `skill?` to `LLM::Function` so callers can check whether a
+  function is backed by a skill tool.
+
+* **Add `LLM::Tool.skill?` and `LLM::Tool#skill?`** <br>
+  Add class-level `skill?` and instance-level `skill?` to
+  `LLM::Tool`, matching the existing `mcp?` and `a2a?` pattern.
+
 * **Add `LLM::Transport::Request`** <br>
   Add `LLM::Transport::Request` as a transport-agnostic request object
   and update providers to build requests without depending directly on
@@ -159,7 +167,7 @@ requests outside `#session`, `LLM::Function#def` as a short alias for
 
 * **Fix context and agent JSON serialization through `LLM.json`** <br>
   Fix `LLM::Context#to_json` and `LLM::Agent#to_json` to serialize
-  through `LLM.json.dump(...)` instead of plain `to_json`. 
+  through `LLM.json.dump(...)` instead of plain `to_json`.
 
 * **Fix block-form ORM agent DSL forwarding** <br>
   Fix block-form `model { ... }`, `tools { ... }`, and
