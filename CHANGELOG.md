@@ -53,6 +53,11 @@
   confirmed and unconfirmed tool batches do not execute confirmed tools
   twice.
 
+* **Compare functions by tool call ID** <br>
+  Add `LLM::Function#==`, `#eql?`, and `#hash` so pending function
+  collections can compare tool calls by provider-assigned ID instead of
+  object identity.
+
 * **Preserve function array behavior after filtering** <br>
   Preserve `LLM::Function::Array` behavior when subtracting function
   arrays so filtered tool batches can still spawn through the normal

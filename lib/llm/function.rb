@@ -121,6 +121,25 @@ class LLM::Function
   end
 
   ##
+  # Compares functions by tool call ID when both sides have one.
+  # @param [LLM::Function] other
+  # @return [Boolean]
+  def ==(other)
+    return true if equal?(other)
+    return false unless self.class === other
+    return false unless id && other.id
+    id == other.id
+  end
+  alias_method :eql?, :==
+
+  ##
+  # Returns a hash value compatible with {#==}.
+  # @return [Integer]
+  def hash
+    id ? id.hash : object_id.hash
+  end
+
+  ##
   # Returns a tracer, or nil
   # @return [LLM::Tracer, nil]
   attr_accessor :tracer
