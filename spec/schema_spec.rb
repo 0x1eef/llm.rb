@@ -38,6 +38,7 @@ RSpec.describe LLM::Schema do
     end
 
     it "serializes with the standard JSON generator" do
+      skip "requires json gem" unless ENV["JSON_PARSER"] == "json"
       expect(JSON.dump(schema.object)).to include(%("properties"))
     end
   end
