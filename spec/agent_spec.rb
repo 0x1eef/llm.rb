@@ -503,6 +503,15 @@ RSpec.describe LLM::Agent do
   describe "tool confirmation" do
     let(:confirmed_calls) { [] }
     let(:plain_calls) { [] }
+    let(:events) { [] }
+    let(:stream) do
+      events = self.events
+      Class.new(LLM::Stream) do
+        define_method(:on_tool_return) do |tool, result|
+          events << [tool.name, result.name, result.value]
+        end
+      end.new
+    end
     let(:confirmed_tool) do
       calls = confirmed_calls
       Class.new(LLM::Tool) do
@@ -524,7 +533,12 @@ RSpec.describe LLM::Agent do
       end
     end
     let(:tools) { [confirmed_tool, plain_tool] }
-    let(:agent) { described_class.new(provider, mode: :responses, tools:, confirm: ["confirmed"], concurrency:) }
+    let(:agent) do
+      described_class.new(
+        provider, mode: :responses, tools:, confirm: ["confirmed"],
+        concurrency:, stream:
+      )
+    end
     let(:ctx) { agent.instance_variable_get(:@ctx) }
     let(:tool_message) do
       LLM::Message.new("assistant", nil, {
@@ -563,6 +577,14 @@ RSpec.describe LLM::Agent do
           expect(plain_calls.size).to eq(1)
         end
 
+        it "emits tool return callbacks once" do
+          agent.send(:call_functions)
+          expect(events).to eq([
+            ["confirmed", "confirmed", {ok: true}],
+            ["plain", "plain", {ok: true}]
+          ])
+        end
+
         context "when concurrency is thread" do
           let(:concurrency) { :thread }
 
@@ -591,6 +613,14 @@ RSpec.describe LLM::Agent do
         it "still executes the unconfirmed tool once" do
           agent.send(:call_functions)
           expect(plain_calls.size).to eq(1)
+        end
+
+        it "emits cancelled and unconfirmed tool return callbacks" do
+          agent.send(:call_functions)
+          expect(events).to eq([
+            ["confirmed", "confirmed", {cancelled: true, reason: "approval required"}],
+            ["plain", "plain", {ok: true}]
+          ])
         end
       end
 

@@ -38,6 +38,21 @@
 
 ### Fix
 
+* **Emit tool return callbacks for direct context waits** <br>
+  Emit `LLM::Stream#on_tool_return` when `LLM::Context#wait` executes
+  pending tool work directly instead of draining `LLM::Stream::Queue`.
+
+* **Emit confirmed tool return callbacks once** <br>
+  Emit `LLM::Stream#on_tool_return` for confirmed and cancelled tool
+  calls, and exclude confirmed functions from later waits so mixed
+  confirmed and unconfirmed tool batches do not execute confirmed tools
+  twice.
+
+* **Preserve function array behavior after filtering** <br>
+  Preserve `LLM::Function::Array` behavior when subtracting function
+  arrays so filtered tool batches can still spawn through the normal
+  function array API.
+
 * **Prevent skills from inheriting skill-backed tools** <br>
   Exclude skill-backed tools when a skill sub-agent uses `tools:
   inherit`, preventing skills loaded through a parent context from

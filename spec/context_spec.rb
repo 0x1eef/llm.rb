@@ -38,6 +38,36 @@ RSpec.describe LLM::Context do
       it { is_expected.to include(model:) }
     end
 
+    context "#wait" do
+      let(:events) { [] }
+      let(:stream) do
+        events = self.events
+        Class.new(LLM::Stream) do
+          define_method(:on_tool_return) do |tool, result|
+            events << [tool.name, result.name, result.value]
+          end
+        end.new
+      end
+      let(:ctx) { LLM::Context.new(provider, model:, stream:) }
+      let(:function) do
+        LLM::Function.new("system") do |fn|
+          fn.define { {ok: true} }
+        end.tap do |fn|
+          fn.id = "call_1"
+          fn.arguments = {}
+        end
+      end
+
+      before do
+        allow(ctx).to receive(:functions).and_return([function].extend(LLM::Function::Array))
+      end
+
+      it "emits tool return callbacks for direct waits" do
+        ctx.wait(:call)
+        expect(events).to eq([["system", "system", {ok: true}]])
+      end
+    end
+
     context "#ask" do
       let(:response) { double(content: "Hello") }
 

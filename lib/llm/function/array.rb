@@ -68,5 +68,11 @@ class LLM::Function
     def wait(strategy)
       spawn(strategy).wait
     end
+
+    ##
+    # @return [LLM::Function::Array]
+    def -(other)
+      super(other).extend(Array)
+    end
   end
 end

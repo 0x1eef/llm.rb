@@ -303,15 +303,21 @@ module LLM
     #  without using this argument.
     #  Otherwise, this controls how pending functions are resolved directly.
     #  Use `:call` for sequential execution without spawning.
+    # @param [Array<LLM::Function>] except
+    #  A list of functions to exclude from the wait
     # @return [Array<LLM::Function::Return>]
-    def wait(strategy)
+    def wait(strategy, except: [])
       if LLM::Stream === stream && !stream.queue.empty?
         @queue = stream.queue
         @queue.wait
       else
-        return guarded_returns if guarded_returns
-        @queue = functions.spawn(strategy)
-        @queue.wait
+        tools  = except.empty? ? functions : functions - except
+        guards = guarded_returns(tools:)
+        return guards if guards
+        @queue = tools.spawn(strategy)
+        returns = @queue.wait
+        emit_tool_returns(tools, returns)
+        returns
       end
     ensure
       @queue = nil
@@ -516,10 +522,10 @@ module LLM
     ##
     # Builds in-band guarded returns when the guard blocks tool work.
     # @api private
-    def guarded_returns
+    def guarded_returns(tools:)
       warning = guard&.call(self)
       return unless warning
-      functions.map { guarded_return_for(_1, warning) }
+      tools.map { guarded_return_for(_1, warning) }
     end
 
     ##
@@ -566,6 +572,14 @@ module LLM
         type: LLM::GuardError.name,
         message: warning
       })
+    end
+
+    ##
+    # Emits tool return callbacks for directly waited function work.
+    # @api private
+    def emit_tool_returns(tools, returns)
+      return unless LLM::Stream === stream
+      returns.each_with_index { |result, index| stream.on_tool_return(tools[index], result) }
     end
 
     ##
