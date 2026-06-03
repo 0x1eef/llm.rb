@@ -36,6 +36,10 @@ RSpec.describe LLM::Schema do
         schema.array(schema.string).description("addresses description")
       )
     end
+
+    it "serializes with the standard JSON generator" do
+      expect(JSON.dump(schema.object)).to include(%("properties"))
+    end
   end
 
   context "when given a mixed Array[...] property type" do

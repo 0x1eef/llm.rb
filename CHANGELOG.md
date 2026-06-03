@@ -38,6 +38,11 @@
 
 ### Fix
 
+* **Support JSON generation state on Ruby 4** <br>
+  Handle JSON generator state objects in the standard JSON adapter so
+  schema objects serialize correctly when Ruby 4 calls custom `to_json`
+  methods during provider request generation.
+
 * **Emit tool return callbacks for direct context waits** <br>
   Emit `LLM::Stream#on_tool_return` when `LLM::Context#wait` executes
   pending tool work directly instead of draining `LLM::Stream::Queue`.
