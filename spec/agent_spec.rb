@@ -536,7 +536,7 @@ RSpec.describe LLM::Agent do
     let(:agent) do
       described_class.new(
         provider, mode: :responses, tools:, confirm: ["confirmed"],
-        concurrency:, stream:
+                  concurrency:, stream:
       )
     end
     let(:ctx) { agent.instance_variable_get(:@ctx) }

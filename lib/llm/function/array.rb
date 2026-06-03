@@ -72,7 +72,7 @@ class LLM::Function
     ##
     # @return [LLM::Function::Array]
     def -(other)
-      super(other).extend(Array)
+      super.extend(Array)
     end
   end
 end
