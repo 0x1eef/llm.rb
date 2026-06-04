@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## v11.2.0
+
+Changes since `v11.1.0`.
+
+This release adds `LLM::Function#skill?` and `LLM::Tool#skill?` so
+callers can inspect whether a function or tool is backed by a skill.
+
+It introduces `LLM::Transport::Request` as a transport-agnostic request
+object so providers no longer depend directly on `Net::HTTP` request
+classes, and adds an optional Curb (libcurl) backend alongside symbolic
+transport shortcuts such as `transport: :curb`.
+
+MCP and A2A clients now accept `persistent: true` matching provider configuration.
+Several fixes land for tool return callback emission, function comparison by
+tool call ID, function array filtering, skill tool inheritance, and JSON generator
+state compatibility on Ruby 4.
+
 ### Add
 
 * **Add `LLM::Function#skill?`** <br>
