@@ -1,21 +1,21 @@
 ---
 layout: default
 title: llm.rb — Ruby's AI Runtime
-description: Ruby's most capable AI runtime. Zero dependencies, MCP, A2A, streaming, tools, agents.
+description: Ruby's most capable AI runtime. Standard-library by default, MCP, A2A, streaming, tools, agents.
 ---
 
 <section class="hero">
   <h1>llm.rb</h1>
   <p class="tagline">
-    Ruby's most capable AI runtime. Zero external dependencies.
-    Runs on Ruby's standard library. Supports OpenAI, Anthropic,
+    Ruby's most capable AI runtime. Runs on Ruby's standard library by default.
+    Supports OpenAI, Anthropic,
     Google Gemini, DeepSeek, Ollama, and more.
   </p>
   <a class="install" href="https://github.com/llmrb/llm.rb">
     <span>gem install llm.rb</span>
   </a>
   <div class="badges">
-    <span class="badge">Zero deps</span>
+    <span class="badge">Stdlib default</span>
     <span class="badge">MCP</span>
     <span class="badge">A2A</span>
     <span class="badge">Streaming</span>
@@ -160,6 +160,39 @@ mcp.session do
   ctx.talk "Use the available tools to inspect the environment."
   ctx.talk(ctx.wait(:call)) while ctx.functions?
 end</code></pre>
+  <p>
+    MCP can also be used without <code>session</code>. Although it works it is generally
+    not recommended for the <strong>stdio</strong> transport because it is inefficient
+    to start and stop a fresh MCP process for tool discovery and each tool
+    call:
+  </p>
+  <pre><code class="language-ruby">require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
+
+ctx = LLM::Context.new(llm, tools: mcp.tools)
+ctx.talk("Use the available tools to inspect the environment.")
+ctx.talk(ctx.wait(:call)) while ctx.functions?</code></pre>
+  <p>
+    The HTTP transport can be used with or without the <code>session</code> method,
+    and unlike the stdio transport it can remain efficient without the
+    <code>session</code> method through a persistent connection pool that is available
+    through the
+    <a href="https://0x1eef.github.io/x/llm.rb/LLM/Transport.html#method-c-net_http_persistent">LLM::Transport.net_http_persistent</a>
+    transport:
+  </p>
+  <pre><code class="language-ruby">require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+mcp = LLM::MCP.http(
+  url: "https://remote-mcp.example.com",
+  transport: :net_http_persistent
+)
+
+ctx = LLM::Context.new(llm, tools: mcp.tools)
+ctx.talk("Use the available tools to inspect the environment.")
+ctx.talk(ctx.wait(:call)) while ctx.functions?</code></pre>
 </section>
 
 <section id="a2a">
@@ -190,13 +223,35 @@ ctx.talk(ctx.wait(:call)) while ctx.functions?</code></pre>
 
 a2a = LLM::A2A.rest(
   url: "https://remote-agent.example.com",
-  transport: LLM::Transport.net_http_persistent
+  transport: :net_http_persistent
 )</code></pre>
   <p>
     For more on direct messaging, task operations, push notification
     configs, and JSON-RPC, see the
     <a href="https://0x1eef.github.io/x/llm.rb/LLM/A2A.html">LLM::A2A API docs</a>.
   </p>
+</section>
+
+<section id="transports">
+  <h2>Transports</h2>
+  <p>
+    Providers use Ruby's standard library Net::HTTP transport by default.
+    You can opt into persistent Net::HTTP connections with <code>persistent: true</code>,
+    or provide a transport shortcut when you want a different backend.
+    <code>transport: :curb</code> uses libcurl through the optional <code>curb</code> gem.
+  </p>
+  <p>
+    Custom transports can implement the
+    <a href="https://0x1eef.github.io/x/llm.rb/LLM/Transport.html">LLM::Transport</a>
+    interface and receive transport-agnostic
+    <a href="https://0x1eef.github.io/x/llm.rb/LLM/Transport/Request.html">LLM::Transport::Request</a>
+    objects from providers.
+  </p>
+  <pre><code class="language-ruby">require "llm"
+
+llm = LLM.openai(key: ENV["KEY"], persistent: true)
+llm = LLM.openai(key: ENV["KEY"], transport: :net_http_persistent)
+llm = LLM.openai(key: ENV["KEY"], transport: :curb)</code></pre>
 </section>
 
 <section id="skills">
