@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "bundler/setup"
 require "bundler/gem_tasks"
 require "rspec/core/rake_task"
 
@@ -82,6 +83,11 @@ namespace :'models.dev' do
 end
 
 namespace :agents do
+  desc "Run the changelog agent"
+  task :changelog do
+    sh "agents/changelog/agent.rb"
+  end
+
   desc "Run the release agent"
   task :release, [:version] do |_t, args|
     sh "agents/release/agent.rb #{args[:version]}"
