@@ -1,48 +1,42 @@
 # frozen_string_literal: true
 
 require "llm"
-require "test/cmd"
-
-Dir[File.join(__dir__, "tools", "*.rb")].sort.each { require(_1) }
+require "llm/tools/git"
+require "llm/tools/read_file"
+require "llm/tools/rg"
+require "llm/tools/swap_text"
 
 class Agent < LLM::Agent
-  skills(__dir__)
+  instructions :set_instructions
+  tools :set_tools
+  tracer :set_tracer
   concurrency :thread
-  stream { Stream.new }
 
-  def initialize(llm, params = {})
-    super(llm, params)
+  def run(version:)
+    talk("Let's prepare the #{version} release")
   end
 
-  def release!(version:)
-    talk("Prepare the release for llm.rb #{version}")
-  end
-end
+  private
 
-class Stream < LLM::Stream
-  def on_content(content)
-    $stdout << content
+  def set_instructions
+    File.read File.join(__dir__, "prompt.md")
   end
 
-  def on_tool_call(tool, error)
-    puts "[tool] call #{tool.name} (error=#{error})"
+  def set_tools
+    [LLM::Tool::Git, LLM::Tool::ReadFile, LLM::Tool::Rg, LLM::Tool::SwapText]
   end
 
-  def on_tool_return(tool, result)
-    puts "[tool] return #{tool.name}"
+  def set_tracer
+    LLM::Tracer::Logger.new(llm, io: $stderr)
   end
 end
 
-def main(_argv)
-  print "target: "
-  version = gets.chomp
-  version = "v#{version}" unless version[0] == "v"
-  print "Does #{version} look right to you [y/n]: "
-  if gets.chomp.downcase[0] == "y"
-    llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
-    Agent.new(llm).release!(version:)
+def main(argv)
+  version = argv[0]
+  if version.nil? || version.strip.empty?
+    warn "release: provide a version"
   else
-    puts "Aborted at user's request"
+    Agent.new(llm).run(version:)
   end
 end
 

@@ -83,8 +83,8 @@ end
 
 namespace :agents do
   desc "Run the release agent"
-  task :release do
-    sh "bundle exec ruby agents/release-agent/main.rb"
+  task :release, [:version] do |_t, args|
+    sh "agents/release/agent.rb #{args[:version]}"
   end
 end
 
