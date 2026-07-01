@@ -1,10 +1,11 @@
+#!/usr/bin/env ruby
 # frozen_string_literal: true
 
 require "llm"
 require "llm/tools/git"
 require "llm/tools/read_file"
 require "llm/tools/rg"
-require "llm/tools/replace_in_file"
+require "llm/tools/swap_text"
 
 class Agent < LLM::Agent
   instructions :set_instructions
@@ -23,7 +24,10 @@ class Agent < LLM::Agent
   end
 
   def set_tools
-    [LLM::Tool::Git, LLM::Tool::ReadFile, LLM::Tool::Rg, LLM::Tool::ReplaceInFile]
+    [
+      LLM::Tool::Git, LLM::Tool::ReadFile,
+      LLM::Tool::Rg, LLM::Tool::SwapText
+    ]
   end
 
   def set_tracer
