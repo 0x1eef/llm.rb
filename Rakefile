@@ -92,6 +92,18 @@ namespace :agents do
   task :release, [:version] do |_t, args|
     sh "agents/release/agent.rb #{args[:version]}"
   end
+
+  namespace :backport do
+    desc "perform backport research"
+    task :research do
+      sh "agents/backport/agent.rb research"
+    end
+
+    desc "perform code edits"
+    task :code do
+      sh "agents/backport/agent.rb code"
+    end
+  end
 end
 
 task default: %i[spec rubocop]
