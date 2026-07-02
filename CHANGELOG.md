@@ -17,9 +17,10 @@
 
 Changes since `v12.0.0`.
 
-This release adds several new built-in tools (shell, read-file, chdir, git, rg,
-swap-text), fixes Symbol resolution of `tools` in `LLM::Agent`, extends the BSL
-additional use grant, and fixes a documentation link.
+This release adds several new built-in tools (shell, read-file,
+chdir, git, rg, swap-text, pwd, write-file, mkdir), fixes Symbol
+of `tools` in `LLM::Agent`, and extends the BSL additional
+use grant.
 
 ### Add
 
@@ -38,8 +39,8 @@ additional use grant, and fixes a documentation link.
   It must be required explicitly with `require "llm/tools/chdir"`.
 
 * **Add `LLM::Tool::Git`** <br>
-  Add a built-in tool that can perform read-only git actions (`log`,
-  `diff`, `show`). <br>
+  Add a built-in tool that can perform git actions (`log`, `diff`,
+  `show`, `commit`, `checkout`, `branch`). <br>
   It must be required explicitly with `require "llm/tools/git"` and requires the `test-cmd.rb` gem.
 
 * **Add `LLM::Tool::Rg`** <br>
@@ -51,6 +52,20 @@ additional use grant, and fixes a documentation link.
   Add a built-in tool that can replace an exact snippet of text in a
   file with a new piece of text. <br>
   It must be required explicitly with `require "llm/tools/swap_text"`.
+
+* **Add `LLM::Tool::Pwd`** <br>
+  Add a built-in tool that returns the current working directory. <br>
+  It must be required explicitly with `require "llm/tools/pwd"`.
+
+* **Add `LLM::Tool::WriteFile`** <br>
+  Add a built-in tool that can write a given string to a given file
+  path. <br>
+  It must be required explicitly with `require "llm/tools/write_file"`.
+
+* **Add `LLM::Tool::Mkdir`** <br>
+  Add a built-in tool that can create a tree of new directories. <br>
+  It must be required explicitly with `require "llm/tools/mkdir"` and
+  requires the `test-cmd.rb` gem.
 
 ### Change
 
