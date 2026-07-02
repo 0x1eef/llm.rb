@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+# frozen_string_literal
+
+class LLM::Tool
+  ##
+  # The {LLM::Tool::Pwd LLM::Tool::Pwd} class implements
+  # a tool that can reveal the current working directory.
+  class Pwd < self
+    name "pwd"
+    description "returns the current working directory"
+
+    ##
+    # @param [String] path
+    # @return [Hash]
+    def call
+      {ok: true, cwd: Dir.getwd}
+    end
+  end
+end
