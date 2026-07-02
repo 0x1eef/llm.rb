@@ -99,6 +99,11 @@ namespace :agents do
       sh "agents/backport/main.rb research"
     end
 
+    desc "research license changes"
+    task :license do
+      sh "agents/backport/main.rb license"
+    end
+
     desc "perform code edits"
     task :code do
       sh "agents/backport/main.rb code"

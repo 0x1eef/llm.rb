@@ -19,11 +19,18 @@ class LLM::Tool
     # @param [String] pattern
     # @return [Hash]
     def call(patterns:, path: Dir.getwd)
+      validate!(patterns:, path:)
       command = spawn(patterns:, path:)
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
     end
 
     private
+
+    def validate!(patterns:, path:)
+      if path == "/"
+        raise RuntimeError, "you can't search from the root of the filesystem"
+      end
+    end
 
     def spawn(patterns:, path:)
       Command.new("rg")

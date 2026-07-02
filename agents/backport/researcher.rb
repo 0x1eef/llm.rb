@@ -14,7 +14,16 @@ class Researcher < LLM::Agent
   tracer :set_tracer
   concurrency :thread
 
-  def run
+  def license
+    talk [
+      "Let's research the recent license change.",
+      "Let's make the research actionable.",
+      "llm.rb and mruby-llm must have the same license",
+      "The llm.rb license is the preferred license"
+    ]
+  end
+
+  def research
     talk("Let's start our research")
   end
 

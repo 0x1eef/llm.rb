@@ -81,6 +81,8 @@ Style/RescueModifier:
   Enabled: false
 Style/TrailingCommaInHashLiteral:
   Enabled: false
+Style/RedundantException:
+  Enabled: false
 Lint/RedundantSplatExpansion:
   Enabled: false
 Layout/MultilineOperationIndentation:

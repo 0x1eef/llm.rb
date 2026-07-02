@@ -6,9 +6,9 @@ require File.join(__dir__, "coder")
 
 def main(argv)
   case argv[0]
-  when "research"
+  when "research", "license"
     llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
-    agent = Researcher.new(llm).tap(&:run)
+    agent = Researcher.new(llm).tap(&argv[0].to_sym)
   when "code"
     llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
     agent = Coder.new(llm).tap(&:run)
