@@ -12,21 +12,22 @@ class LLM::Tool
     name "rg"
     description "recursively search the current directory for lines matching a pattern"
     parameter :patterns, Array[String], "one or more search patterns"
+    parameter :path, String, "the path where the search is performed (default is cwd)"
     required %i[patterns]
 
     ##
     # @param [String] pattern
     # @return [Hash]
-    def call(patterns:)
-      command = spawn(patterns:)
+    def call(patterns:, path: Dir.getwd)
+      command = spawn(patterns:, path:)
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
     end
 
     private
 
-    def spawn(patterns:)
+    def spawn(patterns:, path:)
       Command.new("rg")
-        .argv(*patterns.flat_map { ["-e", _1] })
+        .argv(*[*patterns].flat_map { ["-e", _1] }, path)
         .spawn
     end
 
