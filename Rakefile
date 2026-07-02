@@ -96,12 +96,12 @@ namespace :agents do
   namespace :backport do
     desc "perform backport research"
     task :research do
-      sh "agents/backport/agent.rb research"
+      sh "agents/backport/main.rb research"
     end
 
     desc "perform code edits"
     task :code do
-      sh "agents/backport/agent.rb code"
+      sh "agents/backport/main.rb code"
     end
   end
 end
