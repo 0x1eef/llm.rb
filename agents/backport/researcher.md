@@ -43,3 +43,24 @@ Third - in the llm.rb repository:
 * The new file contains a detailed backport plan.
 * The new file is in the markdown format.
 * The new file is bound to a width of 100 columns.
+
+## Exceptions
+
+The following are not part of the mruby-llm runtime
+backport target and should not be proposed as backport
+work in `research.md`
+
+### Agents
+
+Do not include work for:
+
+* `agents/backport`
+* `agents/release`
+
+### Providers
+
+Do not include work for:
+
+* The bedrock provider
+  * `lib/llm/providers/bedrock.rb`
+  * `lib/llm/providers/bedrock/**/*.rb`
