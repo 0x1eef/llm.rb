@@ -25,9 +25,8 @@ class LLM::Tool
     private
 
     def spawn(patterns:)
-      switch = patterns.size.times.map { "-e" }
       Command.new("rg")
-        .argv(*patterns.zip(switch).flatten)
+        .argv(*patterns.flat_map { ["-e", _1] })
         .spawn
     end
 
