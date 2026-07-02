@@ -11,7 +11,7 @@ class LLM::Tool
   class Git < self
     name "git"
     description "perform an action with git"
-    parameter :action, Enum["log", "diff", "show"], "the git operation to perform"
+    parameter :action, Enum["log", "diff", "commit", "checkout", "branch", "show"], "the git operation to perform"
     parameter :arguments, Array[String], "one or more arguments for the git action"
     required %i[action]
 
