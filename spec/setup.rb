@@ -36,6 +36,7 @@ VCR.configure do |config|
   config.filter_sensitive_data("TOKEN") { ENV["AWS_SECRET_ACCESS_KEY"] }
   config.filter_sensitive_data("TOKEN") { ENV["AWS_SESSION_TOKEN"] }
   config.filter_sensitive_data("localhost") { ENV["OLLAMA_HOST"] }
+  config.filter_sensitive_data("localhost") { ENV["LLAMACPP_HOST"] }
 
   config.before_record do
     body = _1.response.body
