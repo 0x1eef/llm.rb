@@ -1,0 +1,43 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://localhost:8013/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"What
+        is the date?"}]}],"model":"qwen3"}'
+    headers:
+      User-Agent:
+      - llm.rb v12.0.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Keep-Alive:
+      - timeout=5, max=100
+      Server:
+      - llama.cpp
+      Access-Control-Allow-Origin:
+      - ''
+      Content-Length:
+      - '852'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjaG9pY2VzIjpbeyJmaW5pc2hfcmVhc29uIjoic3RvcCIsImluZGV4IjowLCJtZXNzYWdlIjp7InJvbGUiOiJhc3Npc3RhbnQiLCJjb250ZW50IjoiVGhlIGN1cnJlbnQgZGF0ZSBpcyAqKkp1bHnigK8zLOKArzIwMjYqKi4iLCJyZWFzb25pbmdfY29udGVudCI6IlRoZSB1c2VyIGFza3MgXCJXaGF0IGlzIHRoZSBkYXRlP1wiIExpa2VseSBjdXJyZW50IGRhdGU6IEp1bHkgMywgMjAyNi4gV2UgY2FuIHJlc3BvbmQgdGhhdC4gQWxzbyBwb3NzaWJseSBtZW50aW9uIGRhdGUgZm9ybWF0LiBObyBuZWVkIGZvciBleHRyYSBjb250ZW50LiJ9fV0sImNyZWF0ZWQiOjE3ODMwNDg5MTIsIm1vZGVsIjoiZ2dtbC1vcmcvZ3B0LW9zcy0yMGItR0dVRiIsInN5c3RlbV9maW5nZXJwcmludCI6ImI5ODQ4LTkzMWViMzdmOCIsIm9iamVjdCI6ImNoYXQuY29tcGxldGlvbiIsInVzYWdlIjp7ImNvbXBsZXRpb25fdG9rZW5zIjo2MywicHJvbXB0X3Rva2VucyI6NzIsInRvdGFsX3Rva2VucyI6MTM1LCJwcm9tcHRfdG9rZW5zX2RldGFpbHMiOnsiY2FjaGVkX3Rva2VucyI6NjB9fSwiaWQiOiJjaGF0Y21wbC1Id1RRRlJPUnRJSjRldEtFM1ZteW00NUp3bnhHVmMzMCIsInRpbWluZ3MiOnsiY2FjaGVfbiI6NjAsInByb21wdF9uIjoxMiwicHJvbXB0X21zIjo3NzcuODEzLCJwcm9tcHRfcGVyX3Rva2VuX21zIjo2NC44MTc3NSwicHJvbXB0X3Blcl9zZWNvbmQiOjE1LjQyNzg3Mjc2NjMzMzI5OCwicHJlZGljdGVkX24iOjYzLCJwcmVkaWN0ZWRfbXMiOjczNzAuNTE0LCJwcmVkaWN0ZWRfcGVyX3Rva2VuX21zIjoxMTYuOTkyMjg1NzE0Mjg1NzEsInByZWRpY3RlZF9wZXJfc2Vjb25kIjo4LjU0NzU3MjEyMzE5MjQ5M319
+  recorded_at: Fri, 03 Jul 2026 03:21:52 GMT
+recorded_with: VCR 6.4.0

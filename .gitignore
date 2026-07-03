@@ -15,6 +15,7 @@
 /tasks/benchmark.rake
 /*.pdf
 /*.core
+/research.md
 
 # rspec failure tracking
 .rspec_status

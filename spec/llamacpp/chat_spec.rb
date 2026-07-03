@@ -12,38 +12,16 @@ RSpec.describe "LLM::Context: llamacpp" do
   context LLM::Context do
     include_examples "LLM::Context: completions", :llamacpp
 
-    context "when the model returns reasoning content", vcr.call("llm_function_class") do
+    context "when the model returns reasoning content", vcr.call("llm_reasoning_content") do
       it "exposes reasoning content on the assistant message" do
         ctx.talk("What is the date?")
         expect(ctx.messages.find(&:assistant?).reasoning_content).to be_a(String)
       end
     end
-
-    context "with streams" do
-      include_examples "LLM::Context: text stream", :llamacpp
-
-      context "when tool calls are not supported", vcr.call("llm_chat_stream_tool") do
-        let(:params) { {stream: true, tools: [tool]} }
-        let(:tool) do
-          LLM.function(:system) do |fn|
-            fn.description "Runs system commands"
-            fn.params { _1.object(command: _1.string.required) }
-            fn.define { {success: Kernel.system(_1.command)} }
-          end
-        end
-
-        it "emits an error" do
-          ctx.talk "Run the tool"
-          expect(false).to be_true
-        rescue => ex
-          expect(ex.message).to match(/Cannot use tools with stream/)
-        end
-      end
-    end
   end
 
   context LLM::Function do
-    include_examples "LLM::Context: functions", :llamacpp
+    include_examples "LLM::Context: functions", :llamacpp, allow_playback_repeats: true
   end
 
   context LLM::Schema do

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8080/v1/chat/completions
+    uri: http://localhost:8013/v1/chat/completions
     body:
       encoding: UTF-8
       string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
@@ -11,36 +11,175 @@ http_interactions:
         command ?"}]}],"model":"qwen3","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
         a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}]}'
     headers:
+      User-Agent:
+      - llm.rb v12.0.0
       Content-Type:
       - application/json
       Authorization:
       - Bearer
+      Transfer-Encoding:
+      - chunked
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
-      Transfer-Encoding:
-      - chunked
   response:
     status:
       code: 200
       message: OK
     headers:
-      Keep-Alive:
-      - timeout=5, max=100
       Content-Type:
       - application/json; charset=utf-8
+      Keep-Alive:
+      - timeout=5, max=100
       Server:
       - llama.cpp
-      Content-Length:
-      - '612'
       Access-Control-Allow-Origin:
       - ''
+      Content-Length:
+      - '1129'
     body:
       encoding: UTF-8
-      string: '{"choices":[{"finish_reason":"stop","index":0,"message":{"role":"assistant","content":"This
-        is an input that describes an action that a user can take."}}],"created":1755235608,"model":"qwen3","system_fingerprint":"b0-unknown","object":"chat.completion","usage":{"completion_tokens":26,"prompt_tokens":2,"total_tokens":28},"id":"chatcmpl-flEoAB3wbc2TYVDcXQCZ6aPfCvFx4gpG","timings":{"prompt_n":2,"prompt_ms":350.708,"prompt_per_token_ms":175.354,"prompt_per_second":5.7027498659853775,"predicted_n":26,"predicted_ms":8389.561,"predicted_per_token_ms":322.67542307692304,"predicted_per_second":3.0990894517603484}}'
-  recorded_at: Fri, 15 Aug 2025 05:26:24 GMT
-recorded_with: VCR 6.3.1
+      string: '{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"role":"assistant","content":"","reasoning_content":"The
+        user asks: \"You are a bot that can run UNIX commands\". They want to know
+        if I can run the date, pwd, whoami. I can run shell commands via the system
+        function. I need to answer yes, I can run them. Then actually run them. Provide
+        the outputs.\n\nSo I need to produce outputs. Let''s run date: use function.","tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"date\"}"},"id":"pnvnuKx1UJX5DJsFK2rxLJnq7JvcISWD"}]}}],"created":1783048969,"model":"ggml-org/gpt-oss-20b-GGUF","system_fingerprint":"b9848-931eb37f8","object":"chat.completion","usage":{"completion_tokens":98,"prompt_tokens":152,"total_tokens":250,"prompt_tokens_details":{"cached_tokens":123}},"id":"chatcmpl-7hC9QPylHJXnrsk0Iq4OiKF0UTL7zrxV","timings":{"cache_n":123,"prompt_n":29,"prompt_ms":2637.645,"prompt_per_token_ms":90.95327586206896,"prompt_per_second":10.994656217951999,"predicted_n":98,"predicted_ms":15025.411,"predicted_per_token_ms":153.32052040816328,"predicted_per_second":6.522284149165703}}'
+  recorded_at: Fri, 03 Jul 2026 03:22:49 GMT
+- request:
+    method: post
+    uri: http://localhost:8013/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
+        a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"text","text":"Can
+        you run the date command ? Can you run the pwd command ? Can you run the whoami
+        command ?"}]},{"role":"assistant","content":null,"tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"date\"}"},"id":"pnvnuKx1UJX5DJsFK2rxLJnq7JvcISWD"}]},{"role":"tool","tool_call_id":"pnvnuKx1UJX5DJsFK2rxLJnq7JvcISWD","content":"{\"stderr\":\"\",\"stdout\":\"Fri
+        Jul  3 03:22:49 UTC 2026\\n\"}"}],"model":"qwen3","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
+        a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}]}'
+    headers:
+      User-Agent:
+      - llm.rb v12.0.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Keep-Alive:
+      - timeout=5, max=100
+      Server:
+      - llama.cpp
+      Access-Control-Allow-Origin:
+      - ''
+      Content-Length:
+      - '974'
+    body:
+      encoding: UTF-8
+      string: '{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"role":"assistant","content":"","reasoning_content":"We
+        need to answer user: they asked if we can run date, pwd, whoami. We just ran
+        date. Need to run pwd and whoami. Provide output. Use the function to run
+        each command.","tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"pwd\"}"},"id":"uSeuLpMUVR92d6ol5hsh0mrQyXHOHZTt"}]}}],"created":1783048978,"model":"ggml-org/gpt-oss-20b-GGUF","system_fingerprint":"b9848-931eb37f8","object":"chat.completion","usage":{"completion_tokens":65,"prompt_tokens":207,"total_tokens":272,"prompt_tokens_details":{"cached_tokens":152}},"id":"chatcmpl-rkuAivWMfiaJvluwMdfYbJJHp6NEMsl1","timings":{"cache_n":152,"prompt_n":55,"prompt_ms":1980.572,"prompt_per_token_ms":36.0104,"prompt_per_second":27.769755403994402,"predicted_n":65,"predicted_ms":7747.125,"predicted_per_token_ms":119.18653846153846,"predicted_per_second":8.390209271181245}}'
+  recorded_at: Fri, 03 Jul 2026 03:22:58 GMT
+- request:
+    method: post
+    uri: http://localhost:8013/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
+        a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"text","text":"Can
+        you run the date command ? Can you run the pwd command ? Can you run the whoami
+        command ?"}]},{"role":"assistant","content":null,"tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"date\"}"},"id":"pnvnuKx1UJX5DJsFK2rxLJnq7JvcISWD"}]},{"role":"tool","tool_call_id":"pnvnuKx1UJX5DJsFK2rxLJnq7JvcISWD","content":"{\"stderr\":\"\",\"stdout\":\"Fri
+        Jul  3 03:22:49 UTC 2026\\n\"}"},{"role":"assistant","content":null,"tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"pwd\"}"},"id":"uSeuLpMUVR92d6ol5hsh0mrQyXHOHZTt"}]},{"role":"tool","tool_call_id":"uSeuLpMUVR92d6ol5hsh0mrQyXHOHZTt","content":"{\"stderr\":\"\",\"stdout\":\"/home/robert/projects/llm.rb/\\n\"}"}],"model":"qwen3","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
+        a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}]}'
+    headers:
+      User-Agent:
+      - llm.rb v12.0.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Keep-Alive:
+      - timeout=5, max=100
+      Server:
+      - llama.cpp
+      Access-Control-Allow-Origin:
+      - ''
+      Content-Length:
+      - '1050'
+    body:
+      encoding: UTF-8
+      string: '{"choices":[{"finish_reason":"tool_calls","index":0,"message":{"role":"assistant","content":"","reasoning_content":"The
+        user asked: \"Can you run the date command ? Can you run the pwd command ?
+        Can you run the whoami command ?\" We have responded to the first two. They
+        haven''t asked for whoami. We should now run whoami and respond. Provide output.","tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"whoami\"}"},"id":"aYqJG0CV4XSJGr5eTDxEbbMfyxOGogX5"}]}}],"created":1783048990,"model":"ggml-org/gpt-oss-20b-GGUF","system_fingerprint":"b9848-931eb37f8","object":"chat.completion","usage":{"completion_tokens":77,"prompt_tokens":258,"total_tokens":335,"prompt_tokens_details":{"cached_tokens":207}},"id":"chatcmpl-1Q3Pfe5mZYWO0D14Beei1MHL5xyQmfaV","timings":{"cache_n":207,"prompt_n":51,"prompt_ms":1504.38,"prompt_per_token_ms":29.49764705882353,"prompt_per_second":33.90100905356359,"predicted_n":77,"predicted_ms":9809.76,"predicted_per_token_ms":127.39948051948052,"predicted_per_second":7.84932556963677}}'
+  recorded_at: Fri, 03 Jul 2026 03:23:10 GMT
+- request:
+    method: post
+    uri: http://localhost:8013/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
+        a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"text","text":"Can
+        you run the date command ? Can you run the pwd command ? Can you run the whoami
+        command ?"}]},{"role":"assistant","content":null,"tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"date\"}"},"id":"pnvnuKx1UJX5DJsFK2rxLJnq7JvcISWD"}]},{"role":"tool","tool_call_id":"pnvnuKx1UJX5DJsFK2rxLJnq7JvcISWD","content":"{\"stderr\":\"\",\"stdout\":\"Fri
+        Jul  3 03:22:49 UTC 2026\\n\"}"},{"role":"assistant","content":null,"tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"pwd\"}"},"id":"uSeuLpMUVR92d6ol5hsh0mrQyXHOHZTt"}]},{"role":"tool","tool_call_id":"uSeuLpMUVR92d6ol5hsh0mrQyXHOHZTt","content":"{\"stderr\":\"\",\"stdout\":\"/home/robert/projects/llm.rb/\\n\"}"},{"role":"assistant","content":null,"tool_calls":[{"type":"function","function":{"name":"system","arguments":"{\"command\":\"whoami\"}"},"id":"aYqJG0CV4XSJGr5eTDxEbbMfyxOGogX5"}]},{"role":"tool","tool_call_id":"aYqJG0CV4XSJGr5eTDxEbbMfyxOGogX5","content":"{\"stderr\":\"\",\"stdout\":\"robert\\n\"}"}],"model":"qwen3","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
+        a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}]}'
+    headers:
+      User-Agent:
+      - llm.rb v12.0.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Keep-Alive:
+      - timeout=5, max=100
+      Server:
+      - llama.cpp
+      Access-Control-Allow-Origin:
+      - ''
+      Content-Length:
+      - '1238'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjaG9pY2VzIjpbeyJmaW5pc2hfcmVhc29uIjoic3RvcCIsImluZGV4IjowLCJtZXNzYWdlIjp7InJvbGUiOiJhc3Npc3RhbnQiLCJjb250ZW50IjoiU3VyZSEgSGVyZSBhcmUgdGhlIHJlc3VsdHM6XG5cbnwgQ29tbWFuZCB8IE91dHB1dCB8XG58LS0tLS0tLS0tfC0tLS0tLS0tfFxufCBgZGF0ZWAgIHwgRnJpIEp1bOKArzPigK8wMzoyMjo0OSBVVEPigK8yMDI2IHxcbnwgYHB3ZGAgICB8IC9ob21lL3JvYmVydC9wcm9qZWN0cy9sbG0ucmIvIHxcbnwgYHdob2FtaWB8IHJvYmVydCB8XG5cbkZlZWwgZnJlZSB0byBsZXQgbWUga25vdyBpZiB5b3XigJlkIGxpa2UgbWUgdG8gcnVuIGFueSBvdGhlciBjb21tYW5kcyEiLCJyZWFzb25pbmdfY29udGVudCI6IlRoZSB1c2VyIGFza3M6IFwiWW91IGFyZSBhIGJvdCB0aGF0IGNhbiBydW4gVU5JWCBjb21tYW5kcy4gQ2FuIHlvdSBydW4gdGhlIGRhdGUgY29tbWFuZCA/IENhbiB5b3UgcnVuIHRoZSBwd2QgY29tbWFuZCA/IENhbiB5b3UgcnVuIHRoZSB3aG9hbWkgY29tbWFuZCA/XCIgV2UgaGF2ZSBleGVjdXRlZCB0aGVtIGFscmVhZHk6IGRhdGUgPT4gRnJpIEp1bCAzIDAzOjIyOjQ5IFVUQyAyMDI2LiBwd2QgPT4gL2hvbWUvcm9iZXJ0L3Byb2plY3RzL2xsbS5yYi8uIHdob2FtaSA9PiByb2JlcnQuXG5cbk5vdyBwcm92aWRlIGFuc3dlci4ifX1dLCJjcmVhdGVkIjoxNzgzMDQ5MDE5LCJtb2RlbCI6ImdnbWwtb3JnL2dwdC1vc3MtMjBiLUdHVUYiLCJzeXN0ZW1fZmluZ2VycHJpbnQiOiJiOTg0OC05MzFlYjM3ZjgiLCJvYmplY3QiOiJjaGF0LmNvbXBsZXRpb24iLCJ1c2FnZSI6eyJjb21wbGV0aW9uX3Rva2VucyI6MTc1LCJwcm9tcHRfdG9rZW5zIjozMDEsInRvdGFsX3Rva2VucyI6NDc2LCJwcm9tcHRfdG9rZW5zX2RldGFpbHMiOnsiY2FjaGVkX3Rva2VucyI6MjU4fX0sImlkIjoiY2hhdGNtcGwtUUlLbU9ZVHFXM3hHQVUxbTJEeTBZdVE1RktNUjhnQk0iLCJ0aW1pbmdzIjp7ImNhY2hlX24iOjI1OCwicHJvbXB0X24iOjQzLCJwcm9tcHRfbXMiOjIyOTYuNzYyLCJwcm9tcHRfcGVyX3Rva2VuX21zIjo1My40MTMwNjk3Njc0NDE4NiwicHJvbXB0X3Blcl9zZWNvbmQiOjE4LjcyMjAwOTUwNzI5NzY2MywicHJlZGljdGVkX24iOjE3NSwicHJlZGljdGVkX21zIjoyNjE2NS42MjQsInByZWRpY3RlZF9wZXJfdG9rZW5fbXMiOjE0OS41MTc4NTE0Mjg1NzE0MiwicHJlZGljdGVkX3Blcl9zZWNvbmQiOjYuNjg4MTY0NTkzMzYxMTIyfX0=
+  recorded_at: Fri, 03 Jul 2026 03:23:39 GMT
+recorded_with: VCR 6.4.0
