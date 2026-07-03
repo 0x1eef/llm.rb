@@ -19,8 +19,9 @@ Changes since `v12.0.0`.
 
 This release adds several new built-in tools (shell, read-file,
 chdir, git, rg, swap-text, pwd, write-file, mkdir), fixes Symbol
-of `tools` in `LLM::Agent`, and extends the BSL additional
-use grant.
+of `tools` in `LLM::Agent`, extends the BSL additional
+use grant, changes the LlamaCpp default port (8080 => 8013), and
+defaults the LlamaCpp model to `nil`.
 
 ### Add
 
@@ -74,6 +75,15 @@ use grant.
   include non-profits, charities, and companies with 50 or fewer
   employees, in addition to the existing personal, education, and
   evaluation uses.
+
+* **Change LlamaCpp default port (8080 => 8013)** <br>
+  The default port for the LlamaCpp provider has changed from `8080` to
+  `8013` since llamacpp itself defaults to that port.
+
+* **Change LlamaCpp default model to `nil`** <br>
+  The default model for LlamaCpp is now `nil`, letting whatever model
+  is served by the llamacpp server act as the default. Previously it
+  defaulted to `qwen3`.
 
 ### Fix
 
