@@ -380,6 +380,17 @@ module LLM
     end
 
     ##
+    # Start a minimalist repl that can interact
+    # with the agent and its current state. This
+    # method requires the 'curses' gem to be installed
+    # and available to require.
+    # @return [void]
+    def repl
+      require_relative "repl" unless defined?(::LLM::Repl)
+      LLM::Repl.new(self).start
+    end
+
+    ##
     # @see LLM::Context#params
     # @return [Hash]
     def params
