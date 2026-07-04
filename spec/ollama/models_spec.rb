@@ -7,7 +7,11 @@ RSpec.describe "LLM::Ollama::Models" do
   let(:host) { ENV["OLLAMA_HOST"] || "localhost" }
 
   context "when given a successful list operation",
-          vcr: {cassette_name: "ollama/models/successful_list"} do
+          vcr: {
+            cassette_name: "ollama/models/successful_list",
+            match_requests_on: [:method],
+            allow_playback_repeats: true
+          } do
     subject(:response) { provider.models.all }
 
     it "is successful" do

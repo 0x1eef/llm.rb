@@ -7,7 +7,11 @@ RSpec.describe "LLM::Ollama: embeddings" do
   let(:host) { ENV["OLLAMA_HOST"] || "localhost" }
 
   context "when given a successful response",
-          vcr: {cassette_name: "ollama/embeddings/successful_response"} do
+          vcr: {
+            cassette_name: "ollama/embeddings/successful_response",
+            match_requests_on: [:method],
+            allow_playback_repeats: true
+          } do
     subject(:response) { ollama.embed(["This is a paragraph", "This is another one"]) }
 
     it "returns an embedding" do
