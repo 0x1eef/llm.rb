@@ -17,14 +17,30 @@
 
 Changes since `v12.0.0`.
 
-This release adds several new built-in tools (shell, read-file,
-chdir, git, rg, swap-text, pwd, write-file, mkdir), fixes Symbol
-of `tools` in `LLM::Agent`, extends the BSL additional
-use grant, changes the LlamaCpp default port (8080 => 8013), and
-defaults the LlamaCpp model to `nil`. It also fixes JSON gem 3.0
-compatibility by encoding strings as UTF-8 during serialization.
+This release adds `LLM::Agent#repl` with a curses-based
+interactive read-eval-print loop. It requires the optional
+dependency `curses` and it is probably the most notable
+feature in this release.
+
+Multiple _opt-in_ tools have been added to the `llm/tools/*.rb`
+directory. They serve as examples and as general-purpose tools
+that happen to power the repository's agents.
+
+The BSL license has been extended to grant additional free waivers
+for non-profits, charities and for companies with 50 or less
+employees.
+
+Other changes include small-ish bug fixes. <br>
+As always, see the changelog details for a thorough overview.
 
 ### Add
+
+* **Add `LLM::Agent#repl`** <br>
+  Add a curses-based read-eval-print loop for `LLM::Agent` that lets
+  developers interact with an agent after it has been set up or has
+  performed a task. It is similar to `binding.pry`: once you exit,
+  you can continue with the rest of your program. It requires the
+  `curses` gem.
 
 * **Add `LLM::Tool::Shell`** <br>
   Add a built-in shell tool that can run a command with arguments. <br>
