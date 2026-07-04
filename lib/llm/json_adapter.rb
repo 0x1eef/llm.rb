@@ -38,11 +38,11 @@ module LLM
     def self.dump(obj, state = nil, **options)
       require "json" unless defined?(::JSON)
       if ::JSON::State === state
-        ::JSON.generate(obj, state)
+        ::JSON.generate(normalize(obj), state)
       elsif state
-        ::JSON.dump(obj, state, **options)
+        ::JSON.dump(normalize(obj), state, **options)
       else
-        ::JSON.dump(obj, **options)
+        ::JSON.dump(normalize(obj), **options)
       end
     end
 
@@ -59,6 +59,32 @@ module LLM
       require "json" unless defined?(::JSON)
       [::JSON::ParserError]
     end
+
+    ##
+    # JSON 3.0 compat
+    # Walks `obj` and encodes every string that is
+    # found into a UTF-8 compatible string.
+    def self.normalize(obj)
+      case obj
+      when String then normalize_string(obj)
+      when Array then obj.map { normalize(_1) }
+      when Hash then obj.map { [_1, normalize(_2)] }.to_h
+      when LLM::Object then obj.map { [_1, normalize(_2)] }.to_h
+      else obj
+      end
+    end
+    private_class_method :normalize
+
+    ##
+    # JSON 3.0 compat
+    # Normalizes a string as a UTF-8 encoded string
+    # that's compatible with the JSON spec.
+    def self.normalize_string(str)
+      return str if str.encoding == Encoding::UTF_8
+      str = (+str).force_encoding("UTF-8")
+      str.valid_encoding? ? str : str.scrub
+    end
+    private_class_method :normalize_string
   end
 
   ##

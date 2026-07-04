@@ -21,7 +21,8 @@ This release adds several new built-in tools (shell, read-file,
 chdir, git, rg, swap-text, pwd, write-file, mkdir), fixes Symbol
 of `tools` in `LLM::Agent`, extends the BSL additional
 use grant, changes the LlamaCpp default port (8080 => 8013), and
-defaults the LlamaCpp model to `nil`.
+defaults the LlamaCpp model to `nil`. It also fixes JSON gem 3.0
+compatibility by encoding strings as UTF-8 during serialization.
 
 ### Add
 
@@ -93,6 +94,12 @@ defaults the LlamaCpp model to `nil`.
   `LLM::Context`. This fix copies the same pattern used by other
   attribute resolvers (e.g., `skills`) so a single Symbol is resolved
   through the agent instance correctly.
+
+* **Encode strings as UTF-8 in the JSON adapter** <br>
+  The `json` gem will reject BINARY-encoded strings from version 3 and
+  beyond. The `LLM::JSONAdapter.dump` method now walks serialized data
+  and encodes every string into UTF-8, using `String#scrub` to replace
+  bytes that are not valid UTF-8.
 
 ## v12.0.0
 
