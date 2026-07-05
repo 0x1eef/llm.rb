@@ -16,13 +16,8 @@ def main(argv)
     warn "agent: '#{argv[0]}' is not a valid action"
     exit 1
   end
-
-  4.times { puts }
-  message = agent.messages.last
-  puts "content: #{message.content}"
-  puts "reasoning: #{message.reasoning_content}"
-  puts "approx cost: $#{agent.cost}"
-  puts
+  agent.tracer = nil
+  agent.repl
 end
 
 main(ARGV)
