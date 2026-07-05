@@ -42,6 +42,11 @@ As always, see the changelog details for a thorough overview.
   you can continue with the rest of your program. It requires the
   `curses` gem.
 
+* **Add `#tracer=` setter on Provider, Context and Agent** <br>
+  `LLM::Provider`, `LLM::Context` and `LLM::Agent` can now configure
+  the tracer after initialization via the `#tracer=` setter. It accepts
+  a subclass of `LLM::Tracer` or `nil` to disable the tracer.
+
 * **Add `LLM::Tool::Shell`** <br>
   Add a built-in shell tool that can run a command with arguments. <br>
   It must be required explicitly with `require "llm/tools/shell"` and
