@@ -6,6 +6,8 @@ class LLM::Repl
   # the editable input line shown at the bottom of the REPL.
   # @api private
   class Input
+    UP        = Curses::Key::UP
+    DOWN      = Curses::Key::DOWN
     ENTER     = [Curses::Key::ENTER, 10, 13]
     BACKSPACE = [Curses::Key::BACKSPACE, 127]
     EOF       = [nil, 4]
@@ -34,7 +36,7 @@ class LLM::Repl
     ##
     # @return [String]
     def to_s
-      "#{@provider}> #{@buffer}"
+      "> #{@buffer}"
     end
 
     private

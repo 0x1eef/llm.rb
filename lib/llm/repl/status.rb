@@ -15,14 +15,16 @@ class LLM::Repl
     end
 
     ##
+    # @return [String]
+    attr_reader :provider
+
+    ##
     # @param [String] value
     # @return [void]
-    attr_writer :text
+    attr_accessor :text
 
     ##
     # @return [String]
-    def to_s
-      "provider: #{@provider}  status: #{@text}"
-    end
+    alias_method :to_s, :text
   end
 end

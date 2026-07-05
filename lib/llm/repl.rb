@@ -43,11 +43,12 @@ module LLM
           break if text.nil?
           next if text.empty?
           status.text = "thinking"
-          write("#{provider}> #{text}\n")
+          write("user: #{text}\n")
           window.redraw
+          write("agent: ")
           agent.talk(text, stream:)
           status.text = "idle"
-          write("\n")
+          write("\n\n")
         end
       end
     end

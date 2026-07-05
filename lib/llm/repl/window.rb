@@ -81,6 +81,9 @@ class LLM::Repl
     def draw_status
       Curses.setpos(0, 0)
       Curses.addstr(status.to_s)
+      provider = status.provider.to_s
+      Curses.setpos(0, [columns - provider.length, 0].max)
+      Curses.addstr(provider)
     end
 
     def draw_transcript
@@ -92,7 +95,7 @@ class LLM::Repl
     end
 
     def draw_input
-      Curses.setpos(lines - 1, 0)
+      Curses.setpos(Curses.lines - 1, 0)
       Curses.clrtoeol
       Curses.addstr(input.to_s)
     end
