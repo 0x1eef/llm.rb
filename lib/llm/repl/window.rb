@@ -7,6 +7,18 @@ class LLM::Repl
   # @api private
   class Window
     ##
+    # @return [LLM::Repl::Status]
+    attr_reader :status
+
+    ##
+    # @return [LLM::Repl::Transcript]
+    attr_reader :transcript
+
+    ##
+    # @return [LLM::Repl::Input]
+    attr_reader :input
+
+    ##
     # @param [LLM::Repl::Status] status
     # @param [LLM::Repl::Transcript] transcript
     # @param [LLM::Repl::Input] input
@@ -65,8 +77,6 @@ class LLM::Repl
     end
 
     private
-
-    attr_reader :status, :transcript, :input
 
     def draw_status
       Curses.setpos(0, 0)
