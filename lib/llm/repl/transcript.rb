@@ -24,8 +24,9 @@ class LLM::Repl
 
     ##
     # @return [void]
-    def scroll_up
-      @offset = [@offset + 1, @lines.size - 1].min
+    def scroll_up(height)
+      max = [@lines.size - height, 0].max
+      @offset = [@offset + 1, max].min
     end
 
     ##
@@ -47,8 +48,10 @@ class LLM::Repl
 
     def write_char(char)
       if char == "\n"
+        @offset += 1 if @offset > 0
         @lines << +""
       elsif char == " " and @lines.last.length >= WIDTH
+        @offset += 1 if @offset > 0
         @lines << +""
       else
         @lines.last << char

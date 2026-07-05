@@ -54,8 +54,8 @@ class LLM::Repl
 
     ##
     # @return [Integer]
-    def lines
-      Curses.lines
+    def rows
+      [Curses.lines - 3, 1].max
     end
 
     ##
@@ -67,7 +67,7 @@ class LLM::Repl
     ##
     # @return [void]
     def scroll_up
-      transcript.scroll_up
+      transcript.scroll_up(rows)
     end
 
     ##
@@ -84,9 +84,10 @@ class LLM::Repl
     end
 
     def draw_transcript
-      transcript.visible(transcript_height).each_with_index do |line, index|
+      visible = transcript.visible(rows)
+      visible.each_with_index do |row, index|
         Curses.setpos(index + 2, 0)
-        Curses.addstr(line)
+        Curses.addstr(row)
       end
     end
 
@@ -96,8 +97,8 @@ class LLM::Repl
       Curses.addstr(input.to_s)
     end
 
-    def transcript_height
-      [lines - 3, 1].max
+    def columns
+      Curses.cols
     end
   end
 end
