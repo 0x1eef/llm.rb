@@ -117,6 +117,24 @@ agent = LLM::Agent.new(llm, stream: MyStream.new)
 agent.talk "Explain Ruby fibers."
 ```
 
+#### LLM::REPL
+
+The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
+method allows an agent to spawn a read-eval-print loop
+that can be useful during the development and operation
+of agents. It can be used to debug tool calls, confirm an
+agent has done what was expected, or improve the agent
+by asking questions about what it has done up to that point.
+
+This feature requires that the [curses](https://github.com/ruby/curses)
+library is installed and available to require.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl
+```
+
 #### LLM::MCP
 
 The Model Context Protocol (MCP) has first-class support
