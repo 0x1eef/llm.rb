@@ -36,7 +36,9 @@ class Agent < LLM::Agent
 end
 
 def main(argv)
-  llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
-  Agent.new(llm).run
+  llm   = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+  agent = Agent.new(llm).tap(&:run)
+  agent.tracer = nil
+  agent.repl
 end
 main(ARGV)
