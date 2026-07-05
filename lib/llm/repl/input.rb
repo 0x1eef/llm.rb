@@ -6,11 +6,9 @@ class LLM::Repl
   # the editable input line shown at the bottom of the REPL.
   # @api private
   class Input
-    include Curses::Key
-
-    ENTERK     = [ENTER, 10, 13]
-    BACKSPACEK = [BACKSPACE, 103]
-    EOFK       = [nil, 4]
+    ENTER     = [Curses::Key::ENTER, 10, 13]
+    BACKSPACE = [Curses::Key::BACKSPACE, 127]
+    EOF       = [nil, 4]
 
     ##
     # @param [String, Symbol] provider
@@ -27,8 +25,8 @@ class LLM::Repl
       catch(:done) do
         @buffer.clear
         loop do
-          window.redraw
           on_char(window, window.getch)
+          window.redraw
         end
       end
     end
@@ -42,14 +40,13 @@ class LLM::Repl
     private
 
     def on_char(window, char)
-      if EOFK.include?(char)
+      if EOF.include?(char)
         throw(:done, nil)
-      elsif BACKSPACEK.include?(char)
+      elsif BACKSPACE.include?(char)
         @buffer.chop!
-      elsif ENTERK.include?(char)
+      elsif ENTER.include?(char)
         buf = @buffer.dup
         @buffer.clear
-        window.redraw
         throw(:done, buf)
       elsif char == UP
         window.scroll_up
