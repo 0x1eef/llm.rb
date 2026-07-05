@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 require "llm"
-require "llm/tools/git"
-require "llm/tools/read_file"
-require "llm/tools/rg"
-require "llm/tools/swap_text"
+require "llm/tools"
 
 class Agent < LLM::Agent
   instructions :set_instructions

@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
 require "llm"
-require "llm/tools/git"
-require "llm/tools/read_file"
-require "llm/tools/write_file"
-require "llm/tools/rg"
-require "llm/tools/chdir"
-require "llm/tools/pwd"
+require "llm/tools"
 
 class Researcher < LLM::Agent
   instructions :set_instructions
