@@ -54,6 +54,8 @@ features that didn't make it into the homepage documentation.
 - [Tracer](#tracer)
   - [Provider-wide tracer](#provider-wide-tracer)
   - [Agent-local tracer](#agent-local-tracer)
+- [REPL](#repl)
+  - [LLM::Agent](#llmagent)
 - [Images](#images)
   - [Generation](#generation)
   - [Edits](#edits)
@@ -798,6 +800,36 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, io: $stdout))
 # Writes to deepseek-agent.log
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek-agent.log"))
+```
+
+[Back to top](#table-of-contents)
+
+## REPL
+
+During the development and operation of agents it can often
+be helpful to drop into a read-eval-print loop. This gives
+you a simple way to confirm the work was successful, inspect
+anything that went wrong (for example, tool call errors), and
+keep talking to the same agent so you can learn about its
+decision-making process and make improvements for future runs.
+It can also be used to ask the agent to correct any errors
+that might have made.
+
+##### LLM::Agent
+
+The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
+method requires the [curses](https://github.com/ruby/curses)
+gem to be installed and available for require. It is an
+optional dependency that only becomes required when you
+call the [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
+method.
+
+```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl
 ```
 
 [Back to top](#table-of-contents)
