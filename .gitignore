@@ -16,6 +16,7 @@
 /*.pdf
 /*.core
 /research.md
+/t.rb
 
 # rspec failure tracking
 .rspec_status
