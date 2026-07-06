@@ -10,6 +10,7 @@
     "claude-opus-4-5": {
       "id": "claude-opus-4-5",
       "name": "Claude Opus 4.5 (latest)",
+      "description": "Flagship Claude model for deep reasoning, coding, and long-horizon agents",
       "family": "claude-opus",
       "attachment": true,
       "reasoning": true,
@@ -28,6 +29,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-03-31",
       "release_date": "2025-11-24",
@@ -57,6 +59,7 @@
     "claude-haiku-4-5-20251001": {
       "id": "claude-haiku-4-5-20251001",
       "name": "Claude Haiku 4.5",
+      "description": "Fast Claude model for responsive assistance, classification, and lightweight agents",
       "family": "claude-haiku",
       "attachment": true,
       "reasoning": true,
@@ -67,6 +70,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-02-28",
       "release_date": "2025-10-15",
@@ -93,82 +97,10 @@
         "cache_write": 1.25
       }
     },
-    "claude-opus-4-0": {
-      "id": "claude-opus-4-0",
-      "name": "Claude Opus 4 (latest)",
-      "family": "claude-opus",
-      "attachment": true,
-      "reasoning": true,
-      "reasoning_options": [
-        {
-          "type": "budget_tokens",
-          "min": 1024
-        }
-      ],
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2025-03-31",
-      "release_date": "2025-05-22",
-      "last_updated": "2025-05-22",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 32000
-      },
-      "cost": {
-        "input": 15,
-        "output": 75,
-        "cache_read": 1.5,
-        "cache_write": 18.75
-      }
-    },
-    "claude-3-opus-20240229": {
-      "id": "claude-3-opus-20240229",
-      "name": "Claude Opus 3",
-      "family": "claude-opus",
-      "attachment": true,
-      "reasoning": false,
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2023-08-31",
-      "release_date": "2024-02-29",
-      "last_updated": "2024-02-29",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 4096
-      },
-      "status": "deprecated",
-      "cost": {
-        "input": 15,
-        "output": 75,
-        "cache_read": 1.5,
-        "cache_write": 18.75
-      }
-    },
     "claude-opus-4-1-20250805": {
       "id": "claude-opus-4-1-20250805",
       "name": "Claude Opus 4.1",
+      "description": "Flagship Claude model for deep reasoning, coding, and long-horizon agents",
       "family": "claude-opus",
       "attachment": true,
       "reasoning": true,
@@ -179,6 +111,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-03-31",
       "release_date": "2025-08-05",
@@ -198,6 +131,7 @@
         "context": 200000,
         "output": 32000
       },
+      "status": "deprecated",
       "cost": {
         "input": 15,
         "output": 75,
@@ -208,6 +142,7 @@
     "claude-sonnet-4-5": {
       "id": "claude-sonnet-4-5",
       "name": "Claude Sonnet 4.5 (latest)",
+      "description": "Balanced Claude model for coding, analysis, agent workflows, and cost control",
       "family": "claude-sonnet",
       "attachment": true,
       "reasoning": true,
@@ -218,6 +153,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-07-31",
       "release_date": "2025-09-29",
@@ -234,7 +170,7 @@
       },
       "open_weights": false,
       "limit": {
-        "context": 200000,
+        "context": 1000000,
         "output": 64000
       },
       "cost": {
@@ -247,6 +183,7 @@
     "claude-opus-4-7": {
       "id": "claude-opus-4-7",
       "name": "Claude Opus 4.7",
+      "description": "Stronger Opus tier for advanced software work and high-stakes reasoning",
       "family": "claude-opus",
       "attachment": true,
       "reasoning": true,
@@ -263,9 +200,10 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": false,
       "knowledge": "2026-01-31",
-      "release_date": "2026-04-16",
+      "release_date": "2026-04-14",
       "last_updated": "2026-04-16",
       "modalities": {
         "input": [
@@ -309,9 +247,60 @@
         "cache_write": 6.25
       }
     },
+    "claude-sonnet-5": {
+      "id": "claude-sonnet-5",
+      "name": "Claude Sonnet 5",
+      "description": "Everyday Claude agent model for coding, planning, browsing, and general work",
+      "family": "claude-sonnet",
+      "attachment": true,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": false,
+      "knowledge": "2026-01-31",
+      "release_date": "2026-06-29",
+      "last_updated": "2026-06-30",
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "pdf"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.2,
+        "cache_write": 2.5
+      }
+    },
     "claude-opus-4-5-20251101": {
       "id": "claude-opus-4-5-20251101",
       "name": "Claude Opus 4.5",
+      "description": "Flagship Claude model for deep reasoning, coding, and long-horizon agents",
       "family": "claude-opus",
       "attachment": true,
       "reasoning": true,
@@ -330,9 +319,10 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-03-31",
-      "release_date": "2025-11-01",
+      "release_date": "2025-11-24",
       "last_updated": "2025-11-01",
       "modalities": {
         "input": [
@@ -356,43 +346,10 @@
         "cache_write": 6.25
       }
     },
-    "claude-3-5-sonnet-20241022": {
-      "id": "claude-3-5-sonnet-20241022",
-      "name": "Claude Sonnet 3.5 v2",
-      "family": "claude-sonnet",
-      "attachment": true,
-      "reasoning": false,
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2024-04-30",
-      "release_date": "2024-10-22",
-      "last_updated": "2024-10-22",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 8192
-      },
-      "status": "deprecated",
-      "cost": {
-        "input": 3,
-        "output": 15,
-        "cache_read": 0.3,
-        "cache_write": 3.75
-      }
-    },
     "claude-opus-4-8": {
       "id": "claude-opus-4-8",
       "name": "Claude Opus 4.8",
+      "description": "Top Claude Opus tier for the hardest reasoning, coding, and long-horizon agents",
       "family": "claude-opus",
       "attachment": true,
       "reasoning": true,
@@ -409,6 +366,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": false,
       "release_date": "2026-05-28",
       "last_updated": "2026-05-28",
@@ -454,121 +412,10 @@
         "cache_write": 6.25
       }
     },
-    "claude-opus-4-20250514": {
-      "id": "claude-opus-4-20250514",
-      "name": "Claude Opus 4",
-      "family": "claude-opus",
-      "attachment": true,
-      "reasoning": true,
-      "reasoning_options": [
-        {
-          "type": "budget_tokens",
-          "min": 1024
-        }
-      ],
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2025-03-31",
-      "release_date": "2025-05-22",
-      "last_updated": "2025-05-22",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 32000
-      },
-      "cost": {
-        "input": 15,
-        "output": 75,
-        "cache_read": 1.5,
-        "cache_write": 18.75
-      }
-    },
-    "claude-3-5-sonnet-20240620": {
-      "id": "claude-3-5-sonnet-20240620",
-      "name": "Claude Sonnet 3.5",
-      "family": "claude-sonnet",
-      "attachment": true,
-      "reasoning": false,
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2024-04-30",
-      "release_date": "2024-06-20",
-      "last_updated": "2024-06-20",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 8192
-      },
-      "status": "deprecated",
-      "cost": {
-        "input": 3,
-        "output": 15,
-        "cache_read": 0.3,
-        "cache_write": 3.75
-      }
-    },
-    "claude-sonnet-4-20250514": {
-      "id": "claude-sonnet-4-20250514",
-      "name": "Claude Sonnet 4",
-      "family": "claude-sonnet",
-      "attachment": true,
-      "reasoning": true,
-      "reasoning_options": [
-        {
-          "type": "budget_tokens",
-          "min": 1024
-        }
-      ],
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2025-03-31",
-      "release_date": "2025-05-22",
-      "last_updated": "2025-05-22",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 64000
-      },
-      "cost": {
-        "input": 3,
-        "output": 15,
-        "cache_read": 0.3,
-        "cache_write": 3.75
-      }
-    },
     "claude-opus-4-1": {
       "id": "claude-opus-4-1",
       "name": "Claude Opus 4.1 (latest)",
+      "description": "Flagship Claude model for deep reasoning, coding, and long-horizon agents",
       "family": "claude-opus",
       "attachment": true,
       "reasoning": true,
@@ -579,6 +426,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-03-31",
       "release_date": "2025-08-05",
@@ -598,6 +446,7 @@
         "context": 200000,
         "output": 32000
       },
+      "status": "deprecated",
       "cost": {
         "input": 15,
         "output": 75,
@@ -605,43 +454,10 @@
         "cache_write": 18.75
       }
     },
-    "claude-3-haiku-20240307": {
-      "id": "claude-3-haiku-20240307",
-      "name": "Claude Haiku 3",
-      "family": "claude-haiku",
-      "attachment": true,
-      "reasoning": false,
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2023-08-31",
-      "release_date": "2024-03-13",
-      "last_updated": "2024-03-13",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 4096
-      },
-      "status": "deprecated",
-      "cost": {
-        "input": 0.25,
-        "output": 1.25,
-        "cache_read": 0.03,
-        "cache_write": 0.3
-      }
-    },
     "claude-fable-5": {
       "id": "claude-fable-5",
       "name": "Claude Fable 5",
+      "description": "Claude model for creative writing, analysis, and controlled agent workflows",
       "family": "claude-fable",
       "attachment": true,
       "reasoning": true,
@@ -658,8 +474,9 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": false,
-      "release_date": "2026-06-09",
+      "release_date": "2026-06-07",
       "last_updated": "2026-06-09",
       "modalities": {
         "input": [
@@ -683,88 +500,10 @@
         "cache_write": 12.5
       }
     },
-    "claude-sonnet-4-0": {
-      "id": "claude-sonnet-4-0",
-      "name": "Claude Sonnet 4 (latest)",
-      "family": "claude-sonnet",
-      "attachment": true,
-      "reasoning": true,
-      "reasoning_options": [
-        {
-          "type": "budget_tokens",
-          "min": 1024
-        }
-      ],
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2025-03-31",
-      "release_date": "2025-05-22",
-      "last_updated": "2025-05-22",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 64000
-      },
-      "cost": {
-        "input": 3,
-        "output": 15,
-        "cache_read": 0.3,
-        "cache_write": 3.75
-      }
-    },
-    "claude-3-7-sonnet-20250219": {
-      "id": "claude-3-7-sonnet-20250219",
-      "name": "Claude Sonnet 3.7",
-      "family": "claude-sonnet",
-      "attachment": true,
-      "reasoning": true,
-      "reasoning_options": [
-        {
-          "type": "budget_tokens",
-          "min": 1024
-        }
-      ],
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2024-10-31",
-      "release_date": "2025-02-19",
-      "last_updated": "2025-02-19",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 64000
-      },
-      "status": "deprecated",
-      "cost": {
-        "input": 3,
-        "output": 15,
-        "cache_read": 0.3,
-        "cache_write": 3.75
-      }
-    },
     "claude-haiku-4-5": {
       "id": "claude-haiku-4-5",
       "name": "Claude Haiku 4.5 (latest)",
+      "description": "Fast Claude lane for lightweight agents, office tasks, and responsive chat",
       "family": "claude-haiku",
       "attachment": true,
       "reasoning": true,
@@ -775,6 +514,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-02-28",
       "release_date": "2025-10-15",
@@ -804,6 +544,7 @@
     "claude-opus-4-6": {
       "id": "claude-opus-4-6",
       "name": "Claude Opus 4.6",
+      "description": "High-end Claude for difficult coding, planning, and slower expert reasoning",
       "family": "claude-opus",
       "attachment": true,
       "reasoning": true,
@@ -823,9 +564,10 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-05-31",
-      "release_date": "2026-02-05",
+      "release_date": "2026-02-04",
       "last_updated": "2026-03-13",
       "modalities": {
         "input": [
@@ -872,6 +614,7 @@
     "claude-sonnet-4-5-20250929": {
       "id": "claude-sonnet-4-5-20250929",
       "name": "Claude Sonnet 4.5",
+      "description": "Balanced Claude model for coding, analysis, agent workflows, and cost control",
       "family": "claude-sonnet",
       "attachment": true,
       "reasoning": true,
@@ -882,6 +625,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-07-31",
       "release_date": "2025-09-29",
@@ -898,7 +642,7 @@
       },
       "open_weights": false,
       "limit": {
-        "context": 200000,
+        "context": 1000000,
         "output": 64000
       },
       "cost": {
@@ -908,43 +652,10 @@
         "cache_write": 3.75
       }
     },
-    "claude-3-sonnet-20240229": {
-      "id": "claude-3-sonnet-20240229",
-      "name": "Claude Sonnet 3",
-      "family": "claude-sonnet",
-      "attachment": true,
-      "reasoning": false,
-      "tool_call": true,
-      "temperature": true,
-      "knowledge": "2023-08-31",
-      "release_date": "2024-03-04",
-      "last_updated": "2024-03-04",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 200000,
-        "output": 4096
-      },
-      "status": "deprecated",
-      "cost": {
-        "input": 3,
-        "output": 15,
-        "cache_read": 0.3,
-        "cache_write": 0.3
-      }
-    },
     "claude-sonnet-4-6": {
       "id": "claude-sonnet-4-6",
       "name": "Claude Sonnet 4.6",
+      "description": "Claude workhorse for coding agents, careful analysis, and production cost control",
       "family": "claude-sonnet",
       "attachment": true,
       "reasoning": true,
@@ -964,6 +675,7 @@
         }
       ],
       "tool_call": true,
+      "structured_output": true,
       "temperature": true,
       "knowledge": "2025-08-31",
       "release_date": "2026-02-17",
@@ -981,7 +693,7 @@
       "open_weights": false,
       "limit": {
         "context": 1000000,
-        "output": 64000
+        "output": 128000
       },
       "cost": {
         "input": 3,

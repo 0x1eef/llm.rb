@@ -12,6 +12,7 @@
     "gemini-3.1-flash-lite": {
       "id": "gemini-3.1-flash-lite",
       "name": "Gemini 3.1 Flash Lite",
+      "description": "Low-latency Gemini model for high-volume multimodal and agent workloads",
       "family": "gemini-flash-lite",
       "attachment": true,
       "reasoning": true,
@@ -59,6 +60,7 @@
     "gemini-2.5-flash-preview-tts": {
       "id": "gemini-2.5-flash-preview-tts",
       "name": "Gemini 2.5 Flash Preview TTS",
+      "description": "Speech generation model for controllable voice, narration, and audio delivery",
       "family": "gemini-flash",
       "attachment": false,
       "reasoning": false,
@@ -88,6 +90,7 @@
     "gemini-2.5-pro": {
       "id": "gemini-2.5-pro",
       "name": "Gemini 2.5 Pro",
+      "description": "Google's proven reasoning model for coding, math, and multimodal analysis",
       "family": "gemini-pro",
       "attachment": true,
       "reasoning": true,
@@ -146,6 +149,7 @@
     "gemini-2.5-flash": {
       "id": "gemini-2.5-flash",
       "name": "Gemini 2.5 Flash",
+      "description": "Fast Gemini workhorse for multimodal apps where latency and price matter",
       "family": "gemini-flash",
       "attachment": true,
       "reasoning": true,
@@ -192,6 +196,7 @@
     "gemini-3.5-flash": {
       "id": "gemini-3.5-flash",
       "name": "Gemini 3.5 Flash",
+      "description": "Fast Gemini model balancing multimodal reasoning, tool use, and cost",
       "family": "gemini-flash",
       "attachment": true,
       "reasoning": true,
@@ -239,6 +244,7 @@
     "gemma-4-31b-it": {
       "id": "gemma-4-31b-it",
       "name": "Gemma 4 31B IT",
+      "description": "Largest Gemma 4 instruction model for open, self-hosted chat and reasoning",
       "family": "gemma",
       "attachment": true,
       "reasoning": true,
@@ -270,6 +276,7 @@
     "gemini-2.0-flash": {
       "id": "gemini-2.0-flash",
       "name": "Gemini 2.0 Flash",
+      "description": "Earlier Gemini Flash workhorse for responsive multimodal apps and tool use",
       "family": "gemini-flash",
       "attachment": true,
       "reasoning": false,
@@ -306,6 +313,7 @@
     "gemini-embedding-001": {
       "id": "gemini-embedding-001",
       "name": "Gemini Embedding 001",
+      "description": "Embedding model for semantic search, retrieval, clustering, and ranking pipelines",
       "family": "gemini",
       "attachment": false,
       "reasoning": false,
@@ -335,6 +343,7 @@
     "gemini-3.1-pro-preview-customtools": {
       "id": "gemini-3.1-pro-preview-customtools",
       "name": "Gemini 3.1 Pro Preview Custom Tools",
+      "description": "Advanced Gemini model for complex reasoning, coding, and multimodal analysis",
       "family": "gemini-pro",
       "attachment": true,
       "reasoning": true,
@@ -396,6 +405,7 @@
     "gemini-flash-lite-latest": {
       "id": "gemini-flash-lite-latest",
       "name": "Gemini Flash-Lite Latest",
+      "description": "Low-latency Gemini model for high-volume multimodal and agent workloads",
       "family": "gemini-flash-lite",
       "attachment": true,
       "reasoning": true,
@@ -441,6 +451,7 @@
     "gemini-3-pro-image-preview": {
       "id": "gemini-3-pro-image-preview",
       "name": "Nano Banana Pro",
+      "description": "Nano Banana Pro for higher-fidelity image generation and design-heavy edits",
       "family": "gemini-pro",
       "attachment": true,
       "reasoning": true,
@@ -473,6 +484,7 @@
     "gemini-2.5-flash-image": {
       "id": "gemini-2.5-flash-image",
       "name": "Nano Banana",
+      "description": "Nano Banana image model for fast generation, edits, and character-consistent assets",
       "family": "gemini-flash",
       "attachment": true,
       "reasoning": true,
@@ -506,6 +518,7 @@
     "gemini-2.5-flash-lite": {
       "id": "gemini-2.5-flash-lite",
       "name": "Gemini 2.5 Flash-Lite",
+      "description": "Lean Gemini 2.5 lane for cheap multimodal traffic and quick agents",
       "family": "gemini-flash-lite",
       "attachment": true,
       "reasoning": true,
@@ -552,6 +565,7 @@
     "gemini-3.1-flash-image-preview": {
       "id": "gemini-3.1-flash-image-preview",
       "name": "Nano Banana 2",
+      "description": "Image model for prompt-driven generation, editing, and visual design workflows",
       "family": "gemini-flash",
       "attachment": true,
       "reasoning": true,
@@ -593,6 +607,7 @@
     "gemini-3.1-pro-preview": {
       "id": "gemini-3.1-pro-preview",
       "name": "Gemini 3.1 Pro Preview",
+      "description": "Reasoning-first Gemini preview for agentic coding and complex problem solving",
       "family": "gemini-pro",
       "attachment": true,
       "reasoning": true,
@@ -654,6 +669,7 @@
     "gemma-4-26b-a4b-it": {
       "id": "gemma-4-26b-a4b-it",
       "name": "Gemma 4 26B A4B IT",
+      "description": "Open Gemma instruction model for efficient chat and self-hosted deployments",
       "family": "gemma",
       "attachment": true,
       "reasoning": true,
@@ -685,6 +701,7 @@
     "gemini-3-pro-preview": {
       "id": "gemini-3-pro-preview",
       "name": "Gemini 3 Pro Preview",
+      "description": "Preview Gemini flagship for complex reasoning, coding, and rich multimodal prompts",
       "family": "gemini-pro",
       "attachment": true,
       "reasoning": true,
@@ -746,6 +763,7 @@
     "gemini-3-flash-preview": {
       "id": "gemini-3-flash-preview",
       "name": "Gemini 3 Flash Preview",
+      "description": "New Gemini flash lane bringing frontier-style multimodal reasoning to cheaper runs",
       "family": "gemini-flash",
       "attachment": true,
       "reasoning": true,
@@ -793,6 +811,7 @@
     "gemini-2.5-pro-preview-tts": {
       "id": "gemini-2.5-pro-preview-tts",
       "name": "Gemini 2.5 Pro Preview TTS",
+      "description": "Speech generation model for controllable voice, narration, and audio delivery",
       "family": "gemini-flash",
       "attachment": false,
       "reasoning": false,
@@ -822,6 +841,7 @@
     "gemini-flash-latest": {
       "id": "gemini-flash-latest",
       "name": "Gemini Flash Latest",
+      "description": "Fast Gemini model balancing multimodal reasoning, tool use, and cost",
       "family": "gemini-flash",
       "attachment": true,
       "reasoning": true,
@@ -868,6 +888,7 @@
     "gemini-3.1-flash-lite-preview": {
       "id": "gemini-3.1-flash-lite-preview",
       "name": "Gemini 3.1 Flash Lite Preview",
+      "description": "Legacy model retained for compatibility with older integrations",
       "family": "gemini-flash-lite",
       "attachment": true,
       "reasoning": true,
@@ -916,6 +937,7 @@
     "gemini-2.0-flash-lite": {
       "id": "gemini-2.0-flash-lite",
       "name": "Gemini 2.0 Flash-Lite",
+      "description": "Legacy model retained for compatibility with older integrations",
       "family": "gemini-flash-lite",
       "attachment": true,
       "reasoning": false,
