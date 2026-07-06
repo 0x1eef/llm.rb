@@ -119,7 +119,7 @@ RSpec.describe LLM::Context do
 
   context "when given anthropic" do
     let(:provider) { LLM.anthropic(key: "test") }
-    let(:model) { "claude-sonnet-4-20250514" }
+    let(:model) { "claude-opus-4-5" }
 
     context "#context_window" do
       subject { ctx.context_window }
