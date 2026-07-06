@@ -13,7 +13,11 @@
 > Changelog <br>
 > a [r.uby.dev](https://r.uby.dev) project
 
-## Unreleased
+## What's next
+
+Changes since `v12.1.0`.
+
+## v12.1.0
 
 Changes since `v12.0.0`.
 

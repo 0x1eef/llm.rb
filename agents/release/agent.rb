@@ -33,8 +33,8 @@ def main(argv)
   if version.nil? || version.strip.empty?
     warn "release: provide a version"
   else
+    llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
     Agent.new(llm).run(version:)
   end
 end
-
-main(ARGV) if $PROGRAM_NAME == __FILE__
+main(ARGV)
