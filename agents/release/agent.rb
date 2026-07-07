@@ -34,7 +34,9 @@ def main(argv)
     warn "release: provide a version"
   else
     llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
-    Agent.new(llm).run(version:)
+    agent = Agent.new(llm).tap { _1.run(version:) }
+    agent.tracer = nil
+    agent.repl
   end
 end
 main(ARGV)
