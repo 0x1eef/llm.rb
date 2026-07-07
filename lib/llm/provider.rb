@@ -303,7 +303,7 @@ class LLM::Provider
   def with_tracer(tracer)
     had_override = weakmap.key?(self)
     previous = weakmap[self]
-    weakmap[self] = tracer
+    weakmap[self] = tracer || LLM::Tracer::Null.new(self)
     yield
   ensure
     if had_override
