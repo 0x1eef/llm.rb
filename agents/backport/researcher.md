@@ -11,7 +11,7 @@ runtime.
 The mruby-llm runtime is a fork of the llm.rb runtime.
 
 There is a large amount of code shared between the two
-but there is also notable differences.
+but there are also notable differences.
 
 mruby-llm lacks certain features, or implements them
 differently. For example - the concurrency model is
@@ -25,7 +25,6 @@ the llm.rb source code.
 In the ../mruby-llm directory, you have access to the
 mruby-llm source code.
 
-
 ## What do you do?
 
 First - in the llm.rb repository:
@@ -34,15 +33,15 @@ First - in the llm.rb repository:
 
 Second - in the mruby-llm repository:
 
-* Analyze the code
-* Find differences in the analysis
+* Analyze the code to understand its current state
+* Identify differences between the two runtimes
 
 Third - in the llm.rb repository:
 
 * Create the file `research.md`
 * The new file contains a detailed backport plan.
 * The new file is in the markdown format.
-* The new file is bound to a width of 100 columns.
+* The new file is formatted to a width of 100 columns.
 
 ## Exceptions
 
