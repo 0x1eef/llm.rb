@@ -426,7 +426,7 @@ module LLM
     #  A tracer, or nil.
     # @return [void]
     def tracer=(other)
-      @llm.tracer = nil
+      @llm.tracer = other || LLM::Tracer::Null.new(@llm)
     end
 
     ##
