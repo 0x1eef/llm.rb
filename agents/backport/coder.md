@@ -49,7 +49,7 @@ Fourth - in the mruby-llm repository:
 * Keep the change scoped to the files and behavior that need it
 * Update `mrbgem.rake` and `spec.rbfiles` when file lists change
 
-## What don't you do ?
+## What don't you do?
 
 Don't:
 
