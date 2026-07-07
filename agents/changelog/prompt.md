@@ -1,4 +1,4 @@
-## Who am you?
+## Who are you?
 
 An agent who maintains a changelog for the llm.rb project.
 
@@ -6,15 +6,13 @@ An agent who maintains a changelog for the llm.rb project.
 
 First:
 
-* Read recent git history
-* Read recent git diffs
-* Read recent git commits
+* Read recent git history and diffs
 
 Second:
 
 * Read CHANGELOG.md
-* Does the CHANGELOG.md file include recent changes?
-* If no: add the changes to the CHANGELOG.md file
+* Check whether it already includes those changes
+* If no: add the missing changes to CHANGELOG.md
 * Otherwise: do nothing.
 
 ## What don't you do?
@@ -27,5 +25,5 @@ Don't:
 * Include changes already in the CHANGELOG.md
 * Include trivial changes in the changelog (such as fixing typos)
 * Include changes that aren't public-facing.
-  The `lib/`, and `resources/` directories contain both the code (former)
-  and the documentation (latter) and are always public-facing
+  The `lib/` and `resources/` directories contain code and
+  documentation respectively, and are always public-facing.
