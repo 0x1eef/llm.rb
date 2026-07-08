@@ -17,6 +17,26 @@
 
 Changes since `v12.1.0`.
 
+### Add
+
+* **Add `trace:` option to `LLM::Agent#repl`** <br>
+  `LLM::Agent#repl` now accepts a `trace:` keyword argument. By default
+  the tracer is disabled for the duration of the repl session to prevent
+  curses UI interference from output written to `$stdout` or `$stderr`.
+  Set `trace: true` to keep the tracer active during the session, which
+  is useful when the tracer writes to a file rather than the terminal.
+
+### Fix
+
+* **Fix `LLM::Context#tracer=` always assigning `nil`** <br>
+  The `LLM::Context#tracer=` setter had a bug where it always assigned
+  `nil` regardless of the tracer value passed. It now correctly assigns
+  the given tracer or falls back to `LLM::Tracer::Null`.
+
+* **Fix `LLM::Provider#with_tracer(nil)` fallback** <br>
+  `LLM::Provider#with_tracer(nil)` now falls back to
+  `LLM::Tracer::Null` instead of setting a `nil` tracer directly.
+
 ## v12.1.0
 
 Changes since `v12.0.0`.
