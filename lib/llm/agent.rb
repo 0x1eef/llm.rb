@@ -393,10 +393,26 @@ module LLM
     # with the agent and its current state. This
     # method requires the 'curses' gem to be installed
     # and available to require.
+    #
+    # @note
+    #  By default this method disables the tracer for
+    #  the duration of the repl session, and restores
+    #  it afterwards.
+    # @param [Boolean] trace
+    #  When true, the tracer is kept alive during the
+    #  repl session. Default is false.
     # @return [void]
-    def repl
+    def repl(trace: false)
+      if !trace
+        previous    = tracer
+        self.tracer = nil
+      end
       require_relative "repl" unless defined?(::LLM::Repl)
       LLM::Repl.new(self).start
+    ensure
+      if !trace
+        self.tracer = previous
+      end
     end
 
     ##

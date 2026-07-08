@@ -35,7 +35,6 @@ def main(argv)
   else
     llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
     agent = Agent.new(llm).tap { _1.run(version:) }
-    agent.tracer = nil
     agent.repl
   end
 end

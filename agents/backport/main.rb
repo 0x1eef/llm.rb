@@ -16,7 +16,6 @@ def main(argv)
     warn "agent: '#{argv[0]}' is not a valid action"
     exit 1
   end
-  agent.tracer = nil
   agent.repl
 end
 
