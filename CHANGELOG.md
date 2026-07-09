@@ -26,6 +26,17 @@ Changes since `v12.1.0`.
   Set `trace: true` to keep the tracer active during the session, which
   is useful when the tracer writes to a file rather than the terminal.
 
+* **Add a new provider: LLM::Mistral** <br>
+  [Mistral](https://mistral.ai) is now supported through its
+  OpenAI-compatible API. The provider supports chat completions,
+  streaming, tool calls, structured output (schema), file/image
+  attachments, and embeddings. Use `LLM.mistral(...)` to create a
+  provider instance.
+
+* **Add `LLM.mistral(...)` convenience method** <br>
+  A new top-level accessor (`LLM.mistral`) returns an `LLM::Mistral`
+  provider instance, matching the pattern used by other providers.
+
 ### Fix
 
 * **Fix `LLM::Context#tracer=` always assigning `nil`** <br>
@@ -36,6 +47,20 @@ Changes since `v12.1.0`.
 * **Fix `LLM::Provider#with_tracer(nil)` fallback** <br>
   `LLM::Provider#with_tracer(nil)` now falls back to
   `LLM::Tracer::Null` instead of setting a `nil` tracer directly.
+
+* **Fix `LLM::Context#repair!` dropping `Struct` returns** <br>
+  `LLM::Context#repair!` used `[*prompt]` to wrap the prompt before
+  grepping for return objects. Since `LLM::Function::Return` is a
+  `Struct`, the splat operator expanded it into its member values
+  instead of wrapping it, causing the grep to silently drop returns.
+  The fix wraps both sources in an array before flattening.
+
+### Change
+
+* **Refresh model metadata** <br>
+  Update model listings, pricing, and capabilities for Anthropic,
+  AWS Bedrock, DeepInfra, Google, and xAI. Add Mistral model data
+  to the registry.
 
 ## v12.1.0
 
