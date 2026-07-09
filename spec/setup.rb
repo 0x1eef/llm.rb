@@ -16,6 +16,13 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.around(:each, :interval) do |example|
+    example.run
+  ensure
+    interval = example.metadata[:interval].to_f
+    sleep(interval) if interval > 0 && !cassette_recorded?(example)
+  end
 end
 
 VCR.configure do |config|
@@ -43,4 +50,11 @@ VCR.configure do |config|
     body.gsub! %r|#{Regexp.escape("https://oaidalleapiprodscus.blob.core.windows.net/")}[^"]+|,
                "https://openai.com/generated/image.png"
   end
+end
+
+def cassette_recorded?(example)
+  vcr = example.metadata[:vcr] || {}
+  name = vcr[:cassette_name]
+  return false unless name
+  File.exist?(File.join(VCR.configuration.cassette_library_dir, "#{name}.yml"))
 end
