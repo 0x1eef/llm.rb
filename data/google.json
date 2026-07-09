@@ -562,6 +562,38 @@
         "input_audio": 0.3
       }
     },
+    "gemini-omni-flash-preview": {
+      "id": "gemini-omni-flash-preview",
+      "name": "Gemini Omni Flash Preview",
+      "description": "Video generation and editing model for fast, conversational text- and image-to-video workflows",
+      "family": "gemini",
+      "attachment": true,
+      "reasoning": true,
+      "reasoning_options": [],
+      "tool_call": false,
+      "temperature": true,
+      "release_date": "2026-06-30",
+      "last_updated": "2026-06-30",
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "video"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 131072,
+        "output": 65536
+      },
+      "cost": {
+        "input": 1.5,
+        "output": 17.5
+      }
+    },
     "gemini-3.1-flash-image-preview": {
       "id": "gemini-3.1-flash-image-preview",
       "name": "Nano Banana 2",
