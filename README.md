@@ -23,7 +23,7 @@ that are opt-in.
 ## Features
 
 The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
-Gemini, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
+Gemini, Mistral, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
 It has first-class support for streaming, tool calls,  MCP
 and A2A, embeddings, vector stores and the RAG pattern.
 
@@ -265,6 +265,9 @@ agent.talk "perform research"
 <summary>What providers does llm.rb support?</summary>
 <br>
 <p>
+EU-based
+* Mistral
+
 China-based
 
 * DeepSeek
@@ -285,6 +288,7 @@ Openweights
 * zAI
 * DeepInfra
 * AWS bedrock
+* Mistral
 
 Host your own
 

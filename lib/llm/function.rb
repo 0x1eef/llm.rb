@@ -390,6 +390,12 @@ class LLM::Function
         type: "function", name: @name, description: @description,
         parameters: (@params || {type: "object", properties: {}}).to_h.merge(additionalProperties: false), strict: false
       }.compact
+    when "LLM::Mistral"
+      params = @params || {type: "object", properties: {}}
+      {
+        type: "function",
+        function: {name: @name, description: @description, parameters: params}
+      }.compact
     else
       params = @params || {type: "object", properties: {}}
       {

@@ -181,6 +181,15 @@ module LLM
   end
 
   ##
+  # @param key (see LLM::Mistral#initialize)
+  # @param host (see LLM::Mistral#initialize)
+  # @return (see LLM::Mistral#initialize)
+  def mistral(**)
+    lock(:require) { require_relative "llm/providers/mistral" unless defined?(LLM::Mistral) }
+    LLM::Mistral.new(**)
+  end
+
+  ##
   # @param key (see LLM::ZAI#initialize)
   # @param host (see LLM::ZAI#initialize)
   # @return (see LLM::ZAI#initialize)
