@@ -93,6 +93,11 @@ namespace :agents do
     sh "agents/release/agent.rb #{args[:version]}"
   end
 
+  desc "Run the prompt agent"
+  task :prompt do
+    sh "agents/changelog/agent.rb"
+  end
+
   namespace :backport do
     desc "perform backport research"
     task :research do

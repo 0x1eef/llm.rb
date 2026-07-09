@@ -33,7 +33,7 @@ class Agent < LLM::Agent
 end
 
 def main(argv)
-  llm   = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+  llm   = LLM.mistral(key: ENV["MISTRAL_SECRET"])
   agent = Agent.new(llm).tap(&:run)
   agent.repl
 end
