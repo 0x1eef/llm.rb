@@ -265,32 +265,37 @@ agent.talk "perform research"
 <summary>What providers does llm.rb support?</summary>
 <br>
 <p>
-EU-based
-* Mistral
 
-China-based
+**Cloud**
 
-* DeepSeek
-* zAI
+The following cloud-based providers are available to choose from. <br>
+In no particular order:
 
-US-based
+🇺🇸 OpenAI <br>
+🇺🇸 DeepInfra <br>
+🇺🇸 xAI <br>
+🇺🇸 Google (Gemini) <br>
+🇺🇸 AWS bedrock <br>
+🇺🇸 Anthropic <br>
+🇨🇳 DeepSeek <br>
+🇨🇳 zAI <br>
+🇪🇺 Mistral <br>
 
-* OpenAI
-* Google (Gemini)
-* xAI
-* AWS bedrock
-* DeepInfra
-* Anthropic
+**Weights**
 
-Openweights
+The following providers provide access to open-weight models. <br>
+In no particular order:
 
-* DeepSeek
-* zAI
-* DeepInfra
-* AWS bedrock
-* Mistral
+🇺🇸 DeepInfra <br>
+🇺🇸 AWS bedrock <br>
+🇨🇳 DeepSeek <br>
+🇨🇳 zAI <br>
+🇪🇺 Mistral <br>
 
-Host your own
+**Local**
+
+The following providers can be run locally on your own hardware. <br>
+In no particular order:
 
 * Ollama
 * Llamacpp
