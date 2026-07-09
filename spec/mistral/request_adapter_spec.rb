@@ -22,7 +22,7 @@ RSpec.describe "LLM::Mistral tool adaptation" do
       expect(params[:tools]).to eq([{
         type: "function",
         function: {
-          name: "system",
+          name: :system,
           description: "Runs system commands",
           parameters: tool.params
         }
