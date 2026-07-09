@@ -1,0 +1,83 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.mistral.ai/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"Your
+        favorite fruit is pineapple"}]},{"role":"user","content":[{"type":"text","text":"What
+        fruit is your favorite?"}]}],"model":"mistral-large-latest","response_format":{"type":"json_schema","json_schema":{"name":"JSONSchema","schema":{"type":"object","properties":{"fruit":{"description":"The
+        favorite fruit","enum":["apple","pineapple","orange"],"type":"string"}},"required":["fruit"]}}}}'
+    headers:
+      User-Agent:
+      - llm.rb v12.1.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer HLAqrnifGXE0eWiKDvy6moMIPArCSYno
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 09 Jul 2026 05:22:38 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - __cf_bm=kpOQrcFgNVZFPS8m.LDkE9GPdcNO5vqvpzqyXEMlOfo-1783574557.4773602-1.0.1.1-RkyoPzgT29vvHsDTOZ4HJ7.vzWjVUZTKFwUzTVhdkzrVErXaBhklcreLmXJ2pm_KNRYQV0.ms.XLRLvihEgGH21XY4Iwbk4wjjiQkN8.YM.LJK_e.vx0oBWTqNOsCQFJ;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=mistral.ai; Expires=Thu, 09
+        Jul 2026 05:52:38 GMT
+      Mistral-Correlation-Id:
+      - '019f4553-f380-7902-b656-93cec6341a5f'
+      X-Kong-Request-Id:
+      - '019f4553-f380-7902-b656-93cec6341a5f'
+      X-Max-Retry-Attempts-Reached:
+      - 'false'
+      X-Ratelimit-Limit-Tokens-Minute:
+      - '400000'
+      X-Ratelimit-Remaining-Tokens-Minute:
+      - '399409'
+      X-Ratelimit-Tokens-Query-Cost:
+      - '27'
+      X-Ratelimit-Limit-Req-Minute:
+      - '15'
+      X-Ratelimit-Remaining-Req-Minute:
+      - '9'
+      X-Envoy-Upstream-Service-Time:
+      - '419'
+      Server:
+      - cloudflare
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '420'
+      X-Kong-Proxy-Latency:
+      - '11'
+      X-Content-Type-Options:
+      - nosniff
+      Cf-Cache-Status:
+      - DYNAMIC
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Cf-Ray:
+      - a184e4583a9e630c-GRU
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: '{"id":"38dba1621456476a8d8acd89f77e50e3","created":1783574557,"model":"mistral-large-latest","usage":{"prompt_tokens":16,"total_tokens":27,"completion_tokens":11,"prompt_tokens_details":{"cached_tokens":0}},"object":"chat.completion","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","tool_calls":null,"content":"{\n  \"fruit\":
+        \"pineapple\"\n}"}}]}'
+  recorded_at: Thu, 09 Jul 2026 05:22:37 GMT
+recorded_with: VCR 6.4.0
