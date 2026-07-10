@@ -253,6 +253,16 @@ module LLM
   end
 
   ##
+  # @param [LLM::Provider] llm
+  #  A provider
+  # @param [Hash] params
+  #  Forwarded to LLM::Tracer::Logger
+  # @return [LLM::Tracer::Logger]
+  def logger(llm, **params)
+    LLM::Tracer::Logger.new(llm, params)
+  end
+
+  ##
   # Provides a thread-safe lock
   # @param [Symbol] name The name of the lock
   # @param [Proc] block The block to execute within the lock
