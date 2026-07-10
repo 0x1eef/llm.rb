@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.x.ai/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"Does
+        this PDF mention FreeBSD at all?"},{"type":"text","text":"Answer with yes
+        or no"},{"type":"text","text":"Nothing else"},{"type":"text","text":"/home/robert/projects/llm.rb/spec/fixtures/documents/freebsd.sysctl.pdf"}]}],"model":"grok-4.3"}'
+    headers:
+      User-Agent:
+      - llm.rb v12.1.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer TOKEN
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 10 Jul 2026 02:51:38 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000
+      Set-Cookie:
+      - __cf_bm=axjnmt1TFA1hbzMXYXnA0hNL4W.38SP795hVyfQXUK8-1783651895.222284-1.0.1.1-abN0s9K6d8yqhyzk6.xvIEQhw5KCRNlvS4x5fo.vwVvd52uQCil0Owi_0NK.UoutaQzmefh44McLM.w0gvW43DeDUNguBTfG7hASH0o05ekAJVYvBzC9YehbCIK_i3oH;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=x.ai; Expires=Fri, 10 Jul
+        2026 03:21:38 GMT
+      X-Ratelimit-Limit-Tokens:
+      - '10000000'
+      X-Ratelimit-Remaining-Tokens:
+      - '10000000'
+      X-Zero-Data-Retention:
+      - 'false'
+      X-Ratelimit-Limit-Requests:
+      - '1800'
+      X-Ratelimit-Remaining-Requests:
+      - '1800'
+      Cf-Cache-Status:
+      - DYNAMIC
+      X-Request-Id:
+      - 24d4f7d2-6123-9bf5-973a-b5e45361d7fe
+      X-Metrics-Ttft-Ms:
+      - '360.8'
+      X-Metrics-Mean-Itl-Ms:
+      - '13.1'
+      X-Metrics-E2e-Ms:
+      - '3550.6'
+      Traceparent:
+      - 00-4da0afeec6361d2d1b57504562e7573c-aab0ac6d000059e4-01
+      Vary:
+      - origin, access-control-request-method, access-control-request-headers
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - "*"
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - a18c447929e383e9-GRU
+    body:
+      encoding: ASCII-8BIT
+      string: '{"id":"24d4f7d2-6123-9bf5-973a-b5e45361d7fe","object":"chat.completion","created":1783651895,"model":"grok-4.3","choices":[{"index":0,"message":{"role":"assistant","content":"yes","reasoning_content":"The
+        question is: \"Does this PDF mention FreeBSD at all? Answer with yes or no
+        Nothing else\" and then there''s a path to a PDF: \"/home/robert/projects/llm.rb/spec/fixtures/documents/freebsd.sysctl.pdf\"\n...","refusal":null},"finish_reason":"stop"}],"usage":{"prompt_tokens":224,"completion_tokens":1,"total_tokens":455,"prompt_tokens_details":{"text_tokens":224,"audio_tokens":0,"image_tokens":0,"cached_tokens":128},"completion_tokens_details":{"reasoning_tokens":230,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0},"num_sources_used":0,"cost_in_usd_ticks":7231000},"system_fingerprint":"fp_eb3c003fc66c14ed","service_tier":"default"}'
+  recorded_at: Fri, 10 Jul 2026 02:51:38 GMT
+recorded_with: VCR 6.4.0
