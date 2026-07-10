@@ -24,12 +24,6 @@ Changes since `v12.2.0`.
   `LLM::Tracer::Logger` instance. Takes a provider and optional keyword
   arguments forwarded to the logger constructor.
 
-* **Add `tools:` option to `LLM::Agent#repl`** <br>
-  `LLM::Agent#repl` now accepts a `tools:` keyword argument that attaches
-  additional tool classes or instances for the duration of the repl session.
-  These tools are combined with any tools already configured on the agent,
-  and are discarded when the session ends.
-
 * **Add `LLM::Provider#ocr` base method** <br>
   Add a base `ocr(...)` method to `LLM::Provider` that raises `NotImplementedError`
   by default, establishing a common interface for providers that support OCR
@@ -41,31 +35,44 @@ Changes since `v12.2.0`.
   for documents (e.g., PDFs). Returns an `LLM::Response` with extracted pages,
   markdown content, and structured block data.
 
-* **Add `repl` support to ActiveRecord and Sequel agent models** <br>
-  `acts_as_agent` (ActiveRecord) and `plugin :agent` (Sequel) models now
-  expose a `repl` method that delegates to the underlying agent's
-  read-eval-print loop. This allows interactive debugging and inspection
-  of persisted agent state at runtime. Note that changes made during a
-  repl session do not persist back to the database.
-
 ### Change
 
-* **Rename `trace:` to `tracer:` in `LLM::Agent#repl`** <br>
+* **repl: rename `trace:` to `tracer:`** <br>
   The `trace:` keyword argument in `LLM::Agent#repl` has been renamed to
   `tracer:` for consistency with the rest of the codebase. The old `trace:`
   name still works with a deprecation warning.
 
-* **Keep the repl UI responsive while a request is in progress** <br>
+* **repl: keep the UI responsive while a request is in progress** <br>
   The curses-based REPL now spawns the agent request in a separate thread
   and communicates streamed output through a queue, so the curses UI stays
   responsive during model processing. Users can continue to scroll through
   the transcript while the agent is working.
 
-* **Style transcript rows as structured data with bold labels** <br>
+* **repl: style transcript rows as structured data with bold labels** <br>
   The curses-based REPL transcript now stores rows as structured data with
   style metadata instead of plain strings, enabling bold rendering of the
   `user:` and `agent:` labels for improved readability during interactive
   sessions.
+
+* **repl: render a small subset of markdown** <br>
+  The curses-based REPL now renders model responses as styled markdown.
+  Headers and strong text render in bold, emphasis renders in underline,
+  and code spans and blocks are highlighted with inverted colors. Streaming
+  content is buffered and re-rendered on each tick so the transcript reads
+  cleanly as the agent responds. Requires the optional `kramdown` gem.
+
+* **repl: add `tools:` option to `LLM::Agent#repl`** <br>
+  `LLM::Agent#repl` now accepts a `tools:` keyword argument that attaches
+  additional tool classes or instances for the duration of the repl session.
+  These tools are combined with any tools already configured on the agent,
+  and are discarded when the session ends.
+
+* **repl: add repl support to ActiveRecord and Sequel agent models** <br>
+  `acts_as_agent` (ActiveRecord) and `plugin :agent` (Sequel) models now
+  expose a `repl` method that delegates to the underlying agent's
+  read-eval-print loop. This allows interactive debugging and inspection
+  of persisted agent state at runtime. Note that changes made during a
+  repl session do not persist back to the database.
 
 ### Fix
 

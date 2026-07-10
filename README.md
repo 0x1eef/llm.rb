@@ -127,7 +127,8 @@ agent has done what was expected, or improve an agent by
 asking questions about what it has done up to that point.
 
 This feature requires that the [curses](https://github.com/ruby/curses)
-library is installed and available to require.
+and [kramdown](https://github.com/gettalong/kramdown) libraries are
+installed and available to require.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])

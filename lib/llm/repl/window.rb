@@ -92,9 +92,9 @@ class LLM::Repl
       rows.each_with_index do |row, index|
         Curses.setpos(index + 2, 0)
         row.each do |col|
-          char, attrs = col.values_at(:char, :attrs)
+          text, attrs = col.values_at(:text, :attrs)
           Curses.attron(attrs) if attrs
-          Curses.addstr(char)
+          Curses.addstr(text)
           Curses.attroff(attrs) if attrs
         end
         Curses.addstr("\n")

@@ -14,6 +14,7 @@ class LLM::Repl
     def initialize(repl, queue)
       @repl = repl
       @_queue = queue
+      @buffer = +""
     end
 
     ##
@@ -21,7 +22,8 @@ class LLM::Repl
     #  One or more chars
     # @return [void]
     def on_content(chars)
-      @_queue.push [:stream, chars]
+      @buffer << chars
+      @_queue.push [:stream, @buffer]
     end
 
     ##
@@ -42,6 +44,13 @@ class LLM::Repl
     # @return [void]
     def on_tool_return(_tool, result)
       @_queue.push [:status, "tool done: #{result.name}"]
+    end
+
+    ##
+    # Empty the accumulated buffer
+    # @return [void]
+    def empty!
+      @buffer.clear
     end
   end
 end

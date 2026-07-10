@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 LLM.require "curses"
+LLM.require "kramdown"
 
 module LLM
   ##
@@ -19,6 +20,7 @@ module LLM
     require_relative "repl/transcript"
     require_relative "repl/input"
     require_relative "repl/stream"
+    require_relative "repl/markdown"
 
     ##
     # @param [LLM::Agent] agent
@@ -57,9 +59,18 @@ module LLM
 
     ##
     # @param [String] chars
+    # @param [Object] attrs
     # @return [void]
     def write(chars, attrs = nil)
       transcript.write(chars, attrs)
+      window.redraw
+    end
+
+    ##
+    # @param [String] chars
+    # @return [void]
+    def markdown(chars)
+      transcript.markdown(chars)
       window.redraw
     end
 
@@ -85,9 +96,10 @@ module LLM
       return if text.empty?
       status.text = "thinking"
       write("user: ", Curses::A_BOLD)
-      write(text)
+      markdown(text)
       write("\nagent: ", Curses::A_BOLD)
       @thread = Thread.new do
+        @queue << [:start]
         agent.talk(text, tools:, stream:)
         @queue << [:done]
       rescue => e
@@ -104,18 +116,23 @@ module LLM
       loop do
         type, value = @queue.pop(true)
         case type
+        when :start
+          transcript.start
+          stream.empty!
         when :stream
-          write(value)
+          transcript.markdown(value, method: :replace)
         when :status
           self.status = value
         when :done
           status.text = "idle"
           @thread = nil
+          transcript.finish
           write("\n\n")
         when :error
           # Do this better
           status.text = "error"
-          write("\nerror: #{value.message}\n")
+          transcript.finish
+          write("\nerror: #{value.message}\n", Curses::A_BOLD)
           @thread = nil
         end
       end

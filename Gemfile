@@ -10,3 +10,4 @@ gem "irb", require: false
 gem "rubocop", "= 1.84.2"
 gem "standard", "= 1.54.0"
 gem "curses"
+gem "kramdown"
