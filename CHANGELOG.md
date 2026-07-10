@@ -41,6 +41,13 @@ Changes since `v12.2.0`.
   for documents (e.g., PDFs). Returns an `LLM::Response` with extracted pages,
   markdown content, and structured block data.
 
+* **Add `repl` support to ActiveRecord and Sequel agent models** <br>
+  `acts_as_agent` (ActiveRecord) and `plugin :agent` (Sequel) models now
+  expose a `repl` method that delegates to the underlying agent's
+  read-eval-print loop. This allows interactive debugging and inspection
+  of persisted agent state at runtime. Note that changes made during a
+  repl session do not persist back to the database.
+
 ### Change
 
 * **Rename `trace:` to `tracer:` in `LLM::Agent#repl`** <br>
