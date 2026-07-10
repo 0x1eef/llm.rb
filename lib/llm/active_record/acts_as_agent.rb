@@ -75,6 +75,17 @@ module LLM::ActiveRecord
         @llm
       end
 
+      ##
+      # @note
+      #  This method does not persist to the database,
+      #  but it can inspect and alter runtime state in
+      #  a way that is temporary.
+      # @param (see LLM::Agent#repl)
+      # @return (see LLM::Agent#repl)
+      def repl(**params)
+        ctx.repl(**params)
+      end
+
       private
 
       ##
