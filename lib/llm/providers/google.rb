@@ -194,9 +194,11 @@ module LLM
     end
 
     def normalize_complete_params(params)
+      except = %i[role model messages stream]
       params = {role: :user, model: default_model}.merge!(params)
       tools  = resolve_tools(params.delete(:tools))
-      params = [params, adapt_generation_config(params), adapt_tools(tools)].inject({}, &:merge!).compact
+      config = adapt_generation_config(params.except(*except))
+      params = [params.except(:schema), config, adapt_tools(tools)].inject({}, &:merge!).compact
       role, model, stream = [:role, :model, :stream].map { params.delete(_1) }
       [params, stream, tools, role, model]
     end
