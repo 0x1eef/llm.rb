@@ -17,6 +17,26 @@
 
 Changes since `v12.2.0`.
 
+### Add
+
+* **Add `LLM::Provider#ocr` base method** <br>
+  Add a base `ocr(...)` method to `LLM::Provider` that raises `NotImplementedError`
+  by default, establishing a common interface for providers that support OCR
+  (Optical Character Recognition) on images and documents.
+
+* **Add Mistral OCR endpoint support** <br>
+  The Mistral provider now supports OCR via its `/v1/ocr` endpoint. Call
+  `mistral.ocr(image_url: ...)` for images or `mistral.ocr(document_url: ...)`
+  for documents (e.g., PDFs). Returns an `LLM::Response` with extracted pages,
+  markdown content, and structured block data.
+
+### Fix
+
+* **Fix YARD documentation across provider and tool files** <br>
+  Fix unnamed, misnamed, and missing `@param` tags in `LLM::Repl::Status`,
+  `LLM::Tool::Git`, `LLM::Tool::Pwd`, `LLM::Tool::Rg`, and
+  `LLM::Tool::SwapText`.
+
 ## v12.2.0
 
 Changes since `v12.1.0`.
