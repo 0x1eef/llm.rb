@@ -19,6 +19,17 @@ Changes since `v12.2.0`.
 
 ### Add
 
+* **Add `LLM.logger` convenience method** <br>
+  Add `LLM.logger(llm, ...)` as a shorter, less verbose way to create an
+  `LLM::Tracer::Logger` instance. Takes a provider and optional keyword
+  arguments forwarded to the logger constructor.
+
+* **Add `tools:` option to `LLM::Agent#repl`** <br>
+  `LLM::Agent#repl` now accepts a `tools:` keyword argument that attaches
+  additional tool classes or instances for the duration of the repl session.
+  These tools are combined with any tools already configured on the agent,
+  and are discarded when the session ends.
+
 * **Add `LLM::Provider#ocr` base method** <br>
   Add a base `ocr(...)` method to `LLM::Provider` that raises `NotImplementedError`
   by default, establishing a common interface for providers that support OCR
@@ -29,6 +40,13 @@ Changes since `v12.2.0`.
   `mistral.ocr(image_url: ...)` for images or `mistral.ocr(document_url: ...)`
   for documents (e.g., PDFs). Returns an `LLM::Response` with extracted pages,
   markdown content, and structured block data.
+
+### Change
+
+* **Rename `trace:` to `tracer:` in `LLM::Agent#repl`** <br>
+  The `trace:` keyword argument in `LLM::Agent#repl` has been renamed to
+  `tracer:` for consistency with the rest of the codebase. The old `trace:`
+  name still works with a deprecation warning.
 
 ### Fix
 
