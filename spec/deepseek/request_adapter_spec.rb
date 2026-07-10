@@ -48,6 +48,11 @@ RSpec.describe "LLM::DeepSeek::RequestAdapter::Completion" do
         LLM::Message.new("user", [ctx.local_file(tempfile.path)])
       end
 
+      after do
+        tempfile.close
+        File.delete(tempfile.path)
+      end
+
       let(:ctx) { LLM::Context.new(provider) }
 
       it "raises a prompt error" do
