@@ -9,14 +9,26 @@ class LLM::Repl
     ##
     # @param [String, Symbol] provider
     # @return [LLM::Repl::Status]
-    def initialize(provider)
-      @provider = provider
+    def initialize(agent)
+      @agent = agent
+      @provider = agent.llm.name
       @text = "idle"
     end
 
     ##
+    # @return [Integer, nil]
+    def remaining_context
+      used  = @agent.usage.total_tokens
+      total = @agent.context_window
+      return if total.to_i <= 0
+      (((total - used).to_f / total.to_f) * 100).round(2)
+    end
+
+    ##
     # @return [String]
-    attr_reader :provider
+    def cost
+      "$#{@agent.cost}"
+    end
 
     ##
     # @return [String]
@@ -25,5 +37,6 @@ class LLM::Repl
     ##
     # @return [String]
     alias_method :to_s, :text
+
   end
 end

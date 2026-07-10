@@ -56,7 +56,7 @@ class LLM::Repl
     ##
     # @return [Integer]
     def rows
-      [Curses.lines - 3, 1].max
+      [status_row, 1].max
     end
 
     ##
@@ -80,33 +80,63 @@ class LLM::Repl
     private
 
     def draw_status
-      Curses.setpos(0, 0)
+      Curses.setpos(status_row, 0)
+      Curses.clrtoeol
       Curses.addstr(status.to_s)
-      provider = status.provider.to_s
-      Curses.setpos(0, [columns - provider.length, 0].max)
-      Curses.addstr(provider)
+      context = context_bar
+      Curses.setpos(status_row, [(columns - context.length) / 2, 0].max)
+      Curses.addstr(context)
+      cost = status.cost.to_s
+      Curses.setpos(status_row, [columns - cost.length, 0].max)
+      Curses.addstr(cost)
     end
 
     def draw_transcript
       rows = transcript.visible(self.rows)
       rows.each_with_index do |row, index|
-        Curses.setpos(index + 2, 0)
-        row.each do |col|
-          text, attrs = col.values_at(:text, :attrs)
+        Curses.setpos(index, 0)
+        Curses.clrtoeol
+        row.each do |chunk|
+          text, attrs = chunk.values_at(:text, :attrs)
           Curses.attron(attrs) if attrs
           Curses.addstr(text)
           Curses.attroff(attrs) if attrs
         end
-        Curses.addstr("\n")
       end
     end
 
     def draw_input
-      Curses.setpos(Curses.lines - 1, 0)
+      Curses.setpos(input_row, 0)
       Curses.clrtoeol
       Curses.addstr(input.to_s)
     end
 
+    ##
+    # @return [String]
+    def context_bar
+      remaining = status.remaining_context
+      return "unknown" unless remaining
+      label = "#{remaining}%"
+      width = 10
+      filled = ((remaining.to_f / 100) * width).round
+      bar = "#{"█" * filled}#{" " * (width - filled)}"
+      "│#{bar}│ #{label}"
+    end
+
+    ##
+    # @return [Integer]
+    def status_row
+      Curses.lines - 3
+    end
+
+    ##
+    # @return [Integer]
+    def input_row
+      Curses.lines - 1
+    end
+
+    ##
+    # @return [Integer]
     def columns
       Curses.cols
     end

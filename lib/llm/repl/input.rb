@@ -13,10 +13,11 @@ class LLM::Repl
     EOF       = [4]
 
     ##
-    # @param [String, Symbol] provider
+    # @param [LLM::Agent] agent
     # @return [LLM::Repl::Input]
-    def initialize(provider)
-      @provider = provider
+    def initialize(agent)
+      @agent = agent
+      @provider = agent.llm.name
       @buffer = +""
     end
 
@@ -49,7 +50,7 @@ class LLM::Repl
     ##
     # @return [String]
     def to_s
-      "> #{@buffer}"
+      "#{@provider}> #{@buffer}"
     end
 
     ##

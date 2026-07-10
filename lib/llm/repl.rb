@@ -29,9 +29,9 @@ module LLM
     def initialize(agent, tools)
       @agent = agent
       @provider = agent.llm.name
-      @status = Status.new(@provider)
+      @status = Status.new(@agent)
       @transcript = Transcript.new
-      @input = Input.new(@provider)
+      @input = Input.new(@agent)
       @window = Window.new(@status, @transcript, @input)
       @thread = nil
       @queue = Queue.new
