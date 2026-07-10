@@ -10,7 +10,7 @@ http_interactions:
         with yes or no"},{"text":"Nothing else"},{"text":"spec/fixtures/images/bluebook.png"}]}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v12.1.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -33,7 +33,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 26 Jun 2026 11:28:52 GMT
+      - Fri, 10 Jul 2026 03:17:25 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -43,7 +43,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=534
+      - gfet4t7; dur=476
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -58,7 +58,7 @@ http_interactions:
                 "parts": [
                   {
                     "text": "Yes",
-                    "thoughtSignature": "EjQKMgEMOdbHceNd41I123sTvE5OW0vpwq4I2xZWah4D/vyiKui+xGETHmG5maEP452JI7Rr"
+                    "thoughtSignature": "EjQKMgERTTIPNhta+PQbQtSENQG0wDai0v/a2TqPaFS06xwCa7ojERJzhVzZQ0lYAhHNJXP1"
                   }
                 ],
                 "role": "model"
@@ -80,7 +80,7 @@ http_interactions:
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "dGI-asviAbKjqtsPh8v1kQQ"
+          "responseId": "RWRQaoXhA7foz7IP1Iu7wQM"
         }
-  recorded_at: Fri, 26 Jun 2026 11:28:44 GMT
+  recorded_at: Fri, 10 Jul 2026 03:17:24 GMT
 recorded_with: VCR 6.4.0

@@ -10,7 +10,7 @@ http_interactions:
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v12.1.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -33,7 +33,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 26 Jun 2026 11:28:49 GMT
+      - Fri, 10 Jul 2026 03:17:22 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -43,7 +43,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=612
+      - gfet4t7; dur=473
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -62,9 +62,9 @@ http_interactions:
                       "args": {
                         "command": "date"
                       },
-                      "id": "jdGsylwM"
+                      "id": "P541QJ9G"
                     },
-                    "thoughtSignature": "EjQKMgEMOdbHtVw9lMgh80YiyNjB9sVxT5H2GADveaXmjl2GYjzjnlpFvnhONaipSQPM32cq"
+                    "thoughtSignature": "EjQKMgERTTIP7eadJQW2R/c/ZzmGtuIal2KaIc9yAvGTLdvoyb4YecILeJkxxLWUF62a8Cqg"
                   }
                 ],
                 "role": "model"
@@ -87,21 +87,20 @@ http_interactions:
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "cGI-apa3OOKfz7IP5vOC8QQ"
+          "responseId": "QmRQaoGoHd-wqtsPyIjBoAk"
         }
-  recorded_at: Fri, 26 Jun 2026 11:28:41 GMT
+  recorded_at: Fri, 10 Jul 2026 03:17:21 GMT
 - request:
     method: post
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=TOKEN
     body:
       encoding: UTF-8
       string: '{"contents":[{"role":"user","parts":[{"text":"You are a bot that can
-        run UNIX commands"}]},{"role":"user","parts":[{"text":"What is the date?"}]},{"role":"model","parts":[{"functionCall":{"name":"system","args":{"command":"date"},"id":"jdGsylwM"},"thoughtSignature":"EjQKMgEMOdbHtVw9lMgh80YiyNjB9sVxT5H2GADveaXmjl2GYjzjnlpFvnhONaipSQPM32cq"}]},{"role":"tool","parts":[{"functionResponse":{"name":"system","response":{"cancelled":true,"reason":"function
-        call cancelled"}}}]},{"role":"user","parts":[{"functionResponse":{"name":"system","response":{"success":"2025-08-24"}}}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
+        run UNIX commands"}]},{"role":"user","parts":[{"text":"What is the date?"}]},{"role":"model","parts":[{"functionCall":{"name":"system","args":{"command":"date"},"id":"P541QJ9G"},"thoughtSignature":"EjQKMgERTTIP7eadJQW2R/c/ZzmGtuIal2KaIc9yAvGTLdvoyb4YecILeJkxxLWUF62a8Cqg"}]},{"role":"user","parts":[{"functionResponse":{"name":"system","response":{"success":"2025-08-24"}}}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v12.1.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -124,7 +123,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 26 Jun 2026 11:28:49 GMT
+      - Fri, 10 Jul 2026 03:17:23 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -134,7 +133,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=445
+      - gfet4t7; dur=495
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -149,7 +148,7 @@ http_interactions:
                 "parts": [
                   {
                     "text": "The current date is 2025-08-24.",
-                    "thoughtSignature": "EjQKMgEMOdbH4urnToSUpncssZKuF9Bl0i5+fsLvSYUffHksimrgK8l1c5noxkOzFsME2EVr"
+                    "thoughtSignature": "EjQKMgERTTIPNyfj0UDUo1fJi0rQteIQN2thfGF3TFFGZTL+y4Ptaql0vqElxMX5OqMn6Bxd"
                   }
                 ],
                 "role": "model"
@@ -159,19 +158,19 @@ http_interactions:
             }
           ],
           "usageMetadata": {
-            "promptTokenCount": 108,
+            "promptTokenCount": 89,
             "candidatesTokenCount": 16,
-            "totalTokenCount": 124,
+            "totalTokenCount": 105,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
-                "tokenCount": 108
+                "tokenCount": 89
               }
             ],
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "cWI-aq3ZJtnrz7IPo727iQU"
+          "responseId": "Q2RQauL4Aajqz7IPg-LGqAo"
         }
-  recorded_at: Fri, 26 Jun 2026 11:28:41 GMT
+  recorded_at: Fri, 10 Jul 2026 03:17:22 GMT
 recorded_with: VCR 6.4.0

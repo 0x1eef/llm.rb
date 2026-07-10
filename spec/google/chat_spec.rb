@@ -80,7 +80,10 @@ RSpec.describe "LLM::Context: google" do
   end
 
   context LLM::Function do
-    include_examples "LLM::Context: functions", :google, match_requests_on: [:method]
+    include_examples "LLM::Context: functions",
+                     :google,
+                     match_requests_on: [:method],
+                     allow_playback_repeats: true
   end
 
   context LLM::File do

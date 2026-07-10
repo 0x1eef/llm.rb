@@ -12,7 +12,7 @@ http_interactions:
         is 5+5 ?"}]},{"role":"user","parts":[{"text":"What is 5+7 ?"}]}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v12.1.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -37,7 +37,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 26 Jun 2026 11:33:30 GMT
+      - Fri, 10 Jul 2026 03:17:19 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -47,7 +47,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=631
+      - gfet4t7; dur=582
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
@@ -56,11 +56,11 @@ http_interactions:
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 64,\"candidatesTokenCount\":
         7,\"totalTokenCount\": 71,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         64}],\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.1-flash-lite\",\"responseId\":
-        \"iWM-apmsJfKhz7IPrK6PgAY\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
-        {\"parts\": [{\"text\": \"\",\"thoughtSignature\": \"EjQKMgEMOdbHIykcAsWwifsHIEfBeTUw4k9Yp1wecOPpua2BSQC3X15VNYl7AS9tuNbRWLwO\"}],\"role\":
+        \"P2RQaqThCuCyqtsP7P2VuAE\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \"\",\"thoughtSignature\": \"EjQKMgERTTIP7BDGjT0QlyKfPPKAaRtubfU2AUx7ZFHnvQ9yzeHILnccGPVpUcRHaLX2CX5y\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         64,\"candidatesTokenCount\": 7,\"totalTokenCount\": 71,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 64}],\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.1-flash-lite\",\"responseId\": \"iWM-apmsJfKhz7IPrK6PgAY\"}\r\n\r\n"
-  recorded_at: Fri, 26 Jun 2026 11:33:22 GMT
+        \"gemini-3.1-flash-lite\",\"responseId\": \"P2RQaqThCuCyqtsP7P2VuAE\"}\r\n\r\n"
+  recorded_at: Fri, 10 Jul 2026 03:17:18 GMT
 recorded_with: VCR 6.4.0

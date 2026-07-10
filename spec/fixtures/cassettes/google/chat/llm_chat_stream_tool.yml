@@ -11,7 +11,7 @@ http_interactions:
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v12.1.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -36,7 +36,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 26 Jun 2026 11:33:30 GMT
+      - Fri, 10 Jul 2026 03:17:20 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -46,24 +46,24 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=438
+      - gfet4t7; dur=574
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
       encoding: UTF-8
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
-        {\"name\": \"system\",\"args\": {\"command\": \"date\"},\"id\": \"QLrEMqpM\"},\"thoughtSignature\":
-        \"EjQKMgEMOdbHixCDD90CUGwEny13OR6RprLUe8AZKLsb8pRXZQAUrT5ILzpJ7MavUcDEtsAl\"}],\"role\":
+        {\"name\": \"system\",\"args\": {\"command\": \"date\"},\"id\": \"uS07r94g\"},\"thoughtSignature\":
+        \"EjQKMgERTTIPo9Os09zPDOPrHBOC1n5RXffSZp/2qSF/BRLup8uCCeFRFu+bsQ6HoUFj0Erz\"}],\"role\":
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 58,\"candidatesTokenCount\":
         14,\"totalTokenCount\": 72,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         58}],\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.1-flash-lite\",\"responseId\":
-        \"imM-aqbdFtjqz7IP0pCl0Qk\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        \"P2RQav3fOKXsz7IPuKijqAk\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
         {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
         0}],\"usageMetadata\": {\"promptTokenCount\": 58,\"candidatesTokenCount\":
         14,\"totalTokenCount\": 72,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         58}],\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.1-flash-lite\",\"responseId\":
-        \"imM-aqbdFtjqz7IP0pCl0Qk\"}\r\n\r\n"
-  recorded_at: Fri, 26 Jun 2026 11:33:22 GMT
+        \"P2RQav3fOKXsz7IPuKijqAk\"}\r\n\r\n"
+  recorded_at: Fri, 10 Jul 2026 03:17:19 GMT
 - request:
     method: post
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:streamGenerateContent?alt=sse&key=TOKEN
@@ -71,11 +71,11 @@ http_interactions:
       encoding: UTF-8
       string: '{"contents":[{"role":"user","parts":[{"text":"You are a bot that can
         run UNIX system commands"}]},{"role":"user","parts":[{"text":"Hey, run the
-        ''date'' command"}]},{"role":"model","parts":[{"functionCall":{"name":"system","args":{"command":"date"},"id":"QLrEMqpM"},"thoughtSignature":"EjQKMgEMOdbHixCDD90CUGwEny13OR6RprLUe8AZKLsb8pRXZQAUrT5ILzpJ7MavUcDEtsAl"}]},{"role":"user","parts":[{"functionResponse":{"name":"system","response":{"success":true}}}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
+        ''date'' command"}]},{"role":"model","parts":[{"functionCall":{"name":"system","args":{"command":"date"},"id":"uS07r94g"},"thoughtSignature":"EjQKMgERTTIPo9Os09zPDOPrHBOC1n5RXffSZp/2qSF/BRLup8uCCeFRFu+bsQ6HoUFj0Erz"}]},{"role":"user","parts":[{"functionResponse":{"name":"system","response":{"success":true}}}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Runs
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v12.1.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -100,7 +100,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 26 Jun 2026 11:33:31 GMT
+      - Fri, 10 Jul 2026 03:17:20 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -110,30 +110,25 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=551
+      - gfet4t7; dur=516
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
       encoding: UTF-8
-      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Tue\"}],\"role\":
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Wed\"}],\"role\":
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 82,\"candidatesTokenCount\":
         1,\"totalTokenCount\": 83,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         82}],\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.1-flash-lite\",\"responseId\":
-        \"imM-ateIOJCHz7IP0uWlkAk\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
-        {\"parts\": [{\"text\": \" Feb 11 11:21:55 UTC 202\"}],\"role\": \"model\"},\"index\":
+        \"QGRQapraIqbnz7IP6sSqqQ4\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \" Jan 22 10:20:01 UTC 2025\"}],\"role\": \"model\"},\"index\":
         0}],\"usageMetadata\": {\"promptTokenCount\": 82,\"candidatesTokenCount\":
-        19,\"totalTokenCount\": 101,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        20,\"totalTokenCount\": 102,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         82}],\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.1-flash-lite\",\"responseId\":
-        \"imM-ateIOJCHz7IP0uWlkAk\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
-        {\"parts\": [{\"text\": \"5\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
-        {\"promptTokenCount\": 82,\"candidatesTokenCount\": 20,\"totalTokenCount\":
-        102,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 82}],\"serviceTier\":
-        \"standard\"},\"modelVersion\": \"gemini-3.1-flash-lite\",\"responseId\":
-        \"imM-ateIOJCHz7IP0uWlkAk\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
-        {\"parts\": [{\"text\": \"\",\"thoughtSignature\": \"EjQKMgEMOdbHRS2M96zjOdGWvXTUrwX3tcJWrO2QGni7/zfaz+wRvXDEf2VE6HZYTDc5l2iC\"}],\"role\":
+        \"QGRQapraIqbnz7IP6sSqqQ4\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \"\",\"thoughtSignature\": \"EjQKMgERTTIPcaSrpyfl0/7b5aNn8QfeYsqPvQrwdwwKk8zRMdGVmCbQmD/fflfNxxL9x600\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         82,\"candidatesTokenCount\": 20,\"totalTokenCount\": 102,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 82}],\"serviceTier\": \"standard\"},\"modelVersion\":
-        \"gemini-3.1-flash-lite\",\"responseId\": \"imM-ateIOJCHz7IP0uWlkAk\"}\r\n\r\n"
-  recorded_at: Fri, 26 Jun 2026 11:33:23 GMT
+        \"gemini-3.1-flash-lite\",\"responseId\": \"QGRQapraIqbnz7IP6sSqqQ4\"}\r\n\r\n"
+  recorded_at: Fri, 10 Jul 2026 03:17:20 GMT
 recorded_with: VCR 6.4.0

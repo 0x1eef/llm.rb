@@ -12,7 +12,7 @@ http_interactions:
         is 5+5 ?"}]},{"role":"user","parts":[{"text":"What is 5+7 ?"}]}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v12.1.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -35,7 +35,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 26 Jun 2026 11:33:29 GMT
+      - Fri, 10 Jul 2026 03:17:18 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -45,7 +45,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=546
+      - gfet4t7; dur=728
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -60,7 +60,7 @@ http_interactions:
                 "parts": [
                   {
                     "text": "5\n10\n12",
-                    "thoughtSignature": "EjQKMgEMOdbHZ7CAaq9M0gnTDd3ORPXZd7LswJMhtR5mGvE3gJ3QB+tnOezrEMREBDdoQo+2"
+                    "thoughtSignature": "EjQKMgERTTIPYD397yC6xLSayp9DlasCyIdiuHdjniyM9u+CgI5RPsKU0z+SneKB68BAJOmq"
                   }
                 ],
                 "role": "model"
@@ -82,7 +82,7 @@ http_interactions:
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "iWM-ao8o_4LPsg-L0-fJDQ"
+          "responseId": "PWRQasyZLNGUmtkP3rKYyA0"
         }
-  recorded_at: Fri, 26 Jun 2026 11:33:21 GMT
+  recorded_at: Fri, 10 Jul 2026 03:17:17 GMT
 recorded_with: VCR 6.4.0

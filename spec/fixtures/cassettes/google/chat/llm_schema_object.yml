@@ -10,7 +10,7 @@ http_interactions:
         answer''s probability","type":"integer"}},"required":["probability"]}}}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v12.1.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -33,7 +33,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 26 Jun 2026 11:28:53 GMT
+      - Fri, 10 Jul 2026 03:17:26 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -43,7 +43,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=741
+      - gfet4t7; dur=572
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -57,8 +57,8 @@ http_interactions:
               "content": {
                 "parts": [
                   {
-                    "text": "{\n  \"probability\": 1\n}",
-                    "thoughtSignature": "EjQKMgEMOdbH+eg4y5pBiHY8cw9R4bOsvln8gqzkqCzBR8DkLGTHdw50yS0yUXxLUh/BFpbg"
+                    "text": "{\"probability\": 1}",
+                    "thoughtSignature": "EjQKMgERTTIPFuIUTQHtGtCen+u5NqwoYjlS8s58INpJqvaGYrDs/FeWnnfZM4+XWFt/CXRC"
                   }
                 ],
                 "role": "model"
@@ -69,8 +69,8 @@ http_interactions:
           ],
           "usageMetadata": {
             "promptTokenCount": 20,
-            "candidatesTokenCount": 10,
-            "totalTokenCount": 30,
+            "candidatesTokenCount": 6,
+            "totalTokenCount": 26,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
@@ -80,7 +80,7 @@ http_interactions:
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "dGI-apK9KfezmtkP9pPHiA8"
+          "responseId": "RWRQat3rJszoz7IP4Kj2kAs"
         }
-  recorded_at: Fri, 26 Jun 2026 11:28:45 GMT
+  recorded_at: Fri, 10 Jul 2026 03:17:25 GMT
 recorded_with: VCR 6.4.0
