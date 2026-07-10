@@ -25,6 +25,6 @@ RSpec.describe "LLM::Context: anthropic" do
   end
 
   context LLM::File do
-    include_examples "LLM::Context: files", :anthropic
+    include_examples "LLM::Context: vision", :anthropic
   end
 end

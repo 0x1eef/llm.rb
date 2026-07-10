@@ -21,4 +21,8 @@ RSpec.describe "LLM::Context: mistral", interval: 5 do
   context LLM::Schema do
     include_examples "LLM::Context: schema", :mistral
   end
+
+  context LLM::File do
+    include_examples "LLM::Context: vision", :mistral, formats: %i[png]
+  end
 end

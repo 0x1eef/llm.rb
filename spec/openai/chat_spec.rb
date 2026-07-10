@@ -25,7 +25,7 @@ RSpec.describe "LLM::Context: openai" do
   end
 
   context LLM::File do
-    include_examples "LLM::Context: files", :openai
+    include_examples "LLM::Context: vision", :openai
   end
 
   context LLM::Schema do

@@ -19,7 +19,7 @@ RSpec.describe "LLM::Context: xai" do
   end
 
   context LLM::File do
-    include_examples "LLM::Context: files", :xai
+    include_examples "LLM::Context: vision", :xai
   end
 
   context LLM::Schema do

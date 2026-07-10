@@ -87,7 +87,7 @@ RSpec.describe "LLM::Context: google" do
   end
 
   context LLM::File do
-    include_examples "LLM::Context: files", :google, match_requests_on: [:method]
+    include_examples "LLM::Context: vision", :google, match_requests_on: [:method]
   end
 
   context LLM::Schema do
