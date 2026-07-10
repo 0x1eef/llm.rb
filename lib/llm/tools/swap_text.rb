@@ -14,6 +14,12 @@ class LLM::Tool
     parameter :expected_count, Integer, "How many matches should be replaced"
     required %i[path before after]
 
+    ##
+    # @param [String] path
+    # @param [String] before
+    # @param [String] after
+    # @param [Integer] expected_count
+    # @return [Hash]
     def call(path:, before:, after:, expected_count: 1)
       content = File.read(path)
       count = content.scan(before).length

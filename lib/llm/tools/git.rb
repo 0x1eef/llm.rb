@@ -16,9 +16,8 @@ class LLM::Tool
     required %i[action]
 
     ##
-    # @param [String] path
-    # @param [Integer] start
-    # @param [Integer] stop
+    # @param [String] action
+    # @param [Array<String>, nil] arguments
     # @return [Hash]
     def call(action:, arguments: nil)
       command = spawn(action:, arguments:)

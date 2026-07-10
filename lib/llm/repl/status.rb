@@ -19,8 +19,7 @@ class LLM::Repl
     attr_reader :provider
 
     ##
-    # @param [String] value
-    # @return [void]
+    # @return [String]
     attr_accessor :text
 
     ##

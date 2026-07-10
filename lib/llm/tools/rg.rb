@@ -16,7 +16,8 @@ class LLM::Tool
     required %i[patterns]
 
     ##
-    # @param [String] pattern
+    # @param [Array<String>] patterns
+    # @param [String] path
     # @return [Hash]
     def call(patterns:, path: Dir.getwd)
       validate!(patterns:, path:)

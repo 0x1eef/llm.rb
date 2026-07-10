@@ -11,7 +11,6 @@ class LLM::Tool
     description "returns the current working directory"
 
     ##
-    # @param [String] path
     # @return [Hash]
     def call
       {ok: true, cwd: Dir.getwd}
