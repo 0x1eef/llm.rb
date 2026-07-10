@@ -11,8 +11,9 @@ class LLM::Repl
     ##
     # @param [LLM::Repl] repl
     # @return [LLM::Repl::Stream]
-    def initialize(repl)
+    def initialize(repl, queue)
       @repl = repl
+      @_queue = queue
     end
 
     ##
@@ -20,7 +21,7 @@ class LLM::Repl
     #  One or more chars
     # @return [void]
     def on_content(chars)
-      @repl.write(chars)
+      @_queue.push [:stream, chars]
     end
 
     ##
@@ -29,9 +30,9 @@ class LLM::Repl
     # @return [void]
     def on_tool_call(tool, error)
       if error
-        @repl.status = "tool error: #{tool.name}"
+        @_queue.push [:status, "tool not found: #{tool.name}"]
       else
-        @repl.status = "tool: #{tool.name}"
+        @_queue.push [:status, "tool: #{tool.name}"]
       end
     end
 
@@ -40,7 +41,7 @@ class LLM::Repl
     # @param [LLM::Function::Return] result
     # @return [void]
     def on_tool_return(_tool, result)
-      @repl.status = "tool done: #{result.name}"
+      @_queue.push [:status, "tool done: #{result.name}"]
     end
   end
 end

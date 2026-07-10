@@ -37,6 +37,7 @@ class LLM::Repl
       Curses.cbreak
       Curses.noecho
       Curses.stdscr.keypad(true)
+      Curses.stdscr.nodelay = true
       yield
     ensure
       Curses.close_screen

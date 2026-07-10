@@ -55,6 +55,12 @@ Changes since `v12.2.0`.
   `tracer:` for consistency with the rest of the codebase. The old `trace:`
   name still works with a deprecation warning.
 
+* **Keep the repl UI responsive while a request is in progress** <br>
+  The curses-based REPL now spawns the agent request in a separate thread
+  and communicates streamed output through a queue, so the curses UI stays
+  responsive during model processing. Users can continue to scroll through
+  the transcript while the agent is working.
+
 ### Fix
 
 * **Fix YARD documentation across provider and tool files** <br>

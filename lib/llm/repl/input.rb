@@ -10,7 +10,7 @@ class LLM::Repl
     DOWN      = Curses::Key::DOWN
     ENTER     = [Curses::Key::ENTER, 10, 13]
     BACKSPACE = [Curses::Key::BACKSPACE, 127]
-    EOF       = [nil, 4]
+    EOF       = [4]
 
     ##
     # @param [String, Symbol] provider
@@ -22,14 +22,27 @@ class LLM::Repl
 
     ##
     # @param [LLM::Repl::Window] window
-    # @return [String, nil]
-    def readline(window)
-      catch(:done) do
-        @buffer.clear
-        loop do
-          on_char(window, window.getch)
-          window.redraw
-        end
+    # @param [Object] char
+    # @return [Symbol, nil]
+    def on_char(window, char)
+      if EOF.include?(char)
+        :exit
+      elsif BACKSPACE.include?(char)
+        @buffer.chop!
+        :backspace
+      elsif ENTER.include?(char)
+        :submit
+      elsif char == UP
+        window.scroll_up
+        :up
+      elsif char == DOWN
+        window.scroll_down
+        :down
+      elsif String === char
+        @buffer << char
+        :char
+      else
+        nil
       end
     end
 
@@ -39,26 +52,12 @@ class LLM::Repl
       "> #{@buffer}"
     end
 
-    private
-
-    def on_char(window, char)
-      if EOF.include?(char)
-        throw(:done, nil)
-      elsif BACKSPACE.include?(char)
-        @buffer.chop!
-      elsif ENTER.include?(char)
-        buf = @buffer.dup
-        @buffer.clear
-        throw(:done, buf)
-      elsif char == UP
-        window.scroll_up
-      elsif char == DOWN
-        window.scroll_down
-      elsif String === char
-        @buffer << char
-      else
-        # ???
-      end
+    ##
+    # @return [String]
+    def take
+      @buffer.dup.tap { @buffer.clear }
     end
+
+    private
   end
 end

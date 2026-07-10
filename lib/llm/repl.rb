@@ -31,7 +31,9 @@ module LLM
       @transcript = Transcript.new
       @input = Input.new(@provider)
       @window = Window.new(@status, @transcript, @input)
-      @stream = Stream.new(self)
+      @thread = nil
+      @queue = Queue.new
+      @stream = Stream.new(self, @queue)
       @tools = [agent.params[:tools], tools].flatten.compact
     end
 
@@ -40,17 +42,15 @@ module LLM
     def start
       window.open do
         loop do
-          window.redraw
-          text = input.readline(window)
-          break if text.nil?
-          next if text.empty?
-          status.text = "thinking"
-          write("user: #{text}\n")
-          window.redraw
-          write("agent: ")
-          agent.talk(text, tools:, stream:)
-          status.text = "idle"
-          write("\n\n")
+          case input.on_char(window, window.getch)
+          when :exit then break
+          when :submit then submit
+          when :up, :down, :backspace, :char then window.redraw
+          else
+            window.redraw
+            read!
+            sleep 0.01
+          end
         end
       end
     end
@@ -73,8 +73,57 @@ module LLM
 
     private
 
+    ##
+    # This method is called when the user submits their input.
+    # It spawns a second thread that maintains a line of
+    # communication with a model and the main thread - where
+    # the UI runs - remains responsive.
+    # @api private
+    def submit
+      return if thread&.alive?
+      text = input.take
+      return if text.empty?
+      status.text = "thinking"
+      write("user: #{text}\n")
+      write("agent: ")
+      thread = Thread.new do
+        begin
+          agent.talk(text, tools:, stream:)
+          @queue << [:done]
+        rescue => e
+          @queue << [:error, e]
+        end
+      end
+    end
+
+    ##
+    # This method reads from the queue that is written to
+    # by a second thread. The queue is managed or written
+    # to by a subclass of {LLM::Stream LLM::Stream}.
+    # @api private
+    def read!
+      loop do
+        type, value = @queue.pop(true)
+        case type
+        when :stream
+          write(value)
+        when :status
+          self.status = value
+        when :done
+          status.text = "idle"
+          thread = nil
+        when :error
+          # Do this better
+          status.text = "error"
+          write("\nerror: #{value.message}\n")
+          thread = nil
+        end
+      end
+    rescue ThreadError
+    end
+
     attr_reader :agent, :provider, :stream,
                 :status, :transcript, :input,
-                :window, :tools
+                :window, :tools, :thread
   end
 end
