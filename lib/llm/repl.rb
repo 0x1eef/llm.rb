@@ -86,13 +86,11 @@ module LLM
       status.text = "thinking"
       write("user: #{text}\n")
       write("agent: ")
-      thread = Thread.new do
-        begin
-          agent.talk(text, tools:, stream:)
-          @queue << [:done]
-        rescue => e
-          @queue << [:error, e]
-        end
+      @thread = Thread.new do
+        agent.talk(text, tools:, stream:)
+        @queue << [:done]
+      rescue => e
+        @queue << [:error, e]
       end
     end
 
@@ -111,12 +109,12 @@ module LLM
           self.status = value
         when :done
           status.text = "idle"
-          thread = nil
+          @thread = nil
         when :error
           # Do this better
           status.text = "error"
           write("\nerror: #{value.message}\n")
-          thread = nil
+          @thread = nil
         end
       end
     rescue ThreadError

@@ -408,7 +408,8 @@ module LLM
       if trace != nil
         warn "llm.rb: trace option is deprecated, use tracer instead"
         tracer = trace
-      elsif !tracer
+      end
+      if !tracer
         previous    = self.tracer
         self.tracer = nil
       end
