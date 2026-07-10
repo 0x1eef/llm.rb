@@ -72,6 +72,16 @@ class LLM::Provider
   end
 
   ##
+  # @note
+  #  This feature is not implemented by all providers,
+  #  and it will raise NotImplementedError for providers
+  #  that do not support it.
+  # @return [LLM::Response]
+  def ocr(...)
+    raise NotImplementedError
+  end
+
+  ##
   # Provides an interface to the chat completions API
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])

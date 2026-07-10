@@ -1,0 +1,71 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.mistral.ai/v1/ocr
+    body:
+      encoding: UTF-8
+      string: '{"model":"mistral-ocr-latest","document":{"type":"image_url","image_url":"https://raw.githubusercontent.com/github/explore/main/topics/ruby/ruby.png"}}'
+    headers:
+      User-Agent:
+      - llm.rb v12.2.0
+      Authorization:
+      - Bearer HLAqrnifGXE0eWiKDvy6moMIPArCSYno
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 10 Jul 2026 05:30:53 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - __cf_bm=.QWIepiSwTnHFoZw6dJodUVeQ7mibALW4NozabJF8kQ-1783661453.1875765-1.0.1.1-MEuRURJFeW0fKL0hB0E182qzPNYRUbXAR0ImuwylGdUF7ITHItKA1lrStCY7L6KzMdT4cmkgPqpd170hqZ7164pmIc.GEo7TDuB9YTWpeoeFUB9MNKC4FsULcoVsXGit;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=mistral.ai; Expires=Fri, 10
+        Jul 2026 06:00:53 GMT
+      Mistral-Correlation-Id:
+      - '019f4a81-dfdd-7089-b774-14227df5e7bf'
+      X-Kong-Request-Id:
+      - '019f4a81-dfdd-7089-b774-14227df5e7bf'
+      X-Ratelimit-Limit-Ocr-Pages-Minute:
+      - '1250'
+      X-Ratelimit-Remaining-Ocr-Pages-Minute:
+      - '1220'
+      X-Ratelimit-Ocr-Pages-Query-Cost:
+      - '1'
+      X-Envoy-Upstream-Service-Time:
+      - '479'
+      Server:
+      - cloudflare
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '480'
+      X-Kong-Proxy-Latency:
+      - '14'
+      X-Content-Type-Options:
+      - nosniff
+      Cf-Cache-Status:
+      - DYNAMIC
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Cf-Ray:
+      - a18d2dd26a62c547-GRU
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: '{"pages":[{"index":0,"markdown":"2","images":[],"tables":[],"hyperlinks":[],"header":null,"footer":null,"dimensions":{"dpi":200,"height":288,"width":288},"confidence_scores":null,"blocks":[{"top_left_x":0,"top_left_y":0,"bottom_right_x":288,"bottom_right_y":288,"content":"2","type":"list"}]}],"model":"mistral-ocr-latest","document_annotation":null,"usage_info":{"pages_processed":1,"doc_size_bytes":49053}}'
+  recorded_at: Fri, 10 Jul 2026 05:30:52 GMT
+recorded_with: VCR 6.4.0
