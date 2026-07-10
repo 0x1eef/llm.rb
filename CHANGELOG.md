@@ -15,7 +15,26 @@
 
 ## What's next
 
+Changes since `v12.2.0`.
+
+## v12.2.0
+
 Changes since `v12.1.0`.
+
+This release adds Mistral as a new provider with chat completions, streaming, tool calls,
+structured outputs, file/image attachments, and embeddings support. It introduces
+the `trace:` option to `LLM::Agent#repl` for keeping the tracer active during
+interactive sessions.
+
+Several fixes land for the Google provider (generationConfig parameter leakage),
+`LLM::Context#tracer=` (always assigning nil), `LLM::Provider#with_tracer(nil)`
+(nil fallback), and `LLM::Context#repair!` (dropping Struct returns).
+
+The default HTTP timeout has been increased from 60s to 180s to better accommodate
+reasoning models and large structured outputs, and the Anthropic default model has
+been updated to `claude-opus-4-8`. Model metadata has been refreshed across
+Anthropic, AWS Bedrock, DeepInfra, Google, and xAI, with Mistral model data added
+to the registry.
 
 ### Add
 
