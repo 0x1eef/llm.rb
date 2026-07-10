@@ -22,8 +22,9 @@ module LLM
 
     ##
     # @param [LLM::Agent] agent
+    # @param [Array<LLM::Tool>] tools
     # @return [LLM::Repl]
-    def initialize(agent)
+    def initialize(agent, tools)
       @agent = agent
       @provider = agent.llm.name
       @status = Status.new(@provider)
@@ -31,6 +32,7 @@ module LLM
       @input = Input.new(@provider)
       @window = Window.new(@status, @transcript, @input)
       @stream = Stream.new(self)
+      @tools = [agent.params[:tools], tools].flatten.compact
     end
 
     ##
@@ -46,7 +48,7 @@ module LLM
           write("user: #{text}\n")
           window.redraw
           write("agent: ")
-          agent.talk(text, stream:)
+          agent.talk(text, tools:, stream:)
           status.text = "idle"
           write("\n\n")
         end
@@ -73,6 +75,6 @@ module LLM
 
     attr_reader :agent, :provider, :stream,
                 :status, :transcript, :input,
-                :window
+                :window, :tools
   end
 end

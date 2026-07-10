@@ -121,10 +121,10 @@ agent.talk "Explain Ruby fibers."
 
 The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
 method allows an agent to spawn a read-eval-print loop
-that can be useful during the development and operation
-of agents. It can be used to debug tool calls, confirm an
-agent has done what was expected, or improve the agent
-by asking questions about what it has done up to that point.
+that can be useful while developing or operating agents.
+It can be used to debug tool calls, confirm an
+agent has done what was expected, or improve an agent by
+asking questions about what it has done up to that point.
 
 This feature requires that the [curses](https://github.com/ruby/curses)
 library is installed and available to require.
@@ -133,6 +133,29 @@ library is installed and available to require.
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl
+```
+
+The read-eval-print loop accepts a `tools` option that
+lets you attach additional tools for the duration of
+the session. This is in addition to any tools that
+might already be associated with an agent.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(tools: [Debugger])
+```
+
+By default the tracer is disabled for the duration of
+the session. This can be configured through the
+`tracer` option. Setting it to `true` will configure
+the REPL to use the tracer associated with an instance
+of [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
+agent.repl(tracer: true, tools: [Debugger])
 ```
 
 #### LLM::MCP

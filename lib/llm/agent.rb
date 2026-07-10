@@ -398,17 +398,22 @@ module LLM
     #  By default this method disables the tracer for
     #  the duration of the repl session, and restores
     #  it afterwards.
-    # @param [Boolean] trace
+    # @param [Boolean] tracer
     #  When true, the tracer is kept alive during the
     #  repl session. Default is false.
+    # @param [Array<LLM::Tool>] tools
+    #  Extra tools to attach for the repl session
     # @return [void]
-    def repl(trace: false)
-      if !trace
-        previous    = tracer
+    def repl(tracer: false, trace: nil, tools: [])
+      if trace != nil
+        warn "llm.rb: trace option is deprecated, use tracer instead"
+        tracer = trace
+      elsif !tracer
+        previous    = self.tracer
         self.tracer = nil
       end
       require_relative "repl" unless defined?(::LLM::Repl)
-      LLM::Repl.new(self).start
+      LLM::Repl.new(self, tools).start
     ensure
       if !trace
         self.tracer = previous
