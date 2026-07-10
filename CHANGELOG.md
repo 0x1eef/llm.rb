@@ -39,6 +39,13 @@ Changes since `v12.1.0`.
 
 ### Fix
 
+* **Fix Google `generationConfig` parameter leakage** <br>
+  Fix a bug in the Google provider where non-generation parameters
+  (`role`, `model`, `messages`, `stream`) were leaking into the
+  `generationConfig` object alongside legitimate generation config
+  parameters such as `temperature`. Non-config parameters are now
+  filtered out before constructing `generationConfig`.
+
 * **Fix `LLM::Context#tracer=` always assigning `nil`** <br>
   The `LLM::Context#tracer=` setter had a bug where it always assigned
   `nil` regardless of the tracer value passed. It now correctly assigns
@@ -56,6 +63,16 @@ Changes since `v12.1.0`.
   The fix wraps both sources in an array before flattening.
 
 ### Change
+
+* **Increase default provider timeout from 60s to 180s** <br>
+  The default HTTP timeout for all providers has been increased from
+  60 to 180 seconds to better accommodate long-running requests such
+  as reasoning models and large structured outputs.
+
+* **Change Anthropic default model to `claude-opus-4-8`** <br>
+  The default Anthropic chat model has been updated from
+  `claude-sonnet-4-20250514` to `claude-opus-4-8`, reflecting the
+  latest model release from Anthropic.
 
 * **Refresh model metadata** <br>
   Update model listings, pricing, and capabilities for Anthropic,
