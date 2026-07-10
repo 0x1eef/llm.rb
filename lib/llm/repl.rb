@@ -58,8 +58,8 @@ module LLM
     ##
     # @param [String] chars
     # @return [void]
-    def write(chars)
-      transcript.write(chars)
+    def write(chars, attrs = nil)
+      transcript.write(chars, attrs)
       window.redraw
     end
 
@@ -84,8 +84,9 @@ module LLM
       text = input.take
       return if text.empty?
       status.text = "thinking"
-      write("user: #{text}\n")
-      write("agent: ")
+      write("user: ", Curses::A_BOLD)
+      write(text)
+      write("\nagent: ", Curses::A_BOLD)
       @thread = Thread.new do
         agent.talk(text, tools:, stream:)
         @queue << [:done]
@@ -110,6 +111,7 @@ module LLM
         when :done
           status.text = "idle"
           @thread = nil
+          write("\n\n")
         when :error
           # Do this better
           status.text = "error"

@@ -61,6 +61,12 @@ Changes since `v12.2.0`.
   responsive during model processing. Users can continue to scroll through
   the transcript while the agent is working.
 
+* **Style transcript rows as structured data with bold labels** <br>
+  The curses-based REPL transcript now stores rows as structured data with
+  style metadata instead of plain strings, enabling bold rendering of the
+  `user:` and `agent:` labels for improved readability during interactive
+  sessions.
+
 ### Fix
 
 * **Fix YARD documentation across provider and tool files** <br>

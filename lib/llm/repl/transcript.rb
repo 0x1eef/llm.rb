@@ -11,21 +11,21 @@ class LLM::Repl
     ##
     # @return [LLM::Repl::Transcript]
     def initialize
-      @lines = [+""]
+      @rows = [[]]
       @offset = 0
     end
 
     ##
     # @param [String] chars
     # @return [void]
-    def write(chars)
-      chars.each_char { write_char(_1) }
+    def write(chars, attrs = nil)
+      chars.each_char { write_char(_1, attrs) }
     end
 
     ##
     # @return [void]
     def scroll_up(height)
-      max = [@lines.size - height, 0].max
+      max = [@rows.size - height, 0].max
       @offset = [@offset + 1, max].min
     end
 
@@ -39,22 +39,22 @@ class LLM::Repl
     # @param [Integer] height
     # @return [Array<String>]
     def visible(height)
-      last = @lines.size - 1 - @offset
+      last = @rows.size - 1 - @offset
       first = [last - height + 1, 0].max
-      @lines[first..last] || []
+      @rows[first..last] || []
     end
 
     private
 
-    def write_char(char)
+    def write_char(char, attrs)
       if char == "\n"
         @offset += 1 if @offset > 0
-        @lines << +""
-      elsif char == " " and @lines.last.length >= WIDTH
+        @rows.push([])
+      elsif char == " " and @rows.last.length >= WIDTH
         @offset += 1 if @offset > 0
-        @lines << +""
+        @rows.push([])
       else
-        @lines.last << char
+        @rows[-1].push({char:, attrs:})
       end
     end
   end

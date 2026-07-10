@@ -88,10 +88,16 @@ class LLM::Repl
     end
 
     def draw_transcript
-      visible = transcript.visible(rows)
-      visible.each_with_index do |row, index|
+      rows = transcript.visible(self.rows)
+      rows.each_with_index do |row, index|
         Curses.setpos(index + 2, 0)
-        Curses.addstr(row)
+        row.each do |col|
+          char, attrs = col.values_at(:char, :attrs)
+          Curses.attron(attrs) if attrs
+          Curses.addstr(char)
+          Curses.attroff(attrs) if attrs
+        end
+        Curses.addstr("\n")
       end
     end
 
