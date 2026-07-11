@@ -43,7 +43,7 @@ class LLM::Repl
       return ["???", width] if total <= 0
       diff = total - used
       return ["0%", 0] if diff <= 0
-      remaining = ((diff.fdiv(total)) * 100).round(2)
+      remaining = (diff.fdiv(total) * 100).round(2)
       ["#{remaining}%", ((remaining / 100) * width).round]
     end
 
