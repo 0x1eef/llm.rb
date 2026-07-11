@@ -19,6 +19,7 @@ module LLM
     require_relative "repl/status"
     require_relative "repl/transcript"
     require_relative "repl/input"
+    require_relative "repl/bar"
     require_relative "repl/stream"
     require_relative "repl/markdown"
 

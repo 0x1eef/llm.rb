@@ -16,12 +16,12 @@ class LLM::Repl
     end
 
     ##
-    # @return [Integer, nil]
-    def remaining_context
-      used  = @agent.usage.total_tokens
-      total = @agent.context_window
-      return if total.to_i <= 0
-      (((total - used).to_f / total.to_f) * 100).round(2)
+    # @return [String]
+    def context_bar
+      LLM::Repl::Bar.new(
+        used: @agent.usage.total_tokens,
+        total: @agent.context_window
+      ).to_s
     end
 
     ##
@@ -37,6 +37,5 @@ class LLM::Repl
     ##
     # @return [String]
     alias_method :to_s, :text
-
   end
 end

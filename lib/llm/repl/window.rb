@@ -83,7 +83,7 @@ class LLM::Repl
       Curses.setpos(status_row, 0)
       Curses.clrtoeol
       Curses.addstr(status.to_s)
-      context = context_bar
+      context = status.context_bar
       Curses.setpos(status_row, [(columns - context.length) / 2, 0].max)
       Curses.addstr(context)
       cost = status.cost.to_s
@@ -109,18 +109,6 @@ class LLM::Repl
       Curses.setpos(input_row, 0)
       Curses.clrtoeol
       Curses.addstr(input.to_s)
-    end
-
-    ##
-    # @return [String]
-    def context_bar
-      remaining = status.remaining_context
-      return "unknown" unless remaining
-      label = "#{remaining}%"
-      width = 10
-      filled = ((remaining.to_f / 100) * width).round
-      bar = "#{"█" * filled}#{" " * (width - filled)}"
-      "│#{bar}│ #{label}"
     end
 
     ##
