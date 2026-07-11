@@ -6,6 +6,8 @@ class LLM::Repl
   # the editable input line shown at the bottom of the REPL.
   # @api private
   class Input
+    CTRL_A    = 1
+    CTRL_E    = 5
     UP        = Curses::Key::UP
     DOWN      = Curses::Key::DOWN
     LEFT      = Curses::Key::LEFT
@@ -42,6 +44,12 @@ class LLM::Repl
       elsif char == DOWN
         window.scroll_down
         :down
+      elsif char == CTRL_A
+        move_start
+        :ctrl_a
+      elsif char == CTRL_E
+        move_end
+        :ctrl_e
       elsif char == LEFT
         move_left
         :left
@@ -70,6 +78,18 @@ class LLM::Repl
 
     ##
     # @return [void]
+    def move_start
+      @cursor = 0
+    end
+
+    ##
+    # @return [void]
+    def move_end
+      @cursor = [0, @buffer.size].max
+    end
+
+    ##
+    # @return [void]
     def move_left
       @cursor = [@cursor - 1, 0].max
     end
@@ -77,7 +97,7 @@ class LLM::Repl
     ##
     # @return [void]
     def move_right
-      @cursor = [@cursor + 1, @buffer.length].min
+      @cursor = [@cursor + 1, @buffer.size].min
     end
 
     ##
