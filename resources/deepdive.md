@@ -56,6 +56,9 @@ features that didn't make it into the homepage documentation.
   - [Agent-local tracer](#agent-local-tracer)
 - [REPL](#repl)
   - [LLM::Agent](#llmagent)
+  - [Tools](#tools)
+  - [Skills](#skills-1)
+  - [Tracer](#tracer-1)
 - [Images](#images)
   - [Generation](#generation)
   - [Edits](#edits)
@@ -808,21 +811,22 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek
 
 During the development and operation of agents it can often
 be helpful to drop into a read-eval-print loop. This gives
-you a simple way to confirm the work was successful, inspect
-anything that went wrong (for example, tool call errors), and
-keep talking to the same agent so you can learn about its
-decision-making process and make improvements for future runs.
-It can also be used to ask the agent to correct any errors
-that might have made.
+you a way to confirm the work was successful, inspect
+anything that went wrong, and keep talking to the same
+agent while its state is still intact.
 
-##### LLM::Agent
+#### LLM::Agent
 
 The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
-method requires the [curses](https://github.com/ruby/curses)
-gem to be installed and available for require. It is an
-optional dependency that only becomes required when you
-call the [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
-method.
+method allows an agent to spawn a read-eval-print loop
+that can be useful while developing or operating agents.
+It can be used to debug tool calls, confirm an
+agent has done what was expected, or improve an agent by
+asking questions about what it has done up to that point.
+
+This feature requires that the [curses](https://github.com/ruby/curses)
+and [kramdown](https://github.com/gettalong/kramdown) libraries are
+installed and available to require.
 
 ```ruby
 require "llm"
@@ -830,6 +834,43 @@ require "llm"
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl
+```
+
+#### Tools
+
+The read-eval-print loop accepts a `tools` option that lets
+you attach additional tools for the duration of the session.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(tools: [Debugger])
+```
+
+#### Skills
+
+The read-eval-print loop also accepts a `skills` option.
+This can be useful when you want to load extra skills
+without attaching them to an agent permanently.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(skills: [__dir__])
+```
+
+#### Tracer
+
+By default the tracer is disabled for the duration of the
+session. This can be configured through the
+`tracer` option. Setting it to `true` will configure
+the REPL to use the tracer associated with an instance
+of [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
+agent.repl(tracer: true, tools: [Debugger])
 ```
 
 [Back to top](#table-of-contents)
