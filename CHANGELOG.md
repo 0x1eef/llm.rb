@@ -68,6 +68,17 @@ Changes since `v12.2.0`.
   content is buffered and re-rendered on each tick so the transcript reads
   cleanly as the agent responds. Requires the optional `kramdown` gem.
 
+* **repl: add cursor LEFT/RIGHT movement to the input line** <br>
+  The curses-based REPL input now supports cursor movement with the left
+  and right arrow keys, enabling in-place text editing before submitting
+  a prompt. The cursor position is tracked visually and moves backwards
+  on left-arrow and forwards on right-arrow.
+
+* **repl: add Ctrl+A and Ctrl+E keybindings to the input line** <br>
+  The curses-based REPL input now supports Ctrl+A to jump the cursor to
+  the start of the input line and Ctrl+E to jump it to the end, matching
+  common terminal editing conventions.
+
 * **repl: add `tools:` option to `LLM::Agent#repl`** <br>
   `LLM::Agent#repl` now accepts a `tools:` keyword argument that attaches
   additional tool classes or instances for the duration of the repl session.
