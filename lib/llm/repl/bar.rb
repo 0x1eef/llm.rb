@@ -40,13 +40,11 @@ class LLM::Repl
     # @param [Integer] total
     # @return [[String, Integer]]
     def remainder(used, total)
-      if total <= 0
-        ["???", width]
-      else
-        diff = (total - used).to_f
-        remaining = ((diff / total.to_f) * 100).round(2)
-        ["#{remaining}%", ((remaining.to_f / 100) * width).round]
-      end
+      return ["???", width] if total <= 0
+      diff = total - used
+      return ["0%", 0] if diff <= 0
+      remaining = ((diff.fdiv(total)) * 100).round(2)
+      ["#{remaining}%", ((remaining / 100) * width).round]
     end
 
     attr_reader :label, :filled, :width

@@ -112,6 +112,12 @@ Changes since `v12.2.0`.
 
 ### Fix
 
+* **repl: handle a negative context window allowance in the usage bar** <br>
+  Fix a crash in the curses-based REPL context-usage bar when the context
+  window allowance is exceeded (used > total). The negative width value that
+  resulted from this edge case could cause curses errors; it now gracefully
+  defaults to `0%` and zero bar width.
+
 * **Fix YARD documentation across provider and tool files** <br>
   Fix unnamed, misnamed, and missing `@param` tags in `LLM::Repl::Status`,
   `LLM::Tool::Git`, `LLM::Tool::Pwd`, `LLM::Tool::Rg`, and
