@@ -47,16 +47,17 @@ class LLM::Repl
     # @return [void]
     def redraw
       Curses.clear
-      draw_status
-      draw_transcript
-      draw_input
+      draw_divider(offset: 4)
+      draw_status(offset: 3)
+      draw_transcript(offset: 0)
+      draw_input(offset: 1)
       Curses.refresh
     end
 
     ##
     # @return [Integer]
     def rows
-      [status_row, 1].max
+      [Curses.lines - 5, 1].max
     end
 
     ##
@@ -79,21 +80,34 @@ class LLM::Repl
 
     private
 
-    def draw_status
-      Curses.setpos(status_row, 0)
+    def draw_status(offset:)
+      Curses.setpos(Curses.lines - offset, 0)
       Curses.clrtoeol
       Curses.addstr(status.to_s)
       context = status.context_bar
-      Curses.setpos(status_row, [(columns - context.length) / 2, 0].max)
+      Curses.setpos(Curses.lines - offset, [(columns - context.length) / 2, 0].max)
       Curses.addstr(context)
       cost = status.cost.to_s
-      Curses.setpos(status_row, [columns - cost.length, 0].max)
+      Curses.setpos(Curses.lines - offset, [columns - cost.length, 0].max)
       Curses.addstr(cost)
     end
 
-    def draw_transcript
+    def draw_divider(offset:)
+      Curses.setpos(Curses.lines - offset, 0)
+      Curses.clrtoeol
+      Curses.addstr("─" * Curses.cols)
+    end
+
+    def draw_input(offset:)
+      Curses.setpos(Curses.lines - offset, 0)
+      Curses.clrtoeol
+      Curses.addstr(input.to_s)
+      Curses.setpos(Curses.lines - offset, input.cursor)
+    end
+
+    def draw_transcript(offset:)
       rows = transcript.visible(self.rows)
-      rows.each_with_index do |row, index|
+      rows.each.with_index(offset) do |row, index|
         Curses.setpos(index, 0)
         Curses.clrtoeol
         row.each do |chunk|
@@ -103,25 +117,6 @@ class LLM::Repl
           Curses.attroff(attrs) if attrs
         end
       end
-    end
-
-    def draw_input
-      Curses.setpos(input_row, 0)
-      Curses.clrtoeol
-      Curses.addstr(input.to_s)
-      Curses.setpos(input_row, input.cursor)
-    end
-
-    ##
-    # @return [Integer]
-    def status_row
-      Curses.lines - 3
-    end
-
-    ##
-    # @return [Integer]
-    def input_row
-      Curses.lines - 1
     end
 
     ##

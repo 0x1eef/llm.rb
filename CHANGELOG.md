@@ -97,6 +97,13 @@ Changes since `v12.2.0`.
   between certain markdown elements — paragraphs, headers, and codeblocks —
   for improved readability of model responses.
 
+* **repl: add a visual divider between transcript and the rows below it** <br>
+  The curses-based REPL now draws a horizontal divider line (using a unicode
+  `─` character) to separate the transcript area from the status and input
+  rows below it. A single empty buffer row is also added between the
+  transcript and the divider, preventing transcript text from running too
+  close to the status and input rows.
+
 * **Refresh OpenAI model metadata** <br>
   Add new OpenAI models to the registry, including `gpt-5.6`,
   `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, and
