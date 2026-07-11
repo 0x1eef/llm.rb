@@ -24,6 +24,13 @@ Changes since `v12.2.0`.
   `LLM::Tracer::Logger` instance. Takes a provider and optional keyword
   arguments forwarded to the logger constructor.
 
+* **Add `skills:` option to `LLM::Agent#repl`** <br>
+  `LLM::Agent#repl` now accepts a `skills:` keyword argument that attaches
+  one or more skill directories (containing `SKILL.md`) for the duration of
+  the repl session. Skills are loaded and converted to tools, combining with
+  any tools already configured on the agent, and are discarded when the
+  session ends.
+
 * **Add `LLM::Provider#ocr` base method** <br>
   Add a base `ocr(...)` method to `LLM::Provider` that raises `NotImplementedError`
   by default, establishing a common interface for providers that support OCR
