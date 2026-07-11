@@ -92,6 +92,11 @@ Changes since `v12.2.0`.
   of persisted agent state at runtime. Note that changes made during a
   repl session do not persist back to the database.
 
+* **repl: add extra padding between markdown nodes** <br>
+  The curses-based REPL markdown renderer now adds extra vertical spacing
+  between certain markdown elements — paragraphs, headers, and codeblocks —
+  for improved readability of model responses.
+
 * **Refresh OpenAI model metadata** <br>
   Add new OpenAI models to the registry, including `gpt-5.6`,
   `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, and
