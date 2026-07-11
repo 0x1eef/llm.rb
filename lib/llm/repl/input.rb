@@ -8,6 +8,8 @@ class LLM::Repl
   class Input
     UP        = Curses::Key::UP
     DOWN      = Curses::Key::DOWN
+    LEFT      = Curses::Key::LEFT
+    RIGHT     = Curses::Key::RIGHT
     ENTER     = [Curses::Key::ENTER, 10, 13]
     BACKSPACE = [Curses::Key::BACKSPACE, 127]
     EOF       = [4]
@@ -19,6 +21,7 @@ class LLM::Repl
       @agent = agent
       @provider = agent.llm.name
       @buffer = +""
+      @cursor = 0
     end
 
     ##
@@ -29,7 +32,7 @@ class LLM::Repl
       if EOF.include?(char)
         :exit
       elsif BACKSPACE.include?(char)
-        @buffer.chop!
+        backspace
         :backspace
       elsif ENTER.include?(char)
         :submit
@@ -39,8 +42,14 @@ class LLM::Repl
       elsif char == DOWN
         window.scroll_down
         :down
+      elsif char == LEFT
+        move_left
+        :left
+      elsif char == RIGHT
+        move_right
+        :right
       elsif String === char
-        @buffer << char
+        insert(char)
         :char
       else
         nil
@@ -54,11 +63,47 @@ class LLM::Repl
     end
 
     ##
+    # @return [Integer]
+    def cursor
+      prompt.length + @cursor
+    end
+
+    ##
+    # @return [void]
+    def move_left
+      @cursor = [@cursor - 1, 0].max
+    end
+
+    ##
+    # @return [void]
+    def move_right
+      @cursor = [@cursor + 1, @buffer.length].min
+    end
+
+    ##
     # @return [String]
     def take
-      @buffer.dup.tap { @buffer.clear }
+      @buffer.dup.tap do
+        @buffer.clear
+        @cursor = 0
+      end
     end
 
     private
+
+    def prompt
+      "#{@provider}> "
+    end
+
+    def insert(char)
+      @buffer.insert(@cursor, char)
+      @cursor += char.length
+    end
+
+    def backspace
+      return if @cursor <= 0
+      @buffer.slice!(@cursor - 1)
+      @cursor -= 1
+    end
   end
 end

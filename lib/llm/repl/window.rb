@@ -109,6 +109,7 @@ class LLM::Repl
       Curses.setpos(input_row, 0)
       Curses.clrtoeol
       Curses.addstr(input.to_s)
+      Curses.setpos(input_row, input.cursor)
     end
 
     ##
