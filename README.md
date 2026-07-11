@@ -14,11 +14,10 @@
 
 Welcome to the canonical llm.rb repository.
 
-llm.rb is not a library, framework or toolkit but an advanced runtime
-for building highly capable AI applications on CRuby. By default
-it has zero runtime dependencies although certain functionality &ndash;
-such as ActiveRecord support &ndash; require optional dependencies
-that are opt-in.
+llm.rb is an advanced runtime for building capable AI applications
+on CRuby. By default it has zero runtime dependencies although certain
+functionality &ndash; such as ActiveRecord support &ndash; require
+optional dependencies that are opt-in.
 
 ## Features
 
@@ -136,15 +135,16 @@ agent = LLM::Agent.new(llm)
 agent.repl
 ```
 
-The read-eval-print loop accepts a `tools` option that
-lets you attach additional tools for the duration of
-the session. This is in addition to any tools that
-might already be associated with an agent.
+The read-eval-print loop accepts both `tools` and `skills`
+options that lets you attach additional tools or skills
+for the duration of the session. This is in addition to
+any tools or skills that might already be associated with
+an agent.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
-agent.repl(tools: [Debugger])
+agent.repl(tools: [Debugger], skills: [__dir__])
 ```
 
 By default the tracer is disabled for the duration of

@@ -403,8 +403,10 @@ module LLM
     #  repl session. Default is false.
     # @param [Array<LLM::Tool>] tools
     #  Extra tools to attach for the repl session
+    # @param [Array<String>] skills
+    #  Extra skills to attach for the repl session
     # @return [void]
-    def repl(tracer: false, trace: nil, tools: [])
+    def repl(tracer: false, trace: nil, tools: [], skills: [])
       if trace != nil
         warn "llm.rb: trace option is deprecated, use tracer instead"
         tracer = trace
@@ -414,7 +416,7 @@ module LLM
         self.tracer = nil
       end
       require_relative "repl" unless defined?(::LLM::Repl)
-      LLM::Repl.new(self, tools).start
+      LLM::Repl.new(agent: self, tools:, skills:).start
     ensure
       if !trace
         self.tracer = previous

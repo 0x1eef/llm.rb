@@ -26,8 +26,11 @@ module LLM
     ##
     # @param [LLM::Agent] agent
     # @param [Array<LLM::Tool>] tools
+    #  Zero or more tools
+    # @param [Array<String>] skills
+    #  Zero or more skills
     # @return [LLM::Repl]
-    def initialize(agent, tools)
+    def initialize(agent:, tools:, skills:)
       @agent = agent
       @provider = agent.llm.name
       @status = Status.new(@agent)
@@ -37,7 +40,16 @@ module LLM
       @thread = nil
       @queue = Queue.new
       @stream = Stream.new(self, @queue)
-      @tools = [agent.params[:tools], tools].flatten.compact
+      @skills = skills.map do |path|
+        ##
+        # I'm not sure it would make sense to expose
+        # the underlying context or not. In the meantime,
+        # this works and meets the expectations of the
+        # LLM::Skill class.
+        ctx = agent.instance_variable_get(:@ctx)
+        LLM::Skill.load(path).to_tool(ctx)
+      end
+      @tools = [agent.params[:tools], @skills, tools].flatten.compact
     end
 
     ##

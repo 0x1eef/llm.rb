@@ -9,9 +9,13 @@ Gem::Specification.new do |spec|
   spec.email = ["robert@r.uby.dev"]
 
   spec.summary = "Ruby's capable AI runtime"
-  spec.description = "llm.rb is not a library, framework or toolkit but " \
-                     "an advanced runtime for building highly capable AI " \
-                     "applications on CRuby."
+  spec.description = <<~DESCRIPTION
+llm.rb is an advanced runtime for building capable AI applications
+on CRuby. By default it has zero runtime dependencies although certain
+functionality &ndash; such as ActiveRecord support &ndash; require
+optional dependencies that are opt-in.
+DESCRIPTION
+
   spec.license = "BUSL-1.1"
   spec.required_ruby_version = ">= 3.3.0"
 
