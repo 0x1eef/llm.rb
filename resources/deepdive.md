@@ -25,47 +25,126 @@ features that didn't make it into the homepage documentation.
 
 ## Table of contents
 
-- [Agents](#agents)
-  - [As a subclass](#as-a-subclass)
-  - [As an object](#as-an-object)
-- [Skills](#skills)
-  - [SKILL.md](#skillmd)
-  - [Run it](#run-it)
-- [MCP](#mcp)
-  - [stdio](#stdio)
-  - [http](#http)
-- [A2A](#a2a)
-  - [rest](#rest)
-  - [jsonrpc](#jsonrpc)
-- [Transports](#transports)
-  - [net/http](#nethttp)
-  - [net/http/persistent](#nethttppersistent)
-  - [curb](#curb)
-- [Stream](#stream)
-  - [IO-like object](#io-like-object)
-  - [LLM::Stream](#llmstream)
-- [ORM](#orm)
-  - [ActiveRecord](#activerecord)
-  - [Sequel](#sequel)
-- [Schema](#schema)
-  - [Estimation](#estimation)
-- [Cancellation](#cancellation)
-  - [Cancel a request](#cancel-a-request)
-- [Tracer](#tracer)
-  - [Provider-wide tracer](#provider-wide-tracer)
-  - [Agent-local tracer](#agent-local-tracer)
-- [REPL](#repl)
-  - [LLM::Agent](#llmagent)
-  - [Tools](#tools)
-  - [Skills](#skills-1)
-  - [Tracer](#tracer-1)
-- [Images](#images)
-  - [Generation](#generation)
-  - [Edits](#edits)
-- [Audio](#audio)
-  - [text-to-speech](#text-to-speech)
-  - [speech-to-text](#speech-to-text)
-  - [translation](#translation)
+**Overview**
+
+- [Welcome](#welcome)
+
+**Core**
+
+<details>
+<summary>Agents</summary>
+
+- [As a subclass](#as-a-subclass)
+- [As an object](#as-an-object)
+</details>
+
+<details>
+<summary>Tools</summary>
+
+- [LLM::Tool](#llmtool)
+- [Errors](#errors)
+</details>
+
+<details>
+<summary>Skills</summary>
+
+- [SKILL.md](#skillmd)
+- [Run it](#run-it)
+</details>
+
+<details>
+<summary>Schema</summary>
+
+- [Estimation](#estimation)
+</details>
+
+**Runtime**
+
+<details>
+<summary>Stream</summary>
+
+- [IO-like object](#io-like-object)
+- [LLM::Stream](#llmstream)
+</details>
+
+<details>
+<summary>Cancellation</summary>
+
+- [Cancel a request](#cancel-a-request)
+</details>
+
+<details>
+<summary>Transports</summary>
+
+- [net/http](#nethttp)
+- [net/http/persistent](#nethttppersistent)
+- [curb](#curb)
+</details>
+
+<details>
+<summary>Tracer</summary>
+
+- [Provider-wide tracer](#provider-wide-tracer)
+- [Agent-local tracer](#agent-local-tracer)
+</details>
+
+<details>
+<summary>REPL</summary>
+
+- [LLM::Agent](#llmagent)
+- [Tools](#tools)
+- [Skills](#skills-1)
+- [Tracer](#tracer-1)
+</details>
+
+**Persistence**
+
+<details>
+<summary>Serialization</summary>
+
+- [Save to disk](#save-to-disk)
+</details>
+
+<details>
+<summary>ORM</summary>
+
+- [ActiveRecord](#activerecord)
+- [Sequel](#sequel)
+</details>
+
+**Media**
+
+<details>
+<summary>Images</summary>
+
+- [Generation](#generation)
+- [Edits](#edits)
+- [DeepSeek](#deepseek)
+</details>
+
+<details>
+<summary>Audio</summary>
+
+- [text-to-speech](#text-to-speech)
+- [speech-to-text](#speech-to-text)
+- [translation](#translation)
+</details>
+
+**Protocols**
+
+<details>
+<summary>MCP</summary>
+
+- [stdio](#stdio)
+- [http](#http)
+</details>
+
+<details>
+<summary>A2A</summary>
+
+- [rest](#rest)
+- [jsonrpc](#jsonrpc)
+</details>
 
 ## Agents
 
