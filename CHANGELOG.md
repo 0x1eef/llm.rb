@@ -42,6 +42,13 @@ Changes since `v12.2.0`.
   `tracer:` for consistency with the rest of the codebase. The old `trace:`
   name still works with a deprecation warning.
 
+* **repl: add context-usage bar and cost counter to the status line** <br>
+  The curses-based REPL status line now shows a small progress bar that
+  indicates how much of the model's context window remains as a percentage,
+  alongside a running cost estimate rendered on the right side of the status
+  line. The input line has been updated to show the provider name as a prefix.
+  Estimates are best-effort and depend on registry pricing data (see `data/`).
+
 * **repl: keep the UI responsive while a request is in progress** <br>
   The curses-based REPL now spawns the agent request in a separate thread
   and communicates streamed output through a queue, so the curses UI stays
@@ -73,6 +80,12 @@ Changes since `v12.2.0`.
   read-eval-print loop. This allows interactive debugging and inspection
   of persisted agent state at runtime. Note that changes made during a
   repl session do not persist back to the database.
+
+* **Refresh OpenAI model metadata** <br>
+  Add new OpenAI models to the registry, including `gpt-5.6`,
+  `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, and
+  `gpt-realtime-2.1`, with associated pricing, capabilities, and
+  limits.
 
 ### Fix
 
