@@ -57,8 +57,9 @@ class LLM::Repl
         emit(node.value.to_s, attrs)
       when :p
         node.children.each { walk(_1, attrs) }
-        emit("\n", attrs)
+        emit("\n\n", attrs)
       when :header
+        emit("\n", attrs)
         node.children.each { walk(_1, Curses::A_BOLD) }
         emit("\n", attrs)
       when :strong
@@ -69,7 +70,7 @@ class LLM::Repl
         emit(node.value, Curses::A_REVERSE)
       when :codeblock
         emit(node.value, Curses::A_REVERSE)
-        emit("\n", attrs)
+        emit("\n\n", attrs)
       when :br
         emit("\n", attrs)
       else
