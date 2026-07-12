@@ -146,6 +146,13 @@ Changes since `v12.2.0`.
 
 ### Fix
 
+* **Fix Ollama non-streaming response handling** <br>
+  Fix the Ollama provider to properly handle the non-streaming path. When
+  the provider returns a raw NDJSON response body (instead of streaming),
+  the response is now parsed and merged into a single `LLM::Object` before
+  being returned to the caller. Previously the non-streaming path was
+  effectively broken and would fail to produce a valid completion response.
+
 * **repl: handle a negative context window allowance in the usage bar** <br>
   Fix a crash in the curses-based REPL context-usage bar when the context
   window allowance is exceeded (used > total). The negative width value that

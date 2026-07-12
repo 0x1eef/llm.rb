@@ -83,6 +83,8 @@ Style/TrailingCommaInHashLiteral:
   Enabled: false
 Style/RedundantException:
   Enabled: false
+Style/ComparableClamp:
+  Enabled: false
 Lint/RedundantSplatExpansion:
   Enabled: false
 Layout/MultilineOperationIndentation:
