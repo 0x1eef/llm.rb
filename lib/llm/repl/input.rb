@@ -19,11 +19,13 @@ class LLM::Repl
     ##
     # @param [LLM::Agent] agent
     # @return [LLM::Repl::Input]
-    def initialize(agent)
+    def initialize(agent, options = {})
       @agent = agent
       @provider = agent.llm.name
       @buffer = +""
       @cursor = 0
+      @scroll = 0
+      @height = options.fetch(:height, 3)
     end
 
     ##
@@ -77,6 +79,37 @@ class LLM::Repl
     end
 
     ##
+    # @return [Integer]
+    def height
+      @height
+    end
+
+    ##
+    # Returns the visible lines of the input buffer,
+    # wrapped at the given column width. The viewport
+    # follows the cursor so the cursor line is always
+    # visible.
+    # @param [Integer] cols
+    # @return [Array<String>]
+    def lines(cols)
+      sync_scroll(cols)
+      text = to_s
+      chunks = text.chars.each_slice(cols).map(&:join)
+      chunks = [""] if chunks.empty?
+      chunks[@scroll, height] || []
+    end
+
+    ##
+    # Returns the cursor position as [line, column] within
+    # the visible viewport.
+    # @param [Integer] cols
+    # @return [Array(Integer, Integer)]
+    def cursor_pos(cols)
+      sync_scroll(cols)
+      [(cursor / cols) - @scroll, cursor % cols]
+    end
+
+    ##
     # @return [void]
     def move_start
       @cursor = 0
@@ -106,10 +139,25 @@ class LLM::Repl
       @buffer.dup.tap do
         @buffer.clear
         @cursor = 0
+        @scroll = 0
       end
     end
 
     private
+
+    ##
+    # Adjusts @scroll so the cursor line is visible within
+    # the viewport.
+    def sync_scroll(cols)
+      total_lines = [1, (to_s.length.to_f / cols).ceil].max
+      cursor_line = cursor / cols
+      if cursor_line < @scroll
+        @scroll = cursor_line
+      elsif cursor_line >= (@scroll + height)
+        @scroll = (cursor_line - height) + 1
+      end
+      @scroll = [[@scroll, (total_lines - height)].min, 0].max
+    end
 
     def prompt
       "#{@provider}> "

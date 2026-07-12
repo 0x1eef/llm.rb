@@ -47,17 +47,17 @@ class LLM::Repl
     # @return [void]
     def redraw
       Curses.clear
-      draw_divider(offset: 4)
-      draw_status(offset: 3)
+      draw_divider(offset: 5)
+      draw_status(offset: input.height + 1)
       draw_transcript(offset: 0)
-      draw_input(offset: 1)
+      draw_input
       Curses.refresh
     end
 
     ##
     # @return [Integer]
     def rows
-      [Curses.lines - 5, 1].max
+      [Curses.lines - (input.height + 4), 1].max
     end
 
     ##
@@ -98,11 +98,16 @@ class LLM::Repl
       Curses.addstr("─" * Curses.cols)
     end
 
-    def draw_input(offset:)
-      Curses.setpos(Curses.lines - offset, 0)
-      Curses.clrtoeol
-      Curses.addstr(input.to_s)
-      Curses.setpos(Curses.lines - offset, input.cursor)
+    def draw_input
+      cols = columns
+      rows = input.lines(cols)
+      rows.each.with_index do |line, idx|
+        Curses.setpos((Curses.lines - input.height) + idx, 0)
+        Curses.clrtoeol
+        Curses.addstr(line)
+      end
+      line, col = input.cursor_pos(cols)
+      Curses.setpos((Curses.lines - input.height) + line, col)
     end
 
     def draw_transcript(offset:)

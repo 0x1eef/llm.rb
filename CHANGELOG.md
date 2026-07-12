@@ -131,6 +131,13 @@ Changes since `v12.2.0`.
   transcript and the divider, preventing transcript text from running too
   close to the status and input rows.
 
+* **repl: expand input field to 3 rows** <br>
+  The curses-based REPL input field now spans three rows instead of one,
+  wrapping text that exceeds the terminal width onto subsequent lines. A
+  scrollable viewport follows the cursor so the active line stays visible,
+  and common navigation commands (Ctrl+A, Ctrl+E, cursor keys) work across
+  all three rows of the expanded input area.
+
 * **Refresh OpenAI model metadata** <br>
   Add new OpenAI models to the registry, including `gpt-5.6`,
   `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, and
