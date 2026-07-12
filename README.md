@@ -147,6 +147,23 @@ agent = LLM::Agent.new(llm)
 agent.repl(tools: [Debugger], skills: [__dir__])
 ```
 
+A number of optional tools are distributed as part
+of llm.rb. They power the agents that can be found in
+the [agents/](agents/) directory, so they're optimized
+for developer tasks.
+
+The following example starts a read-eval-print loop
+with all of the builtin tools available.
+
+```ruby
+require "llm"
+require "lll/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(tools: LLM::Tool.subclasses)
+```
+
 By default the tracer is disabled for the duration of
 the session. This can be configured through the
 `tracer` option. Setting it to `true` will configure
