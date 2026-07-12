@@ -534,7 +534,7 @@ module LLM
         max = params.key?(:tool_attempts) ? params.delete(:tool_attempts) : 25
         max = Integer(max) if max
         stream = params[:stream] || @ctx.params[:stream]
-        stream.extra[:concurrency] = concurrency if LLM::Stream === stream
+        params[:stream] = LLM::Stream.try(stream, extra: {concurrency:})
         res = talk.call(apply_instructions(prompt), params)
         while @ctx.functions?
           if max

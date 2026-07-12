@@ -36,10 +36,13 @@ class LLM::OpenAI
     # @return [LLM::Response]
     def create(prompt, params = {})
       params = {role: :user, model: @provider.default_model}.merge!(params)
+      role, stream = params.delete(:role), LLM::Stream.try(params.delete(:stream))
       tools  = resolve_tools(params.delete(:tools))
-      params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
-      role, stream = params.delete(:role), params.delete(:stream)
-      params[:stream] = true if @provider.streamable?(stream) || stream == true
+      params = [
+        params.merge!(stream: stream.enabled?),
+        adapt_schema(params),
+        adapt_tools(tools)
+      ].inject({}, &:merge!).compact
       req = LLM::Transport::Request.post(path("/responses"), headers)
       messages = build_complete_messages(prompt, params, role)
       @provider.tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))

@@ -71,13 +71,13 @@ class LLM::Compactor
     retention_window = [config[:retention_window], messages.size].min
     return nil unless messages.size > retention_window
     stream = ctx.params[:stream]
-    stream.on_compaction(ctx, self) if LLM::Stream === stream
+    stream.on_compaction(ctx, self)
     recent = retained_messages
     older = messages[0...(messages.size - recent.size)]
     summary = LLM::Message.new(ctx.llm.user_role, "[Previous conversation summary]\n\n#{summarize(older)}", {compaction: true})
     ctx.messages.replace([*ctx.messages.take_while(&:system?), summary, *recent])
     ctx.compacted = true
-    stream.on_compaction_finish(ctx, self) if LLM::Stream === stream
+    stream.on_compaction_finish(ctx, self)
     summary
   end
 

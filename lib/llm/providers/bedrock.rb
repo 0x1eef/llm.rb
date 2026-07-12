@@ -205,9 +205,8 @@ module LLM
       params = {role: :user, model: default_model, max_tokens: 2048}.merge!(params)
       tools = resolve_tools(params.delete(:tools))
       params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
-      role, stream = params.delete(:role), params.delete(:stream)
-      params[:stream] = true if streamable?(stream) || stream == true
-      [params, stream, tools, role]
+      role, stream = params.delete(:role), LLM::Stream.try(params.delete(:stream))
+      [params.merge!(stream: stream.enabled?), stream, tools, role]
     end
 
     def build_complete_request(prompt, params, role, stream: nil)
@@ -215,8 +214,8 @@ module LLM
       model_id = params.delete(:model) || default_model
       payload = build_converse_payload(messages, params)
       body = LLM.json.dump(payload)
-      path = stream ? "/model/#{model_id}/converse-stream" \
-                    : "/model/#{model_id}/converse"
+      path = stream&.enabled? ? "/model/#{model_id}/converse-stream" \
+                              : "/model/#{model_id}/converse"
       req = LLM::Transport::Request.post(path, headers)
       transport.set_body_stream(req, StringIO.new(body))
       [req, messages, body]

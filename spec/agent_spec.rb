@@ -488,8 +488,8 @@ RSpec.describe LLM::Agent do
         allow(ctx).to receive(:wait).with(:call).and_return([tool_return])
         agent.talk("hello")
         expect(ctx).to have_received(:wait).with(:call)
-        expect(ctx).to have_received(:talk).with("hello", {})
-        expect(ctx).to have_received(:talk).with([tool_return], {})
+        expect(ctx).to have_received(:talk).with("hello", hash_including(:stream))
+        expect(ctx).to have_received(:talk).with([tool_return], hash_including(:stream))
       end
 
       shared_examples "single-mode concurrency" do
@@ -497,8 +497,8 @@ RSpec.describe LLM::Agent do
           allow(ctx).to receive(:wait).with(concurrency).and_return([tool_return])
           agent.talk("hello")
           expect(ctx).to have_received(:wait).with(concurrency)
-          expect(ctx).to have_received(:talk).with("hello", {})
-          expect(ctx).to have_received(:talk).with([tool_return], {})
+          expect(ctx).to have_received(:talk).with("hello", hash_including(:stream))
+          expect(ctx).to have_received(:talk).with([tool_return], hash_including(:stream))
         end
       end
 
@@ -523,8 +523,8 @@ RSpec.describe LLM::Agent do
           allow(ctx).to receive(:wait).with([:thread, :ractor]).and_return([tool_return])
           agent.talk("hello")
           expect(ctx).to have_received(:wait).with([:thread, :ractor])
-          expect(ctx).to have_received(:talk).with("hello", {})
-          expect(ctx).to have_received(:talk).with([tool_return], {})
+          expect(ctx).to have_received(:talk).with("hello", hash_including(:stream))
+          expect(ctx).to have_received(:talk).with([tool_return], hash_including(:stream))
         end
       end
     end
@@ -792,7 +792,7 @@ RSpec.describe LLM::Agent do
           type: LLM::ToolLoopError.name,
           message: "tool loop rate limit reached"
         })
-      ], {})
+      ], hash_including(:stream))
     end
 
     it "disables advisory tool-limit returns when tool_attempts is nil" do

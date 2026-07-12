@@ -92,6 +92,8 @@ module LLM
       @params[:tools] = tools unless tools.empty?
       @params[:store] ||= false if @mode == :responses
       @messages = LLM::Buffer.new(llm)
+      extra = @params.slice(:model, :tools).merge!(ctx: self, tracer:)
+      @params[:stream] = LLM::Stream.try(@params[:stream], extra:)
     end
 
     ##
@@ -310,10 +312,7 @@ module LLM
     #  A list of functions to exclude from the wait
     # @return [Array<LLM::Function::Return>]
     def wait(strategy, except: [])
-      if LLM::Stream === stream && !stream.queue.empty?
-        @queue = stream.queue
-        @queue.wait
-      else
+      if stream.queue.empty?
         tools  = except.empty? ? functions : functions - except
         guards = guarded_returns(tools:)
         return guards if guards
@@ -321,6 +320,9 @@ module LLM
         returns = @queue.wait
         emit_tool_returns(tools, returns)
         returns
+      else
+        @queue = stream.queue
+        @queue.wait
       end
     ensure
       @queue = nil
@@ -503,24 +505,10 @@ module LLM
     private
 
     ##
-    # Binds runtime metadata onto an active stream.
-    # @api private
-    def bind!(stream, model, tools)
-      return unless LLM::Stream === stream
-      @stream = stream
-      stream.extra[:ctx] = self
-      stream.extra[:tracer] = tracer
-      stream.extra[:model] = model
-      stream.extra[:tools] = tools
-    end
-
-    ##
     # Returns the bound stream queue, if available.
     # @api private
     def queue
-      [@queue, stream&.queue].compact.first
-    rescue NoMethodError
-      nil
+      [@queue, stream.queue].compact.first
     end
 
     ##
@@ -543,12 +531,13 @@ module LLM
     # Rewrites a prompt and params through the configured transformer.
     # @api private
     def transform(prompt, params)
+      transformer = self.transformer
       return [prompt, params] unless transformer
       stream = params[:stream]
-      stream.on_transform(self, transformer) if LLM::Stream === stream
+      stream.on_transform(self, transformer)
       transformer.call(self, prompt, params)
     ensure
-      stream.on_transform_finish(self, transformer) if LLM::Stream === stream
+      stream.on_transform_finish(self, transformer) if transformer
     end
 
     ##
@@ -556,8 +545,10 @@ module LLM
     # @api private
     def respond(prompt, params)
       params = @params.merge(params)
+      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:)
+      params[:stream] = LLM::Stream.try(params[:stream], extra:)
       prompt, params = transform(prompt, params)
-      bind!(params[:stream], params[:model], params[:tools])
+      @stream = params[:stream]
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
       input = res_id ? [] : @messages.to_a
       params = params.merge(previous_response_id: res_id, input:).compact
@@ -570,8 +561,10 @@ module LLM
     def complete(prompt, params)
       params = params.merge(messages: @messages.to_a)
       params = @params.merge(params)
+      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:)
+      params[:stream] = LLM::Stream.try(params[:stream], extra:)
       prompt, params = transform(prompt, params)
-      bind!(params[:stream], params[:model], params[:tools])
+      @stream = params[:stream]
       [prompt, params, @llm.complete(prompt, params)]
     end
 
@@ -590,7 +583,6 @@ module LLM
     # Emits tool return callbacks for directly waited function work.
     # @api private
     def emit_tool_returns(tools, returns)
-      return unless LLM::Stream === stream
       returns.each_with_index { |result, index| stream.on_tool_return(tools[index], result) }
     end
 

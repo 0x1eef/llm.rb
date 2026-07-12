@@ -42,6 +42,26 @@ Changes since `v12.2.0`.
   for documents (e.g., PDFs). Returns an `LLM::Response` with extracted pages,
   markdown content, and structured block data.
 
+* **Add `LLM::Object#merge!`** <br>
+  Add `LLM::Object#merge!` for in-place merging of hash data into an
+  `LLM::Object` instance, complementing the existing `#merge` method.
+
+* **Add `LLM::Stream::IO` and `LLM::Stream::Disabled`** <br>
+  `LLM::Stream::IO` wraps IO-like objects as stream targets, forwarding
+  streamed content via `#<<`. `LLM::Stream::Disabled` represents an explicitly
+  disabled stream with no-op callbacks.
+
+  This is part of an internal refactoring that lets all stream values — IO
+  objects, `true`, `false`, `nil`, and `LLM::Stream` instances themselves —
+  be represented by the same `LLM::Stream` interface via the new
+  `LLM::Stream.try` factory method.
+
+  Before this change the codebase had to perform ad-hoc type checks
+  (e.g. `if LLM::Stream === stream`) scattered throughout. After this
+  change all stream handling goes through a single uniform path, and
+  providers check `#enabled?` to decide whether to request streaming
+  from the API.
+
 ### Change
 
 * **repl: rename `trace:` to `tracer:`** <br>

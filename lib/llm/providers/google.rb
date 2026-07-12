@@ -199,8 +199,10 @@ module LLM
       tools  = resolve_tools(params.delete(:tools))
       config = adapt_generation_config(params.except(*except))
       params = [params.except(:schema), config, adapt_tools(tools)].inject({}, &:merge!).compact
-      role, model, stream = [:role, :model, :stream].map { params.delete(_1) }
-      [params, stream, tools, role, model]
+      role, model, stream = params.delete(:role),
+                            params.delete(:model),
+                            LLM::Stream.try(params.delete(:stream))
+      [params.merge!(stream: stream.enabled?), stream, tools, role, model]
     end
 
     def build_complete_request(prompt, params, role, model, stream)

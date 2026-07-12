@@ -343,13 +343,6 @@ class LLM::Provider
   end
 
   ##
-  # @param [Object] stream
-  # @return [Boolean]
-  def streamable?(stream)
-    LLM::Stream === stream || stream.respond_to?(:<<)
-  end
-
-  ##
   # @return [Boolean]
   #  Returns true when an API key is configured
   def key?

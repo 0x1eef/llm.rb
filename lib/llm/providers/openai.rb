@@ -211,12 +211,11 @@ module LLM
       params = {role: :user, model: default_model}.merge!(params)
       tools = resolve_tools(params.delete(:tools))
       params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
-      role, stream = params.delete(:role), params.delete(:stream)
-      params[:stream] = true if streamable?(stream) || stream == true
+      role, stream = params.delete(:role), LLM::Stream.try(params.delete(:stream))
       if params[:stream]
         params[:stream_options] = {include_usage: true}.merge!(params[:stream_options] || {})
       end
-      [params, stream, tools, role]
+      [params.merge!(stream: stream.enabled?), stream, tools, role]
     end
 
     def build_complete_request(prompt, params, role)
