@@ -46,9 +46,9 @@ class LLM::Repl
     ##
     # @return [void]
     def redraw
-      Curses.clear
-      draw_divider(offset: 5)
+      Curses.curs_set(0)
       draw_status(offset: input.height + 1)
+      draw_divider(offset: 5)
       draw_transcript(offset: 0)
       draw_input
       Curses.refresh
@@ -121,6 +121,11 @@ class LLM::Repl
           Curses.addstr(text)
           Curses.attroff(attrs) if attrs
         end
+      end
+      last_drawn = offset + rows.size
+      (last_drawn...self.rows).each do |line|
+        Curses.setpos(line, 0)
+        Curses.clrtoeol
       end
     end
 

@@ -17,6 +17,16 @@
 
 Changes since `v12.3.0`.
 
+### Fix
+
+* **repl: fix redraw flicker** <br>
+  Replace `Curses.clear` with `Curses.curs_set(0)` in the REPL redraw
+  method to avoid a full screen clear that caused visible flickering
+  during redraws. The drawing order is also adjusted so the status line
+  is drawn before the divider, and stale rows left over from a larger
+  transcript are now explicitly cleared to prevent ghost text from
+  lingering when the transcript shrinks.
+
 ## v12.3.0
 
 Changes since `v12.2.0`.
