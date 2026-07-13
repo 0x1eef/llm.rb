@@ -418,7 +418,7 @@ module LLM
       require_relative "repl" unless defined?(::LLM::Repl)
       LLM::Repl.new(agent: self, tools:, skills:).start
     ensure
-      if !trace
+      if !tracer
         self.tracer = previous
       end
     end

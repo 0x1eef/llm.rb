@@ -17,6 +17,16 @@
 
 Changes since `v12.3.1`.
 
+### Fix
+
+* **agent: fix a subtle typo in the ensure clause** <br>
+  Fix a subtle typo in `LLM::Agent` where the deprecated `trace` local
+  variable was given preference over `tracer` (the preferred local name)
+  in an `ensure` clause. The `trace` local was supported for backward
+  compatibility but the ensure clause still referenced `trace` instead of
+  `tracer`, which meant the previous tracer was never restored when the
+  REPL session ended.
+
 ## v12.3.1
 
 Changes since `v12.3.0`.
