@@ -15,7 +15,27 @@
 
 ## What's next
 
+Changes since `v12.3.0`.
+
+## v12.3.0
+
 Changes since `v12.2.0`.
+
+This release brings major improvements to the curses-based REPL
+(`LLM::Agent#repl`). The status line now shows a context-usage bar and
+running cost counter, the input field expands to three rows with
+full cursor navigation, model responses are rendered as styled markdown,
+and the UI stays responsive while the agent is working by running
+requests in a separate thread. A new `LLM::Stream::IO` and
+`LLM::Stream::Disabled` provide a uniform stream representation across
+all stream types.
+
+Mistral OCR support is added for extracting text from images and
+documents via the `/v1/ocr` endpoint. The `skills:` and `tools:` options
+on `LLM::Agent#repl` let you attach additional tools or skill directories
+for the duration of a session. `LLM::Object#merge!` rounds out the
+in-place merge API, and a new `LLM.logger` convenience method creates
+tracer logger instances with less verbosity.
 
 ### Add
 
