@@ -15,7 +15,17 @@
 
 ## What's next
 
+Changes since `v12.3.1`.
+
+## v12.3.1
+
 Changes since `v12.3.0`.
+
+This release fixes a flickering issue in the curses-based REPL redraw.
+The full-screen clear that caused visible flickering has been replaced
+with a targeted cursor-hide approach, and stale rows from a larger
+transcript are now explicitly cleared to prevent ghost text from
+lingering when the transcript shrinks.
 
 ### Fix
 
