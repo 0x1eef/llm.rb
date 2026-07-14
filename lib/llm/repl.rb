@@ -196,6 +196,7 @@ module LLM
     ##
     # @return [Boolean]
     def path?
+      return false if path.nil?
       File.readable?(path) and File.writable?(path)
     end
 
