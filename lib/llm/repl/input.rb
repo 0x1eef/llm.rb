@@ -10,6 +10,8 @@ class LLM::Repl
     CTRL_E    = 5
     CTRL_F    = 6
     CTRL_K    = 11
+    CTRL_Y    = 25
+
     UP        = Curses::Key::UP
     DOWN      = Curses::Key::DOWN
     LEFT      = Curses::Key::LEFT
@@ -17,6 +19,10 @@ class LLM::Repl
     ENTER     = [Curses::Key::ENTER, 10, 13]
     BACKSPACE = [Curses::Key::BACKSPACE, 127]
     EOF       = [4]
+
+    ##
+    # @return [String]
+    attr_reader :buffer
 
     ##
     # @param [LLM::Agent] agent
@@ -57,6 +63,9 @@ class LLM::Repl
       elsif char == CTRL_F
         move_forward
         :ctrl_f
+      elsif char == CTRL_Y
+        restore
+        :ctrl_y
       elsif char == CTRL_K
         erase
         :ctrl_k
@@ -150,8 +159,17 @@ class LLM::Repl
     ##
     # @return [void]
     def erase
+      @copy = @buffer.slice(@cursor, @buffer.size)
       @buffer[@cursor, @buffer.size] = ""
       @cursor = @buffer.size
+    end
+
+    ##
+    # @return [void]
+    def restore
+      return unless @copy
+      @buffer.insert(@cursor, @copy)
+      @cursor += @copy.size
     end
 
     ##

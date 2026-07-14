@@ -29,6 +29,13 @@ Changes since `v12.3.1`.
   from the cursor position to the end of the input buffer, matching
   common terminal editing conventions found in shells like `/bin/sh`.
 
+* **repl: add Ctrl+Y to paste previously killed text** <br>
+  The curses-based REPL input now supports Ctrl+Y to insert the most
+  recently killed text (via Ctrl+K) at the current cursor position,
+  matching the yank/paste convention found in shells like `/bin/sh`.
+  The killed text is stored in an internal copy buffer so it can be
+  pasted multiple times or at different cursor positions.
+
 ### Fix
 
 * **agent: fix a subtle typo in the ensure clause** <br>
