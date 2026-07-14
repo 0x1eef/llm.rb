@@ -90,6 +90,12 @@ Changes since `v12.3.1`.
   glob pattern filtering to narrow results. <br>
   It must be required explicitly with `require "llm/tools/ls"`.
 
+* **Add `LLM::Tool::Which`** <br>
+  Add a built-in tool for locating an executable on the system PATH.
+  This lets an agent check whether a command is available before
+  attempting to run it, avoiding failed subprocess calls. <br>
+  It must be required explicitly with `require "llm/tools/which"`.
+
 ### Change
 
 * **Refresh model metadata** <br>
