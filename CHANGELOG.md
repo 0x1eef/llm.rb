@@ -68,6 +68,13 @@ Changes since `v12.3.1`.
   without requiring an `:exit` return value to be propagated
   through a potentially deeply nested call path.
 
+* **repl: replace Ctrl+D with shell-like delete-at-cursor** <br>
+  The curses-based REPL input now treats Ctrl+D as a delete action
+  that removes the character at the current cursor position, matching
+  the shell/Emacs convention where Ctrl+D deletes the character under
+  the cursor instead of signalling end-of-file. The previous Ctrl+D
+  behaviour (exiting the REPL) is superseded by the `/exit` command.
+
 ### Fix
 
 * **agent: fix a subtle typo in the ensure clause** <br>

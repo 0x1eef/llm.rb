@@ -6,11 +6,14 @@ class LLM::Repl
   # the editable input line shown at the bottom of the REPL.
   # @api private
   class Input
-    CTRL_A    = 1
-    CTRL_E    = 5
-    CTRL_F    = 6
-    CTRL_K    = 11
-    CTRL_Y    = 25
+    CTRL = {
+      A: Curses::KEY_CTRL_A,
+      E: Curses::KEY_CTRL_E,
+      F: Curses::KEY_CTRL_F,
+      K: Curses::KEY_CTRL_K,
+      Y: Curses::KEY_CTRL_Y,
+      D: Curses::KEY_CTRL_D
+    }
 
     UP        = Curses::Key::UP
     DOWN      = Curses::Key::DOWN
@@ -18,7 +21,6 @@ class LLM::Repl
     RIGHT     = Curses::Key::RIGHT
     ENTER     = [Curses::Key::ENTER, 10, 13]
     BACKSPACE = [Curses::Key::BACKSPACE, 127]
-    EOF       = [4]
 
     ##
     # @return [String]
@@ -41,8 +43,30 @@ class LLM::Repl
     # @param [Object] char
     # @return [Symbol, nil]
     def on_char(window, char)
-      if EOF.include?(char)
-        throw(:exit)
+      if CTRL[:D] == char
+        delete
+        :ctrl_d
+      elsif CTRL[:A] == char
+        move_start
+        :ctrl_a
+      elsif CTRL[:E] == char
+        move_end
+        :ctrl_e
+      elsif CTRL[:F] == char
+        move_forward
+        :ctrl_f
+      elsif CTRL[:Y] == char
+        restore
+        :ctrl_y
+      elsif CTRL[:K] == char
+        kill
+        :ctrl_k
+      elsif char == LEFT
+        move_left
+        :left
+      elsif char == RIGHT
+        move_right
+        :right
       elsif BACKSPACE.include?(char)
         backspace
         :backspace
@@ -54,27 +78,6 @@ class LLM::Repl
       elsif char == DOWN
         window.scroll_down
         :down
-      elsif char == CTRL_A
-        move_start
-        :ctrl_a
-      elsif char == CTRL_E
-        move_end
-        :ctrl_e
-      elsif char == CTRL_F
-        move_forward
-        :ctrl_f
-      elsif char == CTRL_Y
-        restore
-        :ctrl_y
-      elsif char == CTRL_K
-        erase
-        :ctrl_k
-      elsif char == LEFT
-        move_left
-        :left
-      elsif char == RIGHT
-        move_right
-        :right
       elsif String === char
         insert(char)
         :char
@@ -158,10 +161,17 @@ class LLM::Repl
 
     ##
     # @return [void]
-    def erase
+    def kill
       @copy = @buffer.slice(@cursor, @buffer.size)
       @buffer[@cursor, @buffer.size] = ""
       @cursor = @buffer.size
+    end
+
+    ##
+    # @return [void]
+    def delete
+      @buffer[@cursor] = ""
+      @cursor = [0, @cursor].max
     end
 
     ##
