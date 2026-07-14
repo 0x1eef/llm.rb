@@ -31,9 +31,8 @@ class LLM::Context
     end
     alias_method :restore, :deserialize
 
-    ##
-    # @param [Hash] payload
-    # @return [LLM::Message]
+    private
+
     def deserialize_message(payload)
       tool_calls = deserialize_tool_calls(payload["tools"])
       returns = deserialize_returns(payload["content"]) if returns.nil?
@@ -45,8 +44,6 @@ class LLM::Context
       content = returns.nil? ? deserialize_content(payload["content"]) : returns
       LLM::Message.new(payload["role"], content, extra)
     end
-
-    private
 
     def deserialize_content(content)
       case content

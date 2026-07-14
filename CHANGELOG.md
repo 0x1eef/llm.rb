@@ -19,6 +19,13 @@ Changes since `v12.3.1`.
 
 ### Add
 
+* **repl: allow runtime state to be saved and restored** <br>
+  `LLM::Agent#repl` now accepts a `path:` option that serializes
+  runtime state to the filesystem. When the path already exists,
+  runtime state is restored when the read-eval-print loop starts.
+  Otherwise the path is written after the first turn, making it
+  possible to resume a session across process restarts.
+
 * **repl: scroll to the bottom on submit** <br>
   The curses-based REPL now scrolls the transcript to the bottom when
   the user submits their input, so the latest response is visible

@@ -26,13 +26,16 @@ module LLM
 
     ##
     # @param [LLM::Agent] agent
+    # @param [String, nil] path
+    #  The path where to maintain runtime state
     # @param [Array<LLM::Tool>] tools
     #  Zero or more tools
     # @param [Array<String>] skills
     #  Zero or more skills
     # @return [LLM::Repl]
-    def initialize(agent:, tools:, skills:)
-      @agent = agent
+    def initialize(agent:, tools:, skills:, path:)
+      @path  = path
+      @agent = configure(agent:, path:)
       @provider = agent.llm.name
       @status = Status.new(@agent)
       @transcript = Transcript.new
@@ -101,6 +104,25 @@ module LLM
     private
 
     ##
+    # @param [LLM::Agent] agent
+    #  An agent
+    # @param [String] path
+    #  A path
+    # @raise [LLM::Error]
+    #  When given an unusable path
+    # @return [LLM::Agent]
+    def configure(agent:, path:)
+      if path.nil? or !File.exist?(path)
+        agent
+      elsif path?
+        agent.restore(path:)
+      else
+        raise LLM::Error, "I can't use '#{path}' - " \
+                          "it should be both readable and writable"
+      end
+    end
+
+    ##
     # This method is called when the user submits their input.
     # It spawns a second thread that maintains a line of
     # communication with a model and the main thread - where
@@ -120,6 +142,7 @@ module LLM
         @thread = Thread.new do
           @queue << [:start]
           agent.talk(text, tools:, stream:)
+          agent.save(path:) if path?
           @queue << [:done]
         rescue => e
           @queue << [:error, e]
@@ -170,8 +193,18 @@ module LLM
     rescue ThreadError
     end
 
+    ##
+    # @return [Boolean]
+    def path?
+      File.readable?(path) and File.writable?(path)
+    end
+
     attr_reader :agent, :provider, :stream,
                 :status, :transcript, :input,
-                :window, :tools, :thread
+                :window, :tools, :thread,
+                :path
+
+    File = ::File
+    private_constant :File
   end
 end

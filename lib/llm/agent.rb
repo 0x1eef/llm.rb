@@ -398,15 +398,18 @@ module LLM
     #  By default this method disables the tracer for
     #  the duration of the repl session, and restores
     #  it afterwards.
-    # @param [Boolean] tracer
-    #  When true, the tracer is kept alive during the
-    #  repl session. Default is false.
+    # @param [String] path
+    #  The path to a file where runtime state is read
+    #  from, and written to
     # @param [Array<LLM::Tool>] tools
     #  Extra tools to attach for the repl session
     # @param [Array<String>] skills
     #  Extra skills to attach for the repl session
+    # @param [Boolean] tracer
+    #  When true, the tracer is kept alive during the
+    #  repl session. Default is false.
     # @return [void]
-    def repl(tracer: false, trace: nil, tools: [], skills: [])
+    def repl(path: nil, tools: [], skills: [], tracer: false, trace: nil)
       if trace != nil
         warn "llm.rb: trace option is deprecated, use tracer instead"
         tracer = trace
@@ -416,7 +419,7 @@ module LLM
         self.tracer = nil
       end
       require_relative "repl" unless defined?(::LLM::Repl)
-      LLM::Repl.new(agent: self, tools:, skills:).start
+      LLM::Repl.new(agent: self, path:, tools:, skills:).start
     ensure
       if !tracer
         self.tracer = previous

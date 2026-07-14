@@ -85,6 +85,8 @@ Style/RedundantException:
   Enabled: false
 Style/ComparableClamp:
   Enabled: false
+Style/LambdaCall:
+  Enabled: false
 Lint/RedundantSplatExpansion:
   Enabled: false
 Layout/MultilineOperationIndentation:
