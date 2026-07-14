@@ -34,7 +34,7 @@ class LLM::Repl
       if error
         @_queue.push [:status, "tool not found: #{tool.name}"]
       else
-        @_queue.push [:status, "tool: #{tool.name}"]
+        @_queue.push [:status, "#{tool.name}(#{format_args(tool)})"]
       end
     end
 
@@ -43,7 +43,7 @@ class LLM::Repl
     # @param [LLM::Function::Return] result
     # @return [void]
     def on_tool_return(_tool, result)
-      @_queue.push [:status, "tool done: #{result.name}"]
+      nil
     end
 
     ##
@@ -51,6 +51,46 @@ class LLM::Repl
     # @return [void]
     def empty!
       @buffer.clear
+    end
+
+    private
+
+    ##
+    # Formats tool arguments as compact key: value pairs
+    # suitable for the status line.  Strings are quoted and
+    # truncated, arrays show their first two elements, and
+    # hashes collapse to `{…}`.  The whole string is capped
+    # so it fits alongside the context-usage bar.
+    # @param [LLM::Function] tool
+    # @param [Integer] max
+    # @return [String]
+    def format_args(tool, max: 50)
+      args = tool.arguments
+      pairs = args.to_h.map { "#{_1}: #{format_value(_2)}" }
+      result = pairs.join(", ")
+      result.size > max ? "#{result[0...max - 1]}…" : result
+    end
+
+    ##
+    # @param [Object] value
+    # @param [Integer] max
+    # @return [String]
+    def format_value(value, max: 18)
+      case value
+      when String
+        value.size > max ? "#{value[0...max]}…".inspect : value.inspect
+      when Array
+        items = value.take(2).map { format_value(_1, max: 10) }
+        items << "…" if value.size > 2
+        "[#{items.join(", ")}]"
+      when Hash
+        "{…}"
+      when nil
+        "nil"
+      else
+        str = value.inspect
+        str.size > max ? "#{str[0...max]}…" : str
+      end
     end
   end
 end

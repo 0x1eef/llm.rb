@@ -96,6 +96,15 @@ Changes since `v12.3.1`.
   attempting to run it, avoiding failed subprocess calls. <br>
   It must be required explicitly with `require "llm/tools/which"`.
 
+* **repl: render tool calls in a function-call syntax** <br>
+  The curses-based REPL status bar now renders tool calls with a
+  compact function-call syntax — `tool(key: value)` instead of
+  `tool: name`. Strings are quoted and truncated, arrays show their
+  first two elements, and hashes collapse to `{…}`, making it easier
+  to see what arguments the model is passing. The `tool done` status
+  message has been removed since the tool call itself conveys
+  completion information.
+
 ### Change
 
 * **Refresh model metadata** <br>
