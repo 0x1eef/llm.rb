@@ -85,6 +85,11 @@ Changes since `v12.3.1`.
   expensive char-by-char render path used for ordinary interactive
   input. This makes pasting large amounts of text noticeably faster.
 
+* **Add `LLM::Tool::Ls`** <br>
+  Add a built-in tool for listing files and directories, with optional
+  glob pattern filtering to narrow results. <br>
+  It must be required explicitly with `require "llm/tools/ls"`.
+
 ### Change
 
 * **Refresh model metadata** <br>
