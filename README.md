@@ -127,7 +127,7 @@ asking questions about what it has done up to that point.
 
 This feature requires that the [curses](https://github.com/ruby/curses)
 and [kramdown](https://github.com/gettalong/kramdown) libraries are
-installed and available to require.
+installed and available to require. <br> Type `/exit` to leave the repl.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
