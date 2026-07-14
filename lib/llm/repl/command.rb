@@ -12,6 +12,22 @@ class LLM::Repl
     UNDEFINED = Object.new
 
     ##
+    # @param [LLM::Repl::Command] command
+    #  A new subclass
+    # @return [void]
+    def self.inherited(command)
+      LLM.lock(:inherited) do
+        registry << command
+      end
+    end
+
+    ##
+    # @return [Array<LLM::Repl::Command]
+    def self.registry
+      @registry ||= []
+    end
+
+    ##
     # Set or get a command name.
     # @param [String] name
     #  The command name.

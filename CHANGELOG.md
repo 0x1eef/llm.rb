@@ -44,6 +44,13 @@ Changes since `v12.3.1`.
   foundational work for a future command registry and additional
   built-in commands.
 
+* **repl: add `LLM::Repl::Command.registry`** <br>
+  Add `LLM::Repl::Command.registry` for auto-registering command
+  subclasses. The `inherited` hook captures each new subclass and
+  stores it in the registry, making it possible to enumerate all
+  available commands at runtime. Built-in commands like Exit are
+  automatically registered when the command file is loaded.
+
 ### Change
 
 * **repl: control the loop with catch & throw** <br>
