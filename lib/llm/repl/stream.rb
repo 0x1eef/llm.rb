@@ -43,7 +43,7 @@ class LLM::Repl
     # @param [LLM::Function::Return] result
     # @return [void]
     def on_tool_return(_tool, result)
-      nil
+      @_queue.push [:status, "Thinking"]
     end
 
     ##

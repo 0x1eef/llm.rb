@@ -130,6 +130,11 @@ Changes since `v12.3.1`.
   the cursor instead of signalling end-of-file. The previous Ctrl+D
   behaviour (exiting the REPL) is superseded by the `/exit` command.
 
+* **repl: switch to 'Thinking' mode after tool return** <br>
+  The curses-based REPL status line now switches to "Thinking" mode
+  after a tool returns, so the user can see the agent is processing
+  the tool result rather than showing a stale tool-call status.
+
 ### Fix
 
 * **agent: fix a subtle typo in the ensure clause** <br>
