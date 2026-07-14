@@ -8,6 +8,7 @@ class LLM::Repl
   class Input
     CTRL_A    = 1
     CTRL_E    = 5
+    CTRL_F    = 6
     CTRL_K    = 11
     UP        = Curses::Key::UP
     DOWN      = Curses::Key::DOWN
@@ -53,6 +54,9 @@ class LLM::Repl
       elsif char == CTRL_E
         move_end
         :ctrl_e
+      elsif char == CTRL_F
+        move_forward
+        :ctrl_f
       elsif char == CTRL_K
         erase
         :ctrl_k
@@ -135,6 +139,12 @@ class LLM::Repl
     # @return [void]
     def move_right
       @cursor = [@cursor + 1, @buffer.size].min
+    end
+
+    ##
+    # @return [void]
+    def move_forward
+      @cursor = [0, @cursor + 1].max
     end
 
     ##
