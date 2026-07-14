@@ -17,6 +17,18 @@
 
 Changes since `v12.3.1`.
 
+### Add
+
+* **repl: add Ctrl+F to move the cursor forward** <br>
+  The curses-based REPL input now supports Ctrl+F to move the cursor
+  forward by one column, matching common terminal editing conventions
+  found in shells like `/bin/sh`.
+
+* **repl: add Ctrl+K to erase from cursor to end of line** <br>
+  The curses-based REPL input now supports Ctrl+K to erase all text
+  from the cursor position to the end of the input buffer, matching
+  common terminal editing conventions found in shells like `/bin/sh`.
+
 ### Fix
 
 * **agent: fix a subtle typo in the ensure clause** <br>
@@ -26,6 +38,13 @@ Changes since `v12.3.1`.
   compatibility but the ensure clause still referenced `trace` instead of
   `tracer`, which meant the previous tracer was never restored when the
   REPL session ended.
+
+* **repl: restore the cursor in the input area** <br>
+  Remove the `Curses.curs_set(0)` call from the REPL redraw method,
+  which was inadvertently hiding the cursor and making it impossible
+  to see the current position in the input area. The input field is
+  now always drawn at its full height so the cursor position is
+  correctly maintained after each redraw.
 
 ## v12.3.1
 
