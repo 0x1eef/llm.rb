@@ -15,7 +15,27 @@
 
 ## What's next
 
+Changes since `v12.4.0`.
+
+## v12.4.0
+
 Changes since `v12.3.1`.
+
+This release brings major improvements to the curses-based REPL
+(`LLM::Agent#repl`). The REPL now supports saving and restoring runtime
+state across sessions, automatic paste-mode detection for fast bulk input,
+a command system foundation with the `/exit` command, and several new
+keybindings (Ctrl+F, Ctrl+K, Ctrl+Y). Tool calls are rendered with a
+compact function-call syntax in the status bar.
+
+Two new built-in tools — `LLM::Tool::Ls` and `LLM::Tool::Which` — are
+available as opt-in additions for file listing and executable lookup.
+
+Model metadata has been refreshed across providers, the REPL loop
+internals have been refactored to use `catch`/`throw` for cleaner command
+routing, and several bugs have been fixed including a tracer restoration
+issue in the agent ensure clause and a missing cursor in the REPL input
+area.
 
 ### Add
 
