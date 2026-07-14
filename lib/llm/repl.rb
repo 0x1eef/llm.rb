@@ -112,6 +112,7 @@ module LLM
       in [:command, Command => command]
         command.call
       in [:input, String => text]
+        window.scroll_to_bottom
         status.text = "thinking"
         write("user: ", Curses::A_BOLD)
         markdown(text)

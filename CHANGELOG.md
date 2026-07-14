@@ -19,6 +19,11 @@ Changes since `v12.3.1`.
 
 ### Add
 
+* **repl: scroll to the bottom on submit** <br>
+  The curses-based REPL now scrolls the transcript to the bottom when
+  the user submits their input, so the latest response is visible
+  without needing to scroll down manually.
+
 * **repl: add Ctrl+F to move the cursor forward** <br>
   The curses-based REPL input now supports Ctrl+F to move the cursor
   forward by one column, matching common terminal editing conventions
@@ -74,6 +79,15 @@ Changes since `v12.3.1`.
   input. This makes pasting large amounts of text noticeably faster.
 
 ### Change
+
+* **Refresh model metadata** <br>
+  Update model listings, pricing, and capabilities across providers.
+  Fix GPT-5.6 model family names in the OpenAI registry (`gpt` to
+  `gpt-sol`, `gpt-nano` to `gpt-luna`, `gpt-mini` to `gpt-terra`).
+  Add OpenAI models (`gpt-5.6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`)
+  to the AWS Bedrock registry. Update DeepInfra pricing for
+  `DeepSeek-V3` and `Sky-T1-32B-Preview`. Fix Google model knowledge
+  cutoff dates.
 
 * **repl: control the loop with catch & throw** <br>
   The curses-based REPL input loop now uses `catch(:exit)` and

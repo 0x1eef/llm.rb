@@ -76,6 +76,12 @@ class LLM::Repl
     end
 
     ##
+    # @return [void]
+    def scroll_to_bottom
+      @offset = 0
+    end
+
+    ##
     # @param [Integer] height
     # @return [Array<String>]
     def visible(height)

@@ -95,6 +95,12 @@ class LLM::Repl
       transcript.scroll_down
     end
 
+    ##
+    # @return [void]
+    def scroll_to_bottom
+      transcript.scroll_to_bottom
+    end
+
     private
 
     def draw_status(offset:)
