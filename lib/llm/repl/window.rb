@@ -46,7 +46,6 @@ class LLM::Repl
     ##
     # @return [void]
     def redraw
-      Curses.curs_set(0)
       draw_status(offset: input.height + 1)
       draw_divider(offset: 5)
       draw_transcript(offset: 0)
