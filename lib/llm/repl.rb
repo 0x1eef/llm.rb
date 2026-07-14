@@ -22,6 +22,7 @@ module LLM
     require_relative "repl/bar"
     require_relative "repl/stream"
     require_relative "repl/markdown"
+    require_relative "repl/command"
 
     ##
     # @param [LLM::Agent] agent

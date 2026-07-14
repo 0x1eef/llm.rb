@@ -36,6 +36,14 @@ Changes since `v12.3.1`.
   The killed text is stored in an internal copy buffer so it can be
   pasted multiple times or at different cursor positions.
 
+* **repl: add command system foundation** <br>
+  Add `LLM::Repl::Command` as a new base class for REPL commands,
+  along with the first built-in command `LLM::Repl::Command::Exit`
+  which exits the read-eval-print loop via `throw(:exit)`. Commands
+  are accessible via the `/<name>` syntax (e.g. `/exit`). This is
+  foundational work for a future command registry and additional
+  built-in commands.
+
 ### Change
 
 * **repl: control the loop with catch & throw** <br>
