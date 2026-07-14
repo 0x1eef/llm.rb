@@ -106,20 +106,34 @@ module LLM
     # the UI runs - remains responsive.
     # @api private
     def submit
-      return if thread&.alive?
-      text = input.take
-      return if text.empty?
-      status.text = "thinking"
-      write("user: ", Curses::A_BOLD)
-      markdown(text)
-      write("\nagent: ", Curses::A_BOLD)
-      @thread = Thread.new do
-        @queue << [:start]
-        agent.talk(text, tools:, stream:)
-        @queue << [:done]
-      rescue => e
-        @queue << [:error, e]
+      return if thread&.alive? || (text = input.take).empty?
+      case on_text(text)
+      in [:command, Command => command]
+        command.call
+      in [:input, String => text]
+        status.text = "thinking"
+        write("user: ", Curses::A_BOLD)
+        markdown(text)
+        write("\nagent: ", Curses::A_BOLD)
+        @thread = Thread.new do
+          @queue << [:start]
+          agent.talk(text, tools:, stream:)
+          @queue << [:done]
+        rescue => e
+          @queue << [:error, e]
+        end
       end
+    end
+
+    ##
+    # Receives user input and determines what codepath
+    # it should follow - either executing a command,
+    # or sending a string to the model.
+    # @param [String] text
+    # @return [[Symbol, Command|String]]
+    def on_text(text)
+      command = Command.find_by(input: text)
+      command ? [:command, command.new] : [:input, text]
     end
 
     ##

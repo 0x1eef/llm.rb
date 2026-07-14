@@ -39,10 +39,18 @@ Changes since `v12.3.1`.
 * **repl: add command system foundation** <br>
   Add `LLM::Repl::Command` as a new base class for REPL commands,
   along with the first built-in command `LLM::Repl::Command::Exit`
-  which exits the read-eval-print loop via `throw(:exit)`. Commands
-  are accessible via the `/<name>` syntax (e.g. `/exit`). This is
-  foundational work for a future command registry and additional
-  built-in commands.
+  which exits the read-eval-print loop via `throw(:exit)`.
+  Commands are identified by a name and can be looked up through
+  `Command.find_by`. This is the foundation for the `/` command
+  syntax used in the REPL input line.
+
+* **repl: connect the command system to user input** <br>
+  The curses-based REPL now routes user input through the command
+  system. Any input string beginning with `"/"` is matched against
+  the command registry via `Command.find_by`, and the corresponding
+  command is executed instead of being forwarded to the model.
+  This makes built-in commands like `/exit` functional from the
+  input line. Command arguments are not yet supported.
 
 * **repl: add `LLM::Repl::Command.registry`** <br>
   Add `LLM::Repl::Command.registry` for auto-registering command
@@ -56,9 +64,9 @@ Changes since `v12.3.1`.
 * **repl: control the loop with catch & throw** <br>
   The curses-based REPL input loop now uses `catch(:exit)` and
   `throw(:exit)` instead of returning the `:exit` symbol and
-  breaking out of the loop. This is groundwork for future `/command`
-  syntax that would otherwise require propagating an `:exit` return
-  value through a potentially deeply nested call path.
+  breaking out of the loop. This enables the `/command` syntax
+  without requiring an `:exit` return value to be propagated
+  through a potentially deeply nested call path.
 
 ### Fix
 

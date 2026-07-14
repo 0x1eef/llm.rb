@@ -12,6 +12,33 @@ class LLM::Repl
     UNDEFINED = Object.new
 
     ##
+    # Find a command by a name, or by an input string.
+    # @example find by name
+    #  LLM::Repl::Command.find_by(name: "exit")
+    # @example find by input string
+    #  LLM::Repl::Command.find_by(input: "/exit")
+    # @note
+    #  The input string must be prefixed with "/"
+    #  or it won't be matched. The match is made
+    #  against the string before the first space -
+    #  so "/exit foo" will match the "exit" command
+    #  but "/exitnow" will not.
+    # @param [String] input
+    # @param [String] name
+    # @return [LLM::Repl::Command, nil]
+    def self.find_by(input: nil, name: nil)
+      if input
+        return nil unless input[0] == "/"
+        n, = input.split(" ")
+        registry.find { n[1..] == _1.name }
+      elsif name
+        registry.find { name == _1.name }
+      else
+        raise ArgumentError, "provide one of: input, name"
+      end
+    end
+
+    ##
     # @param [LLM::Repl::Command] command
     #  A new subclass
     # @return [void]
