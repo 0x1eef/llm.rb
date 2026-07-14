@@ -92,9 +92,12 @@ features that didn't make it into the homepage documentation.
 <summary>REPL</summary>
 
 - [LLM::Agent](#llmagent)
+- [State](#state)
 - [Tools](#tools)
 - [Skills](#skills-1)
 - [Tracer](#tracer-1)
+- [Input](#input)
+- [Commands](#commands)
 </details>
 
 **Persistence**
@@ -894,6 +897,12 @@ you a way to confirm the work was successful, inspect
 anything that went wrong, and keep talking to the same
 agent while its state is still intact.
 
+The REPL is a curses-based TUI with a status line showing
+a context-usage bar and cost counter, a scrollable transcript
+that renders markdown, and a multi-line input area. The UI
+thread stays responsive while a second thread communicates
+with the model.
+
 #### LLM::Agent
 
 The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
@@ -913,6 +922,20 @@ require "llm"
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl
+```
+
+#### State
+
+The `path:` option accepts a file path where runtime state
+is read from and written to. This lets you resume a
+conversation across REPL sessions. When the file does not
+exist the agent starts fresh; when it does, the agent
+restores its previous state.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(path: "session.json")
 ```
 
 #### Tools
@@ -950,6 +973,49 @@ of [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
 agent.repl(tracer: true, tools: [Debugger])
+```
+
+#### Input
+
+The input area supports several keyboard shortcuts:
+
+| Key | Action |
+|---|---|
+| `Enter` | Submit the current prompt |
+| `Ctrl+A` | Jump to the start of the line |
+| `Ctrl+E` | Jump to the end of the line |
+| `Ctrl+F` | Move the cursor forward |
+| `Ctrl+K` | Erase from cursor to the end of the line |
+| `Ctrl+Y` | Paste previously killed text |
+| `Ctrl+D` | Delete the character at the cursor |
+| `Left / Right` | Move the cursor |
+| `Up / Down` | Scroll the transcript |
+
+When characters arrive faster than a threshold the REPL
+detects that text is being pasted rather than typed. In
+paste mode pressing `Enter` inserts a newline instead of
+submitting, allowing multi-line prompts.
+
+#### Commands
+
+Commands are recognized by a `/` prefix on the input line.
+The built-in command is `/exit`, which leaves the REPL.
+The [`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
+class can be subclassed to add custom commands &ndash;
+any subclass that defines a `name`, `description`, and
+`call` method is automatically registered and available.
+
+```ruby
+class LLM::Repl::Command
+  class Clear < self
+    name "clear"
+    description "clears the transcript"
+
+    def call
+      system("clear") || system("cls")
+    end
+  end
+end
 ```
 
 [Back to top](#table-of-contents)

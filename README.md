@@ -127,7 +127,18 @@ asking questions about what it has done up to that point.
 
 This feature requires that the [curses](https://github.com/ruby/curses)
 and [kramdown](https://github.com/gettalong/kramdown) libraries are
-installed and available to require. <br> Type `/exit` to leave the repl.
+installed and available to require.
+
+The TUI displays a status line with a context-usage bar and cost
+counter, a scrollable transcript with markdown rendering, and a
+multi-line input area. The UI stays responsive while the model
+is generating a response.
+
+##### REPL: Agent
+
+A REPL session is started by calling `repl` on any agent
+instance. The session inherits the agent's model, tools,
+skills, and instructions.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
@@ -135,22 +146,33 @@ agent = LLM::Agent.new(llm)
 agent.repl
 ```
 
-The read-eval-print loop accepts both `tools` and `skills`
-options that lets you attach additional tools or skills
-for the duration of the session. This is in addition to
-any tools or skills that might already be associated with
-an agent.
+##### REPL: State
+
+The `path:` option accepts a file path where runtime state
+is read from and written to. This lets you resume a
+conversation across REPL sessions.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
-agent.repl(tools: [Debugger], skills: [__dir__])
+agent.repl(path: "session.json")
 ```
 
-A number of optional tools are distributed as part
-of llm.rb. They power the agents that can be found in
-the [agents/](agents/) directory, so they're optimized
-for developer tasks.
+##### REPL: Tools
+
+The `tools` option lets you attach additional tools
+for the duration of the session. This is in addition to
+any tools that might already be associated with an agent.
+
+A number of optional tools are distributed as part of
+llm.rb. They power the agents that can be found in the
+[agents/](agents/) directory.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(tools: [Debugger])
+```
 
 The following example starts a read-eval-print loop
 with all of the builtin tools available.
@@ -164,17 +186,52 @@ agent = LLM::Agent.new(llm)
 agent.repl(tools: LLM::Tool.subclasses)
 ```
 
-By default the tracer is disabled for the duration of
-the session. This can be configured through the
-`tracer` option. Setting it to `true` will configure
-the REPL to use the tracer associated with an instance
-of [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+##### REPL: Skills
+
+The `skills` option lets you load extra skill directories
+without attaching them to an agent permanently.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(skills: [__dir__])
+```
+
+##### REPL: Tracer
+
+By default the tracer is disabled for the duration of the
+session. Setting `tracer: true` configures the REPL to use
+the tracer associated with an instance of
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
 agent.repl(tracer: true, tools: [Debugger])
 ```
+
+##### REPL: Input
+
+The input area supports several keyboard shortcuts:
+
+| Key | Action |
+|---|---|
+| `Enter` | Submit the current prompt |
+| `Ctrl+A` | Jump to the start of the line |
+| `Ctrl+E` | Jump to the end of the line |
+| `Ctrl+F` | Move the cursor forward |
+| `Ctrl+K` | Erase from cursor to the end of the line |
+| `Ctrl+Y` | Paste previously killed text |
+| `Ctrl+D` | Delete the character at the cursor |
+| `Left / Right` | Move the cursor |
+| `Up / Down` | Scroll the transcript |
+| `/exit` | Leave the REPL |
+
+##### REPL: Commands
+
+Commands are recognized by a `/` prefix and are backed by the
+[`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
+class, which can be subclassed to add custom commands.
 
 #### LLM::MCP
 
