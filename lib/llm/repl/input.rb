@@ -23,6 +23,13 @@ class LLM::Repl
     BACKSPACE = [Curses::Key::BACKSPACE, 127]
 
     ##
+    # Threshold in seconds. If characters arrive faster than
+    # this, we assume the user is pasting multi-line text.
+    # Human typing is ~150–300ms per key, so 50ms reliably
+    # distinguishes a paste from manual typing.
+    PASTE_THRESHOLD = 0.05
+
+    ##
     # @return [String]
     attr_reader :buffer
 
@@ -36,42 +43,58 @@ class LLM::Repl
       @cursor = 0
       @scroll = 0
       @height = options.fetch(:height, 3)
+      @last_char_at = nil
     end
 
     ##
     # @param [LLM::Repl::Window] window
     # @param [Object] char
     # @return [Symbol, nil]
-    def on_char(window, char)
+    def on_char(window, char, now)
       if CTRL[:D] == char
+        @last_char_at = now
         delete
         :ctrl_d
       elsif CTRL[:A] == char
+        @last_char_at = now
         move_start
         :ctrl_a
       elsif CTRL[:E] == char
+        @last_char_at = now
         move_end
         :ctrl_e
       elsif CTRL[:F] == char
+        @last_char_at = now
         move_forward
         :ctrl_f
       elsif CTRL[:Y] == char
+        @last_char_at = now
         restore
         :ctrl_y
       elsif CTRL[:K] == char
+        @last_char_at = now
         kill
         :ctrl_k
       elsif char == LEFT
+        @last_char_at = now
         move_left
         :left
       elsif char == RIGHT
+        @last_char_at = now
         move_right
         :right
       elsif BACKSPACE.include?(char)
+        @last_char_at = now
         backspace
         :backspace
       elsif ENTER.include?(char)
-        :submit
+        if paste?(now)
+          @last_char_at = now
+          insert("\n")
+          :char
+        else
+          :submit
+        end
       elsif char == UP
         window.scroll_up
         :up
@@ -79,6 +102,7 @@ class LLM::Repl
         window.scroll_down
         :down
       elsif String === char
+        @last_char_at = now
         insert(char)
         :char
       else
@@ -106,27 +130,25 @@ class LLM::Repl
 
     ##
     # Returns the visible lines of the input buffer,
-    # wrapped at the given column width. The viewport
-    # follows the cursor so the cursor line is always
-    # visible.
-    # @param [Integer] cols
+    # split by newlines. The viewport follows the cursor
+    # so the cursor line is always visible.
     # @return [Array<String>]
-    def lines(cols)
-      sync_scroll(cols)
-      text = to_s
-      chunks = text.chars.each_slice(cols).map(&:join)
-      chunks = [""] if chunks.empty?
+    def lines
+      scroll!
+      chunks = to_s.split("\n", -1)
       chunks[@scroll, height] || []
     end
 
     ##
     # Returns the cursor position as [line, column] within
     # the visible viewport.
-    # @param [Integer] cols
     # @return [Array(Integer, Integer)]
-    def cursor_pos(cols)
-      sync_scroll(cols)
-      [(cursor / cols) - @scroll, cursor % cols]
+    def cursor_pos
+      scroll!
+      before = to_s[0...cursor]
+      line  = before.count("\n")
+      col   = cursor - (before.rindex("\n") || -1) - 1
+      [line - @scroll, col]
     end
 
     ##
@@ -197,9 +219,9 @@ class LLM::Repl
     ##
     # Adjusts @scroll so the cursor line is visible within
     # the viewport.
-    def sync_scroll(cols)
-      total_lines = [1, (to_s.length.to_f / cols).ceil].max
-      cursor_line = cursor / cols
+    def scroll!(total_lines = nil)
+      total_lines ||= to_s.split("\n", -1).size
+      cursor_line = to_s[0...cursor].count("\n")
       if cursor_line < @scroll
         @scroll = cursor_line
       elsif cursor_line >= (@scroll + height)
@@ -213,14 +235,28 @@ class LLM::Repl
     end
 
     def insert(char)
+      if lines[-1].size >= Curses.cols
+        @buffer.insert(@cursor, "\n")
+        @cursor += 1
+      end
       @buffer.insert(@cursor, char)
       @cursor += char.length
+      scroll!
     end
 
     def backspace
       return if @cursor <= 0
       @buffer.slice!(@cursor - 1)
       @cursor -= 1
+    end
+
+    ##
+    # Returns +true+ when characters are arriving faster
+    # than a human could type, which indicates a paste.
+    # @param [Float] now
+    # @return [Boolean]
+    def paste?(now)
+      (now - @last_char_at) < PASTE_THRESHOLD
     end
   end
 end
