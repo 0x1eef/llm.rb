@@ -60,7 +60,7 @@ module LLM
           case input.on_char(window, window.getch)
           when :exit then break
           when :submit then submit
-          when :up, :down, :backspace, :char then window.redraw
+          when Symbol then window.redraw
           else
             window.redraw
             read!

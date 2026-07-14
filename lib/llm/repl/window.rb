@@ -100,10 +100,10 @@ class LLM::Repl
     def draw_input
       cols = columns
       rows = input.lines(cols)
-      rows.each.with_index do |line, idx|
+      (0...input.height).each do |idx|
         Curses.setpos((Curses.lines - input.height) + idx, 0)
         Curses.clrtoeol
-        Curses.addstr(line)
+        Curses.addstr(rows[idx]) if idx < rows.length
       end
       line, col = input.cursor_pos(cols)
       Curses.setpos((Curses.lines - input.height) + line, col)
