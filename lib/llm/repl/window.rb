@@ -66,6 +66,24 @@ class LLM::Repl
     end
 
     ##
+    # Drains all available characters from the terminal input
+    # buffer without blocking.  Used in place of `Curses.getstr`
+    # when the paste flag is set, so that a huge multi-line
+    # paste is consumed in a single shot instead of being
+    # processed character-by-character.
+    # @return [String]
+    def read_paste
+      chars = +""
+      loop do
+        ch = Curses.getch
+        break unless ch and ch != -1
+        chars << ch
+      end
+      input.paste = false
+      chars
+    end
+
+    ##
     # @return [void]
     def scroll_up
       transcript.scroll_up(rows)

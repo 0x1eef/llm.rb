@@ -59,6 +59,20 @@ Changes since `v12.3.1`.
   available commands at runtime. Built-in commands like Exit are
   automatically registered when the command file is loaded.
 
+* **repl: detect and handle paste mode in the input line** <br>
+  The curses-based REPL input now detects paste operations by tracking
+  the rate at which characters arrive. A paste rate of ≤50ms is
+  assumed to be a burst of characters that could only be explained by
+  a paste — no human types that fast. Multiline pastes are supported
+  through internal refactoring of the input handling logic.
+
+* **repl: optimize paste mode rendering** <br>
+  Track the paste state with an internal `@paste` variable and switch
+  to a faster input path during paste operations. While in paste mode,
+  the input buffer is drained via `Curses.getch`, bypassing the more
+  expensive char-by-char render path used for ordinary interactive
+  input. This makes pasting large amounts of text noticeably faster.
+
 ### Change
 
 * **repl: control the loop with catch & throw** <br>

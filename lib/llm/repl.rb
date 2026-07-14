@@ -60,7 +60,7 @@ module LLM
         catch(:exit) do
           loop do
             now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-            case input.on_char(window, window.getch, now)
+            case input.on_char(window, input.paste? ? window.read_paste : window.getch, now)
             when :submit then submit
             when Symbol then window.redraw
             else

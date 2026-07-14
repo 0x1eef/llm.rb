@@ -34,6 +34,11 @@ class LLM::Repl
     attr_reader :buffer
 
     ##
+    # @param [Boolean] bool
+    # @return [void]
+    attr_writer :paste
+
+    ##
     # @param [LLM::Agent] agent
     # @return [LLM::Repl::Input]
     def initialize(agent, options = {})
@@ -44,6 +49,7 @@ class LLM::Repl
       @scroll = 0
       @height = options.fetch(:height, 3)
       @last_char_at = nil
+      @paste = false
     end
 
     ##
@@ -51,45 +57,36 @@ class LLM::Repl
     # @param [Object] char
     # @return [Symbol, nil]
     def on_char(window, char, now)
+      is_paste = lambda { @last_char_at and (now - @last_char_at) < PASTE_THRESHOLD }
       if CTRL[:D] == char
-        @last_char_at = now
         delete
         :ctrl_d
       elsif CTRL[:A] == char
-        @last_char_at = now
         move_start
         :ctrl_a
       elsif CTRL[:E] == char
-        @last_char_at = now
         move_end
         :ctrl_e
       elsif CTRL[:F] == char
-        @last_char_at = now
         move_forward
         :ctrl_f
       elsif CTRL[:Y] == char
-        @last_char_at = now
         restore
         :ctrl_y
       elsif CTRL[:K] == char
-        @last_char_at = now
         kill
         :ctrl_k
       elsif char == LEFT
-        @last_char_at = now
         move_left
         :left
       elsif char == RIGHT
-        @last_char_at = now
         move_right
         :right
       elsif BACKSPACE.include?(char)
-        @last_char_at = now
         backspace
         :backspace
       elsif ENTER.include?(char)
-        if paste?(now)
-          @last_char_at = now
+        if @paste = is_paste.()
           insert("\n")
           :char
         else
@@ -102,12 +99,13 @@ class LLM::Repl
         window.scroll_down
         :down
       elsif String === char
-        @last_char_at = now
         insert(char)
         :char
       else
         nil
       end
+    ensure
+      @last_char_at = now if char
     end
 
     ##
@@ -214,6 +212,12 @@ class LLM::Repl
       end
     end
 
+    ##
+    # @return [Boolean]
+    def paste?
+      @paste
+    end
+
     private
 
     ##
@@ -248,15 +252,6 @@ class LLM::Repl
       return if @cursor <= 0
       @buffer.slice!(@cursor - 1)
       @cursor -= 1
-    end
-
-    ##
-    # Returns +true+ when characters are arriving faster
-    # than a human could type, which indicates a paste.
-    # @param [Float] now
-    # @return [Boolean]
-    def paste?(now)
-      (now - @last_char_at) < PASTE_THRESHOLD
     end
   end
 end
