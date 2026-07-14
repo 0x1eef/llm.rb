@@ -56,15 +56,16 @@ module LLM
     # @return [void]
     def start
       window.open do
-        loop do
-          case input.on_char(window, window.getch)
-          when :exit then break
-          when :submit then submit
-          when Symbol then window.redraw
-          else
-            window.redraw
-            read!
-            sleep 0.01
+        catch(:exit) do
+          loop do
+            case input.on_char(window, window.getch)
+            when :submit then submit
+            when Symbol then window.redraw
+            else
+              window.redraw
+              read!
+              sleep 0.01
+            end
           end
         end
       end

@@ -42,7 +42,7 @@ class LLM::Repl
     # @return [Symbol, nil]
     def on_char(window, char)
       if EOF.include?(char)
-        :exit
+        throw(:exit)
       elsif BACKSPACE.include?(char)
         backspace
         :backspace

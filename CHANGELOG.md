@@ -36,6 +36,15 @@ Changes since `v12.3.1`.
   The killed text is stored in an internal copy buffer so it can be
   pasted multiple times or at different cursor positions.
 
+### Change
+
+* **repl: control the loop with catch & throw** <br>
+  The curses-based REPL input loop now uses `catch(:exit)` and
+  `throw(:exit)` instead of returning the `:exit` symbol and
+  breaking out of the loop. This is groundwork for future `/command`
+  syntax that would otherwise require propagating an `:exit` return
+  value through a potentially deeply nested call path.
+
 ### Fix
 
 * **agent: fix a subtle typo in the ensure clause** <br>
