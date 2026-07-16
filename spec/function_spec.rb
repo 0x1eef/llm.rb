@@ -181,6 +181,66 @@ RSpec.describe LLM::Function do
     end
   end
 
+  describe LLM::Function::CallGroup do
+    describe "#interrupt!" do
+      let(:tool_class) do
+        Class.new(LLM::Tool) do
+          name "slow"
+          def call
+            sleep 10
+            {ok: true}
+          end
+        end
+      end
+
+      let(:function) do
+        tool_class.function.dup.tap do |fn|
+          fn.id = "call_1"
+          fn.arguments = {}
+        end
+      end
+
+      subject(:group) { LLM::Function::CallGroup.new([function]) }
+
+      it "raises LLM::Interrupt on the thread running wait" do
+        thread = Thread.new { group.wait }
+        sleep 0.1 until group.alive? == false  # wait blocks synchronously, alive? is always false
+        # Actually there's no way to know wait started, so we just sleep a bit
+        sleep 0.05
+        group.interrupt!
+        expect { thread.value }.to raise_error(LLM::Interrupt)
+      end
+
+      it "interrupts the currently running tool execution" do
+        result = nil
+        thread = Thread.new do
+          result = group.wait
+        rescue LLM::Interrupt
+          :interrupted
+        end
+        sleep 0.05
+        group.interrupt!
+        thread.join(2)
+        expect(thread.value).to eq(:interrupted)
+      end
+
+      it "is a no-op when wait has not been called" do
+        expect(group.interrupt!).to be_nil
+      end
+
+      it "is a no-op when wait has completed" do
+        fast_fn = tool_class.function.dup.tap do |fn|
+          fn.define { {ok: true} }
+          fn.id = "call_2"
+          fn.arguments = {}
+        end
+        group = LLM::Function::CallGroup.new([fast_fn])
+        group.wait
+        expect(group.interrupt!).to be_nil
+      end
+    end
+  end
+
   describe LLM::Function::Array do
     subject { [tool].extend(LLM::Function::Array).wait(:ractor).map(&:to_h) }
     it { is_expected.to eq([{id: "call_1", name: "system", value: {"ok" => true}}]) }

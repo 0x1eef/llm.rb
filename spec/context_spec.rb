@@ -754,6 +754,55 @@ RSpec.describe LLM::Context do
       owner.resume
     end
 
+    context "when interrupting a call group during wait(:call)" do
+      let(:tool) do
+        Class.new(LLM::Tool) do
+          name "slow"
+          def call
+            sleep 10
+            {ok: true}
+          end
+        end
+      end
+      let(:ctx) { LLM::Context.new(provider, model:, tools: [tool]) }
+
+      before do
+        fn = tool.function
+        fn.id = "call_1"
+        fn.arguments = {}
+        ctx.messages << LLM::Message.new("assistant", nil, {
+          tools: [tool],
+          tool_calls: [
+            {id: "call_1", name: "slow", arguments: {}}
+          ]
+        })
+      end
+
+      it "raises LLM::Interrupt on the thread waiting for tool work" do
+        thread = Thread.new do
+          ctx.wait(:call)
+        rescue LLM::Interrupt
+          :interrupted
+        end
+        sleep 0.05
+        ctx.interrupt!
+        thread.join(2)
+        expect(thread.value).to eq(:interrupted)
+      end
+
+      it "clears the queue after interrupt" do
+        thread = Thread.new do
+          ctx.wait(:call)
+        rescue LLM::Interrupt
+          :interrupted
+        end
+        sleep 0.05
+        ctx.interrupt!
+        thread.join(2)
+        expect(ctx.instance_variable_get(:@queue)).to be_nil
+      end
+    end
+
     context "when queued tool work is running through a stream" do
       let(:stream) { LLM::Stream.new }
       let(:ctx) { LLM::Context.new(provider, model:, stream:) }
