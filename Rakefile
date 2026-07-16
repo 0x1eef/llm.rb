@@ -55,8 +55,14 @@ task :console do
   binding.irb
 end
 
-Dir[File.join(__dir__, "tasks", "*.rake")].sort.each do |task|
-  load task
+desc "start a repl"
+task :repl, [:model] do |_, args|
+  require "llm"
+  require "llm/tools"
+  model = args[:model] || "deepseek-v4-flash"
+  llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+  agent = LLM::Agent.new(llm, model:)
+  agent.repl(path: "contexts/dev.json", tools: LLM::Tool.subclasses)
 end
 
 namespace :'models.dev' do

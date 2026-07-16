@@ -8,6 +8,7 @@
 /spec/reports/
 /tmp/
 /*.eld
+/contexts
 /*.lock
 /.env
 /script
