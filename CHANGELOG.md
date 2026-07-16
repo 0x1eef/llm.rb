@@ -39,6 +39,18 @@
   `Thread#interrupt` which was less reliable — it did not interrupt a
   sleeping thread.
 
+* **function: suppress thread exception reporting in `:thread` concurrency** <br>
+  Threads spawned by the `:thread` concurrency strategy now have
+  `report_on_exception` set to `false`, preventing noisy exception
+  messages from appearing on stderr when a thread is interrupted
+  during tool execution.
+
+* **context: clear `@owner` after `talk` completes** <br>
+  `LLM::Context#talk` now clears the `@owner` reference in an
+  `ensure` block after the method completes, so `interrupt!` does
+  not attempt to interrupt a stale fiber reference from a prior
+  call.
+
 ## v12.5.1
 
 Changes since `v12.5.0`.
