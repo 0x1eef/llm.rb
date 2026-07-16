@@ -171,3 +171,7 @@ class LLM::Repl
     require_relative "commands/exit"
   end
 end
+
+##
+# Convenience constant
+LLM::Command = LLM::Repl::Command

@@ -141,6 +141,8 @@ instance. The session inherits the agent's model, tools,
 skills, and instructions.
 
 ```ruby
+require "llm"
+
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl
@@ -153,6 +155,8 @@ is read from and written to. This lets you resume a
 conversation across REPL sessions.
 
 ```ruby
+require "llm"
+
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl(path: "session.json")
@@ -169,6 +173,8 @@ llm.rb. They power the agents that can be found in the
 [agents/](agents/) directory.
 
 ```ruby
+require "llm"
+
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl(tools: [Debugger])
@@ -192,6 +198,8 @@ The `skills` option lets you load extra skill directories
 without attaching them to an agent permanently.
 
 ```ruby
+require "llm"
+
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl(skills: [__dir__])
@@ -205,9 +213,36 @@ the tracer associated with an instance of
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
 
 ```ruby
+require "llm"
+
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
 agent.repl(tracer: true, tools: [Debugger])
+```
+
+##### REPL: Commands
+
+Commands are recognized by a `/` prefix and are backed by the
+[`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
+class, which can be subclassed to add custom commands. Once you
+create a subclass, it is automatically added to the repl. A command
+can have zero or more parameters, and all parameters are presumed
+to be a String (at least for now).
+
+```ruby
+require "llm"
+require "llm/repl"
+
+class Greeter < LLM::Command
+  name "greet"
+  description "Greets the given name"
+  parameter :name, String, "The person's name"
+  required %i[name]
+
+  def call(name:)
+    write("Welcome #{name}!\n")
+  end
+end
 ```
 
 ##### REPL: Input
@@ -226,28 +261,6 @@ The input area supports several keyboard shortcuts:
 | `Left / Right` | Move the cursor |
 | `Up / Down` | Scroll the transcript |
 | `/exit` | Leave the REPL |
-
-##### REPL: Commands
-
-Commands are recognized by a `/` prefix and are backed by the
-[`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
-class, which can be subclassed to add custom commands. Once you
-create a subclass, it is automatically added to the repl. A command
-can have zero or more parameters, and all parameters are presumed
-to be a String (at least for now).
-
-```ruby
-class Greeter < LLM::Repl::Command
-  name "greet"
-  description "Greets the given name"
-  parameter :name, String, "The person's name"
-  required %i[name]
-
-  def call(name:)
-    write("Welcome #{name}!\n")
-  end
-end
-```
 
 #### LLM::MCP
 
