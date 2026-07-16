@@ -15,6 +15,21 @@
 
 ## What's next
 
+### Add
+
+* **agent: add `set` method for bulk-assigning class-level defaults** <br>
+  Add `LLM::Agent.set(properties)` for mass-assigning agent defaults
+  from a Hash. Each key maps to a class-level accessor; unknown keys
+  raise `KeyError`.
+
+* **active_record: expose `set` on `acts_as_agent` models** <br>
+  ActiveRecord models using `acts_as_agent` can call `set` to
+  bulk-assign agent class-level defaults.
+
+* **sequel: expose `set` on `plugin :agent` models** <br>
+  Sequel models using `plugin :agent` can call `set` to bulk-assign
+  agent class-level defaults.
+
 ## v12.5.1
 
 Changes since `v12.5.0`.
