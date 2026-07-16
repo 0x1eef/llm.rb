@@ -19,6 +19,19 @@ Changes since `v12.4.0`.
 
 ### Add
 
+* **buffer: add `LLM::Buffer#pop`** <br>
+  Add `LLM::Buffer#pop` for removing the last message from the tail
+  of the buffer, complementing the existing `#<<` and array-style
+  message management.
+
+* **function: add registry fallback for tool resolution** <br>
+  When resolving tool calls from a message, if the tool is not found
+  in the available tools list, it now also looks up the global
+  `LLM::Function` registry via `LLM::Function.find_by_name` before
+  creating a placeholder function. This improves tool resolution for
+  tools that are registered globally but not passed directly through
+  the request tool set.
+
 * **repl: add `help` command** <br>
   Add `LLM::Repl::Help` as a new built-in command, registered
   automatically via the command registry. Typing `/help` shows
@@ -119,6 +132,16 @@ Changes since `v12.4.0`.
 
 ### Change
 
+* **provider: increase default timeout to 900s** <br>
+  The default HTTP timeout for all providers has been increased from
+  180 to 900 seconds (15 minutes) to better accommodate long-running
+  requests such as reasoning models and large structured outputs.
+
+* **agent: `deserialize` and `restore` return `self`** <br>
+  `LLM::Agent#deserialize` and `LLM::Agent#restore` now return `self`
+  (the agent instance) instead of forwarding the context's return
+  value, enabling method chaining after restoring agent state.
+
 * **repl: pass the repl instance to command constructors** <br>
   `LLM::Repl::Command` subclasses now receive the active repl
   instance via `initialize(repl)`, enabling commands to write
@@ -149,6 +172,16 @@ Changes since `v12.4.0`.
   been updated accordingly.
 
 ### Fix
+
+* **function: avoid silent skip of tools not found in available tools** <br>
+  When a model calls a tool that is not present in the available tools
+  list, instead of silently skipping the tool call (via `next`), a
+  `LLM::NoSuchToolError` is now raised so the model receives feedback
+  about the invalid tool call and can correct course.
+  <br><br>
+  An additional fallback to the global `LLM::Function` registry is
+  tried before raising, so globally registered tools are still
+  resolved even when not in the per-request tool set.
 
 * **repl: don't persist parameter state between turns** <br>
   Parameter state (such as `Parameter#value`) was leaking across
