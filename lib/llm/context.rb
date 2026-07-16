@@ -334,13 +334,11 @@ module LLM
     # This is inspired by Go's context cancellation model.
     # @return [nil]
     def interrupt!
-      pending = functions.to_a
       llm.interrupt!(@owner)
       queue&.interrupt!
-      return if pending.empty?
-      pending.each(&:interrupt!)
-      returns = pending.map { _1.cancel(reason: "function call cancelled") }
-      @messages << LLM::Message.new(@llm.tool_role, returns)
+      functions.each(&:interrupt!)
+      @queue = nil
+      @owner = nil
       nil
     end
     alias_method :cancel!, :interrupt!
