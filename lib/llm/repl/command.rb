@@ -43,10 +43,6 @@ class LLM::Repl
     end
 
     ##
-    # @api private
-    UNDEFINED = Object.new
-
-    ##
     # Find a command by a name, or by an input string.
     # @example find by name
     #  LLM::Repl::Command.find_by(name: "exit")
@@ -161,6 +157,26 @@ class LLM::Repl
     end
 
     ##
+    # Display a formatted help message for this command.
+    # Uses a single {#write} call to output the command name,
+    # description, and parameter details.
+    # @return [void]
+    def self.help
+      lines = []
+      lines << "Command: #{name}"
+      lines << "Description: #{description}"
+      unless parameters.empty?
+        lines << ""
+        lines << "Parameters:"
+        parameters.each_value do |param|
+          tag = param.required? ? "(required)" : "(optional)"
+          lines << "  #{param.name} [#{param.type}] - #{param.description} #{tag}"
+        end
+      end
+      lines.join("\n")
+    end
+
+    ##
     # This method should be implemented by subclasses.
     # @raise [NotImplementedError]
     def call(...)
@@ -173,12 +189,8 @@ class LLM::Repl
       self.class.parameters
     end
 
-    ##
-    # @return [Hash]
-    def to_h
-      parameters.transform_values(&:value)
-    end
     require_relative "commands/exit"
+    require_relative "commands/help"
   end
 end
 
