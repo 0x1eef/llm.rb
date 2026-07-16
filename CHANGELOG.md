@@ -118,6 +118,15 @@ Changes since `v12.4.0`.
   via `#adapt_function`, keeping it colocated with the code that
   consumes it.
 
+* **stream: drop the `error` argument from `on_tool_call`** <br>
+  The `on_tool_call` callback no longer accepts an `error` argument.
+  Previously, stream parsers passed both a tool and an optional error,
+  requiring boilerplate like `if error; queue << error; end` in every
+  callback. Error handling is now pushed directly onto the stream queue
+  inside each provider's stream parser, so `on_tool_call(tool)` is the
+  only signature. The REPL stream and base `LLM::Stream` class have
+  been updated accordingly.
+
 ### Fix
 
 * **repl: don't persist parameter state between turns** <br>

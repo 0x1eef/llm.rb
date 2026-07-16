@@ -114,20 +114,15 @@ module LLM
     #   `ctx.spawn(tool, :fiber)`, or `ctx.spawn(tool, :task)` onto {#queue}.
     #   Mixed strategies can also be selected per tool, such as
     #   `tool.mcp? ? ctx.spawn(tool, :task) : ctx.spawn(tool, :ractor)`.
-    #   When a streamed tool cannot be resolved, `error` is passed as an
-    #   {LLM::Function::Return}. It can be sent back to the model, allowing
-    #   the tool-call path to recover and the session to continue. Streamed
-    #   tool resolution now prefers the current request tools, so
+    #   Streamed tool resolution now prefers the current request tools, so
     #   {LLM.function}, MCP tools, bound tool instances, and normal
     #   {LLM::Tool LLM::Tool} classes can all resolve through the same
     #   request-local path. The current `:ractor` mode is for class-based
     #   tools and does not support MCP tools.
     # @param [LLM::Function] tool
     #  The parsed tool call.
-    # @param [LLM::Function::Return, nil] error
-    #  An in-band tool error for unresolved tool calls.
     # @return [nil]
-    def on_tool_call(tool, error)
+    def on_tool_call(tool)
       nil
     end
 

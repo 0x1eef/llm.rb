@@ -45,7 +45,7 @@ RSpec.describe LLM::Stream do
 
   describe "#on_tool_call" do
     it "returns nil" do
-      expect(stream.on_tool_call(tool, nil)).to be_nil
+      expect(stream.on_tool_call(tool)).to be_nil
     end
   end
 
@@ -147,8 +147,8 @@ RSpec.describe LLM::Stream do
           @reasoning_content << value
         end
 
-        def on_tool_call(fn, error)
-          @calls << [fn, error]
+        def on_tool_call(fn)
+          @calls << fn
         end
 
         def on_tool_return(fn, result)
@@ -184,8 +184,8 @@ RSpec.describe LLM::Stream do
     end
 
     it "handles tool calls" do
-      stream.on_tool_call(tool, nil)
-      expect(stream.calls).to eq([[tool, nil]])
+      stream.on_tool_call(tool)
+      expect(stream.calls).to eq([tool])
     end
 
     it "handles finished tools" do

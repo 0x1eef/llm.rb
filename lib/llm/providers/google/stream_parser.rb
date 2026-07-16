@@ -143,7 +143,7 @@ class LLM::Google
       return if @emits[:tools].include?(key)
       function, error = resolve_tool(part, cindex, pindex)
       @emits[:tools] << key
-      @stream.on_tool_call(function, error)
+      error ? @stream.queue << error : @stream.on_tool_call(function)
     end
 
     def complete_tool?(part)

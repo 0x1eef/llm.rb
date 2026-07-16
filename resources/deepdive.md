@@ -563,7 +563,7 @@ class Stream < LLM::Stream
     puts content
   end
 
-  def on_tool_call(tool, error)
+  def on_tool_call(tool)
     # this callback can be used to either log a tool call,
     # or execute a tool call during a stream.
   end

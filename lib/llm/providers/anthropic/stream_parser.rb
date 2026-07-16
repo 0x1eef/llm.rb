@@ -101,7 +101,7 @@ class LLM::Anthropic
     def emit_tool(tool)
       return unless @can_emit_tool_call
       function, error = resolve_tool(tool)
-      @stream.on_tool_call(function, error)
+      error ? @stream.queue << error : @stream.on_tool_call(function)
     end
 
     def resolve_tool(tool)

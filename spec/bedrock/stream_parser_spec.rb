@@ -22,8 +22,8 @@ RSpec.describe LLM::Bedrock::StreamParser do
         @reasoning_content << value
       end
 
-      def on_tool_call(fn, error)
-        @calls << [fn, error]
+      def on_tool_call(fn)
+        @calls << fn
       end
     end.new
   end
@@ -67,12 +67,11 @@ RSpec.describe LLM::Bedrock::StreamParser do
       event_type: "contentBlockDelta"
     )
     parser.parse!({"contentBlockIndex" => 0}, event_type: "contentBlockStop")
-    fn, error = stream.calls.fetch(0)
-    expect(fn.id).to eq("call_1")
-    expect(fn.name).to eq("missing")
-    expect(fn.arguments).to eq({"command" => "date"})
-    expect(fn.tracer).to equal(stream.extra[:tracer])
-    expect(fn.model).to eq("test-model")
+    returns = stream.queue.wait
+    expect(returns.size).to eq(1)
+    error = returns.first
+    expect(error.id).to eq("call_1")
+    expect(error.name).to eq("missing")
     expect(error.to_h).to eq(
       id: "call_1", name: "missing",
       value: {error: true, type: "LLM::NoSuchToolError", message: "tool not found"}

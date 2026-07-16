@@ -259,7 +259,7 @@ class LLM::OpenAI
       return unless arguments
       function, error = resolve_tool(tool, arguments)
       @emits[:tools][index] = true
-      @stream.on_tool_call(function, error)
+      error ? @stream.queue << error : @stream.on_tool_call(function)
     end
 
     ##

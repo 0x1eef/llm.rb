@@ -105,8 +105,8 @@ RSpec.describe LLM::EventStream::Parser do
             @calls = []
           end
 
-          def on_tool_call(fn, error)
-            @calls << [fn, error]
+          def on_tool_call(fn)
+            @calls << fn
           end
         end.new
       end
@@ -119,15 +119,10 @@ RSpec.describe LLM::EventStream::Parser do
       end
 
       context "when given the emitted function" do
-        subject(:call) { stream.calls.fetch(0) }
-        subject(:fn) { call.fetch(0) }
+        subject(:fn) { stream.calls.fetch(0) }
 
         it "emits a function through on_tool_call" do
           expect(fn).to be_a(LLM::Function)
-        end
-
-        it "does not emit an error for a resolved tool" do
-          expect(call.fetch(1)).to be_nil
         end
 
         it "preserves the function id" do
@@ -153,8 +148,8 @@ RSpec.describe LLM::EventStream::Parser do
             @calls = []
           end
 
-          def on_tool_call(fn, error)
-            @calls << [fn, error]
+          def on_tool_call(fn)
+            @calls << fn
           end
         end.new
       end
@@ -165,11 +160,12 @@ RSpec.describe LLM::EventStream::Parser do
         parser << %(data: {"choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_2","type":"function","function":{"name":"missing","arguments":"{\\"command\\":\\"date\\"}"}}]}}]}\n)
       end
 
-      it "emits the tool metadata and an in-band error" do
-        fn, error = stream.calls.fetch(0)
-        expect(fn.id).to eq("call_2")
-        expect(fn.name).to eq("missing")
-        expect(fn.arguments).to eq({"command" => "date"})
+      it "enqueues an in-band error for an unresolved tool" do
+        returns = stream.queue.wait
+        expect(returns.size).to eq(1)
+        error = returns.first
+        expect(error.id).to eq("call_2")
+        expect(error.name).to eq("missing")
         expect(error.to_h).to eq(
           id: "call_2", name: "missing",
           value: {error: true, type: "LLM::NoSuchToolError", message: "tool not found"}
@@ -194,8 +190,8 @@ RSpec.describe LLM::EventStream::Parser do
             @calls = []
           end
 
-          def on_tool_call(fn, error)
-            @calls << [fn, error]
+          def on_tool_call(fn)
+            @calls << fn
           end
         end.new
       end
@@ -208,12 +204,11 @@ RSpec.describe LLM::EventStream::Parser do
       end
 
       it "emits a resolved function through on_tool_call" do
-        fn, error = stream.calls.fetch(0)
+        fn = stream.calls.fetch(0)
         expect(fn).to be_a(LLM::Function)
         expect(fn.id).to start_with("google_")
         expect(fn.name).to eq("system")
         expect(fn.arguments).to eq({"command" => "date"})
-        expect(error).to be_nil
       end
     end
 
@@ -234,8 +229,8 @@ RSpec.describe LLM::EventStream::Parser do
             @calls = []
           end
 
-          def on_tool_call(fn, error)
-            @calls << [fn, error]
+          def on_tool_call(fn)
+            @calls << fn
           end
         end.new
       end
@@ -248,7 +243,7 @@ RSpec.describe LLM::EventStream::Parser do
       end
 
       it "synthesizes a fallback function id" do
-        fn, = stream.calls.fetch(0)
+        fn = stream.calls.fetch(0)
         expect(fn.id).to eq("google_call_0_0")
       end
     end
@@ -270,8 +265,8 @@ RSpec.describe LLM::EventStream::Parser do
             @calls = []
           end
 
-          def on_tool_call(fn, error)
-            @calls << [fn, error]
+          def on_tool_call(fn)
+            @calls << fn
           end
         end.new
       end
@@ -286,12 +281,11 @@ RSpec.describe LLM::EventStream::Parser do
       end
 
       it "emits a resolved function through on_tool_call" do
-        fn, error = stream.calls.fetch(0)
+        fn = stream.calls.fetch(0)
         expect(fn).to be_a(LLM::Function)
         expect(fn.id).to eq("toolu_1")
         expect(fn.name).to eq("system")
         expect(fn.arguments).to eq({"command" => "date"})
-        expect(error).to be_nil
       end
     end
 
@@ -312,8 +306,8 @@ RSpec.describe LLM::EventStream::Parser do
             @calls = []
           end
 
-          def on_tool_call(fn, error)
-            @calls << [fn, error]
+          def on_tool_call(fn)
+            @calls << fn
           end
         end.new
       end
@@ -328,12 +322,11 @@ RSpec.describe LLM::EventStream::Parser do
       end
 
       it "emits a resolved function through on_tool_call" do
-        fn, error = stream.calls.fetch(0)
+        fn = stream.calls.fetch(0)
         expect(fn).to be_a(LLM::Function)
         expect(fn.id).to eq("call_1")
         expect(fn.name).to eq("system")
         expect(fn.arguments).to eq({"command" => "date"})
-        expect(error).to be_nil
       end
     end
 
