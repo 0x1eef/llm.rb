@@ -841,7 +841,7 @@ RSpec.describe LLM::Context do
         expect(provider).to receive(:interrupt!).with(nil).ordered.and_return(nil)
         expect(ctx.interrupt!).to be_nil
         expect(ctx.messages.last.role).to eq("assistant")
-        expect(ctx.messages.last.tool_calls).not_to be_empty
+        expect(ctx.messages.last.tool_call?).to be true
       end
     end
   end

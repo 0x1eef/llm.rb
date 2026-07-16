@@ -117,7 +117,7 @@ class LLM::Function
   # @param [Hash, LLM::Object] other
   # @return [void]
   def arguments=(other)
-    @arguments = LLM::Object.from(other)
+    @arguments = other.nil? ? nil : LLM::Object.from(other)
   end
 
   ##
