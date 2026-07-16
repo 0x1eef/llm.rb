@@ -808,18 +808,14 @@ RSpec.describe LLM::Context do
       let(:ctx) { LLM::Context.new(provider, model:, stream:) }
       let(:tool) do
         Class.new(LLM::Tool) do
-          attr_reader :interrupted
-
           name "echo"
           description "echoes a value"
 
           def call(value:)
-            sleep 0.01 until @interrupted
+            sleep 10
             {value:}
-          end
-
-          def on_interrupt
-            @interrupted = true
+          rescue LLM::Interrupt
+            {value:, interrupted: true}
           end
         end.new
       end
@@ -827,10 +823,10 @@ RSpec.describe LLM::Context do
       it "interrupts the queued tool" do
         task = tool.function.tap { _1.arguments = {value: "hello"} }.spawn(:thread)
         stream.queue << task
+        sleep 0.05 # let the thread enter the tool's call method
         expect(provider).to receive(:interrupt!).with(nil).ordered.and_return(nil)
         expect(ctx.interrupt!).to be_nil
-        expect(tool.interrupted).to eq(true)
-        expect(task.wait.value).to eq({value: "hello"})
+        expect(task.wait.value).to eq({value: "hello", interrupted: true})
       end
     end
 

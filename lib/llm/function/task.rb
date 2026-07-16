@@ -33,7 +33,14 @@ class LLM::Function
     ##
     # @return [nil]
     def interrupt!
-      task.interrupt! if task.respond_to?(:interrupt!)
+      case task
+      when Thread
+        task.raise(LLM::Interrupt)
+      when Fiber
+        task.raise(LLM::Interrupt) if task.alive?
+      else
+        task.interrupt! if task.respond_to?(:interrupt!)
+      end
       function&.interrupt!
       nil
     end
