@@ -112,9 +112,12 @@ module LLM
     #  When given an unusable path
     # @return [LLM::Agent]
     def configure(agent:, path:)
-      if path.nil? or !File.exist?(path)
+      if path.nil?
         agent
-      elsif path?
+      elsif !File.exist?(path)
+        File.write path, "{}"
+        agent
+      elsif restore?
         agent.restore(path:)
       else
         raise LLM::Error, "I can't use '#{path}' - " \
@@ -145,7 +148,7 @@ module LLM
         @thread = Thread.new do
           @queue << [:start]
           agent.talk(text, tools:, stream:)
-          agent.save(path:) if path?
+          agent.save(path:) if save?
           @queue << [:done]
         rescue => e
           @queue << [:error, e]
@@ -216,9 +219,16 @@ module LLM
 
     ##
     # @return [Boolean]
-    def path?
+    def restore?
       return false if path.nil?
-      File.readable?(path) and File.writable?(path)
+      File.writable?(path)
+    end
+
+    ##
+    # @return [Boolean]
+    def save?
+      return false if path.nil?
+      File.readable?(path)
     end
 
     attr_reader :agent, :provider, :stream,
