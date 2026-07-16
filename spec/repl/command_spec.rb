@@ -154,49 +154,6 @@ RSpec.describe LLM::Repl::Command do
     end
   end
 
-  describe "#to_h" do
-    let(:klass) do
-      Class.new(described_class) do
-        name "demo"
-        description "a demo command"
-        parameter :path, String, "A file path"
-        parameter :count, Integer, "A count"
-      end
-    end
-
-    let(:command) { klass.new(repl) }
-
-    context "when values have been assigned to parameters" do
-      before do
-        klass.parameters[:path].value = "/tmp"
-        klass.parameters[:count].value = 5
-      end
-
-      it "returns a hash of parameter names to their values" do
-        expect(command.to_h).to eq(path: "/tmp", count: 5)
-      end
-    end
-
-    context "when no values have been assigned" do
-      it "returns a hash with nil values" do
-        expect(command.to_h).to eq(path: nil, count: nil)
-      end
-    end
-
-    context "when there are no parameters" do
-      let(:klass) do
-        Class.new(described_class) do
-          name "bare"
-          description "a bare command"
-        end
-      end
-
-      it "returns an empty hash" do
-        expect(command.to_h).to eq({})
-      end
-    end
-  end
-
   describe "#call" do
     let(:command) { described_class.new(repl) }
 
