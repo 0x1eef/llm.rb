@@ -101,6 +101,12 @@ module LLM
       window.redraw
     end
 
+    ##
+    # @return [String]
+    def thinking_text
+      "thinking • Esc to cancel"
+    end
+
     private
 
     ##
@@ -141,16 +147,17 @@ module LLM
         write(text)
       in [:input, String => text]
         window.scroll_to_bottom
-        status.text = "thinking"
+        status.text = thinking_text
         write("user: ", Curses::A_BOLD)
         markdown(text)
         write("\nagent: ", Curses::A_BOLD)
         @thread = Thread.new do
           @queue << [:start]
           agent.talk(text, tools:, stream:)
-          last_message = agent.messages.last
-          agent.save(path:) if !last_message&.tool_call? and save?
+          agent.save(path:) if save?
           @queue << [:done]
+        rescue LLM::Interrupt => e
+          @queue << [:cancel, e]
         rescue => e
           @queue << [:error, e]
         end
@@ -204,14 +211,21 @@ module LLM
           self.status = value
         when :done
           status.text = "idle"
-          @thread = nil
-          transcript.finish
           write("\n\n")
+          transcript.finish
+          @thread = nil
+        when :cancel
+          status.text = "Idle"
+          write("\n\nagent: ", Curses::A_BOLD)
+          write("request cancelled!")
+          write("\n\n")
+          transcript.finish
+          @thread = nil
         when :error
           # Do this better
           status.text = "error"
-          transcript.finish
           write("\nerror: #{value.message}\n", Curses::A_BOLD)
+          transcript.finish
           @thread = nil
         end
       end

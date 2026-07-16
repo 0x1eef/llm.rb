@@ -19,6 +19,7 @@ class LLM::Repl
     DOWN      = Curses::Key::DOWN
     LEFT      = Curses::Key::LEFT
     RIGHT     = Curses::Key::RIGHT
+    ESC       = 27
     ENTER     = [Curses::Key::ENTER, 10, 13]
     BACKSPACE = [Curses::Key::BACKSPACE, 127]
 
@@ -58,7 +59,9 @@ class LLM::Repl
     # @return [Symbol, nil]
     def on_char(window, char, now)
       is_paste = lambda { @last_char_at and (now - @last_char_at) < PASTE_THRESHOLD }
-      if CTRL[:D] == char
+      if ESC == char
+        @agent.cancel!
+      elsif CTRL[:D] == char
         delete
         :ctrl_d
       elsif CTRL[:A] == char
