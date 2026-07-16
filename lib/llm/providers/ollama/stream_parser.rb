@@ -10,11 +10,11 @@ class LLM::Ollama
     attr_reader :body
 
     ##
-    # @return [LLM::OpenAI::Chunk]
+    # @param [LLM::Stream] stream
+    # @return [LLM::Ollama::StreamParser]
     def initialize(stream)
       @body = {}
       @stream = stream
-      @can_push_content = stream.respond_to?(:<<)
     end
 
     ##
@@ -37,10 +37,10 @@ class LLM::Ollama
         if key == "message"
           if @body[key]
             @body[key]["content"] << value["content"]
-            @stream << value["content"] if @can_push_content
+            @stream.on_content(value["content"])
           else
             @body[key] = value
-            @stream << value["content"] if @can_push_content
+            @stream.on_content(value["content"])
           end
         else
           @body[key] = value

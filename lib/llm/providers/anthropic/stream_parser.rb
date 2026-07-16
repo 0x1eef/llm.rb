@@ -10,15 +10,11 @@ class LLM::Anthropic
     attr_reader :body
 
     ##
-    # @param [#<<, LLM::Stream] stream
-    #  A stream sink that implements {#<<} or the {LLM::Stream} interface
+    # @param [LLM::Stream] stream
     # @return [LLM::Anthropic::StreamParser]
     def initialize(stream)
       @body = {"role" => "assistant", "content" => []}
       @stream = stream
-      @can_emit_content = stream.respond_to?(:on_content)
-      @can_emit_tool_call = stream.respond_to?(:on_tool_call)
-      @can_push_content = stream.respond_to?(:<<)
     end
 
     ##
@@ -91,15 +87,10 @@ class LLM::Anthropic
     end
 
     def emit_content(value)
-      if @can_emit_content
-        @stream.on_content(value)
-      elsif @can_push_content
-        @stream << value
-      end
+      @stream.on_content(value)
     end
 
     def emit_tool(tool)
-      return unless @can_emit_tool_call
       function, error = resolve_tool(tool)
       error ? @stream.queue << error : @stream.on_tool_call(function)
     end

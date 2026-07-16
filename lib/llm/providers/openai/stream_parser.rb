@@ -12,15 +12,12 @@ class LLM::OpenAI
     attr_reader :body
 
     ##
-    # @return [LLM::OpenAI::Chunk]
+    # @param [LLM::Stream] stream
+    # @return [LLM::OpenAI::StreamParser]
     def initialize(stream)
       @body = {}
       @stream = stream
       @emits = {tools: {}}
-      @can_emit_content = stream.respond_to?(:on_content)
-      @can_emit_reasoning_content = stream.respond_to?(:on_reasoning_content)
-      @can_emit_tool_call = stream.respond_to?(:on_tool_call)
-      @can_push_content = stream.respond_to?(:<<)
     end
 
     ##
@@ -157,21 +154,14 @@ class LLM::OpenAI
     end
 
     def emit_content(value)
-      if @can_emit_content
-        @stream.on_content(value)
-      elsif @can_push_content
-        @stream << value
-      end
+      @stream.on_content(value)
     end
 
     def emit_reasoning_content(value)
-      if @can_emit_reasoning_content
-        @stream.on_reasoning_content(value)
-      end
+      @stream.on_reasoning_content(value)
     end
 
     def emit_tool(tool, tindex)
-      return unless @can_emit_tool_call
       return if @emits[:tools][tindex]
       function = tool["function"]
       return unless function && tool["id"] && function["name"]

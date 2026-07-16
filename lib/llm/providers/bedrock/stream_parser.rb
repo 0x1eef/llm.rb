@@ -24,15 +24,11 @@ class LLM::Bedrock
     attr_reader :body
 
     ##
-    # @param [#<<, LLM::Stream] stream
+    # @param [LLM::Stream] stream
     def initialize(stream)
       @body = {"output" => {"message" => {"role" => "assistant", "content" => []}}}
       @stream = stream
       @text_markers = {}
-      @can_emit_content = stream.respond_to?(:on_content)
-      @can_emit_reasoning_content = stream.respond_to?(:on_reasoning_content)
-      @can_emit_tool_call = stream.respond_to?(:on_tool_call)
-      @can_push_content = stream.respond_to?(:<<)
     end
 
     ##
@@ -165,19 +161,14 @@ class LLM::Bedrock
     end
 
     def emit_content(value)
-      if @can_emit_content
-        @stream.on_content(value)
-      elsif @can_push_content
-        @stream << value
-      end
+      @stream.on_content(value)
     end
 
     def emit_reasoning_content(value)
-      @stream.on_reasoning_content(value) if @can_emit_reasoning_content
+      @stream.on_reasoning_content(value)
     end
 
     def emit_tool(tool)
-      return unless @can_emit_tool_call
       function, error = resolve_tool(tool)
       error ? @stream.queue << error : @stream.on_tool_call(function)
     end

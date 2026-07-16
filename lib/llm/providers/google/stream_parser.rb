@@ -10,16 +10,12 @@ class LLM::Google
     attr_reader :body
 
     ##
-    # @param [#<<, LLM::Stream] stream
-    #  A stream sink that implements {#<<} or the {LLM::Stream} interface
+    # @param [LLM::Stream] stream
     # @return [LLM::Google::StreamParser]
     def initialize(stream)
       @body = {"candidates" => []}
       @stream = stream
       @emits = {tools: []}
-      @can_emit_content = stream.respond_to?(:on_content)
-      @can_emit_tool_call = stream.respond_to?(:on_tool_call)
-      @can_push_content = stream.respond_to?(:<<)
     end
 
     ##
@@ -129,15 +125,10 @@ class LLM::Google
     end
 
     def emit_content(value)
-      if @can_emit_content
-        @stream.on_content(value)
-      elsif @can_push_content
-        @stream << value
-      end
+      @stream.on_content(value)
     end
 
     def emit_tool(pindex, cindex, part)
-      return unless @can_emit_tool_call
       return unless complete_tool?(part)
       key = [cindex, pindex]
       return if @emits[:tools].include?(key)

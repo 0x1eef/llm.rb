@@ -12,17 +12,12 @@ class LLM::OpenAI
     attr_reader :body
 
     ##
-    # @param [#<<, LLM::Stream] stream
-    #  A stream sink that implements {#<<} or the {LLM::Stream} interface
+    # @param [LLM::Stream] stream
     # @return [LLM::OpenAI::Responses::StreamParser]
     def initialize(stream)
       @body = {"output" => []}
       @stream = stream
       @emits = {tools: {}}
-      @can_emit_content = stream.respond_to?(:on_content)
-      @can_emit_reasoning_content = stream.respond_to?(:on_reasoning_content)
-      @can_emit_tool_call = stream.respond_to?(:on_tool_call)
-      @can_push_content = stream.respond_to?(:<<)
       @cached_output_index = nil
       @cached_output_item = nil
       @cached_content_index = nil
@@ -240,19 +235,14 @@ class LLM::OpenAI
     # @group Emitters
 
     def emit_content(value)
-      if @can_emit_content
-        @stream.on_content(value)
-      elsif @can_push_content
-        @stream << value
-      end
+      @stream.on_content(value)
     end
 
     def emit_reasoning_content(value)
-      @stream.on_reasoning_content(value) if @can_emit_reasoning_content
+      @stream.on_reasoning_content(value)
     end
 
     def emit_tool(index, tool)
-      return unless @can_emit_tool_call
       return if @emits[:tools][index]
       return unless tool["call_id"] && tool["name"]
       arguments = parse_arguments(tool["arguments"])
