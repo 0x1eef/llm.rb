@@ -33,7 +33,7 @@ module LLM
     # @param [Array<String>] skills
     #  Zero or more skills
     # @return [LLM::Repl]
-    def initialize(agent:, tools:, skills:, path:)
+    def initialize(agent:, tools: [], skills: [], path: nil)
       @path  = path
       @agent = configure(agent:, path:)
       @provider = agent.llm.name
