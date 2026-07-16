@@ -15,7 +15,22 @@
 
 ## What's next
 
+## v12.5.1
+
 Changes since `v12.5.0`.
+
+This release reverts the global `LLM::Function` registry fallback for tool
+resolution that was added in v12.5.0.
+
+### Change
+
+* **function: remove the global registry fallback for tool resolution** <br>
+  Remove the `LLM::Function.find_by_name` fallback that was added in
+  v12.5.0 as an intermediate step between available-tools lookup and
+  raising `LLM::NoSuchToolError`. Tool calls not found in the available
+  tools list now go directly to `function_missing` (which raises
+  `LLM::NoSuchToolError`) without first checking the global
+  `LLM::Function` registry.
 
 ## v12.5.0
 

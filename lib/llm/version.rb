@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module LLM
-  VERSION = "12.5.0"
+  VERSION = "12.5.1"
 end
