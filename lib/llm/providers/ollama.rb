@@ -98,6 +98,17 @@ module LLM
       "qwen3:latest"
     end
 
+    ##
+    # @param [LLM::Function] fn
+    # @return [Hash]
+    def adapt_function(fn)
+      params = fn.params || {type: "object", properties: {}}
+      {
+        type: "function", name: fn.name,
+        function: {name: fn.name, description: fn.description, parameters: params}
+      }.compact
+    end
+
     private
 
     def headers

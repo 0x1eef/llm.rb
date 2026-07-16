@@ -86,6 +86,16 @@ class LLM::OpenAI
       res
     end
 
+    ##
+    # @param [LLM::Function] fn
+    # @return [Hash]
+    def adapt_function(fn)
+      {
+        type: "function", name: fn.name, description: fn.description,
+        parameters: (fn.params || {type: "object", properties: {}}).to_h.merge(additionalProperties: false), strict: false
+      }.compact
+    end
+
     private
 
     [:path, :headers, :execute, :transport, :resolve_tools].each do |m|

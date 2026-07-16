@@ -358,18 +358,7 @@ class LLM::Function
   ##
   # @return [Hash]
   def adapt(provider)
-    case provider.class.to_s
-    when "LLM::Google"
-      {name: @name, description: @description, parameters: @params}.compact
-    when "LLM::Anthropic"
-      {
-        name: @name,
-        description: @description,
-        input_schema: @params || {type: "object", properties: {}}
-      }.compact
-    else
-      format_openai(provider)
-    end
+    provider.adapt_function(self)
   end
 
   ##
@@ -382,28 +371,6 @@ class LLM::Function
   end
 
   private
-
-  def format_openai(provider)
-    case provider.class.to_s
-    when "LLM::OpenAI::Responses"
-      {
-        type: "function", name: @name, description: @description,
-        parameters: (@params || {type: "object", properties: {}}).to_h.merge(additionalProperties: false), strict: false
-      }.compact
-    when "LLM::Mistral"
-      params = @params || {type: "object", properties: {}}
-      {
-        type: "function",
-        function: {name: @name, description: @description, parameters: params}
-      }.compact
-    else
-      params = @params || {type: "object", properties: {}}
-      {
-        type: "function", name: @name,
-        function: {name: @name, description: @description, parameters: params}
-      }.compact
-    end
-  end
 
   ##
   # Internal method that calls the function and returns a Return object.

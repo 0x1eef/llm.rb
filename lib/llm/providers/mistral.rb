@@ -119,6 +119,17 @@ module LLM
       "mistral-large-latest"
     end
 
+    ##
+    # @param [LLM::Function] fn
+    # @return [Hash]
+    def adapt_function(fn)
+      params = fn.params || {type: "object", properties: {}}
+      {
+        type: "function",
+        function: {name: fn.name, description: fn.description, parameters: params}
+      }.compact
+    end
+
     private
 
     ##

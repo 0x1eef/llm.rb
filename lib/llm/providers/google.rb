@@ -175,6 +175,13 @@ module LLM
       "model"
     end
 
+    ##
+    # @param [LLM::Function] fn
+    # @return [Hash]
+    def adapt_function(fn)
+      {name: fn.name, description: fn.description, parameters: fn.params}.compact
+    end
+
     private
 
     def headers

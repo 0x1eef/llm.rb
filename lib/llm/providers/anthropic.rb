@@ -82,6 +82,17 @@ module LLM
     end
 
     ##
+    # @param [LLM::Function] fn
+    # @return [Hash]
+    def adapt_function(fn)
+      {
+        name: fn.name,
+        description: fn.description,
+        input_schema: fn.params || {type: "object", properties: {}}
+      }.compact
+    end
+
+    ##
     # Anthropic expects tool results to be sent as user messages
     # containing `tool_result` content blocks rather than a distinct
     # `tool` role.

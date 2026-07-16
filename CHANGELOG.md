@@ -113,6 +113,11 @@ Changes since `v12.4.0`.
   `who:` keyword argument, or set to `who: nil` to disable it
   entirely.
 
+* **function: distribute `LLM::Function#adapt` across providers** <br>
+  Move provider-specific tool schema formatting into each provider
+  via `#adapt_function`, keeping it colocated with the code that
+  consumes it.
+
 ### Fix
 
 * **repl: don't persist parameter state between turns** <br>

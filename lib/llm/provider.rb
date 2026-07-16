@@ -349,6 +349,16 @@ class LLM::Provider
     @key != nil && @key.to_s.strip.size > 0
   end
 
+  ##
+  # Adapt a {LLM::Function} to the provider-specific tool schema.
+  # @abstract
+  # @param [LLM::Function] fn
+  # @raise [NotImplementedError]
+  # @return [Hash]
+  def adapt_function(fn)
+    raise NotImplementedError
+  end
+
   private
 
   def path(suffix, base_path: true)
