@@ -133,6 +133,9 @@ module LLM
       case on_text(text)
       in [:command, Command => command]
         command.call(**command.to_h)
+      in [:error, String => who, String => text]
+        write(who, Curses::A_BOLD)
+        write(text)
       in [:input, String => text]
         window.scroll_to_bottom
         status.text = "thinking"
@@ -159,12 +162,14 @@ module LLM
     def on_text(text)
       command = Command.find_by(input: text)
       if command
-        args = text.split(" ")[1..]
+        args = text.split(" ")[1..].reject(&:empty?)
         reqc = command.parameters.values.count(&:required?)
-        if args.size < reqc || args.size > reqc
-          raise LLM::Error, "expected #{reqc} required arguments, but got #{args.size}"
+        if args.size < reqc
+          [:error,
+           "command(#{command.name}): ",
+           "too few arguments: expected #{reqc} but got #{args.size}\n\n"]
         else
-          command.parameters.each_value { _1.value = args[_1.index]}
+          command.parameters.each_value { _1.value = args[_1.index] if args[_1.index] }
           [:command, command.new(self)]
         end
       else
