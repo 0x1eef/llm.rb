@@ -152,7 +152,8 @@ class LLM::Repl
     # Write a string to the transcript
     # @param [String] str
     # @return [void]
-    def write(str)
+    def write(str, who: "command(#{self.class.name}): ")
+      @repl.write(who, Curses::A_BOLD)
       @repl.write(str)
     end
 
