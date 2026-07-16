@@ -382,6 +382,8 @@ class LLM::Function
     runner = self.runner
     kwargs = arguments.respond_to?(:to_h) ? arguments.to_h.transform_keys(&:to_sym) : arguments
     Return.new(id, name, runner.call(**kwargs))
+  rescue LLM::Interrupt
+    raise
   rescue => ex
     Return.new(id, name, {error: true, type: ex.class.name, message: ex.message})
   end

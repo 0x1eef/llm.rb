@@ -30,6 +30,15 @@
   Sequel models using `plugin :agent` can call `set` to bulk-assign
   agent class-level defaults.
 
+### Fix
+
+* **function: raise `LLM::Interrupt` on thread where tool is running** <br>
+  On cancel, `LLM::Interrupt` is now raised on the thread that is
+  running a tool. The tool can rescue `LLM::Interrupt` and gracefully
+  terminate (e.g., clean up resources). The previous approach used
+  `Thread#interrupt` which was less reliable — it did not interrupt a
+  sleeping thread.
+
 ## v12.5.1
 
 Changes since `v12.5.0`.

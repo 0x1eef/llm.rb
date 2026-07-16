@@ -11,6 +11,8 @@ class LLM::Function
       result = super
       @tracer.on_tool_finish(result:, span:)
       result
+    rescue LLM::Interrupt
+      raise
     rescue => ex
       @tracer.on_tool_error(ex:, span:)
       raise(ex)

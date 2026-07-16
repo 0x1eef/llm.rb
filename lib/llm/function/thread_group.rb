@@ -68,7 +68,7 @@ class LLM::Function
     ##
     # @return [nil]
     def interrupt!
-      @threads.each(&:interrupt!)
+      @threads.each { _1.task.raise LLM::Interrupt }
       nil
     end
     alias_method :cancel!, :interrupt!
