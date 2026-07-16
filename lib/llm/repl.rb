@@ -148,7 +148,8 @@ module LLM
         @thread = Thread.new do
           @queue << [:start]
           agent.talk(text, tools:, stream:)
-          agent.save(path:) if save?
+          last_message = agent.messages.last
+          agent.save(path:) if !last_message&.tool_call? and save?
           @queue << [:done]
         rescue => e
           @queue << [:error, e]
