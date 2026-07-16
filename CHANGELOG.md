@@ -222,10 +222,16 @@ Changes since `v12.4.0`.
 
 ### Refresh
 
-* **Refresh Google model metadata** <br>
-  Update Google model pricing, reasoning options (switched from
-  toggle/budget-token to effort-based reasoning), modalities
-  (audio/video ordering), and release dates in the registry.
+* **Refresh model metadata across all providers** <br>
+  Update model listings, pricing, capabilities, reasoning options,
+  modality support, context limits, and release dates across all
+  provider registries (Anthropic, AWS Bedrock, DeepInfra, DeepSeek,
+  Google, Mistral, OpenAI, xAI, and ZAI). Notable changes include
+  Anthropic claude-opus-4-8 and claude-sonnet-4-6 additions with
+  effort-based reasoning, OpenAI gpt-5.6-sol/terra/luna and
+  gpt-5-codex additions, Google gemini-3-pro-preview and
+  gemini-3-flash-preview additions, DeepInfra Qwen3.5 and DeepSeek
+  V4 model additions, and updated xAI Grok model entries.
 
 ## v12.4.0
 
