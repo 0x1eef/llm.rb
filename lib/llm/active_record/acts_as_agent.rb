@@ -17,8 +17,40 @@ module LLM::ActiveRecord
   # class and forwarded to an internal agent subclass.
   module ActsAsAgent
     module ClassMethods
+      ##
+      # @return [Class<LLM::Agent>]
       def agent
         @agent ||= Class.new(LLM::Agent)
+      end
+
+      ##
+      # Bulk-assign class-level agent defaults.
+      #
+      # Each key is resolved by calling the corresponding class method on the
+      # internal agent subclass.
+      #
+      # @example
+      #   class Agent < ApplicationRecord
+      #     acts_as_agent
+      #     set model: "gpt-4.1-nano",
+      #         tools: [Shell],
+      #         instructions: "You are a system administrator"
+      #   end
+      #
+      # @param [Hash] properties
+      # @option properties [String] :model
+      # @option properties [Array<LLM::Function>] :tools
+      # @option properties [Array<String>] :skills
+      # @option properties [#to_json] :schema
+      # @option properties [String] :instructions
+      # @option properties [Symbol, Array<Symbol>] :concurrency
+      # @option properties [LLM::Tracer, Proc] :tracer
+      # @option properties [Object, Proc] :stream
+      # @option properties [String, Symbol, Array<String, Symbol>, Proc] :confirm
+      # @raise [KeyError] when a property key does not match a class-level accessor
+      # @return [void]
+      def set(properties)
+        agent.set(properties)
       end
     end
 

@@ -4,10 +4,10 @@ require "llm"
 require "llm/tools"
 
 class Coder < LLM::Agent
-  instructions :set_instructions
-  tools :set_tools
-  tracer :set_tracer
-  concurrency :thread
+  set :instructions => :set_instructions,
+      :tools        => :set_tools,
+      :tracer       => :set_tracer,
+      :concurrency  => :thread
 
   def run
     talk("Let's implement our research")

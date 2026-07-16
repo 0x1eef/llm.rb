@@ -43,6 +43,42 @@ module LLM
     attr_reader :llm
 
     ##
+    # Bulk-assign class-level agent defaults from a Hash.
+    #
+    # Each key is resolved by calling the corresponding class method on the
+    # agent subclass. An error is raised for unknown keys so that typos are
+    # caught early.
+    #
+    # @example
+    #   class AdminAgent < LLM::Agent
+    #     set model: "gpt-4.1-nano",
+    #         tools: [Shell, ReadFile],
+    #         instructions: "You are a system administrator"
+    #   end
+    #
+    # @param [Hash] properties
+    # @option properties [String] :model
+    # @option properties [Array<LLM::Function>] :tools
+    # @option properties [Array<String>] :skills
+    # @option properties [#to_json] :schema
+    # @option properties [String] :instructions
+    # @option properties [Symbol, Array<Symbol>] :concurrency
+    # @option properties [LLM::Tracer, Proc] :tracer
+    # @option properties [Object, Proc] :stream
+    # @option properties [String, Symbol, Array<String, Symbol>, Proc] :confirm
+    # @raise [KeyError] when a property key does not match a class-level accessor
+    # @return [void]
+    def self.set(properties)
+      properties.each do
+        if respond_to?(_1)
+          public_send(_1, _2)
+        else
+          raise KeyError, "key not found: #{_1}"
+        end
+      end
+    end
+
+    ##
     # Set or get the default model
     # @param [String, nil] model
     #  The model identifier

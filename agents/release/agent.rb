@@ -5,10 +5,10 @@ require "llm"
 require "llm/tools"
 
 class Agent < LLM::Agent
-  instructions :set_instructions
-  tools :set_tools
-  tracer :set_tracer
-  concurrency :thread
+  set :instructions => :set_instructions,
+      :tools        => :set_tools,
+      :tracer       => :set_tracer,
+      :concurrency  => :thread
 
   def run(version:)
     talk("Let's prepare the #{version} release")
