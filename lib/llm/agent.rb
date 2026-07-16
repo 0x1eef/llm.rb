@@ -464,9 +464,10 @@ module LLM
 
     ##
     # @param (see LLM::Context#deserialize)
-    # @return (see LLM::Context#deserialize)
+    # @return [LLM::Agent]
     def deserialize(**kw)
       @ctx.deserialize(**kw)
+      self
     end
     alias_method :restore, :deserialize
 

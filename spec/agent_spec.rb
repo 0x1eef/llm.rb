@@ -447,6 +447,42 @@ RSpec.describe LLM::Agent do
         expect(agent.wait(:thread)).to eq(returns)
       end
     end
+
+    describe "#serialize" do
+      it "forwards to the context" do
+        expect(ctx).to receive(:serialize).with(path: "state.json")
+        agent.serialize(path: "state.json")
+      end
+    end
+
+    describe "#save" do
+      it "aliases #serialize" do
+        expect(ctx).to receive(:serialize).with(path: "state.json")
+        agent.save(path: "state.json")
+      end
+    end
+
+    describe "#deserialize" do
+      it "forwards to the context" do
+        expect(ctx).to receive(:deserialize).with(path: "state.json")
+        agent.deserialize(path: "state.json")
+      end
+
+      it "returns the agent (enables chaining)" do
+        allow(ctx).to receive(:deserialize)
+        result = agent.deserialize(path: "state.json")
+        expect(result).to be(agent)
+      end
+    end
+
+    describe "#restore" do
+      it "aliases #deserialize and returns the agent" do
+        allow(ctx).to receive(:deserialize)
+        result = agent.restore(path: "state.json")
+        expect(result).to be(agent)
+        expect(ctx).to have_received(:deserialize).with(path: "state.json")
+      end
+    end
   end
 
   describe "tool loop concurrency" do
