@@ -120,7 +120,9 @@ module LLM
     # @return [Array<LLM::Function>]
     def functions
       @functions ||= tool_calls.filter_map do |fn|
-        function = available_tools.find { _1.name.to_s == fn.name } || function_missing(fn.name)
+        function = available_tools.find { _1.name.to_s == fn.name } ||
+                   LLM::Function.find_by_name(fn.name) ||
+                   function_missing(fn.name)
         function = function.dup
         function.tap { _1.id = fn.id }
         function.tap { _1.arguments = fn.arguments }
