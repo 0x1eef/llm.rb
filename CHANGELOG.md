@@ -46,6 +46,11 @@ Changes since `v12.4.0`.
   end
   ```
 
+* **context: alias `LLM::Context#functions` as `LLM::Context#pending_functions`** <br>
+  Add `LLM::Context#pending_functions` as an alias for `LLM::Context#functions`,
+  so callers that prefer the more descriptive `pending_functions` name can use
+  it instead of `functions` when checking for unresolved tool work.
+
 * **repl: add `LLM::Repl::Command#write`** <br>
   Commands can now write output to the transcript via the `write`
   method. Commands also receive a reference to the active repl
