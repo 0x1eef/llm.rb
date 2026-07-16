@@ -127,6 +127,13 @@ Changes since `v12.4.0`.
   turn, keeping the original parameter definitions intact and
   preventing stale state from carrying over.
 
+* **repl: reply with error when given an invalid tool** <br>
+  When the model tries to call a tool that does not exist, the
+  error is now pushed onto the stream queue so the model can
+  see the error and correct course, instead of silently dropping
+  the invalid tool call and leaving it to `Context#repair` to
+  remove it from history.
+
 ### Refresh
 
 * **Refresh Google model metadata** <br>

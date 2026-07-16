@@ -32,6 +32,7 @@ class LLM::Repl
     # @return [void]
     def on_tool_call(tool, error)
       if error
+        queue << error
         @_queue.push [:status, "tool not found: #{tool.name}"]
       else
         @_queue.push [:status, "#{tool.name}(#{format_args(tool)})"]
