@@ -215,8 +215,9 @@ the tracer associated with an instance of
 ```ruby
 require "llm"
 
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
+llm    = LLM.deepseek(key: ENV["KEY"])
+tracer = LLM.logger(llm, path: "agent.log")
+agent  = LLM::Agent.new(llm, tracer:)
 agent.repl(tracer: true, tools: [Debugger])
 ```
 
