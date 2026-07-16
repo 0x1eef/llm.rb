@@ -266,6 +266,7 @@ module LLM
     def functions
       @tracer ? @llm.with_tracer(@tracer) { @ctx.functions } : @ctx.functions
     end
+    alias_method :pending_functions, :functions
 
     ##
     # @see LLM::Context#returns
