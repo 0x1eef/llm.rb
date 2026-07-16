@@ -169,7 +169,16 @@ module LLM
            "command(#{command.name}): ",
            "too few arguments: expected #{reqc} but got #{args.size}\n\n"]
         else
-          command.parameters.each_value { _1.value = args[_1.index] if args[_1.index] }
+          command.parameters.each_value do |parameter|
+            if parameter.optional?
+              ##
+              # skip: the command can define defaults
+              # eg - def call(foo: [])
+              next
+            elsif args[parameter.index]
+              parameter.value = args[parameter.index]
+            end
+          end
           [:command, command.new(self)]
         end
       else
