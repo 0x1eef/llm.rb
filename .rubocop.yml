@@ -93,3 +93,5 @@ Layout/MultilineOperationIndentation:
   Enabled: false
 Lint/UnderscorePrefixedVariableName:
   Enabled: false
+Style/YodaCondition:
+  Enabled: false
