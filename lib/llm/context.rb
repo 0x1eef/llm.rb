@@ -257,6 +257,7 @@ module LLM
           end
         end.extend(LLM::Function::Array)
     end
+    alias_method :pending_functions, :functions
 
     ##
     # Returns whether there is pending tool work in this context.
