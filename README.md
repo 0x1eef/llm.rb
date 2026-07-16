@@ -185,7 +185,7 @@ with all of the builtin tools available.
 
 ```ruby
 require "llm"
-require "lll/tools"
+require "llm/tools"
 
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
