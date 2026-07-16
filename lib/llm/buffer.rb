@@ -78,6 +78,13 @@ module LLM
     end
 
     ##
+    # Pop the last element from the tail of the buffer
+    # @return [void]
+    def pop
+      @messages.pop
+    end
+
+    ##
     # @param [[LLM::Message]] item
     #  A message to add to the buffer
     # @return [void]
