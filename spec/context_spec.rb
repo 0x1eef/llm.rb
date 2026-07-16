@@ -837,13 +837,11 @@ RSpec.describe LLM::Context do
         )
       end
 
-      it "appends cancellation tool returns" do
+      it "discards the turn without appending tool returns" do
         expect(provider).to receive(:interrupt!).with(nil).ordered.and_return(nil)
         expect(ctx.interrupt!).to be_nil
-        expect(ctx.messages.last.role).to eq(provider.tool_role.to_s)
-        expect(ctx.messages.last.content).to all(be_a(LLM::Function::Return))
-        expect(ctx.messages.last.content.map(&:id)).to eq(["call_1"])
-        expect(ctx.messages.last.content.map(&:value)).to eq([{cancelled: true, reason: "function call cancelled"}])
+        expect(ctx.messages.last.role).to eq("assistant")
+        expect(ctx.messages.last.tool_calls).not_to be_empty
       end
     end
   end
