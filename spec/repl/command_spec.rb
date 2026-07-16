@@ -5,6 +5,9 @@ require "llm/repl"
 
 RSpec.describe LLM::Repl::Command do
   before(:each) { described_class.registry.clear }
+  let(:llm) { LLM.deepseek(key: ENV["test"]) }
+  let(:agent) { LLM::Agent.new(llm) }
+  let(:repl) { LLM::Repl.new(agent:) }
 
   describe ".parameter" do
     let(:command) do
@@ -144,7 +147,7 @@ RSpec.describe LLM::Repl::Command do
       end
     end
 
-    let(:command) { klass.new }
+    let(:command) { klass.new(repl) }
 
     it "delegates to the class-level parameters" do
       expect(command.parameters).to eq(klass.parameters)
@@ -161,7 +164,7 @@ RSpec.describe LLM::Repl::Command do
       end
     end
 
-    let(:command) { klass.new }
+    let(:command) { klass.new(repl) }
 
     context "when values have been assigned to parameters" do
       before do
@@ -195,7 +198,7 @@ RSpec.describe LLM::Repl::Command do
   end
 
   describe "#call" do
-    let(:command) { described_class.new }
+    let(:command) { described_class.new(repl) }
 
     it "raises NotImplementedError" do
       expect { command.call }
