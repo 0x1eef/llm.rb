@@ -51,6 +51,20 @@
   not attempt to interrupt a stale fiber reference from a prior
   call.
 
+* **function: raise `LLM::Interrupt` on thread waiting in `CallGroup#wait`** <br>
+  When using `ctx.wait(:call)`, `LLM::Interrupt` is now raised on the
+  thread executing the sequential tool wait. `CallGroup#wait` tracks the
+  active thread and `interrupt!` raises `LLM::Interrupt` on it, enabling
+  interruption of the `:call` concurrency strategy just like the existing
+  `:thread` strategy.
+
+* **function: raise `LLM::Interrupt` on fiber-backed tool tasks** <br>
+  `LLM::Interrupt` is now raised on the active fiber via `Fiber#raise`
+  when interrupting `:fiber`-concurrency tools, and `Task#interrupt!`
+  dispatches by task type — `Thread#raise` for threads, `Fiber#raise`
+  for fibers — making interruption reliable across all concurrency
+  strategies.
+
 ## v12.5.1
 
 Changes since `v12.5.0`.
