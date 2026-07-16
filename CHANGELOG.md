@@ -128,7 +128,7 @@ Changes since `v12.4.0`.
   Add `LLM::Command = LLM::Repl::Command` as a shorter alias,
   available once `"llm/repl"` is required.
 
-#### REPL cancellation
+#### Misc
 
 * **repl: implement cancellation with the 'Esc' key** <br>
   The curses-based REPL now supports cancelling an active model
@@ -140,21 +140,17 @@ Changes since `v12.4.0`.
 
 ### Change
 
-#### Provider defaults
+#### Misc
 
 * **provider: increase default timeout to 900s** <br>
   The default HTTP timeout for all providers has been increased from
   180 to 900 seconds (15 minutes) to better accommodate long-running
   requests such as reasoning models and large structured outputs.
 
-#### Agent API
-
 * **agent: `deserialize` and `restore` return `self`** <br>
   `LLM::Agent#deserialize` and `LLM::Agent#restore` now return `self`
   (the agent instance) instead of forwarding the context's return
   value, enabling method chaining after restoring agent state.
-
-#### Context internals
 
 * **context: discard all messages from a cancelled turn** <br>
   When `LLM::Context#cancel!` is called, all messages added during
@@ -163,8 +159,6 @@ Changes since `v12.4.0`.
   cancellation loops. The `#repair!` method now handles tool call
   cancellations on the next turn instead of mutating the conversation
   buffer directly at cancellation time.
-
-#### Stream API
 
 * **stream: drop the `error` argument from `on_tool_call`** <br>
   The `on_tool_call` callback no longer accepts an `error` argument.
@@ -191,7 +185,7 @@ Changes since `v12.4.0`.
 
 ### Fix
 
-#### Function resolution
+#### Misc
 
 * **function: avoid silent skip of tools not found in available tools** <br>
   When a model calls a tool that is not present in the available tools
