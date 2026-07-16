@@ -99,6 +99,14 @@ Changes since `v12.4.0`.
   end
   ```
 
+* **repl: implement cancellation with the 'Esc' key** <br>
+  The curses-based REPL now supports cancelling an active model
+  request by pressing the 'Esc' key. When a request is in progress,
+  the status line shows `thinking • Esc to cancel`, and pressing
+  Esc calls `LLM::Agent#cancel!` to interrupt the request. The
+  transcript displays `request cancelled!` to confirm the
+  cancellation.
+
 ### Change
 
 * **repl: pass the repl instance to command constructors** <br>
@@ -113,10 +121,13 @@ Changes since `v12.4.0`.
   `who:` keyword argument, or set to `who: nil` to disable it
   entirely.
 
-* **function: distribute `LLM::Function#adapt` across providers** <br>
-  Move provider-specific tool schema formatting into each provider
-  via `#adapt_function`, keeping it colocated with the code that
-  consumes it.
+* **context: discard all messages from a cancelled turn** <br>
+  When `LLM::Context#cancel!` is called, all messages added during
+  that turn are now discarded via `Buffer#slice!`, preventing edge
+  cases where dangling tool calls between turns caused repeated
+  cancellation loops. The `#repair!` method now handles tool call
+  cancellations on the next turn instead of mutating the conversation
+  buffer directly at cancellation time.
 
 * **stream: drop the `error` argument from `on_tool_call`** <br>
   The `on_tool_call` callback no longer accepts an `error` argument.
@@ -142,6 +153,13 @@ Changes since `v12.4.0`.
   see the error and correct course, instead of silently dropping
   the invalid tool call and leaving it to `Context#repair` to
   remove it from history.
+
+* **repl: fix save of initial runtime state** <br>
+  Fix a bug in `LLM::Repl#configure` where a non-existent path
+  argument was treated as no path at all, preventing the initial
+  runtime state from being saved after the first turn. The correct
+  behavior is to create the file so it can be written to after
+  the first turn completes.
 
 ### Refresh
 
