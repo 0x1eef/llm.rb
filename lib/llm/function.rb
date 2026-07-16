@@ -256,7 +256,7 @@ class LLM::Function
       LLM.require "async" unless defined?(::Async)
       Async { call! }
     when :thread
-      Thread.new { call! }
+      Thread.new { call! }.tap { _1.report_on_exception = false }
     when :fiber
       raise ArgumentError, "Fiber concurrency requires Fiber.scheduler" unless Fiber.scheduler
       Fiber.schedule { call! }
