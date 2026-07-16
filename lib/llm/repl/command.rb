@@ -24,6 +24,12 @@ class LLM::Repl
       end
 
       ##
+      # @return [Boolean]
+      def optional?
+        not required?
+      end
+
+      ##
       # Assign a parameter value - with type checks
       # @param [String] other
       # @return [void]
