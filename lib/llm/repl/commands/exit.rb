@@ -16,4 +16,8 @@ class LLM::Repl
       throw(:exit)
     end
   end
+
+  class Command::Quit < Command::Exit
+    name "quit"
+  end
 end

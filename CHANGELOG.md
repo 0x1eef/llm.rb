@@ -88,12 +88,39 @@ Changes since `v12.4.0`.
   Add `LLM::Command = LLM::Repl::Command` as a shorter alias,
   available once `"llm/repl"` is required.
 
+* **repl: add support for command aliases** <br>
+  Commands can now be aliased by creating a subclass of another
+  command (with `LLM::Command` as an indirect ancestor). The
+  first alias introduced is `/quit` as an alias of `/exit`.
+
+  ```ruby
+  class Quit < Command::Exit
+    name "quit"
+  end
+  ```
+
 ### Change
 
 * **repl: pass the repl instance to command constructors** <br>
   `LLM::Repl::Command` subclasses now receive the active repl
   instance via `initialize(repl)`, enabling commands to write
   to the transcript and interact with the repl window.
+
+* **repl: `Command#write` prefixes messages with the command name** <br>
+  The `#write` method now prefixes output with `command(<name>): `
+  so command messages are consistent with the `user:` and `agent:`
+  labels in the transcript. The prefix can be customised with the
+  `who:` keyword argument, or set to `who: nil` to disable it
+  entirely.
+
+### Fix
+
+* **repl: don't persist parameter state between turns** <br>
+  Parameter state (such as `Parameter#value`) was leaking across
+  turns because the same parameter objects were being mutated
+  in place. A duplicate set of parameters is now created for each
+  turn, keeping the original parameter definitions intact and
+  preventing stale state from carrying over.
 
 ### Refresh
 

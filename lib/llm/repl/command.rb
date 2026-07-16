@@ -8,7 +8,8 @@ class LLM::Repl
   # command is accessible via the `/` prefix: eg `/exit`.
   class Command
     UNDEFINED = Object.new
-    private_constant :UNDEFINED
+    SINGLETON = self
+    private_constant :UNDEFINED, :SINGLETON
 
     ##
     # @api private
@@ -77,6 +78,7 @@ class LLM::Repl
       LLM.lock(:inherited) do
         registry << command
         command.instance_variable_set(:@parameters, {})
+        command.define_singleton_method(:inherited) { |command| SINGLETON.inherited(command) }
       end
     end
 
