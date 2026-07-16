@@ -17,6 +17,53 @@
 
 Changes since `v12.4.0`.
 
+### Add
+
+* **repl: add `LLM::Repl::Command#write`** <br>
+  Commands can now write output to the transcript via the `write`
+  method. Commands also receive a reference to the active repl
+  through their `#initialize` method, making it possible to
+  interact with the repl window from within a command.
+
+* **repl: extend command system with parameter support** <br>
+  Commands can now declare typed parameters using the `parameter`
+  DSL, modelled after `LLM::Tool` and `LLM::Schema` conventions.
+  Parameters can be marked as required with `required %i[...]`,
+  and values are type-checked before being passed to `call`.
+  Argument parsing is handled by the repl: arguments are split
+  from the input string and assigned to parameters by position.
+
+  ```ruby
+  class Greeter < LLM::Command
+    name "greet"
+    description "Greets the given name"
+    parameter :name, String, "The person's name"
+    required %i[name]
+
+    def call(name:)
+      write("Welcome #{name}!\n")
+    end
+  end
+  ```
+
+* **repl: add `LLM::Command` convenience constant** <br>
+  Add `LLM::Command = LLM::Repl::Command` as a shorter alias,
+  available once `"llm/repl"` is required.
+
+### Change
+
+* **repl: pass the repl instance to command constructors** <br>
+  `LLM::Repl::Command` subclasses now receive the active repl
+  instance via `initialize(repl)`, enabling commands to write
+  to the transcript and interact with the repl window.
+
+### Refresh
+
+* **Refresh Google model metadata** <br>
+  Update Google model pricing, reasoning options (switched from
+  toggle/budget-token to effort-based reasoning), modalities
+  (audio/video ordering), and release dates in the registry.
+
 ## v12.4.0
 
 Changes since `v12.3.1`.
