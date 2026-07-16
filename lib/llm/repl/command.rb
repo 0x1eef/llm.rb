@@ -30,7 +30,7 @@ class LLM::Repl
       ##
       # @return [Boolean]
       def optional?
-        not required?
+        !required?
       end
 
       ##
