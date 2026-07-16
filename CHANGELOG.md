@@ -15,7 +15,31 @@
 
 ## What's next
 
+Changes since `v12.5.0`.
+
+## v12.5.0
+
 Changes since `v12.4.0`.
+
+This release extends the REPL command system with typed parameters, a
+built-in `/help` command, command aliases (`/quit`), and cancellation
+via the 'Esc' key.
+
+The default HTTP timeout is increased to 15 minutes (900s) to better
+accommodate reasoning models and large structured outputs.
+`LLM::Agent#deserialize` and `LLM::Agent#restore` now return `self` for
+method chaining, and `LLM::Buffer#pop` is added for tail-end message
+removal.
+
+Tool resolution gains a fallback to the global `LLM::Function` registry
+before raising `LLM::NoSuchToolError`, and `pending_functions` aliases
+are added on both contexts and agents for a consistent interface.
+
+Several REPL bugs are fixed including parameter state leakage across
+turns and invalid tool-call error routing.
+
+Model metadata is refreshed across all providers with new Anthropic,
+OpenAI, Google, DeepInfra, DeepSeek, and xAI model entries.
 
 ### Add
 
