@@ -19,6 +19,8 @@ Changes since `v12.4.0`.
 
 ### Add
 
+#### Buffer & function internals
+
 * **buffer: add `LLM::Buffer#pop`** <br>
   Add `LLM::Buffer#pop` for removing the last message from the tail
   of the buffer, complementing the existing `#<<` and array-style
@@ -31,6 +33,62 @@ Changes since `v12.4.0`.
   creating a placeholder function. This improves tool resolution for
   tools that are registered globally but not passed directly through
   the request tool set.
+
+#### Consistent `pending_functions` aliases
+
+* **context: alias `LLM::Context#functions` as `LLM::Context#pending_functions`** <br>
+  Add `LLM::Context#pending_functions` as an alias for `LLM::Context#functions`,
+  so callers that prefer the more descriptive `pending_functions` name can use
+  it instead of `functions` when checking for unresolved tool work.
+
+* **agent: alias `LLM::Agent#functions` as `LLM::Agent#pending_functions`** <br>
+  Add `LLM::Agent#pending_functions` as an alias for `LLM::Agent#functions`,
+  matching the same alias on `LLM::Context`, so callers have a consistent
+  `pending_functions` interface across both contexts and agents.
+
+#### REPL command system
+
+* **repl: extend command system with parameter support** <br>
+  Commands can now declare typed parameters using the `parameter`
+  DSL, modelled after `LLM::Tool` and `LLM::Schema` conventions.
+  Parameters can be marked as required with `required %i[...]`,
+  and values are type-checked before being passed to `call`.
+  Argument parsing is handled by the repl: arguments are split
+  from the input string and assigned to parameters by position.
+
+  ```ruby
+  class Greeter < LLM::Command
+    name "greet"
+    description "Greets the given name"
+    parameter :name, String, "The person's name"
+    required %i[name]
+
+    def call(name:)
+      write("Welcome #{name}!\n")
+    end
+  end
+  ```
+
+* **repl: add `Command::Parameter#optional?`** <br>
+  Parameters now expose an `#optional?` method that returns `true`
+  when a parameter has not been marked as required, making it
+  possible to query parameter optionality programmatically.
+
+* **repl: add `LLM::Repl::Command#write`** <br>
+  Commands can now write output to the transcript via the `write`
+  method. Commands also receive a reference to the active repl
+  through their `#initialize` method, making it possible to
+  interact with the repl window from within a command.
+
+* **repl: display command errors in the curses UI** <br>
+  Commands invoked with too few arguments now display an error
+  message — `command(<name>): too few arguments` — directly in
+  the curses transcript area, giving immediate feedback instead
+  of silently failing.
+
+* **repl: add `LLM::Command` convenience constant** <br>
+  Add `LLM::Command = LLM::Repl::Command` as a shorter alias,
+  available once `"llm/repl"` is required.
 
 * **repl: add `help` command** <br>
   Add `LLM::Repl::Help` as a new built-in command, registered
@@ -59,58 +117,6 @@ Changes since `v12.4.0`.
   end
   ```
 
-* **context: alias `LLM::Context#functions` as `LLM::Context#pending_functions`** <br>
-  Add `LLM::Context#pending_functions` as an alias for `LLM::Context#functions`,
-  so callers that prefer the more descriptive `pending_functions` name can use
-  it instead of `functions` when checking for unresolved tool work.
-
-* **agent: alias `LLM::Agent#functions` as `LLM::Agent#pending_functions`** <br>
-  Add `LLM::Agent#pending_functions` as an alias for `LLM::Agent#functions`,
-  matching the same alias on `LLM::Context`, so callers have a consistent
-  `pending_functions` interface across both contexts and agents.
-
-* **repl: add `LLM::Repl::Command#write`** <br>
-  Commands can now write output to the transcript via the `write`
-  method. Commands also receive a reference to the active repl
-  through their `#initialize` method, making it possible to
-  interact with the repl window from within a command.
-
-* **repl: extend command system with parameter support** <br>
-  Commands can now declare typed parameters using the `parameter`
-  DSL, modelled after `LLM::Tool` and `LLM::Schema` conventions.
-  Parameters can be marked as required with `required %i[...]`,
-  and values are type-checked before being passed to `call`.
-  Argument parsing is handled by the repl: arguments are split
-  from the input string and assigned to parameters by position.
-
-  ```ruby
-  class Greeter < LLM::Command
-    name "greet"
-    description "Greets the given name"
-    parameter :name, String, "The person's name"
-    required %i[name]
-
-    def call(name:)
-      write("Welcome #{name}!\n")
-    end
-  end
-  ```
-
-* **repl: add `Command::Parameter#optional?`** <br>
-  Parameters now expose an `#optional?` method that returns `true`
-  when a parameter has not been marked as required, making it
-  possible to query parameter optionality programmatically.
-
-* **repl: display command errors in the curses UI** <br>
-  Commands invoked with too few arguments now display an error
-  message — `command(<name>): too few arguments` — directly in
-  the curses transcript area, giving immediate feedback instead
-  of silently failing.
-
-* **repl: add `LLM::Command` convenience constant** <br>
-  Add `LLM::Command = LLM::Repl::Command` as a shorter alias,
-  available once `"llm/repl"` is required.
-
 * **repl: add support for command aliases** <br>
   Commands can now be aliased by creating a subclass of another
   command (with `LLM::Command` as an indirect ancestor). The
@@ -122,6 +128,8 @@ Changes since `v12.4.0`.
   end
   ```
 
+#### REPL cancellation
+
 * **repl: implement cancellation with the 'Esc' key** <br>
   The curses-based REPL now supports cancelling an active model
   request by pressing the 'Esc' key. When a request is in progress,
@@ -132,15 +140,42 @@ Changes since `v12.4.0`.
 
 ### Change
 
+#### Provider defaults
+
 * **provider: increase default timeout to 900s** <br>
   The default HTTP timeout for all providers has been increased from
   180 to 900 seconds (15 minutes) to better accommodate long-running
   requests such as reasoning models and large structured outputs.
 
+#### Agent API
+
 * **agent: `deserialize` and `restore` return `self`** <br>
   `LLM::Agent#deserialize` and `LLM::Agent#restore` now return `self`
   (the agent instance) instead of forwarding the context's return
   value, enabling method chaining after restoring agent state.
+
+#### Context internals
+
+* **context: discard all messages from a cancelled turn** <br>
+  When `LLM::Context#cancel!` is called, all messages added during
+  that turn are now discarded via `Buffer#slice!`, preventing edge
+  cases where dangling tool calls between turns caused repeated
+  cancellation loops. The `#repair!` method now handles tool call
+  cancellations on the next turn instead of mutating the conversation
+  buffer directly at cancellation time.
+
+#### Stream API
+
+* **stream: drop the `error` argument from `on_tool_call`** <br>
+  The `on_tool_call` callback no longer accepts an `error` argument.
+  Previously, stream parsers passed both a tool and an optional error,
+  requiring boilerplate like `if error; queue << error; end` in every
+  callback. Error handling is now pushed directly onto the stream queue
+  inside each provider's stream parser, so `on_tool_call(tool)` is the
+  only signature. The REPL stream and base `LLM::Stream` class have
+  been updated accordingly.
+
+#### REPL internals
 
 * **repl: pass the repl instance to command constructors** <br>
   `LLM::Repl::Command` subclasses now receive the active repl
@@ -154,24 +189,9 @@ Changes since `v12.4.0`.
   `who:` keyword argument, or set to `who: nil` to disable it
   entirely.
 
-* **context: discard all messages from a cancelled turn** <br>
-  When `LLM::Context#cancel!` is called, all messages added during
-  that turn are now discarded via `Buffer#slice!`, preventing edge
-  cases where dangling tool calls between turns caused repeated
-  cancellation loops. The `#repair!` method now handles tool call
-  cancellations on the next turn instead of mutating the conversation
-  buffer directly at cancellation time.
-
-* **stream: drop the `error` argument from `on_tool_call`** <br>
-  The `on_tool_call` callback no longer accepts an `error` argument.
-  Previously, stream parsers passed both a tool and an optional error,
-  requiring boilerplate like `if error; queue << error; end` in every
-  callback. Error handling is now pushed directly onto the stream queue
-  inside each provider's stream parser, so `on_tool_call(tool)` is the
-  only signature. The REPL stream and base `LLM::Stream` class have
-  been updated accordingly.
-
 ### Fix
+
+#### Function resolution
 
 * **function: avoid silent skip of tools not found in available tools** <br>
   When a model calls a tool that is not present in the available tools
@@ -182,6 +202,8 @@ Changes since `v12.4.0`.
   An additional fallback to the global `LLM::Function` registry is
   tried before raising, so globally registered tools are still
   resolved even when not in the per-request tool set.
+
+#### REPL bugs
 
 * **repl: don't persist parameter state between turns** <br>
   Parameter state (such as `Parameter#value`) was leaking across
