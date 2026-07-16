@@ -7,6 +7,9 @@ class LLM::Repl
   # description. This basic version does not implement parameters. A
   # command is accessible via the `/` prefix: eg `/exit`.
   class Command
+    UNDEFINED = Object.new
+    private_constant :UNDEFINED
+
     ##
     # @api private
     Parameter = Struct.new(:name, :type, :description, :options, :index, :value) do
@@ -58,15 +61,15 @@ class LLM::Repl
     # @param [String] input
     # @param [String] name
     # @return [LLM::Repl::Command, nil]
-    def self.find_by(input: nil, name: nil)
-      if input
+    def self.find_by(input: UNDEFINED, name: UNDEFINED)
+      if input != UNDEFINED
         return nil unless input[0] == "/"
         n, = input.split(" ")
         registry.find { n[1..] == _1.name }
-      elsif name
+      elsif name != UNDEFINED
         registry.find { name == _1.name }
       else
-        raise ArgumentError, "provide one of: input, name"
+        raise ArgumentError, "provide either an input or a name"
       end
     end
 
