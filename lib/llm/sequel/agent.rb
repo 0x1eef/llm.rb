@@ -47,17 +47,17 @@ module LLM::Sequel
       # @example
       #   class Agent < Sequel::Model
       #     plugin :llm_agent
-      #     set model: "gpt-4.1-nano",
-      #         tools: [Shell],
-      #         instructions: "You are a system administrator"
+      #     set instructions: "You are a system administrator",
+      #         model: "gpt-4.1-nano",
+      #         tools: [Shell]
       #   end
       #
       # @param [Hash] properties
+      # @option properties [String] :instructions
       # @option properties [String] :model
       # @option properties [Array<LLM::Function>] :tools
       # @option properties [Array<String>] :skills
       # @option properties [#to_json] :schema
-      # @option properties [String] :instructions
       # @option properties [Symbol, Array<Symbol>] :concurrency
       # @option properties [LLM::Tracer, Proc] :tracer
       # @option properties [Object, Proc] :stream

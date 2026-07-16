@@ -188,11 +188,11 @@ be simpler without it.
 
 ```ruby
 class Agent < LLM::Agent
-  model "deepseek-v4-pro"
-  tools { [DoResearch, FinalizeResearch, ActOnResearch] }
-  stream { $stdout }
-  tracer :set_tracer
-  concurrency :fork
+  set model: "deepseek-v4-pro",
+      tools: [DoResearch, FinalizeResearch, ActOnResearch],
+      stream: -> { $stdout },
+      tracer: :set_tracer,
+      concurrency: :fork
 
   def research!
     talk "start the research"
