@@ -14,6 +14,7 @@ class LLM::Function
     # @return [LLM::Function::CallGroup]
     def initialize(functions)
       @functions = functions
+      @owner = nil
     end
 
     ##
@@ -25,6 +26,7 @@ class LLM::Function
     ##
     # @return [nil]
     def interrupt!
+      @owner&.raise(LLM::Interrupt)
       nil
     end
     alias_method :cancel!, :interrupt!
@@ -32,7 +34,10 @@ class LLM::Function
     ##
     # @return [Array<LLM::Function::Return>]
     def wait
+      @owner = Thread.current
       @functions.map(&:call)
+    ensure
+      @owner = nil
     end
     alias_method :value, :wait
   end
