@@ -165,7 +165,7 @@ module LLM
           raise LLM::Error, "expected #{reqc} required arguments, but got #{args.size}"
         else
           command.parameters.each_value { _1.value = args[_1.index]}
-          [:command, command.new]
+          [:command, command.new(self)]
         end
       else
         [:input, text]

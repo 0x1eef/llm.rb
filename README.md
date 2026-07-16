@@ -231,7 +231,23 @@ The input area supports several keyboard shortcuts:
 
 Commands are recognized by a `/` prefix and are backed by the
 [`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
-class, which can be subclassed to add custom commands.
+class, which can be subclassed to add custom commands. Once you
+create a subclass, it is automatically added to the repl. A command
+can have zero or more parameters, and all parameters are presumed
+to be a String (at least for now).
+
+```ruby
+class Greeter < LLM::Repl::Command
+  name "greet"
+  description "Greets the given name"
+  parameter :name, String, "The person's name"
+  required %i[name]
+
+  def call(name:)
+    write("Welcome #{name}!\n")
+  end
+end
+```
 
 #### LLM::MCP
 

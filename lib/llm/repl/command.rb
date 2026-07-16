@@ -136,6 +136,21 @@ class LLM::Repl
     end
 
     ##
+    # @param [LLM::Repl] repl
+    # @return [LLM::Repl::Command]
+    def initialize(repl)
+      @repl = repl
+    end
+
+    ##
+    # Write a string to the transcript
+    # @param [String] str
+    # @return [void]
+    def write(str)
+      @repl.write(str)
+    end
+
+    ##
     # This method should be implemented by subclasses.
     # @raise [NotImplementedError]
     def call(...)
