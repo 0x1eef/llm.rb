@@ -19,6 +19,33 @@ Changes since `v12.4.0`.
 
 ### Add
 
+* **repl: add `help` command** <br>
+  Add `LLM::Repl::Help` as a new built-in command, registered
+  automatically via the command registry. Typing `/help` shows
+  the `help` command's own name, description, and parameters,
+  while `/help <name>` shows details for a specific command,
+  including its parameters and whether each is required or
+  optional. Unknown command names produce an error message.
+
+  ```ruby
+  class Help < Command
+    name "help"
+    description "show help for a given command"
+    parameter :name, String, "The name of a command"
+
+    def call(name: nil)
+      if name.nil?
+        write("\n#{self.class.help}\n\n")
+      elsif command = LLM::Command.find_by(name:)
+        write("\n#{command.help}\n\n")
+      else
+        write "\nNo help for #{name} was found" \
+              "\nThat command doesn't exist.\n\n"
+      end
+    end
+  end
+  ```
+
 * **repl: add `LLM::Repl::Command#write`** <br>
   Commands can now write output to the transcript via the `write`
   method. Commands also receive a reference to the active repl
@@ -45,6 +72,17 @@ Changes since `v12.4.0`.
     end
   end
   ```
+
+* **repl: add `Command::Parameter#optional?`** <br>
+  Parameters now expose an `#optional?` method that returns `true`
+  when a parameter has not been marked as required, making it
+  possible to query parameter optionality programmatically.
+
+* **repl: display command errors in the curses UI** <br>
+  Commands invoked with too few arguments now display an error
+  message — `command(<name>): too few arguments` — directly in
+  the curses transcript area, giving immediate feedback instead
+  of silently failing.
 
 * **repl: add `LLM::Command` convenience constant** <br>
   Add `LLM::Command = LLM::Repl::Command` as a shorter alias,
