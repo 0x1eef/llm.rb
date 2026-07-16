@@ -9,6 +9,32 @@ class LLM::Repl
   class Command
     ##
     # @api private
+    Parameter = Struct.new(:name, :type, :description, :options, :index, :value) do
+      ##
+      # @return [Boolean]
+      def required?
+        options[:required] == true
+      end
+
+      ##
+      # Mark the parameter as required
+      # @return [void]
+      def required!
+        options[:required] = true
+      end
+
+      ##
+      # Assign a parameter value - with type checks
+      # @param [String] other
+      # @return [void]
+      def value=(other)
+        raise TypeError, "#{other.class} is not a #{type}" unless type === other
+        self[:value] = other
+      end
+    end
+
+    ##
+    # @api private
     UNDEFINED = Object.new
 
     ##
@@ -45,6 +71,7 @@ class LLM::Repl
     def self.inherited(command)
       LLM.lock(:inherited) do
         registry << command
+        command.instance_variable_set(:@parameters, {})
       end
     end
 
@@ -75,10 +102,56 @@ class LLM::Repl
     end
 
     ##
+    # @param [Symbol] name
+    # @param [Class] type
+    # @param [String] description
+    # @param [Hash] options
+    # @return [void]
+    def self.parameter(name, type, description, options = {})
+      @parameters[name] = Parameter.new(
+        name, type,
+        description, options,
+        @parameters.size, nil
+      )
+    end
+
+    ##
+    # @return [Hash]
+    def self.parameters
+      @parameters
+    end
+
+    ##
+    # @param [Array<Symbol>] names
+    #  One or more required names
+    # @return [void]
+    def self.required(names)
+      names.each do |name|
+        if @parameters.key?(name)
+          @parameters[name].required!
+        else
+          raise LLM::Error, "'#{name}' is not a known parameter"
+        end
+      end
+    end
+
+    ##
     # This method should be implemented by subclasses.
     # @raise [NotImplementedError]
     def call(...)
       raise NotImplementedError, "#{self.class}#call is not implemented"
+    end
+
+    ##
+    # @return [Hash<Symbol, Parameter>]
+    def parameters
+      self.class.parameters
+    end
+
+    ##
+    # @return [Hash]
+    def to_h
+      parameters.transform_values(&:value)
     end
     require_relative "commands/exit"
   end

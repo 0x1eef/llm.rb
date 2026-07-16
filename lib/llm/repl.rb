@@ -132,7 +132,7 @@ module LLM
       return if thread&.alive? || (text = input.take).empty?
       case on_text(text)
       in [:command, Command => command]
-        command.call
+        command.call(**command.to_h)
       in [:input, String => text]
         window.scroll_to_bottom
         status.text = "thinking"
@@ -158,7 +158,18 @@ module LLM
     # @return [[Symbol, Command|String]]
     def on_text(text)
       command = Command.find_by(input: text)
-      command ? [:command, command.new] : [:input, text]
+      if command
+        args = text.split(" ")[1..]
+        reqc = command.parameters.values.count(&:required?)
+        if args.size < reqc || args.size > reqc
+          raise LLM::Error, "expected #{reqc} required arguments, but got #{args.size}"
+        else
+          command.parameters.each_value { _1.value = args[_1.index]}
+          [:command, command.new]
+        end
+      else
+        [:input, text]
+      end
     end
 
     ##
