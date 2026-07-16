@@ -131,8 +131,8 @@ module LLM
     def submit
       return if thread&.alive? || (text = input.take).empty?
       case on_text(text)
-      in [:command, Command => command]
-        command.call(**command.to_h)
+      in [:command, Command => command, Hash => parameters]
+        command.call(**parameters)
       in [:error, String => who, String => text]
         write(who, Curses::A_BOLD)
         write(text)
@@ -162,24 +162,20 @@ module LLM
     def on_text(text)
       command = Command.find_by(input: text)
       if command
+        parameters = command.parameters.map { [_1, _2.dup] }.to_h
         args = text.split(" ")[1..].reject(&:empty?)
-        reqc = command.parameters.values.count(&:required?)
+        reqc = parameters.values.count(&:required?)
         if args.size < reqc
           [:error,
            "command(#{command.name}): ",
            "too few arguments: expected #{reqc} but got #{args.size}\n\n"]
         else
-          command.parameters.each_value do |parameter|
-            if parameter.optional?
-              ##
-              # skip: the command can define defaults
-              # eg - def call(foo: [])
-              next
-            elsif args[parameter.index]
+          parameters.each_value do |parameter|
+            if args[parameter.index]
               parameter.value = args[parameter.index]
             end
           end
-          [:command, command.new(self)]
+          [:command, command.new(self), parameters.transform_values(&:value)]
         end
       else
         [:input, text]
