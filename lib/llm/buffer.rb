@@ -70,6 +70,14 @@ module LLM
     end
 
     ##
+    # Slice a portion of the internal buffer in-place
+    # @return [void]
+    def slice!(...)
+      @messages.slice!(...)
+      nil
+    end
+
+    ##
     # @param [[LLM::Message]] item
     #  A message to add to the buffer
     # @return [void]
