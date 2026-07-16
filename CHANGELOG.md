@@ -51,6 +51,11 @@ Changes since `v12.4.0`.
   so callers that prefer the more descriptive `pending_functions` name can use
   it instead of `functions` when checking for unresolved tool work.
 
+* **agent: alias `LLM::Agent#functions` as `LLM::Agent#pending_functions`** <br>
+  Add `LLM::Agent#pending_functions` as an alias for `LLM::Agent#functions`,
+  matching the same alias on `LLM::Context`, so callers have a consistent
+  `pending_functions` interface across both contexts and agents.
+
 * **repl: add `LLM::Repl::Command#write`** <br>
   Commands can now write output to the transcript via the `write`
   method. Commands also receive a reference to the active repl
