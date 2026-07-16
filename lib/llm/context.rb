@@ -206,6 +206,8 @@ module LLM
       @messages.concat LLM::Prompt === prompt ? prompt.to_a : [LLM::Message.new(role, prompt)]
       @messages.concat [res.choices[-1]].compact
       res
+    ensure
+      @owner = nil
     end
 
     ##

@@ -748,7 +748,7 @@ RSpec.describe LLM::Context do
         allow(provider).to receive(:responses).and_return(responses)
         allow(responses).to receive(:create).and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
         ctx.talk("hello")
-        expect(provider).to receive(:interrupt!).with(Fiber.current).and_return(nil)
+        expect(provider).to receive(:interrupt!).with(nil).and_return(nil)
         expect(ctx.interrupt!).to be_nil
       end
       owner.resume
