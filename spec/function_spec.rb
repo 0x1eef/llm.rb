@@ -71,7 +71,10 @@ RSpec.describe LLM::Function do
       end
 
       it "interrupts the tool execution" do
-        fn = tool.function.dup.tap { _1.id = "call_3"; _1.arguments = {} }
+        fn = tool.function.dup.tap {
+          _1.id = "call_3"
+          _1.arguments = {}
+        }
         task = fn.spawn(:ractor)
         sleep 0.05 until task.alive?
         task.interrupt!
@@ -79,7 +82,10 @@ RSpec.describe LLM::Function do
       end
 
       it "returns nil from interrupt!" do
-        task = tool.function.dup.tap { _1.id = "call_4"; _1.arguments = {} }.spawn(:ractor)
+        task = tool.function.dup.tap {
+          _1.id = "call_4"
+          _1.arguments = {}
+        }.spawn(:ractor)
         expect(task.interrupt!).to be_nil
       end
     end
