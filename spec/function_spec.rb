@@ -148,7 +148,7 @@ RSpec.describe LLM::Function do
             sleep 10
             {"ok" => true}
           rescue LLM::Interrupt
-            {"ok" => true, interrupted: true}
+            {"ok" => true, "interrupted" => true}
           end
         end
         tool_class.function.dup.tap do |fn|
@@ -161,7 +161,7 @@ RSpec.describe LLM::Function do
         task = interrupt_tool.spawn(:fork)
         sleep 0.05 until task.alive?
         task.interrupt!
-        expect(task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true, interrupted: true})
+        expect(task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true, "interrupted" => true})
       end
 
       it "propagates LLM::Interrupt when the tool does not rescue it" do
@@ -196,7 +196,9 @@ RSpec.describe LLM::Function do
 
   describe LLM::Function::CallGroup do
     describe "#interrupt!" do
-      let(:tool_class) do
+      subject(:group) { LLM::Function::CallGroup.new([function]) }
+
+      let(:fn_class) do
         Class.new(LLM::Tool) do
           name "slow"
           def call
@@ -205,35 +207,24 @@ RSpec.describe LLM::Function do
           end
         end
       end
-
       let(:function) do
-        tool_class.function.dup.tap do |fn|
+        fn_class.function.dup.tap do |fn|
           fn.id = "call_1"
           fn.arguments = {}
         end
       end
 
-      subject(:group) { LLM::Function::CallGroup.new([function]) }
-
       it "raises LLM::Interrupt on the thread running wait" do
         thread = Thread.new { group.wait }
-        sleep 0.1 until group.alive? == false  # wait blocks synchronously, alive? is always false
-        # Actually there's no way to know wait started, so we just sleep a bit
         sleep 0.05
         group.interrupt!
         expect { thread.value }.to raise_error(LLM::Interrupt)
       end
 
       it "interrupts the currently running tool execution" do
-        result = nil
-        thread = Thread.new do
-          result = group.wait
-        rescue LLM::Interrupt
-          :interrupted
-        end
+        thread = Thread.new { group.wait rescue LLM::Interrupt; :interrupted }
         sleep 0.05
         group.interrupt!
-        thread.join(2)
         expect(thread.value).to eq(:interrupted)
       end
 
@@ -242,14 +233,87 @@ RSpec.describe LLM::Function do
       end
 
       it "is a no-op when wait has completed" do
-        fast_fn = tool_class.function.dup.tap do |fn|
-          fn.define { {ok: true} }
-          fn.id = "call_2"
-          fn.arguments = {}
+        fn = fn_class.function.dup.tap do |f|
+          f.define { {ok: true} }
+          f.id = "call_2"
+          f.arguments = {}
         end
-        group = LLM::Function::CallGroup.new([fast_fn])
-        group.wait
+        LLM::Function::CallGroup.new([fn]).wait
         expect(group.interrupt!).to be_nil
+      end
+    end
+  end
+
+  describe LLM::Function::Task do
+    describe "#interrupt!" do
+      let(:fn) do
+        LLM::Function.new("test") { _1.define { {ok: true} } }.tap do |f|
+          f.id = "call_1"
+          f.arguments = {}
+        end
+      end
+
+      context "when wrapping a Thread" do
+        it "raises LLM::Interrupt on the thread" do
+          thread = Thread.new { sleep 10 }
+          LLM::Function::Task.new(thread, fn).interrupt!
+          expect { thread.value }.to raise_error(LLM::Interrupt)
+        end
+      end
+
+      context "when wrapping a Fiber" do
+        it "does not raise on a dead fiber" do
+          fiber = Fiber.new { :done }.tap(&:resume)
+          expect { LLM::Function::Task.new(fiber, fn).interrupt! }.not_to raise_error
+        end
+      end
+
+      context "when wrapping an Async::Task" do
+        before do
+          require "async"
+          Console.logger.level = :fatal if defined?(Console)
+        end
+
+        it "raises LLM::Interrupt on the underlying fiber" do
+          reactor = Async::Reactor.new
+          task = reactor.async { sleep 10 }
+          sleep 0.05 until task.alive?
+          wrapped = LLM::Function::Task.new(task, fn)
+          wrapped.interrupt!
+          expect { task.wait }.to raise_error(LLM::Interrupt)
+        ensure
+          reactor&.stop
+        end
+
+        it "is a no-op on a dead async task" do
+          reactor = Async::Reactor.new
+          task = reactor.async { :done }
+          task.wait
+          wrapped = LLM::Function::Task.new(task, fn)
+          expect { wrapped.interrupt! }.not_to raise_error
+        ensure
+          reactor&.stop
+        end
+      end
+
+      context "when wrapping an unknown task type" do
+        let(:unknown) do
+          Class.new do
+            attr_reader :interrupted
+            def initialize; @interrupted = false; end
+            def interrupt!; @interrupted = true; end
+          end.new
+        end
+
+        it "calls interrupt! on the task if it responds to it" do
+          LLM::Function::Task.new(unknown, fn).interrupt!
+          expect(unknown.interrupted).to be true
+        end
+      end
+
+      it "returns nil" do
+        thread = Thread.new { sleep 10 }
+        expect(LLM::Function::Task.new(thread, fn).interrupt!).to be_nil
       end
     end
   end

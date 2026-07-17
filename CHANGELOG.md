@@ -72,6 +72,13 @@
   interrupt on the parent side — making interruption reliable across
   all concurrency strategies including `:fork`.
 
+* **function: raise `LLM::Interrupt` on `Async::Task`-backed tool tasks** <br>
+  `LLM::Interrupt` is now raised on the underlying fiber of an
+  `Async::Task` via `Fiber#raise` when interrupting `:task`-concurrency
+  tools. `Task#interrupt!` now detects `Async::Task` instances and
+  dispatches to `Fiber#raise`, extending reliable interruption to the
+  `:task` concurrency strategy under the Async runtime.
+
 ## v12.5.1
 
 Changes since `v12.5.0`.

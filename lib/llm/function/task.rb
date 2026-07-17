@@ -39,7 +39,11 @@ class LLM::Function
       when Fiber
         task.raise(LLM::Interrupt) if task.alive?
       else
-        task.interrupt! if task.respond_to?(:interrupt!)
+        if defined?(::Async::Task) and ::Async::Task === task
+          task.fiber&.raise(LLM::Interrupt) if task.alive?
+        elsif task.respond_to?(:interrupt!)
+          task.interrupt!
+        end
       end
       function&.interrupt!
       nil
