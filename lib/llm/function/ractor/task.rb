@@ -43,6 +43,7 @@ class LLM::Function
     ##
     # @return [nil]
     def interrupt!
+      mailbox&.interrupt!
       nil
     end
     alias_method :cancel!, :interrupt!

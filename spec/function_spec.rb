@@ -59,6 +59,31 @@ RSpec.describe LLM::Function do
       end
     end
 
+    describe "#interrupt!" do
+      let(:tool) do
+        Class.new(LLM::Tool) do
+          name "slow"
+          def call
+            sleep 2
+            {ok: true}
+          end
+        end
+      end
+
+      it "interrupts the tool execution" do
+        fn = tool.function.dup.tap { _1.id = "call_3"; _1.arguments = {} }
+        task = fn.spawn(:ractor)
+        sleep 0.05 until task.alive?
+        task.interrupt!
+        expect(task.wait.to_h).to eq(id: "call_3", name: "slow", value: {cancelled: true, reason: "interrupted"})
+      end
+
+      it "returns nil from interrupt!" do
+        task = tool.function.dup.tap { _1.id = "call_4"; _1.arguments = {} }.spawn(:ractor)
+        expect(task.interrupt!).to be_nil
+      end
+    end
+
     it "rejects proc-defined functions" do
       fn = LLM::Function.new("echo")
       fn.arguments = {"value" => "hello"}

@@ -28,6 +28,13 @@ class LLM::Function
       request(:wait)
     end
 
+    ##
+    # @return [nil]
+    def interrupt!
+      task.send([:interrupt])
+      nil
+    end
+
     private
 
     def request(type)

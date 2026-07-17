@@ -35,22 +35,32 @@ class LLM::Function
       waiters = []
       loop do
         case ::Ractor.receive
-        in [:done, *result]
+        in [:done, *data]
+          result ||= data
           done = true
           waiters.each { _1.send(result) }
           waiters.clear
         in [:alive?, reply]
           reply.send(!done)
         in [:wait, reply]
-          done ? reply.send(result) : waiters << reply
+          done ? reply.send(result) : (waiters << reply)
+        in [:interrupt]
+          @tool&.send(:interrupt)
         end
       end
     end
 
     def spawn
-      ::Ractor.new(@mailbox, @runner_class, @id, @name, @arguments) do |mailbox, runner_class, id, name, arguments|
+      @tool = ::Ractor.new(@mailbox, @runner_class, @id, @name, @arguments) do |mailbox, runner_class, id, name, arguments|
+        Thread.new do
+          ::Ractor.receive == :interrupt or next
+          Thread.main.raise(LLM::Interrupt)
+        rescue ::Ractor::Error
+        end
         kwargs = Hash === arguments ? arguments.transform_keys(&:to_sym) : arguments
         mailbox.send([:done, id, name, runner_class.new.call(**kwargs)])
+      rescue LLM::Interrupt
+        mailbox.send([:done, id, name, {cancelled: true, reason: "interrupted"}])
       rescue => ex
         mailbox.send([:done, id, name, {error: true, type: ex.class.name, message: ex.message}])
       end

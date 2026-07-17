@@ -60,10 +60,11 @@
 
 * **function: raise `LLM::Interrupt` on fiber-backed tool tasks** <br>
   `LLM::Interrupt` is now raised on the active fiber via `Fiber#raise`
-  when interrupting `:fiber`-concurrency tools, and `Task#interrupt!`
-  dispatches by task type — `Thread#raise` for threads, `Fiber#raise`
-  for fibers — making interruption reliable across all concurrency
-  strategies.
+  when interrupting `:fiber`-concurrency tools.
+  <br><br>
+  `Task#interrupt!` now dispatches by task type — `Thread#raise` for
+  threads, `Fiber#raise` for fibers — making interruption reliable
+  across all concurrency strategies.
 
 * **function: raise `LLM::Interrupt` on fork-backed tool tasks** <br>
   `LLM::Interrupt` is now raised on the main thread of a fork child
@@ -78,6 +79,17 @@
   tools. `Task#interrupt!` now detects `Async::Task` instances and
   dispatches to `Fiber#raise`, extending reliable interruption to the
   `:task` concurrency strategy under the Async runtime.
+
+* **function: raise `LLM::Interrupt` on ractor-backed tool tasks** <br>
+  `LLM::Interrupt` is now raised on the main thread inside a ractor
+  via `Thread.main.raise(LLM::Interrupt)` when interrupting
+  `:ractor`-concurrency tools. A listener thread inside the tool
+  ractor waits for an interrupt message via `Ractor.receive` and
+  raises `LLM::Interrupt` on the ractor's main thread.
+  <br><br>
+  `Task#interrupt!` delegates to the mailbox to send the interrupt
+  message — extending reliable interruption to the `:ractor`
+  concurrency strategy.
 
 ## v12.5.1
 
