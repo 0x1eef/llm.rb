@@ -222,7 +222,10 @@ RSpec.describe LLM::Function do
       end
 
       it "interrupts the currently running tool execution" do
-        thread = Thread.new { group.wait rescue LLM::Interrupt; :interrupted }
+        thread = Thread.new {
+          group.wait rescue LLM::Interrupt
+          :interrupted
+        }
         sleep 0.05
         group.interrupt!
         expect(thread.value).to eq(:interrupted)
@@ -300,8 +303,12 @@ RSpec.describe LLM::Function do
         let(:unknown) do
           Class.new do
             attr_reader :interrupted
-            def initialize; @interrupted = false; end
-            def interrupt!; @interrupted = true; end
+            def initialize
+              @interrupted = false
+            end
+            def interrupt!
+              @interrupted = true
+            end
           end.new
         end
 
