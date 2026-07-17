@@ -60,6 +60,10 @@ RSpec.describe LLM::Function do
     end
 
     describe "#interrupt!" do
+      before do
+        skip "not supported by yajl or oj" unless ENV.fetch("JSON_PARSER", "json") == "json"
+      end
+
       let(:tool) do
         Class.new(LLM::Tool) do
           name "slow"
