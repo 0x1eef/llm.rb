@@ -71,6 +71,7 @@ features that didn't make it into the homepage documentation.
 <summary>Cancellation</summary>
 
 - [Cancel a request](#cancel-a-request)
+- [Tool interrupts](#tool-interrupts)
 </details>
 
 <details>
@@ -827,6 +828,54 @@ rescue LLM::Interrupt
   puts "request cancelled!"
 end
 ```
+
+#### Tool interrupts
+
+When a running tool is interrupted &ndash; for example the user presses
+ESC in the [REPL](#repl) &ndash; the runtime raises
+[`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html)
+on the tool's execution context. This behavior is uniform across
+all six concurrency strategies (`:call`, `:thread`, `:fiber`,
+`:task`, `:fork`, and `:ractor`).
+
+A tool has two choices:
+
+**Re-raise** `LLM::Interrupt` to cancel the entire turn. The
+exception propagates out of the tool loop and the request is
+aborted. This is the default when you don't rescue the exception.
+
+```ruby
+def call
+  # ... do work ...
+rescue LLM::Interrupt
+  cleanup
+  raise   # cancel the turn
+end
+```
+
+**Return a value** to continue the tool loop. The model receives
+the result and decides what to do next, aware that the tool was
+interrupted.
+
+```ruby
+def call
+  # ... do work ...
+rescue LLM::Interrupt
+  cleanup
+  {ok: false, reason: "interrupted"}  # continue the loop
+end
+```
+
+The right choice depends on the situation. A hard cancel aborts
+the request outright &ndash; useful when continuing would produce
+garbage. Returning a value lets the model adapt, which can be
+helpful when the interrupt is temporary (e.g. a timeout).
+
+The `:ractor` strategy is cooperative by nature &ndash; the ractor
+must check for a cancel message at safe points in its execution.
+The `:fork` strategy delivers the interrupt via a signal, which
+interrupts blocking syscalls immediately. All other strategies
+raise the exception directly on the executing thread or fiber.
 
 [Back to top](#table-of-contents)
 
