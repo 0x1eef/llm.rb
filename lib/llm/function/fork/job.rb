@@ -24,6 +24,8 @@ class LLM::Function
       runner = @function.runner
       controller = setup(runner)
       @ch.result.write([:result, call!(runner)])
+    rescue LLM::Interrupt
+      @ch.result.write([:interrupt])
     rescue => ex
       @ch.result.write([:result, error(ex)])
     ensure
@@ -56,8 +58,7 @@ class LLM::Function
         ready << true
         kind = @ch.control.recv
         next unless kind == :interrupt
-        hook = %i[on_cancel on_interrupt].find { runner.respond_to?(_1) }
-        runner.public_send(hook) if hook
+        Thread.main.raise(LLM::Interrupt)
       rescue IOError, ArgumentError
       end
       ready.pop

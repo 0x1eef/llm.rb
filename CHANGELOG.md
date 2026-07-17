@@ -65,6 +65,13 @@
   for fibers — making interruption reliable across all concurrency
   strategies.
 
+* **function: raise `LLM::Interrupt` on fork-backed tool tasks** <br>
+  `LLM::Interrupt` is now raised on the main thread of a fork child
+  process via `Thread.main.raise(LLM::Interrupt)` when interrupting
+  `:fork`-concurrency tools, and the fork `Task#wait` re-raises the
+  interrupt on the parent side — making interruption reliable across
+  all concurrency strategies including `:fork`.
+
 ## v12.5.1
 
 Changes since `v12.5.0`.

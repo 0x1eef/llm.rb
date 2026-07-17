@@ -140,21 +140,15 @@ RSpec.describe LLM::Function do
         end
       end
 
-      let(:ch) { xchan(:marshal) }
-      let(:interrupt_ch) { ch }
-
       let(:interrupt_tool) do
-        ch = interrupt_ch
         tool_class = Class.new(LLM::Tool) do
           name "interruptible"
 
           define_method(:call) do
-            ch.recv
+            sleep 10
             {"ok" => true}
-          end
-
-          define_method(:on_interrupt) do
-            ch.write(true)
+          rescue LLM::Interrupt
+            {"ok" => true, interrupted: true}
           end
         end
         tool_class.function.dup.tap do |fn|
@@ -167,7 +161,26 @@ RSpec.describe LLM::Function do
         task = interrupt_tool.spawn(:fork)
         sleep 0.05 until task.alive?
         task.interrupt!
-        expect(task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true})
+        expect(task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true, interrupted: true})
+      end
+
+      it "propagates LLM::Interrupt when the tool does not rescue it" do
+        tool_class = Class.new(LLM::Tool) do
+          name "brittle"
+
+          define_method(:call) do
+            sleep 10
+            {"ok" => true}
+          end
+        end
+        fn = tool_class.function.dup.tap do |f|
+          f.id = "call_4"
+          f.arguments = {}
+        end
+        task = fn.spawn(:fork)
+        sleep 0.05 until task.alive?
+        task.interrupt!
+        expect { task.wait }.to raise_error(LLM::Interrupt)
       end
     end
 

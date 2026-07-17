@@ -52,6 +52,7 @@ class LLM::Function
     # @return [LLM::Function::Return]
     def wait
       kind, data = @ch.result.recv
+      raise LLM::Interrupt if kind == :interrupt
       raise ArgumentError, "Unknown fork message: #{kind.inspect}" unless kind == :result
       result = Return.new(data[:id], data[:name], data[:value])
       reap
