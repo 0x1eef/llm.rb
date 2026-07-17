@@ -148,7 +148,7 @@ RSpec.describe LLM::Function do
             sleep 10
             {"ok" => true}
           rescue LLM::Interrupt
-            {"ok" => true, interrupted: true}
+            {"ok" => true, "interrupted" => true}
           end
         end
         tool_class.function.dup.tap do |fn|
@@ -161,7 +161,7 @@ RSpec.describe LLM::Function do
         task = interrupt_tool.spawn(:fork)
         sleep 0.05 until task.alive?
         task.interrupt!
-        expect(task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true, interrupted: true})
+        expect(task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true, "interrupted" => true})
       end
 
       it "propagates LLM::Interrupt when the tool does not rescue it" do
