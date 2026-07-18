@@ -60,9 +60,16 @@ class LLM::Repl
     # @param [Integer] max
     # @return [String]
     def format_args(tool, max: 50)
-      args = tool.arguments
-      pairs = args.to_h.map { "#{_1}: #{format_value(_2)}" }
-      result = pairs.join(", ")
+      ##
+      # 'tool.arguments' might be returned
+      # (by the model) in a different order
+      # than the tool definition - this code
+      # handles re-sorting.
+      args   = tool.arguments
+      props  = tool.params.properties.keys
+      props  = props.sort_by { tool.params.properties[_1].index }
+      props  = props.filter_map { args[_1] ? "#{_1}: #{format_value(args[_1])}" : nil }
+      result = props.join(", ")
       result.size > max ? "#{result[0...max - 1]}…" : result
     end
 

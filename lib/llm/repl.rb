@@ -181,6 +181,7 @@ module LLM
            "command(#{command.name}): ",
            "too few arguments: expected #{reqc} but got #{args.size}\n\n"]
         else
+          parameters = parameters.sort_by(&:index).to_h
           parameters.each_value do |parameter|
             if args[parameter.index]
               parameter.value = args[parameter.index]
