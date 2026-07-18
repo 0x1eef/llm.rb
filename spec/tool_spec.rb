@@ -164,6 +164,33 @@ RSpec.describe LLM::Tool do
     end
   end
 
+  describe ".defaults" do
+    let(:tool) do
+      Class.new(described_class) do
+        name "math"
+        parameter :x, Integer, "first number"
+        parameter :y, Integer, "second number"
+        defaults x: 0, y: 1
+      end
+    end
+
+    it "sets default values on parameters" do
+      props = tool.function.params.properties
+      expect(props[:x].default).to eq(0)
+      expect(props[:y].default).to eq(1)
+    end
+
+    it "raises KeyError for unknown keys" do
+      expect {
+        Class.new(described_class) do
+          name "bad"
+          parameter :x, Integer, "value"
+          defaults unknown: 42
+        end
+      }.to raise_error(KeyError, 'key not found: "unknown"')
+    end
+  end
+
   describe ".a2a" do
     let(:skill) do
       LLM::A2A::Card::Skill.new(

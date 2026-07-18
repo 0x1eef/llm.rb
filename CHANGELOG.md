@@ -17,6 +17,11 @@
 
 ### Add
 
+* **tool: add `defaults` method for setting parameter defaults** <br>
+  Add `LLM::Tool.defaults(properties)` for bulk-setting default values
+  on tool parameters, matching the same interface as `LLM::Schema.defaults`.
+  Each key maps to a parameter name; unknown keys raise `KeyError`.
+
 * **agent: add `set` method for bulk-assigning class-level defaults** <br>
   Add `LLM::Agent.set(properties)` for mass-assigning agent defaults
   from a Hash. Each key maps to a class-level accessor; unknown keys
