@@ -16,7 +16,8 @@ class LLM::Schema
     #  A hash of properties
     # @return [LLM::Schema::Object]
     def initialize(properties)
-      @properties = properties
+      @properties = {}
+      properties.each { set!(_1, _2) }
     end
 
     ##
@@ -30,7 +31,7 @@ class LLM::Schema
     # Set a property
     # @return [void]
     def []=(key, val)
-      properties[key.to_s] = val
+      set!(key, val)
     end
 
     ##
@@ -46,7 +47,7 @@ class LLM::Schema
     #  Returns self
     def merge!(other)
       raise TypeError, "expected #{self.class} but got #{other.class}" unless self.class === other
-      @properties.merge!(other.properties)
+      other.properties.each { |key, val| self[key] = val }
       self
     end
 
@@ -64,8 +65,13 @@ class LLM::Schema
 
     private
 
+    def set!(key, val)
+      val.index = @properties.size
+      properties[key.to_s] = val
+    end
+
     def required_items
-      @properties.filter_map {  _2.required? ? _1 : nil }
+      @properties.filter_map { _2.required? ? _1 : nil }
     end
   end
 end

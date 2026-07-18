@@ -8,12 +8,17 @@ class LLM::Schema
   # an example of how to create instances of {LLM::Schema::Leaf LLM::Schema::Leaf}
   # through its subclasses.
   class Leaf
+    ##
+    # @return [Integer, nil]
+    attr_accessor :index
+
     def initialize
       @description = nil
       @default = nil
       @enum = nil
       @required = nil
       @const = nil
+      @index = nil
     end
 
     ##

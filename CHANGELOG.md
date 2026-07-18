@@ -27,6 +27,12 @@
   that automatically kills search commands exceeding the specified time limit,
   preventing long-running searches from blocking the agent indefinitely.
 
+* **schema: track property definition order in the `index` attribute** <br>
+  `LLM::Schema::Leaf` now has an `index` accessor that tracks the order
+  in which properties are defined. Each property receives an incrementing
+  index as it is added to the schema, matching the same convention used
+  by `LLM::Command::Parameter`.
+
 ## v12.6.0
 
 Changes since `v12.5.1`.

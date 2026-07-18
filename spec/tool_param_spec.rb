@@ -3,6 +3,23 @@
 require_relative "setup"
 
 RSpec.describe LLM::Tool::Param do
+  context "when given parameter indices" do
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        name "ordered"
+        description "ordered params"
+        parameter :first, String, "first"
+        parameter :second, Integer, "second"
+      end
+    end
+
+    it "assigns sequential indices starting from 0" do
+      props = tool.function.params.properties
+      expect(props[:first].index).to eq(0)
+      expect(props[:second].index).to eq(1)
+    end
+  end
+
   context "when given enum values for a param" do
     let(:tool) do
       Class.new(LLM::Tool) do
