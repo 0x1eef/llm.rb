@@ -30,7 +30,7 @@ jobs:
     - name: Run tests (ubuntu)
       env:
         JSON_PARSER: ${{ matrix.json-parser }}
-      run: bundle exec rake
+      run: bundle exec rake spec
 
 #  openbsd:
 #    runs-on: ubuntu-latest
