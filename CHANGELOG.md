@@ -15,6 +15,20 @@
 
 ## What's next
 
+## v12.6.0
+
+Changes since `v12.5.1`.
+
+This release adds bulk defaults for tools and agents — `LLM::Tool.defaults`
+for setting parameter defaults and `LLM::Agent.set` for mass-assigning
+class-level defaults, both mirrored on ActiveRecord and Sequel agent models.
+
+It also makes `LLM::Interrupt` reliable across every concurrency strategy
+(:thread, :call, :fiber, :task, :fork, and :ractor) so tool cancellation
+works consistently regardless of execution backend, and fixes a stale fiber
+reference in `LLM::Context#talk` that could prevent interruption after a
+prior call.
+
 ### Add
 
 * **tool: add `defaults` method for setting parameter defaults** <br>
