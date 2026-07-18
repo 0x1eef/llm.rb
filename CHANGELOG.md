@@ -17,6 +17,14 @@
 
 ### Add
 
+* **tools: add `LLM::Tool::Utils` module for shared command execution logic** <br>
+  A new `LLM::Tool::Utils` module provides shared `wait(command:, timeout:)`
+  and `now` helper methods for tools that execute commands. Tools that
+  include `Utils` can wait on a running command and automatically kill it
+  when it exceeds the configured timeout, using `Process.clock_gettime` with
+  `CLOCK_MONOTONIC` for precise timing. The module is used by both the
+  `Shell` and `Rg` tools internally.
+
 * **shell: add `timeout` parameter for command execution deadlines** <br>
   The `LLM::Tool::Shell` tool now accepts a `timeout` parameter (default 60s)
   that automatically kills commands exceeding the specified time limit,
@@ -32,6 +40,15 @@
   in which properties are defined. Each property receives an incrementing
   index as it is added to the schema, matching the same convention used
   by `LLM::Command::Parameter`.
+
+### Fix
+
+* **repl: sort tool arguments by parameter definition order** <br>
+  The curses-based REPL now sorts tool parameters by their definition
+  order (using the new `index` attribute) when displaying tool arguments
+  in the status bar and when assigning argument values to parameters.
+  This ensures consistent display regardless of the order in which the
+  model returns the arguments.
 
 ## v12.6.0
 
