@@ -145,7 +145,7 @@ RSpec.describe LLM::Tool::Param do
     end
 
     it "serializes the required field list" do
-      expect(schema.to_h[:required]).to eq([:location])
+      expect(schema.to_h[:required]).to eq(["location"])
     end
   end
 end

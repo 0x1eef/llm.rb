@@ -26,7 +26,7 @@ RSpec.describe LLM::Schema do
     end
 
     it "has defaults" do
-      actual = schema.object.properties.select { _2.default }.keys
+      actual = schema.object.properties.select { _2.default }.to_h.keys
       expect(actual).to eq(default_properties)
     end
 

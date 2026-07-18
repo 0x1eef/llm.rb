@@ -16,7 +16,7 @@ class LLM::Schema
     #  A hash of properties
     # @return [LLM::Schema::Object]
     def initialize(properties)
-      @properties = {}
+      @properties = LLM::Object.new
       properties.each { set!(_1, _2) }
     end
 
@@ -24,7 +24,7 @@ class LLM::Schema
     # Get a property
     # @return [LLM::Schema::Leaf]
     def [](key)
-      properties[key.to_s]
+      properties[key]
     end
 
     ##
@@ -67,7 +67,7 @@ class LLM::Schema
 
     def set!(key, val)
       val.index = @properties.size
-      properties[key.to_s] = val
+      properties[key] = val
     end
 
     def required_items
