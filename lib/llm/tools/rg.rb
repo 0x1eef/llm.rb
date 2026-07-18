@@ -13,15 +13,25 @@ class LLM::Tool
     description "recursively search the current directory for lines matching a pattern"
     parameter :patterns, Array[String], "one or more search patterns"
     parameter :path, String, "the path where the search is performed (default is cwd)"
+    parameter :timeout, Integer, "the number of seconds to wait before cancelling the action"
     required %i[patterns]
+    defaults path: Dir.getwd, timeout: 5
 
     ##
     # @param [Array<String>] patterns
     # @param [String] path
     # @return [Hash]
-    def call(patterns:, path: Dir.getwd)
+    def call(patterns:, path: Dir.getwd, timeout: 5)
+      start = now
       validate!(patterns:, path:)
       command = spawn(patterns:, path:)
+      while command.alive?
+        if now - start > timeout
+          command.kill!
+          raise "command timed out after #{timeout}s"
+        end
+        sleep 0.01
+      end
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
     end
 
@@ -39,6 +49,10 @@ class LLM::Tool
       Command.new("rg")
         .argv(*[*patterns].flat_map { ["-e", _1] }, path)
         .spawn
+    end
+
+    def now
+      Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
 
     LLM.require "test-cmd.rb"

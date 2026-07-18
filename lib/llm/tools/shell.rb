@@ -34,6 +34,7 @@ class LLM::Tool
           command.kill!
           raise "command timed out after #{timeout}s"
         end
+        sleep 0.01
       end
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
     end

@@ -22,6 +22,11 @@
   that automatically kills commands exceeding the specified time limit,
   preventing hung processes from blocking the agent indefinitely.
 
+* **rg: add `timeout` parameter for search execution deadlines** <br>
+  The `LLM::Tool::Rg` tool now accepts a `timeout` parameter (default 5s)
+  that automatically kills search commands exceeding the specified time limit,
+  preventing long-running searches from blocking the agent indefinitely.
+
 ## v12.6.0
 
 Changes since `v12.5.1`.
