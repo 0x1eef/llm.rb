@@ -50,6 +50,13 @@
   This ensures consistent display regardless of the order in which the
   model returns the arguments.
 
+* **object: preserve the original key name in `KeyError` messages** <br>
+  `LLM::Object#fetch` now preserves the original key name when a key
+  is not found, instead of raising `KeyError` with `key not found: nil`.
+  The previous behavior occurred when the given key was not found in
+  the stored hash, causing internal lookup to return `nil` and lose
+  the original key reference.
+
 ## v12.6.0
 
 Changes since `v12.5.1`.
