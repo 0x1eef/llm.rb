@@ -15,6 +15,13 @@
 
 ## What's next
 
+### Add
+
+* **shell: add `timeout` parameter for command execution deadlines** <br>
+  The `LLM::Tool::Shell` tool now accepts a `timeout` parameter (default 60s)
+  that automatically kills commands exceeding the specified time limit,
+  preventing hung processes from blocking the agent indefinitely.
+
 ## v12.6.0
 
 Changes since `v12.5.1`.

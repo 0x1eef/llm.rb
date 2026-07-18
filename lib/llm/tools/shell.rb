@@ -16,7 +16,9 @@ class LLM::Tool
     description "run a shell command"
     parameter :name, String, "the command name"
     parameter :arguments, Array[String], "one or more command arguments"
+    parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"
     required %i[name]
+    defaults arguments: [], timeout: 60
 
     ##
     # @param [String] name
@@ -24,8 +26,15 @@ class LLM::Tool
     # @param [Array<String>] arguments
     #  One or more command-line arguments
     # @return [Hash]
-    def call(name:, arguments: nil)
+    def call(name:, arguments: [], timeout: 60)
+      start = now
       command = spawn(name:, arguments:)
+      while command.running?
+        if now - start > timeout
+          command.kill!
+          raise "command timed out after #{timeout}s"
+        end
+      end
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
     end
 
@@ -40,6 +49,10 @@ class LLM::Tool
         .new(name)
         .argv(*[*arguments])
         .spawn
+    end
+
+    def now
+      Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
 
     LLM.require "test-cmd.rb"
