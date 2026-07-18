@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 class LLM::Tool
   ##
   # The {LLM::Tool::Rg LLM::Tool::Rg} class implements
@@ -8,6 +7,9 @@ class LLM::Tool
   # recursively search the current working directory
   # for one or more patterns.
   class Rg < self
+    require_relative "utils"
+    include Utils
+
     name "rg"
     description "recursively search the current directory for lines matching a pattern"
     parameter :patterns, Array[String], "one or more search patterns"
@@ -21,16 +23,9 @@ class LLM::Tool
     # @param [String] path
     # @return [Hash]
     def call(patterns:, path: Dir.getwd, timeout: 5)
-      start = now
       validate!(patterns:, path:)
       command = spawn(patterns:, path:)
-      while command.alive?
-        if now - start > timeout
-          command.kill!
-          raise "command timed out after #{timeout}s"
-        end
-        sleep 0.01
-      end
+      wait(command:, timeout:)
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
     end
 
@@ -48,10 +43,6 @@ class LLM::Tool
       Command.new("rg")
         .argv(*[*patterns].flat_map { ["-e", _1] }, path)
         .spawn
-    end
-
-    def now
-      Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
 
     LLM.require "test-cmd.rb"

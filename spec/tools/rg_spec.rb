@@ -6,7 +6,7 @@ require "llm/tools/rg"
 RSpec.describe LLM::Tool::Rg do
   let(:tool) { described_class.new }
   let(:command) do
-    instance_double(Test::Cmd, success?: true, stdout: "match\n", stderr: "")
+    instance_double(Test::Cmd, running?: false, success?: true, stdout: "match\n", stderr: "")
   end
 
   describe ".function" do

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 class LLM::Tool
   ##
   # The {LLM::Tool::Shell} class implements a tool that can
@@ -11,6 +10,9 @@ class LLM::Tool
   # by managing the tool loop manually through
   # {LLM::Context LLM::Context}.
   class Shell < self
+    require_relative "utils"
+    include Utils
+
     name "shell"
     description "run a shell command"
     parameter :name, String, "the command name"
@@ -26,15 +28,8 @@ class LLM::Tool
     #  One or more command-line arguments
     # @return [Hash]
     def call(name:, arguments: [], timeout: 60)
-      start = now
       command = spawn(name:, arguments:)
-      while command.running?
-        if now - start > timeout
-          command.kill!
-          raise "command timed out after #{timeout}s"
-        end
-        sleep 0.01
-      end
+      wait(command:, timeout:)
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
     end
 
@@ -49,10 +44,6 @@ class LLM::Tool
         .new(name)
         .argv(*[*arguments])
         .spawn
-    end
-
-    def now
-      Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
 
     LLM.require "test-cmd.rb"
