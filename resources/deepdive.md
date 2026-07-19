@@ -572,15 +572,94 @@ class Stream < LLM::Stream
   def on_tool_return(tool, result)
   end
 
-  def on_compaction(ctx, compactor)
+  def on_compaction(compactor)
     # this callback is called *before* a compact happens
   end
 
-  def on_compaction_finish(ctx, compactor)
+  def on_compaction_finish(compactor)
     # this callback is called *after* a compact happens
   end
 end
 ```
+
+[Back to top](#table-of-contents)
+
+## Context Compaction
+
+Long-running conversations consume tokens. Without intervention, every turn
+pushes toward the model's context window limit, at which point the provider
+rejects the request.
+
+llm.rb provides compaction through pluggable strategies. All strategies
+inherit from [`LLM::Compactor`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor.html)
+and are invoked automatically before each `ctx.talk(...)` call.
+
+### Configuration
+
+Pass a compactor class and options when creating the context:
+
+```ruby
+ctx = LLM::Context.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 64}
+)
+```
+
+The default is [`LLM::Compactor::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html)
+— compaction is disabled unless you opt in.
+
+### Strategies
+
+**[`LLM::Compactor::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html)**
+— the default. Does nothing.
+
+**[`LLM::Compactor::Truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html)**
+— drops the oldest messages, keeping only the N most recent.
+
+- **Fast** — no network call, no LLM overhead. Operates entirely in memory
+  with a single pass over the message list.
+- **No dependencies** — works offline, has no model or API requirements, and
+  introduces no additional cost.
+- **Tool-loop safe** — when a tool result (return) falls at the truncation
+  boundary, the corresponding tool call is kept. Without this, the
+  conversation would contain an orphaned result with no matching call,
+  causing API-level errors on the next turn.
+
+```ruby
+ctx = LLM::Context.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 128}
+)
+```
+
+### Manual compaction
+
+The REPL provides a `/compact` command that invokes Truncate on the current
+agent's context:
+
+```
+/compact        # keep last 128 messages
+/compact 50     # keep last 50 messages
+```
+
+### Lifecycle callbacks
+
+Both strategies call stream hooks so the UI can show progress:
+
+```ruby
+def on_compaction(compactor)
+  # called before compaction begins
+end
+
+def on_compaction_finish(compactor)
+  # called after compaction completes
+end
+```
+
+The context's `compacted?` flag is `true` between compaction and the next
+model response.
 
 [Back to top](#table-of-contents)
 
