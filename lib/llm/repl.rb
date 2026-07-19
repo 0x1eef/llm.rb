@@ -187,12 +187,13 @@ module LLM
            "too few arguments: expected #{reqc} but got #{args.size}\n\n"]
         else
           parameters = parameters.sort_by(&:index).to_h
+          kwargs = {}
           parameters.each_value do |parameter|
             if args[parameter.index]
-              parameter.value = args[parameter.index]
+              kwargs[parameter.name] = args[parameter.index]
             end
           end
-          [:command, command.new(self), parameters.transform_values(&:value)]
+          [:command, command.new(self), kwargs]
         end
       else
         [:input, text]
