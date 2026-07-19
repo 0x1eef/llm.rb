@@ -41,6 +41,12 @@
   index as it is added to the schema, matching the same convention used
   by `LLM::Command::Parameter`.
 
+* **buffer: add Array-like query and mutation methods** <br>
+  `LLM::Buffer` now exposes `first`, `reject!`, `select!`, `shift`,
+  `clear`, `drop`, and `take` methods, making it easier to query and
+  mutate `LLM::Context#messages` like an ordinary Array. `reject!` is
+  also aliased as `delete_if` for familiarity.
+
 ### Fix
 
 * **repl: sort tool arguments by parameter definition order** <br>
