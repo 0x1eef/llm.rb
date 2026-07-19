@@ -24,6 +24,11 @@ module LLM
     require_relative "repl/markdown"
     require_relative "repl/command"
 
+    attr_reader :agent, :provider, :stream,
+                :status, :transcript, :input,
+                :window, :tools, :thread,
+                :path
+
     ##
     # @param [LLM::Agent] agent
     # @param [String, nil] path
@@ -246,11 +251,6 @@ module LLM
       return false if path.nil?
       File.readable?(path)
     end
-
-    attr_reader :agent, :provider, :stream,
-                :status, :transcript, :input,
-                :window, :tools, :thread,
-                :path
 
     File = ::File
     private_constant :File

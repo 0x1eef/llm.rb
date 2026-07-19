@@ -143,10 +143,19 @@ class LLM::Repl
     end
 
     ##
+    # @return [LLM::Repl]
+    attr_reader :repl
+
+    ##
+    # @return [LLM::Agent]
+    attr_reader :agent
+
+    ##
     # @param [LLM::Repl] repl
     # @return [LLM::Repl::Command]
     def initialize(repl)
       @repl = repl
+      @agent = repl.agent
     end
 
     ##
@@ -191,6 +200,7 @@ class LLM::Repl
       self.class.parameters
     end
 
+    require_relative "commands/compact"
     require_relative "commands/exit"
     require_relative "commands/help"
   end

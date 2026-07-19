@@ -20,12 +20,18 @@ class LLM::Compactor
         nil
       else
         stream.on_compaction(self)
-        kept = messages.last(keep)
+        kept = filter(messages).last(keep)
         messages.replace([messages.select(&:system?).first, *kept].compact)
         ctx.compacted = true
         stream.on_compaction_finish(self)
         kept
       end
+    end
+
+    private
+
+    def filter(messages)
+      messages.reject { _1.tool_call? or _1.tool_return? }
     end
   end
 end
