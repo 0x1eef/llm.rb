@@ -15,6 +15,14 @@ class LLM::Repl
       D: Curses::KEY_CTRL_D
     }
 
+    ##
+    # This hash tracks how many times a given key
+    # was pressed repeatedly without being
+    # interrupted by another key. The previous key
+    # is reset to 0 when a different key is pressed.
+    REPEATS = {}
+    REPEATS.default = 0
+
     UP        = Curses::Key::UP
     DOWN      = Curses::Key::DOWN
     LEFT      = Curses::Key::LEFT
@@ -60,6 +68,9 @@ class LLM::Repl
     # @return [Symbol, nil]
     def on_char(window, char, now)
       is_paste = lambda { @last_char_at and (now - @last_char_at) < PASTE_THRESHOLD }
+      if char and @char != char
+        REPEATS[@char] = 0
+      end
       if TAB == char
         autocomplete
         :tab
@@ -112,7 +123,11 @@ class LLM::Repl
         nil
       end
     ensure
-      @last_char_at = now if char
+      if char
+        REPEATS[char] += 1
+        @last_char_at = now
+        @char = char
+      end
     end
 
     ##
@@ -191,15 +206,21 @@ class LLM::Repl
     def autocomplete
       return unless @buffer[0] == "/"
       ##
-      # For now this is just a very simple
-      # autocomplete. It doesn't support cycles
-      # and even though its limited at the moment
-      # it is hoped to be useful.
-      candidates = LLM::Repl::Command.complete(@buffer)
-      if candidates.any?
-        @buffer = "/#{candidates[0]}"
-        @cursor = @buffer.size
+      # This method implements a simple autocomplete
+      # that supports cycling through all known
+      # commands. When given tab in quick succession,
+      # we cycle to the nearest neighbour for the last
+      # full match. However, it's not based on similarity,
+      # it's just the next element in the array.
+      keys = LLM::Command.registry.keys
+      candidates = LLM::Command.complete(@buffer)
+      if REPEATS[TAB] >= 1
+        candidate = keys[keys.index(candidates[0]) + 1] || keys[0]
+      else
+        candidate = candidates[0]
       end
+      @buffer = "/#{candidate}"
+      @cursor = @buffer.size
     end
 
     ##

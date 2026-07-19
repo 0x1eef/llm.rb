@@ -99,6 +99,11 @@
   name. This provides quick access to commands like `/compact`, `/help`,
   `/exit`, and `/quit` without typing the full name.
 
+* **repl: cycle through tab-complete matches on repeated Tab presses** <br>
+  Pressing Tab again after an autocomplete cycles through the remaining
+  matching commands. Each subsequent Tab advances to the next candidate,
+  making it easy to reach any command without typing the full name.
+
 * **repl: expose `agent` and `repl` readers on Command** <br>
   `LLM::Repl::Command` now exposes `agent` (the active `LLM::Agent`)
   and `repl` (the active `LLM::Repl`) as public readers, making it
