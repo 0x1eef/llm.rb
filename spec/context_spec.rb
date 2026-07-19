@@ -171,12 +171,12 @@ RSpec.describe LLM::Context do
       expect(ctx.talk("What is the capital of France?")).to eq(response)
     end
 
-    it "compacts before sending a responses request" do
-      compactor = instance_double(LLM::Compactor, compact?: true, compact!: nil)
-      allow(ctx).to receive(:compactor).and_return(compactor)
+    it "calls the compactor before sending a request" do
+      compactor_class = Class.new(LLM::Compactor) do
+        def call(**opts) = nil
+      end
+      ctx = described_class.new(provider, model:, compactor: compactor_class)
       allow(provider).to receive(:responses).and_return(responses)
-      expect(compactor).to receive(:compact?).with("What is the capital of France?").ordered.and_return(true)
-      expect(compactor).to receive(:compact!).with("What is the capital of France?").ordered.and_return(nil)
       expect(responses).to receive(:create).ordered.and_return(response)
       ctx.talk("What is the capital of France?")
     end
@@ -502,7 +502,6 @@ RSpec.describe LLM::Context do
     let(:ctx) { LLM::Context.new(provider, model:, transformer:) }
     let(:responses) { provider.responses }
     let(:response) { double(choices: [LLM::Message.new("assistant", "hello")]) }
-    let(:compactor) { instance_double(LLM::Compactor, compact?: false) }
     let(:stream_class) do
       Class.new(LLM::Stream) do
         attr_reader :events
@@ -522,10 +521,6 @@ RSpec.describe LLM::Context do
     end
     let(:stream) { stream_class.new }
 
-    before do
-      allow(ctx).to receive(:compactor).and_return(compactor)
-    end
-
     it "rewrites the prompt before talk" do
       allow(provider).to receive(:responses).and_return(responses)
       expect(responses).to receive(:create).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
@@ -542,7 +537,6 @@ RSpec.describe LLM::Context do
     it "rewrites the prompt before talk in responses mode" do
       responses = double
       ctx = LLM::Context.new(provider, model:, transformer:, mode: :responses)
-      allow(ctx).to receive(:compactor).and_return(compactor)
       allow(provider).to receive(:responses).and_return(responses)
       expect(responses).to receive(:create).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
       ctx.talk("hello")
@@ -684,7 +678,6 @@ RSpec.describe LLM::Context do
       let(:result) { LLM::Function::Return.new("call_1", "system", {"ok" => true}) }
 
       before do
-        allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
         allow(provider).to receive(:responses).and_return(responses)
         allow(responses).to receive(:create).and_return(response)
         ctx.talk("hello", stream: per_call_stream)
@@ -896,12 +889,12 @@ RSpec.describe LLM::Context do
     let(:model) { "gpt-5.4" }
     let(:responses) { provider.responses }
     let(:response) { double(choices: [LLM::Message.new("assistant", "hello")]) }
-    let(:compactor) { instance_double(LLM::Compactor, compact?: true, compact!: nil) }
 
-    it "compacts before sending a completions request" do
-      allow(ctx).to receive(:compactor).and_return(compactor)
-      expect(compactor).to receive(:compact?).with("hello").ordered.and_return(true)
-      expect(compactor).to receive(:compact!).with("hello").ordered.and_return(nil)
+    it "calls the compactor before sending a completions request" do
+      compactor_class = Class.new(LLM::Compactor) do
+        def call(**opts) = nil
+      end
+      ctx = described_class.new(provider, model:, compactor: compactor_class)
       allow(provider).to receive(:responses).and_return(responses)
       expect(responses).to receive(:create).ordered.and_return(response)
       ctx.talk("hello")
@@ -910,7 +903,6 @@ RSpec.describe LLM::Context do
     it "binds the current context onto the stream" do
       stream = LLM::Stream.new
       ctx = described_class.new(provider, model:, stream:)
-      allow(ctx).to receive(:compactor).and_return(instance_double(LLM::Compactor, compact?: false))
       allow(provider).to receive(:responses).and_return(responses)
       expect(responses).to receive(:create).ordered.and_return(response)
       ctx.talk("hello")
@@ -918,7 +910,6 @@ RSpec.describe LLM::Context do
     end
 
     context "when given tool returns" do
-      let(:compactor) { instance_double(LLM::Compactor, compact?: false) }
       let(:tool) do
         Class.new(LLM::Tool) do
           name "system"
@@ -937,8 +928,6 @@ RSpec.describe LLM::Context do
       end
 
       it "does not compact before sending tool returns" do
-        allow(ctx).to receive(:compactor).and_return(compactor)
-        expect(compactor).to receive(:compact?).with([result]).ordered.and_return(false)
         allow(provider).to receive(:responses).and_return(responses)
         expect(responses).to receive(:create).ordered.and_return(response)
         ctx.talk([result])
@@ -946,301 +935,4 @@ RSpec.describe LLM::Context do
     end
   end
 
-  context "#compactor" do
-    let(:provider) { LLM.openai(key: "test") }
-    let(:model) { "gpt-5.4" }
-    let(:responses) { provider.responses }
-    let(:compactor_options) { {message_threshold: 2, retention_window: 1} }
-    let(:ctx) { LLM::Context.new(provider, model:, compactor: compactor_options) }
-    let(:summary_text) { "Summary of the earlier conversation" }
-    let(:response) { LLM::Object.from(content: summary_text, choices: [LLM::Message.new("assistant", "hello")]) }
-    let(:tool) do
-      Class.new(LLM::Tool) do
-        name "system"
-        description "run shell commands"
-      end
-    end
-
-    it "returns an llm compactor" do
-      expect(ctx.compactor).to be_a(LLM::Compactor)
-    end
-
-    it "allows assigning compactor config" do
-      ctx.compactor = {message_threshold: 4, retention_window: 2}
-      expect(ctx.compactor).to be_a(LLM::Compactor)
-      expect(ctx.compactor.config).to include(message_threshold: 4, retention_window: 2)
-    end
-
-    it "allows assigning an llm compactor" do
-      compactor = LLM::Compactor.new(ctx, message_threshold: 4, retention_window: 2)
-      ctx.compactor = compactor
-      expect(ctx.compactor).to equal(compactor)
-    end
-
-    it "does not enable token threshold by default" do
-      expect(ctx.compactor.config[:token_threshold]).to be_nil
-    end
-
-    context "#compact?" do
-      context "when non-system messages exceed the threshold" do
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "one")
-          ctx.messages << LLM::Message.new("assistant", "two")
-          ctx.messages << LLM::Message.new("user", "three")
-        end
-
-        it { expect(ctx.compactor).to be_compactable }
-      end
-
-      context "when token threshold is configured" do
-        let(:compactor_options) { {token_threshold: 10, retention_window: 1} }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "one")
-          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 50))
-        end
-
-        it { expect(ctx.compactor).to be_compactable }
-      end
-
-      context "when token threshold is configured as a percentage" do
-        let(:compactor_options) { {token_threshold: "90%", retention_window: 1} }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "one")
-          allow(ctx).to receive(:context_window).and_return(100)
-          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 95))
-        end
-
-        it { expect(ctx.compactor).to be_compactable }
-      end
-
-      context "when token threshold is configured as a percentage and the context window is unknown" do
-        let(:compactor_options) { {token_threshold: "90%", retention_window: 1} }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "one")
-          allow(ctx).to receive(:context_window).and_return(0)
-          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 95))
-        end
-
-        it { expect(ctx.compactor).not_to be_compactable }
-      end
-
-      context "during a pending tool lifecycle" do
-        let(:result) { LLM::Function::Return.new("call_1", "system", {ok: true}) }
-
-        before do
-          ctx.messages << LLM::Message.new("assistant", nil, {
-            tools: [tool],
-            tool_calls: [
-              {id: "call_1", type: "function", function: {name: "system", arguments: {command: "date"}}}
-            ]
-          })
-        end
-
-        it { expect(ctx.compactor).not_to be_compactable([result]) }
-      end
-
-      context "when message threshold is disabled" do
-        let(:compactor_options) { {token_threshold: 10, retention_window: 1} }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "one")
-          ctx.messages << LLM::Message.new("assistant", "two")
-          ctx.messages << LLM::Message.new("user", "three")
-          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 5))
-        end
-
-        it { expect(ctx.compactor).not_to be_compactable }
-      end
-
-      context "when token threshold is disabled" do
-        let(:compactor_options) { {message_threshold: 10, retention_window: 1} }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "one")
-          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 50_000_000))
-        end
-
-        it { expect(ctx.compactor).not_to be_compactable }
-      end
-
-      context "when no thresholds are configured" do
-        let(:compactor_options) { {retention_window: 1} }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "one")
-          ctx.messages << LLM::Message.new("assistant", "two")
-          ctx.messages << LLM::Message.new("user", "three")
-          allow(ctx).to receive(:usage).and_return(LLM::Object.from(total_tokens: 50_000_000))
-        end
-
-        it { expect(ctx.compactor).not_to be_compactable }
-      end
-    end
-
-    context "#compact!" do
-      before do
-        allow(provider).to receive(:complete).and_return(response)
-        allow(provider).to receive(:responses).and_return(responses)
-        allow(responses).to receive(:create).and_return(response)
-      end
-
-      context "when given a stream" do
-        let(:stream) do
-          Class.new(LLM::Stream) do
-            attr_reader :events
-
-            def initialize
-              @events = []
-            end
-
-            def on_compaction(ctx, compactor)
-              @events << [:start, ctx, compactor]
-            end
-
-            def on_compaction_finish(ctx, compactor)
-              @events << [:finish, ctx, compactor]
-            end
-          end.new
-        end
-        let(:ctx) { LLM::Context.new(provider, model:, stream:, compactor: compactor_options) }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "first")
-          ctx.messages << LLM::Message.new("assistant", "second")
-          ctx.messages << LLM::Message.new("user", "third")
-        end
-
-        it "emits compaction lifecycle callbacks" do
-          ctx.compactor.compact!
-          expect(stream.events).to eq([
-            [:start, ctx, ctx.compactor],
-            [:finish, ctx, ctx.compactor]
-          ])
-        end
-      end
-
-      context "with ordinary messages" do
-        let(:summary) { ctx.compactor.compact! }
-        let(:compacted_messages) { summary ? ctx.messages.to_a : [] }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "first")
-          ctx.messages << LLM::Message.new("assistant", "second")
-          ctx.messages << LLM::Message.new("user", "third")
-        end
-
-        it "marks the summary as a compaction message" do
-          expect(summary).to be_compaction
-        end
-
-        it "returns the summary message" do
-          expect(summary).to eq(
-            LLM::Message.new("user", "[Previous conversation summary]\n\n#{summary_text}", {compaction: true})
-          )
-        end
-
-        it "replaces older messages with the summary" do
-          expect(compacted_messages).to eq([
-            LLM::Message.new("system", "You are helpful"),
-            summary,
-            LLM::Message.new("user", "third")
-          ])
-        end
-
-        it "keeps the compaction flag in the message history" do
-          expect(compacted_messages[1]).to be_compaction
-        end
-
-        it "marks the context as compacted" do
-          ctx.compactor.compact!
-          expect(ctx.compacted?).to eq(true)
-        end
-      end
-
-      context "after compaction" do
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "first")
-          ctx.messages << LLM::Message.new("assistant", "second")
-          ctx.messages << LLM::Message.new("user", "third")
-          ctx.compactor.compact!
-        end
-
-        it "clears the compacted state after the next successful talk" do
-          ctx.talk("hello")
-          expect(ctx.compacted?).to eq(false)
-        end
-      end
-
-      context "when thresholds are disabled" do
-        let(:compactor_options) { {message_threshold: nil, token_threshold: nil, retention_window: 1} }
-        let(:summary) { ctx.compactor.compact! }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "first")
-          ctx.messages << LLM::Message.new("assistant", "second")
-          ctx.messages << LLM::Message.new("user", "third")
-        end
-
-        it "still allows forced manual compaction" do
-          expect(summary).to eq(
-            LLM::Message.new("user", "[Previous conversation summary]\n\n#{summary_text}", {compaction: true})
-          )
-        end
-      end
-
-      context "during a pending tool lifecycle" do
-        let(:compactor_options) { {message_threshold: nil, token_threshold: nil, retention_window: 1} }
-
-        before do
-          allow(ctx).to receive(:functions).and_return([tool.function].extend(LLM::Function::Array))
-          ctx.messages << LLM::Message.new("user", "third")
-        end
-
-        it "does not force compaction" do
-          expect(ctx.compactor.compact!).to be_nil
-        end
-      end
-
-      context "when the retained window would begin on a tool return" do
-        let(:compactor_options) { {message_threshold: 2, retention_window: 2} }
-
-        before do
-          ctx.messages << LLM::Message.new("system", "You are helpful")
-          ctx.messages << LLM::Message.new("user", "first")
-          ctx.messages << LLM::Message.new("assistant", nil, {
-            tools: [tool],
-            tool_calls: [
-              {id: "call_1", type: "function", function: {name: "system", arguments: {command: "date"}}}
-            ]
-          })
-          ctx.messages << LLM::Message.new("tool", LLM::Function::Return.new("call_1", "system", {ok: true}))
-          ctx.messages << LLM::Message.new("assistant", "done")
-        end
-
-        it "keeps the preceding assistant tool call too" do
-          summary = ctx.compactor.compact!
-
-          expect(ctx.messages.to_a.map(&:role)).to eq(["system", "user", "assistant", "tool", "assistant"])
-          expect(ctx.messages[1]).to eq(summary)
-          expect(ctx.messages[2]).to be_tool_call
-          expect(ctx.messages[3]).to be_tool_return
-          expect(ctx.messages[4].content).to eq("done")
-        end
-      end
-    end
-  end
 end

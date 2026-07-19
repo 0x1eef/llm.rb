@@ -39,7 +39,7 @@ RSpec.describe LLM::Compactor::Truncate do
 
       it "drops the oldest non-system messages" do
         compactor.call(keep: 3)
-        expect(ctx.messages.map(&:content)).to eq(%w[first third fourth fifth])
+        expect(ctx.messages.map(&:content)).to eq(%w[third fourth fifth])
       end
 
       it "returns the last N messages" do
