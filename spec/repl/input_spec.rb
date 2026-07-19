@@ -5,8 +5,9 @@ require "llm/repl"
 
 RSpec.describe LLM::Repl::Input do
   let(:llm) { LLM.deepseek(key: ENV["test"]) }
+  let(:repl) { LLM::Repl.new(agent:) }
   let(:agent) { LLM::Agent.new(llm) }
-  let(:input) { described_class.new(agent) }
+  let(:input) { described_class.new(repl) }
 
   describe "#restore" do
     let(:buffer) { "" }

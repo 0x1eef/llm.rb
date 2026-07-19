@@ -49,7 +49,7 @@ class LLM::Repl
     attr_writer :paste
 
     ##
-    # @param [LLM::Agent] agent
+    # @param [LLM::Repl] repl
     # @return [LLM::Repl::Input]
     def initialize(repl, options = {})
       @name = repl.name
