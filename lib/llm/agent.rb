@@ -38,6 +38,11 @@ module LLM
   #   agent.talk("Run 'date'")
   class Agent
     ##
+    # @api private
+    UNDEFINED = Object.new
+    private_constant :UNDEFINED
+
+    ##
     # Returns a provider
     # @return [LLM::Provider]
     attr_reader :llm
@@ -51,7 +56,8 @@ module LLM
     #
     # @example
     #   class AdminAgent < LLM::Agent
-    #     set instructions: "You are a system administrator",
+    #     set name: "admin",
+    #         instructions: "You are a system administrator",
     #         model: "gpt-4.1-nano",
     #         tools: [Shell, ReadFile]
     #   end
@@ -75,6 +81,20 @@ module LLM
         else
           raise KeyError, "key not found: #{_1}"
         end
+      end
+    end
+
+    ##
+    # Set or get an agent's name
+    # @param [String] name
+    #  The agent name
+    # @return [String]
+    #  Return's the agents name
+    def self.name(name = UNDEFINED, &block)
+      if name.equal?(UNDEFINED)
+        @name || self.class.to_s.gsub(/(.)([A-Z])/, '\1-\2').downcase
+      else
+        @name = block || name
       end
     end
 
@@ -247,8 +267,8 @@ module LLM
     # @option params [Symbol, Array<Symbol>, nil] :concurrency Defaults to the agent class concurrency
     def initialize(llm, params = {})
       @llm = llm
-      fields = %i[model skills schema tracer stream tools concurrency instructions confirm]
-      fields_ivar = %i[tracer concurrency instructions confirm]
+      fields = %i[name model skills schema tracer stream tools concurrency instructions confirm]
+      fields_ivar = %i[name tracer concurrency instructions confirm]
       fields.each do |field|
         resolvable = params.key?(field) ? params.delete(field) : self.class.public_send(field)
         resolve_symbol = !%i[concurrency].include?(field)
@@ -263,6 +283,13 @@ module LLM
         end
       end
       @ctx = LLM::Context.new(llm, {guard: true}.merge(params))
+    end
+
+    ##
+    # Returns the agent's name
+    # @return [String]
+    def name
+      @name
     end
 
     ##
@@ -436,7 +463,8 @@ module LLM
     #  the duration of the repl session, and restores
     #  it afterwards.
     # @param [String] name
-    #  The agent's name (optional)
+    #  The agent's name.
+    #  Defaults to {LLM::Agent#name}.
     # @param [String] path
     #  The path to a file where runtime state is read
     #  from, and written to
@@ -448,7 +476,7 @@ module LLM
     #  When true, the tracer is kept alive during the
     #  repl session. Default is false.
     # @return [void]
-    def repl(name: nil, path: nil, tools: [], skills: [], tracer: false, trace: nil)
+    def repl(name: self.name, path: nil, tools: [], skills: [], tracer: false, trace: nil)
       if trace != nil
         warn "llm.rb: trace option is deprecated, use tracer instead"
         tracer = trace

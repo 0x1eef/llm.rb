@@ -118,11 +118,24 @@
   indistinguishable from no argument, causing `last(nil)` to
   incorrectly return the last message.
 
+### Agent
+
+* **add `name` class DSL and instance method** <br>
+  `LLM::Agent` now has a `name` class DSL (`name "admin"`) and a
+  corresponding `#name` instance method. The name is resolved through
+  the same lazy-resolution path as other agent attributes — it can be
+  set via `LLM::Agent.set(name: ...)`, `LLM::Agent.new(name: ...)`,
+  or the class DSL. When no name is given, a default is derived from
+  the class name (e.g., `SystemAdmin` becomes `system-admin`). The
+  agent's name is used by the REPL as the default prompt label and
+  transcript prefix, making it easier to distinguish multiple sessions
+  or give the agent a recognisable identity in the curses-based UI.
+
 ### REPL
 
 * **add `name:` parameter to identify the agent** <br>
   `LLM::Agent#repl` and `LLM::Repl.new` now accept a `name:` parameter
-  (defaulting to `"agent"`) that customises the input prompt to
+  (defaulting to `LLM::Agent#name`) that customises the input prompt to
   `provider(name)> ` and the transcript label from the hardcoded
   `agent:` to the given name. This makes it easier to distinguish
   multiple REPL sessions or give the agent a recognisable identity

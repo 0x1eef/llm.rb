@@ -147,8 +147,8 @@ with many of them.
 require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(name: "my-agent")
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl
 ```
 
 ##### REPL: State
