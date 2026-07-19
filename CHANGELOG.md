@@ -19,9 +19,11 @@
 
 * **compactor: add `Truncate` strategy for dropping oldest messages** <br>
   `LLM::Compactor::Truncate` is a new built-in compaction strategy that
-  drops the oldest non-system messages when the conversation exceeds a
-  configured size. It is configured with `keep:` (default 64) and emits
-  the standard `on_compaction` and `on_compaction_finish` stream lifecycle
+  drops the oldest messages when the conversation exceeds a configured
+  size. It uses a smarter pruning approach that keeps tool call/return
+  pairs intact — the algorithm never breaks in the middle of a tool call
+  sequence. It is configured with `keep:` (default 64) and emits the
+  standard `on_compaction` and `on_compaction_finish` stream lifecycle
   callbacks. Unlike the previous summarization approach, no LLM call is
   made — the strategy is purely lossy but fast and requires no network.
 
@@ -74,6 +76,19 @@
   `clear`, `drop`, and `take` methods, making it easier to query and
   mutate `LLM::Context#messages` like an ordinary Array. `reject!` is
   also aliased as `delete_if` for familiarity.
+
+* **repl: add `compact` command for context window compaction** <br>
+  The curses-based REPL now has a `/compact` command that frees space
+  in the context window using the `LLM::Compactor::Truncate` strategy.
+  Typing `/compact` invokes the compactor, drops the oldest messages,
+  and displays `compact in progress` / `compact complete` feedback in
+  the transcript.
+
+* **repl: expose `agent` and `repl` readers on Command** <br>
+  `LLM::Repl::Command` now exposes `agent` (the active `LLM::Agent`)
+  and `repl` (the active `LLM::Repl`) as public readers, making it
+  easy for custom commands to access the agent and the repl interface
+  without reaching through internal references.
 
 ### Change
 

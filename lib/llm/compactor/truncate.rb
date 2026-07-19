@@ -20,7 +20,7 @@ class LLM::Compactor
         nil
       else
         stream.on_compaction(self)
-        kept = filter(messages).last(keep)
+        kept = take(messages, keep)
         messages.replace([messages.select(&:system?).first, *kept].compact)
         ctx.compacted = true
         stream.on_compaction_finish(self)
@@ -30,8 +30,24 @@ class LLM::Compactor
 
     private
 
-    def filter(messages)
-      messages.reject { _1.tool_call? or _1.tool_return? }
+    def take(messages, limit)
+      subset = []
+      in_tool_call = false
+      messages.reverse_each.with_index(1) do |m, index|
+        if index >= limit
+          # maybe time to break?
+          if in_tool_call
+            # nope, we need to close the tool call
+          else
+            # we're done
+            subset.unshift(m)
+            break
+          end
+        end
+        in_tool_call = m.tool_call?
+        subset.unshift(m)
+      end
+      subset
     end
   end
 end
