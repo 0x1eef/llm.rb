@@ -22,9 +22,10 @@ module LLM
     attr_reader :ctx
 
     ##
-    # @param ctx [LLM::Context]
+    # @param ctx [LLM::Context, LLM::Agent]
+    # @return [LLM::Compactor]
     def initialize(ctx)
-      @ctx = ctx
+      @ctx = LLM::Agent === ctx ? ctx.instance_variable_get(:@ctx) : ctx
     end
 
     ##

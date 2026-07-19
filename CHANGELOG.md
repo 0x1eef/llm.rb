@@ -31,6 +31,12 @@
   configured on a context, ensuring the compactor interface is always
   present without requiring a separate nil check.
 
+* **compactor: accept both `LLM::Agent` and `LLM::Context`** <br>
+  `LLM::Compactor#initialize` now accepts both `LLM::Agent` and
+  `LLM::Context` instances. When given an agent, the internal context is
+  unwrapped automatically, making the compactor API more flexible when
+  working with agents.
+
 * **context: accept `compactor` and `compactor_options` parameters** <br>
   `LLM::Context` now accepts `compactor:` (a compactor class defaulting to
   `LLM::Compactor::Null`) and `compactor_options:` (a hash of options
