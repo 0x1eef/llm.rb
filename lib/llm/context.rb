@@ -109,7 +109,6 @@ module LLM
     # General Intelligence Systems.
     # @return [LLM::Compactor]
     def compactor
-      @compactor = LLM::Compactor.new(self, @compactor || {}) unless LLM::Compactor === @compactor
       @compactor
     end
 
@@ -197,7 +196,6 @@ module LLM
     #   puts res.messages[0].content
     def talk(prompt, params = {})
       @owner = @llm.request_owner
-      compactor.compact!(prompt) if compactor.compact?(prompt)
       repair!(@messages, prompt)
       prompt, params, res = mode == :responses ? respond(prompt, params) : complete(prompt, params)
       self.compacted = false

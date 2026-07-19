@@ -17,6 +17,14 @@
 
 ### Add
 
+* **compactor: add `Truncate` strategy for dropping oldest messages** <br>
+  `LLM::Compactor::Truncate` is a new built-in compaction strategy that
+  drops the oldest non-system messages when the conversation exceeds a
+  configured size. It is configured with `keep:` (default 64) and emits
+  the standard `on_compaction` and `on_compaction_finish` stream lifecycle
+  callbacks. Unlike the previous summarization approach, no LLM call is
+  made — the strategy is purely lossy but fast and requires no network.
+
 * **tools: add `LLM::Tool::Utils` module for shared command execution logic** <br>
   A new `LLM::Tool::Utils` module provides shared `wait(command:, timeout:)`
   and `now` helper methods for tools that execute commands. Tools that
@@ -47,6 +55,22 @@
   mutate `LLM::Context#messages` like an ordinary Array. `reject!` is
   also aliased as `delete_if` for familiarity.
 
+### Change
+
+* **compactor: refactor to strategy-based interface** <br>
+  `LLM::Compactor` has been refactored from a single class that performed
+  LLM-based summarization into a strategy-based superclass. Each subclass
+  implements a different compaction strategy via `call(**opts)`. The old
+  summarization approach (using `model:`, `token_threshold:`,
+  `message_threshold:`, and `retention_window:` options) has been removed.
+  The built-in `LLM::Compactor::Truncate` strategy drops the oldest
+  messages when the conversation exceeds a configured size.
+
+* **schema: store `@properties` as an `LLM::Object`** <br>
+  `LLM::Schema::Object` now stores its `@properties` hash as an
+  `LLM::Object` instead of a plain `Hash`, enabling indifferent-access
+  lookups with both string and symbol keys.
+
 ### Fix
 
 * **repl: sort tool arguments by parameter definition order** <br>
@@ -55,6 +79,13 @@
   in the status bar and when assigning argument values to parameters.
   This ensures consistent display regardless of the order in which the
   model returns the arguments.
+
+* **buffer: distinguish `nil` from `undefined` in `last`** <br>
+  `LLM::Buffer#last` now uses an internal `UNDEFINED` sentinel to
+  distinguish between calling `last` with no argument (returns the
+  last message) and `last(nil)` (an error). Previously, `nil` was
+  indistinguishable from no argument, causing `last(nil)` to
+  incorrectly return the last message.
 
 * **object: preserve the original key name in `KeyError` messages** <br>
   `LLM::Object#fetch` now preserves the original key name when a key
