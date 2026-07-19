@@ -85,6 +85,11 @@
   that automatically kills search commands exceeding the specified time limit,
   preventing long-running searches from blocking the agent indefinitely.
 
+* **git: add `timeout` parameter for command execution deadlines** <br>
+  The `LLM::Tool::Git` tool now accepts a `timeout` parameter (default 5s)
+  that automatically kills git commands exceeding the specified time limit,
+  preventing hung processes from blocking the agent indefinitely.
+
 ### Schema
 
 * **track property definition order in the `index` attribute** <br>
