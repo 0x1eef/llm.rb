@@ -205,6 +205,12 @@
   `[image: alt text]`). This provides richer rendering of model
   responses in the interactive session.
 
+* **render tables with aligned columns** <br>
+  The curses-based REPL markdown renderer now handles `<table>`,
+  `<tr>`, `<td>`, and `<th>` nodes, collecting all cells first to
+  compute column widths, then emitting each row with padded text
+  for clean alignment.
+
 ### Object
 
 * **preserve the original key name in `KeyError` messages** <br>

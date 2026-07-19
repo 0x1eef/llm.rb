@@ -8,6 +8,9 @@ class LLM::Repl
   # of text, and also optional style information for
   # that text (eg bold, underscore, ...)
   class Markdown
+    require_relative "markdown/table"
+    include Table
+
     ##
     # @param [String] text
     # @param [Integer] width
@@ -79,6 +82,17 @@ class LLM::Repl
         node.children.each { walk(_1, attrs) }
       when :li
         node.children.each { walk(_1, attrs) }
+      when :table
+        walk_table(node, attrs)
+      when :thead, :tbody
+        node.children.each { walk(_1, attrs) }
+      when :tr
+        emit("| ", attrs)
+        node.children.each { walk(_1, attrs) }
+        emit("\n", attrs)
+      when :td, :th
+        node.children.each { walk(_1, attrs) }
+        emit(" | ", attrs)
       when :blockquote
         emit("> ", attrs)
         node.children.each { walk(_1, attrs) }
