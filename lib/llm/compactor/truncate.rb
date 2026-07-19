@@ -45,7 +45,7 @@ class LLM::Compactor
         # Otherwise, the conversation will become
         # corrupted and any attempt to use it will
         # be an API-level error.
-        in_tool_call ||= m.tool_return?
+        in_tool_call = m.tool_return?
         if index >= limit
           subset.unshift(m)
           in_tool_call ? next : break
