@@ -82,14 +82,19 @@ class LLM::Repl
     end
 
     ##
-    # @param [LLM::Repl::Command] command
+    # @param [LLM::Repl::Command] outer
     #  A new subclass
     # @return [void]
-    def self.inherited(command)
+    def self.inherited(outer)
       LLM.lock(:inherited) do
-        @registry[command] = command
-        command.instance_variable_set(:@parameters, {})
-        command.define_singleton_method(:inherited) { |command| SINGLETON.inherited(command) }
+        @registry[outer] = outer
+        outer.instance_variable_set(:@parameters, {})
+        outer.define_singleton_method(:inherited) do |inner|
+          SINGLETON.inherited(inner)
+          inner.instance_variable_set(:@name, outer.instance_variable_get(:@name))
+          inner.instance_variable_set(:@description, outer.instance_variable_get(:@description))
+          inner.instance_variable_set(:@parameters, outer.instance_variable_get(:@parameters))
+        end
       end
     end
 

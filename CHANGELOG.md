@@ -172,6 +172,14 @@
   the stored hash, causing internal lookup to return `nil` and lose
   the original key reference.
 
+* **command: aliases inherit parent description and parameters** <br>
+  `LLM::Command` subclasses that alias another command (e.g.,
+  `class Quit < Command::Exit`) now inherit the parent's description
+  and parameter definitions. Previously, an alias had neither a
+  description nor parameters; now they are copied from the parent
+  command so `/quit` behaves identically to `/exit` in all respects
+  except its name.
+
 
 ### Refresh
 

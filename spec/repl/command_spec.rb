@@ -162,6 +162,12 @@ RSpec.describe LLM::Repl::Command do
         .to raise_error(NotImplementedError, /#call is not implemented/)
     end
   end
+
+  describe "subclass aliases" do
+    it "inherits description from the parent command" do
+      expect(LLM::Repl::Command::Quit.description).to eq("exits the repl")
+    end
+  end
 end
 
 RSpec.describe LLM::Repl::Command::Parameter do
