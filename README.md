@@ -138,14 +138,17 @@ is generating a response.
 
 A REPL session is started by calling `repl` on any agent
 instance. The session inherits the agent's model, tools,
-skills, and instructions.
+skills, and instructions. An agent can have an optional
+name, which appears throughout the curses UI and helps
+identify an agent which can be useful when you're working
+with many of them.
 
 ```ruby
 require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
-agent.repl
+agent.repl(name: "my-agent")
 ```
 
 ##### REPL: State
@@ -195,7 +198,8 @@ agent.repl(tools: LLM::Tool.subclasses)
 ##### REPL: Skills
 
 The `skills` option lets you load extra skill directories
-without attaching them to an agent permanently.
+without attaching them to an agent permanently. <br>
+Learn more about skills by reading the [deepdive.md](https://r.uby.dev/llm/deepdive/) file.
 
 ```ruby
 require "llm"
