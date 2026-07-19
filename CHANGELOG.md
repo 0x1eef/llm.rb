@@ -82,13 +82,23 @@
   in the context window using the `LLM::Compactor::Truncate` strategy.
   Typing `/compact` invokes the compactor, drops the oldest messages,
   and displays `compact in progress` / `compact complete` feedback in
-  the transcript.
+  the transcript. An optional `n` argument specifies how many messages
+  to keep — for example, `/compact 32` keeps the most recent 32 messages,
+  while `/compact` with no argument defaults to keeping the last 128.
 
 * **repl: expose `agent` and `repl` readers on Command** <br>
   `LLM::Repl::Command` now exposes `agent` (the active `LLM::Agent`)
   and `repl` (the active `LLM::Repl`) as public readers, making it
   easy for custom commands to access the agent and the repl interface
   without reaching through internal references.
+
+* **repl(command): allow commands to set parameter defaults** <br>
+  Commands can now set default values for their parameters directly in
+  their `call` method signature. When a user provides fewer arguments
+  than declared parameters, the default value from the signature is
+  used instead of passing `nil`. This enables commands like `/compact`
+  to define defaults such as `def call(n: 128)` and have those defaults
+  apply when no argument is given.
 
 ### Change
 

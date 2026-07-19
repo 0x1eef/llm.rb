@@ -12,12 +12,13 @@ class LLM::Repl
   class Command::Compact < Command
     name "compact"
     description "frees space in the context window"
+    parameter :n, String, "the number of messages to keep"
 
     ##
     # @return [void]
-    def call
+    def call(n: 128)
       write("compact in progress\n")
-      compactor.call
+      compactor.call(keep: n.to_i)
       write("compact complete\n\n")
     end
 
