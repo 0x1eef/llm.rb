@@ -7,6 +7,9 @@ module LLM
   class Buffer
     include Enumerable
 
+    UNDEFINED = Object.new
+    private_constant :UNDEFINED
+
     ##
     # @param [LLM::Provider] provider
     # @return [LLM::Buffer]
@@ -65,8 +68,8 @@ module LLM
     # @param [Integer, nil] n
     #  The number of messages to return
     # @return [LLM::Message, Array<LLM::Message>, nil]
-    def last(n = nil)
-      n.nil? ? @messages.last : @messages.last(n)
+    def last(n = UNDEFINED)
+      n.equal?(UNDEFINED) ? @messages.last : @messages.last(n)
     end
 
     ##
