@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 class LLM::Tool
   ##
   # The {LLM::Tool::ReadFile LLM::Tool::ReadFile} class implements

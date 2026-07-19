@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 class LLM::Tool
   ##
   # The {LLM::Tool::Chdir LLM::Tool::Chdir} class implements
