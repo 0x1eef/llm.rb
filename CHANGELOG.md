@@ -15,9 +15,9 @@
 
 ## What's next
 
-### Add
+### Compactor
 
-* **compactor: add `Truncate` strategy for dropping oldest messages** <br>
+* **add `Truncate` strategy for dropping oldest messages** <br>
   `LLM::Compactor::Truncate` is a new built-in compaction strategy that
   drops the oldest messages when the conversation exceeds a configured
   size. It uses a smarter pruning approach that keeps tool call/return
@@ -27,19 +27,30 @@
   callbacks. Unlike the previous summarization approach, no LLM call is
   made — the strategy is purely lossy but fast and requires no network.
 
-* **compactor: add `Null` strategy for no-op compaction** <br>
+* **add `Null` strategy for no-op compaction** <br>
   `LLM::Compactor::Null` is a new built-in compaction strategy that does
   nothing. It is used as the default compactor when no strategy is
   configured on a context, ensuring the compactor interface is always
   present without requiring a separate nil check.
 
-* **compactor: accept both `LLM::Agent` and `LLM::Context`** <br>
+* **accept both `LLM::Agent` and `LLM::Context`** <br>
   `LLM::Compactor#initialize` now accepts both `LLM::Agent` and
   `LLM::Context` instances. When given an agent, the internal context is
   unwrapped automatically, making the compactor API more flexible when
   working with agents.
 
-* **context: accept `compactor` and `compactor_options` parameters** <br>
+* **refactor to strategy-based interface** <br>
+  `LLM::Compactor` has been refactored from a single class that performed
+  LLM-based summarization into a strategy-based superclass. Each subclass
+  implements a different compaction strategy via `call(**opts)`. The old
+  summarization approach (using `model:`, `token_threshold:`,
+  `message_threshold:`, and `retention_window:` options) has been removed.
+  The built-in `LLM::Compactor::Truncate` strategy drops the oldest
+  messages when the conversation exceeds a configured size.
+
+#### Context integration
+
+* **accept `compactor` and `compactor_options` parameters** <br>
   `LLM::Context` now accepts `compactor:` (a compactor class defaulting to
   `LLM::Compactor::Null`) and `compactor_options:` (a hash of options
   forwarded to the compactor's `call` method) parameters. The compactor
@@ -47,7 +58,16 @@
   previous `compactor=` setter has been removed in favour of
   constructor-driven configuration.
 
-* **tools: add `LLM::Tool::Utils` module for shared command execution logic** <br>
+* **`on_compaction` and `on_compaction_finish` receive a single argument** <br>
+  `LLM::Stream#on_compaction` and `LLM::Stream#on_compaction_finish` now
+  accept a single argument (the compactor instance) instead of two arguments
+  (context and compactor). The context is still available via
+  `LLM::Compactor#ctx`, so access to the context is not lost. This simplifies
+  the callback interface for compaction lifecycle observers.
+
+### Tools
+
+* **add `LLM::Tool::Utils` module for shared command execution logic** <br>
   A new `LLM::Tool::Utils` module provides shared `wait(command:, timeout:)`
   and `now` helper methods for tools that execute commands. Tools that
   include `Utils` can wait on a running command and automatically kill it
@@ -65,19 +85,37 @@
   that automatically kills search commands exceeding the specified time limit,
   preventing long-running searches from blocking the agent indefinitely.
 
-* **schema: track property definition order in the `index` attribute** <br>
+### Schema
+
+* **track property definition order in the `index` attribute** <br>
   `LLM::Schema::Leaf` now has an `index` accessor that tracks the order
   in which properties are defined. Each property receives an incrementing
   index as it is added to the schema, matching the same convention used
   by `LLM::Command::Parameter`.
 
-* **buffer: add Array-like query and mutation methods** <br>
+* **store `@properties` as an `LLM::Object`** <br>
+  `LLM::Schema::Object` now stores its `@properties` hash as an
+  `LLM::Object` instead of a plain `Hash`, enabling indifferent-access
+  lookups with both string and symbol keys.
+
+### Buffer
+
+* **add Array-like query and mutation methods** <br>
   `LLM::Buffer` now exposes `first`, `reject!`, `select!`, `shift`,
   `clear`, `drop`, and `take` methods, making it easier to query and
   mutate `LLM::Context#messages` like an ordinary Array. `reject!` is
   also aliased as `delete_if` for familiarity.
 
-* **repl: add `name:` parameter to identify the agent** <br>
+* **distinguish `nil` from `undefined` in `last`** <br>
+  `LLM::Buffer#last` now uses an internal `UNDEFINED` sentinel to
+  distinguish between calling `last` with no argument (returns the
+  last message) and `last(nil)` (an error). Previously, `nil` was
+  indistinguishable from no argument, causing `last(nil)` to
+  incorrectly return the last message.
+
+### REPL
+
+* **add `name:` parameter to identify the agent** <br>
   `LLM::Agent#repl` and `LLM::Repl.new` now accept a `name:` parameter
   (defaulting to `"agent"`) that customises the input prompt to
   `provider(name)> ` and the transcript label from the hardcoded
@@ -85,7 +123,7 @@
   multiple REPL sessions or give the agent a recognisable identity
   in the curses-based UI.
 
-* **repl: add `compact` command for context window compaction** <br>
+* **add `compact` command for context window compaction** <br>
   The curses-based REPL now has a `/compact` command that frees space
   in the context window using the `LLM::Compactor::Truncate` strategy.
   Typing `/compact` invokes the compactor, drops the oldest messages,
@@ -94,31 +132,31 @@
   to keep — for example, `/compact 32` keeps the most recent 32 messages,
   while `/compact` with no argument defaults to keeping the last 128.
 
-* **command: add `LLM::Command.complete` for command name completion** <br>
+* **add `LLM::Command.complete` for command name completion** <br>
   `LLM::Repl::Command.complete(str)` (also available as `LLM::Command.complete`)
   returns an array of command names whose names start with the given input
   string, providing the foundation for tab-completion of command names in
   the REPL.
 
-* **repl: implement tab-complete for command names** <br>
+* **implement tab-complete for command names** <br>
   The curses-based REPL input now supports tab-completion for `/` commands.
   Pressing the Tab key while the input begins with `/` matches the typed
   prefix against the command registry and fills in the first matching command
   name. This provides quick access to commands like `/compact`, `/help`,
   `/exit`, and `/quit` without typing the full name.
 
-* **repl: cycle through tab-complete matches on repeated Tab presses** <br>
+* **cycle through tab-complete matches on repeated Tab presses** <br>
   Pressing Tab again after an autocomplete cycles through the remaining
   matching commands. Each subsequent Tab advances to the next candidate,
   making it easy to reach any command without typing the full name.
 
-* **repl: expose `agent` and `repl` readers on Command** <br>
+* **expose `agent` and `repl` readers on Command** <br>
   `LLM::Repl::Command` now exposes `agent` (the active `LLM::Agent`)
   and `repl` (the active `LLM::Repl`) as public readers, making it
   easy for custom commands to access the agent and the repl interface
   without reaching through internal references.
 
-* **repl(command): allow commands to set parameter defaults** <br>
+* **allow commands to set parameter defaults** <br>
   Commands can now set default values for their parameters directly in
   their `call` method signature. When a user provides fewer arguments
   than declared parameters, the default value from the signature is
@@ -126,53 +164,14 @@
   to define defaults such as `def call(n: 128)` and have those defaults
   apply when no argument is given.
 
-### Change
-
-* **compactor: refactor to strategy-based interface** <br>
-  `LLM::Compactor` has been refactored from a single class that performed
-  LLM-based summarization into a strategy-based superclass. Each subclass
-  implements a different compaction strategy via `call(**opts)`. The old
-  summarization approach (using `model:`, `token_threshold:`,
-  `message_threshold:`, and `retention_window:` options) has been removed.
-  The built-in `LLM::Compactor::Truncate` strategy drops the oldest
-  messages when the conversation exceeds a configured size.
-
-* **stream: `on_compaction` and `on_compaction_finish` receive a single argument** <br>
-  `LLM::Stream#on_compaction` and `LLM::Stream#on_compaction_finish` now
-  accept a single argument (the compactor instance) instead of two arguments
-  (context and compactor). The context is still available via
-  `LLM::Compactor#ctx`, so access to the context is not lost. This simplifies
-  the callback interface for compaction lifecycle observers.
-
-* **schema: store `@properties` as an `LLM::Object`** <br>
-  `LLM::Schema::Object` now stores its `@properties` hash as an
-  `LLM::Object` instead of a plain `Hash`, enabling indifferent-access
-  lookups with both string and symbol keys.
-
-### Fix
-
-* **repl: sort tool arguments by parameter definition order** <br>
+* **sort tool arguments by parameter definition order** <br>
   The curses-based REPL now sorts tool parameters by their definition
   order (using the new `index` attribute) when displaying tool arguments
   in the status bar and when assigning argument values to parameters.
   This ensures consistent display regardless of the order in which the
   model returns the arguments.
 
-* **buffer: distinguish `nil` from `undefined` in `last`** <br>
-  `LLM::Buffer#last` now uses an internal `UNDEFINED` sentinel to
-  distinguish between calling `last` with no argument (returns the
-  last message) and `last(nil)` (an error). Previously, `nil` was
-  indistinguishable from no argument, causing `last(nil)` to
-  incorrectly return the last message.
-
-* **object: preserve the original key name in `KeyError` messages** <br>
-  `LLM::Object#fetch` now preserves the original key name when a key
-  is not found, instead of raising `KeyError` with `key not found: nil`.
-  The previous behavior occurred when the given key was not found in
-  the stored hash, causing internal lookup to return `nil` and lose
-  the original key reference.
-
-* **command: aliases inherit parent description and parameters** <br>
+* **aliases inherit parent description and parameters** <br>
   `LLM::Command` subclasses that alias another command (e.g.,
   `class Quit < Command::Exit`) now inherit the parent's description
   and parameter definitions. Previously, an alias had neither a
@@ -180,10 +179,18 @@
   command so `/quit` behaves identically to `/exit` in all respects
   except its name.
 
+### Object
 
-### Refresh
+* **preserve the original key name in `KeyError` messages** <br>
+  `LLM::Object#fetch` now preserves the original key name when a key
+  is not found, instead of raising `KeyError` with `key not found: nil`.
+  The previous behavior occurred when the given key was not found in
+  the stored hash, causing internal lookup to return `nil` and lose
+  the original key reference.
 
-* **registry: mark deprecated models in DeepInfra registry** <br>
+### Registry
+
+* **mark deprecated models in DeepInfra registry** <br>
   Update `data/deepinfra.json` to mark several models as `"status":
   "deprecated"`, including `meta-llama/Meta-Llama-3.1-8B-Instruct`,
   `Qwen/Qwen1.5-110B-Chat`, and `mistralai/Mixtral-8x7B-Instruct-v0.1`.
