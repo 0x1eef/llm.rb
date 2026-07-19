@@ -57,7 +57,7 @@ RSpec.describe LLM::Stream do
 
   describe "#on_compaction" do
     it "returns nil" do
-      expect(stream.on_compaction(ctx, compactor)).to be_nil
+      expect(stream.on_compaction(compactor)).to be_nil
     end
   end
 
@@ -75,7 +75,7 @@ RSpec.describe LLM::Stream do
 
   describe "#on_compaction_finish" do
     it "returns nil" do
-      expect(stream.on_compaction_finish(ctx, compactor)).to be_nil
+      expect(stream.on_compaction_finish(compactor)).to be_nil
     end
   end
 

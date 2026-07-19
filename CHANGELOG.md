@@ -80,6 +80,13 @@
   The built-in `LLM::Compactor::Truncate` strategy drops the oldest
   messages when the conversation exceeds a configured size.
 
+* **stream: `on_compaction` and `on_compaction_finish` receive a single argument** <br>
+  `LLM::Stream#on_compaction` and `LLM::Stream#on_compaction_finish` now
+  accept a single argument (the compactor instance) instead of two arguments
+  (context and compactor). The context is still available via
+  `LLM::Compactor#ctx`, so access to the context is not lost. This simplifies
+  the callback interface for compaction lifecycle observers.
+
 * **schema: store `@properties` as an `LLM::Object`** <br>
   `LLM::Schema::Object` now stores its `@properties` hash as an
   `LLM::Object` instead of a plain `Hash`, enabling indifferent-access

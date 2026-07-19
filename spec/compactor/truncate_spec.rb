@@ -105,13 +105,13 @@ RSpec.describe LLM::Compactor::Truncate do
         add_message "user", "third"
         add_message "assistant", "fourth"
         add_message "user", "fifth"
-        allow(stream).to receive(:on_compaction) { |ctx, c| events << [:start, ctx, c] }
-        allow(stream).to receive(:on_compaction_finish) { |ctx, c| events << [:finish, ctx, c] }
+        allow(stream).to receive(:on_compaction) { |c| events << [:start, c] }
+        allow(stream).to receive(:on_compaction_finish) { |c| events << [:finish, c] }
       end
 
       it "emits compaction lifecycle callbacks" do
         compactor.call(keep: 3)
-        expect(events).to eq([[:start, ctx, compactor], [:finish, ctx, compactor]])
+        expect(events).to eq([[:start, compactor], [:finish, compactor]])
       end
     end
 
