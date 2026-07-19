@@ -25,6 +25,20 @@
   callbacks. Unlike the previous summarization approach, no LLM call is
   made — the strategy is purely lossy but fast and requires no network.
 
+* **compactor: add `Null` strategy for no-op compaction** <br>
+  `LLM::Compactor::Null` is a new built-in compaction strategy that does
+  nothing. It is used as the default compactor when no strategy is
+  configured on a context, ensuring the compactor interface is always
+  present without requiring a separate nil check.
+
+* **context: accept `compactor` and `compactor_options` parameters** <br>
+  `LLM::Context` now accepts `compactor:` (a compactor class defaulting to
+  `LLM::Compactor::Null`) and `compactor_options:` (a hash of options
+  forwarded to the compactor's `call` method) parameters. The compactor
+  is automatically invoked at the beginning of each `talk` turn. The
+  previous `compactor=` setter has been removed in favour of
+  constructor-driven configuration.
+
 * **tools: add `LLM::Tool::Utils` module for shared command execution logic** <br>
   A new `LLM::Tool::Utils` module provides shared `wait(command:, timeout:)`
   and `now` helper methods for tools that execute commands. Tools that
@@ -93,6 +107,14 @@
   The previous behavior occurred when the given key was not found in
   the stored hash, causing internal lookup to return `nil` and lose
   the original key reference.
+
+
+### Refresh
+
+* **registry: mark deprecated models in DeepInfra registry** <br>
+  Update `data/deepinfra.json` to mark several models as `"status":
+  "deprecated"`, including `meta-llama/Meta-Llama-3.1-8B-Instruct`,
+  `Qwen/Qwen1.5-110B-Chat`, and `mistralai/Mixtral-8x7B-Instruct-v0.1`.
 
 ## v12.6.0
 
