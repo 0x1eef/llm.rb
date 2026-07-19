@@ -27,10 +27,12 @@ module LLM
     attr_reader :agent, :provider, :stream,
                 :status, :transcript, :input,
                 :window, :tools, :thread,
-                :path
+                :name, :path
 
     ##
     # @param [LLM::Agent] agent
+    # @param [String, nil] name
+    #  The agent's name (optional)
     # @param [String, nil] path
     #  The path where to maintain runtime state
     # @param [Array<LLM::Tool>] tools
@@ -38,13 +40,14 @@ module LLM
     # @param [Array<String>] skills
     #  Zero or more skills
     # @return [LLM::Repl]
-    def initialize(agent:, tools: [], skills: [], path: nil)
-      @path  = path
+    def initialize(agent:, name: nil, tools: [], skills: [], path: nil)
+      @path = path
+      @name = name || "agent"
       @agent = configure(agent:, path:)
       @provider = agent.llm.name
       @status = Status.new(@agent)
       @transcript = Transcript.new
-      @input = Input.new(@agent, height: 3)
+      @input = Input.new(self, height: 3)
       @window = Window.new(@status, @transcript, @input)
       @thread = nil
       @queue = Queue.new
@@ -155,7 +158,7 @@ module LLM
         status.text = thinking_text
         write("user: ", Curses::A_BOLD)
         markdown(text)
-        write("\nagent: ", Curses::A_BOLD)
+        write("\n#{name}: ", Curses::A_BOLD)
         @thread = Thread.new do
           @queue << [:start]
           agent.talk(text, tools:, stream:)
@@ -223,7 +226,7 @@ module LLM
           @thread = nil
         when :cancel
           status.text = "Idle"
-          write("\n\nagent: ", Curses::A_BOLD)
+          write("\n\n#{name}: ", Curses::A_BOLD)
           write("request cancelled!")
           write("\n\n")
           transcript.finish

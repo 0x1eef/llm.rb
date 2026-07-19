@@ -35,6 +35,6 @@ end
 def main(argv)
   llm   = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
   agent = Agent.new(llm).tap(&:run)
-  agent.repl(path: "contexts/changelog.json")
+  agent.repl(name: "changelog", path: "contexts/changelog.json")
 end
 main(ARGV)

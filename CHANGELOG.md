@@ -77,6 +77,14 @@
   mutate `LLM::Context#messages` like an ordinary Array. `reject!` is
   also aliased as `delete_if` for familiarity.
 
+* **repl: add `name:` parameter to identify the agent** <br>
+  `LLM::Agent#repl` and `LLM::Repl.new` now accept a `name:` parameter
+  (defaulting to `"agent"`) that customises the input prompt to
+  `provider(name)> ` and the transcript label from the hardcoded
+  `agent:` to the given name. This makes it easier to distinguish
+  multiple REPL sessions or give the agent a recognisable identity
+  in the curses-based UI.
+
 * **repl: add `compact` command for context window compaction** <br>
   The curses-based REPL now has a `/compact` command that frees space
   in the context window using the `LLM::Compactor::Truncate` strategy.

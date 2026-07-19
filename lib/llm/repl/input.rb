@@ -51,9 +51,10 @@ class LLM::Repl
     ##
     # @param [LLM::Agent] agent
     # @return [LLM::Repl::Input]
-    def initialize(agent, options = {})
-      @agent = agent
-      @provider = agent.llm.name
+    def initialize(repl, options = {})
+      @name = repl.name
+      @agent = repl.agent
+      @provider = @agent.llm.name
       @buffer = +""
       @cursor = 0
       @scroll = 0
@@ -133,13 +134,13 @@ class LLM::Repl
     ##
     # @return [String]
     def to_s
-      "#{@provider}> #{@buffer}"
+      "#{prompt}#{@buffer}"
     end
 
     ##
     # @return [Integer]
     def cursor
-      prompt.length + @cursor
+      prompt.size + @cursor
     end
 
     ##
@@ -279,7 +280,7 @@ class LLM::Repl
     end
 
     def prompt
-      "#{@provider}> "
+      "#{@provider}(#{@name})> "
     end
 
     def insert(char)
