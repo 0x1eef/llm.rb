@@ -9,8 +9,7 @@
 # should be blocked before the loop keeps going.
 #
 # {LLM::LoopGuard LLM::LoopGuard} detects when a context is repeating the same
-# tool-call pattern instead of making progress. It is directly inspired by
-# General Intelligence Systems and its doom-loop detection approach.
+# tool-call pattern instead of making progress.
 #
 # The public interface is intentionally small:
 # - `call(ctx)` returns `nil` when no intervention is needed

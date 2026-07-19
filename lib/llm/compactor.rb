@@ -15,6 +15,7 @@ module LLM
   # Callers invoke {#call} unconditionally.
   class Compactor
     require_relative "compactor/truncate"
+    require_relative "compactor/null"
 
     ##
     # @return [LLM::Context]

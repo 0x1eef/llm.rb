@@ -3,6 +3,7 @@
 module LLM
   require "stringio"
   require "securerandom"
+  require_relative "llm/compactor"
   require_relative "llm/json_adapter"
   require_relative "llm/tracer"
   require_relative "llm/error"

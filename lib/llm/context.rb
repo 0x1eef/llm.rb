@@ -34,7 +34,6 @@ module LLM
   #   ctx.talk(prompt)
   #   ctx.messages.each { |m| puts "[#{m.role}] #{m.content}" }
   class Context
-    require_relative "compactor"
     require_relative "context/serializer"
     require_relative "context/deserializer"
     include Serializer
@@ -79,12 +78,16 @@ module LLM
     #   Defaults to `:responses` for OpenAI, otherwise it defaults
     #   to `:completions`.
     # @option params [String] :model Defaults to the provider's default model
+    # @option params [Class<LLM::Compactor>, nil] :compactor
+    #   A compactor class to use for context compaction. Defaults to
+    #   {LLM::Compactor::Null}.
+    # @option params [Hash] :compactor_options
+    #   Options passed to the compactor's `call` method. Defaults to `{}`.
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [Array<String>, nil] :skills Defaults to nil
     def initialize(llm, params = {})
       @llm = llm
       @mode = params.delete(:mode) || (llm.name == :openai ? :responses : :completions)
-      @compactor = params.delete(:compactor)
       @guard = params.delete(:guard)
       @transformer = params.delete(:transformer)
       tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
@@ -94,6 +97,10 @@ module LLM
       @messages = LLM::Buffer.new(llm)
       extra = @params.slice(:model, :tools).merge!(ctx: self, tracer:)
       @params[:stream] = LLM::Stream.try(@params[:stream], extra:)
+      @compactor = {
+        klass: params.delete(:compactor) || LLM::Compactor::Null,
+        options: params.delete(:compactor_options) || {}
+      }
     end
 
     ##
@@ -105,19 +112,9 @@ module LLM
 
     ##
     # Returns a context compactor
-    # This feature is inspired by the compaction approach developed by
-    # General Intelligence Systems.
     # @return [LLM::Compactor]
     def compactor
-      @compactor
-    end
-
-    ##
-    # Sets a context compactor or compactor config
-    # @param [LLM::Compactor, Hash, nil] compactor
-    # @return [LLM::Compactor, Hash, nil]
-    def compactor=(compactor)
-      @compactor = compactor
+      @compactor[:klass]
     end
 
     ##
@@ -196,6 +193,7 @@ module LLM
     #   puts res.messages[0].content
     def talk(prompt, params = {})
       @owner = @llm.request_owner
+      @compactor[:klass].new(self).call(**@compactor[:options])
       repair!(@messages, prompt)
       prompt, params, res = mode == :responses ? respond(prompt, params) : complete(prompt, params)
       self.compacted = false
