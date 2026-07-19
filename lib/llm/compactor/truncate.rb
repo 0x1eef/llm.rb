@@ -21,7 +21,7 @@ class LLM::Compactor
       else
         stream.on_compaction(ctx, self)
         kept = messages.last(keep)
-        messages.replace([messages.first(&:system?), *kept].compact)
+        messages.replace([messages.select(&:system?).first, *kept].compact)
         ctx.compacted = true
         stream.on_compaction_finish(ctx, self)
         kept
