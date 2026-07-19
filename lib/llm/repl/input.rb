@@ -44,7 +44,7 @@ class LLM::Repl
     attr_reader :buffer
 
     ##
-    # @param [Boolean] bool
+    # @param [Boolean] value
     # @return [void]
     attr_writer :paste
 

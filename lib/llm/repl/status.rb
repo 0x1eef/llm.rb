@@ -7,7 +7,7 @@ class LLM::Repl
   # @api private
   class Status
     ##
-    # @param [String, Symbol] provider
+    # @param [LLM::Agent] agent
     # @return [LLM::Repl::Status]
     def initialize(agent)
       @agent = agent

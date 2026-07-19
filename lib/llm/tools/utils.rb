@@ -9,7 +9,6 @@ class LLM::Tool
     # with an error when it exceeds the
     # specified timeout.
     # @param [Test::Cmd] command
-    # @param [Numeric] start
     # @param [Integer] timeout
     # @return [void]
     def wait(command:, timeout:)
