@@ -12,6 +12,17 @@ class LLM::Repl
     private_constant :UNDEFINED, :SINGLETON
 
     ##
+    # @param [String] str
+    #  An input string
+    # @return [Array<String>]
+    #  An array of command names who match the input string
+    def self.complete(str)
+      registry.keys.select do |name|
+        name.start_with?(str[1..])
+      end
+    end
+
+    ##
     # @api private
     Parameter = Struct.new(:name, :type, :description, :options, :index, :value) do
       ##
@@ -62,9 +73,9 @@ class LLM::Repl
       if input != UNDEFINED
         return nil unless input[0] == "/"
         n, = input.split(" ")
-        registry.find { n[1..] == _1.name }
+        registry.values.find { n[1..] == _1.name }
       elsif name != UNDEFINED
-        registry.find { name == _1.name }
+        registry.values.find { name == _1.name }
       else
         raise ArgumentError, "provide either an input or a name"
       end
@@ -76,7 +87,7 @@ class LLM::Repl
     # @return [void]
     def self.inherited(command)
       LLM.lock(:inherited) do
-        registry << command
+        @registry[command] = command
         command.instance_variable_set(:@parameters, {})
         command.define_singleton_method(:inherited) { |command| SINGLETON.inherited(command) }
       end
@@ -85,8 +96,9 @@ class LLM::Repl
     ##
     # @return [Array<LLM::Repl::Command]
     def self.registry
-      @registry ||= []
+      @registry.transform_keys(&:name)
     end
+    @registry = {}
 
     ##
     # Set or get a command name.
