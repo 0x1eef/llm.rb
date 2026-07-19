@@ -86,6 +86,19 @@
   to keep — for example, `/compact 32` keeps the most recent 32 messages,
   while `/compact` with no argument defaults to keeping the last 128.
 
+* **command: add `LLM::Command.complete` for command name completion** <br>
+  `LLM::Repl::Command.complete(str)` (also available as `LLM::Command.complete`)
+  returns an array of command names whose names start with the given input
+  string, providing the foundation for tab-completion of command names in
+  the REPL.
+
+* **repl: implement tab-complete for command names** <br>
+  The curses-based REPL input now supports tab-completion for `/` commands.
+  Pressing the Tab key while the input begins with `/` matches the typed
+  prefix against the command registry and fills in the first matching command
+  name. This provides quick access to commands like `/compact`, `/help`,
+  `/exit`, and `/quit` without typing the full name.
+
 * **repl: expose `agent` and `repl` readers on Command** <br>
   `LLM::Repl::Command` now exposes `agent` (the active `LLM::Agent`)
   and `repl` (the active `LLM::Repl`) as public readers, making it

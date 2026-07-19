@@ -19,6 +19,7 @@ class LLM::Repl
     DOWN      = Curses::Key::DOWN
     LEFT      = Curses::Key::LEFT
     RIGHT     = Curses::Key::RIGHT
+    TAB       = 9
     ESC       = 27
     ENTER     = [Curses::Key::ENTER, 10, 13]
     BACKSPACE = [Curses::Key::BACKSPACE, 127]
@@ -59,7 +60,10 @@ class LLM::Repl
     # @return [Symbol, nil]
     def on_char(window, char, now)
       is_paste = lambda { @last_char_at and (now - @last_char_at) < PASTE_THRESHOLD }
-      if ESC == char
+      if TAB == char
+        autocomplete
+        :tab
+      elsif ESC == char
         @agent.cancel!
       elsif CTRL[:D] == char
         delete
@@ -180,6 +184,22 @@ class LLM::Repl
     # @return [void]
     def move_forward
       @cursor = [0, @cursor + 1].max
+    end
+
+    ##
+    # @return [void]
+    def autocomplete
+      return unless @buffer[0] == "/"
+      ##
+      # For now this is just a very simple
+      # autocomplete. It doesn't support cycles
+      # and even though its limited at the moment
+      # it is hoped to be useful.
+      candidates = LLM::Repl::Command.complete(@buffer)
+      if candidates.any?
+        @buffer = "/#{candidates[0]}"
+        @cursor = @buffer.size
+      end
     end
 
     ##
