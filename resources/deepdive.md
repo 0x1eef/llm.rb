@@ -43,6 +43,7 @@ features that didn't make it into the homepage documentation.
 
 - [LLM::Tool](#llmtool)
 - [Errors](#errors)
+- [Confirmation](#confirmation)
 </details>
 
 <details>
@@ -142,6 +143,12 @@ features that didn't make it into the homepage documentation.
 - [text-to-speech](#text-to-speech)
 - [speech-to-text](#speech-to-text)
 - [translation](#translation)
+</details>
+
+<details>
+<summary>OCR</summary>
+
+- [Mistral](#mistral)
 </details>
 
 **Protocols**
@@ -314,6 +321,43 @@ class Error < LLM::Tool
   # {error: true, kind: "RuntimeError", message: "boom"}
   def call
     raise "boom"
+  end
+end
+```
+
+#### Confirmation
+
+Tools that perform destructive actions can be gated behind
+explicit confirmation. List their names in
+[`LLM::Agent.confirm`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm-class_method)
+to block execution until you override `on_tool_confirmation`.
+
+The default handler cancels the tool. Override it per-agent to
+prompt the user, log the decision, or auto-approve certain tools.
+
+```ruby
+class AdminAgent < LLM::Agent
+  set confirm: %w[delete destroy shutdown]
+
+  def on_tool_confirmation(fn, strategy)
+    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+    $stdin.gets&.match?(/\Ay\z/i) ? wait(strategy) : fn.cancel
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = AdminAgent.new(llm)
+```
+
+Confirmation also accepts a Symbol for lazy resolution, which
+allows the list of confirmed tools to change per-instance:
+
+```ruby
+class AdaptiveAgent < LLM::Agent
+  set confirm: :tools_that_need_confirmation
+
+  def tools_that_need_confirmation
+    some_condition ? %w[delete destroy] : %w[delete]
   end
 end
 ```
@@ -1342,6 +1386,38 @@ require "llm"
 llm = LLM.google(key: ENV["KEY"])
 res = llm.audio.create_translation(file: "bomdia.mp3")
 res.text # => "Good day"
+```
+
+[Back to top](#table-of-contents)
+
+## OCR
+
+Optical Character Recognition extracts text from images and
+documents.
+
+#### Mistral
+
+Mistral is the only provider that currently supports OCR
+through its dedicated API endpoint. The `ocr` method accepts
+either an `image_url:` or a `document_url:` parameter.
+Document URLs can point to PDFs. The response exposes pages
+through `res.pages`, where each page has a `markdown` field
+containing the extracted text.
+
+```ruby
+require "llm"
+
+llm = LLM.mistral(key: ENV["KEY"])
+
+##
+# Extract text from an image
+res = llm.ocr(image_url: "https://example.com/photo.png")
+res.pages.each { |page| puts page.markdown }
+
+##
+# Extract text from a PDF
+res = llm.ocr(document_url: "https://example.com/report.pdf")
+res.pages.each { |page| puts page.markdown }
 ```
 
 [Back to top](#table-of-contents)

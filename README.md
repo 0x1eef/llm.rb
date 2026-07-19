@@ -24,7 +24,8 @@ optional dependencies that are opt-in.
 The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
 Gemini, Mistral, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
 It has first-class support for streaming, tool calls,  MCP
-and A2A, embeddings, vector stores and the RAG pattern.
+and A2A, embeddings, vector stores, OCR, context compaction,
+and the RAG pattern.
 
 There are multiple HTTP backends to choose from, tools can be run concurrently
 or in parallel via threads, async tasks, fibers, ractors, and fork, and it is
@@ -34,6 +35,9 @@ The runtime builds on top of three core concepts: providers, contexts, and agent
 so once you learn the fundamentals, everything else falls into place naturally. And once
 you learn llm.rb, you will also be able to use <a href="https://r.uby.dev/mruby-llm">mruby-llm</a> and
 <a href="https://r.uby.dev/wasm-llm">wasm-llm</a> because the API is pretty much identical.
+
+For detailed explanations, configuration, and advanced patterns, see the
+[deepdive.md](https://r.uby.dev/llm/deepdive/).
 
 ## Install
 
@@ -114,6 +118,32 @@ end
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, stream: MyStream.new)
 agent.talk "Explain Ruby fibers."
+```
+
+#### LLM::Schema
+
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html) subclasses produce typed, structured
+output from any model call. Pass a schema to `LLM::Context#talk`,
+`LLM::Agent#talk`, or `LLM::Provider#complete` to receive validated
+JSON instead of free text. Schemas work alongside tools and streams.
+
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html) can define objects, arrays, enums, nested schemas,
+and more. It is also used internally by [`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) for parameter
+definitions, so you already benefit from it when you declare tool
+parameters.
+
+```ruby
+class Weather < LLM::Schema
+  property :city, String, "The city name"
+  property :temperature, Float, "Current temperature"
+  property :conditions, String, "Weather conditions"
+  required %i[city temperature conditions]
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, schema: Weather)
+res = agent.talk "Weather in Paris?"
+res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}
 ```
 
 #### LLM::REPL
@@ -263,6 +293,7 @@ The input area supports several keyboard shortcuts:
 | `Ctrl+K` | Erase from cursor to the end of the line |
 | `Ctrl+Y` | Paste previously killed text |
 | `Ctrl+D` | Delete the character at the cursor |
+| `Tab` | Complete `/command` names |
 | `Left / Right` | Move the cursor |
 | `Up / Down` | Scroll the transcript |
 | `/exit` | Leave the REPL |
@@ -367,7 +398,8 @@ require "llm/active_record"
 
 class Agent < ApplicationRecord
   acts_as_agent
-  set instructions: "solve the user's query",
+  set name: "my-agent",
+      instructions: "solve the user's query",
       model: "deepseek-v4-pro",
       tools: [Research, FinalizeResearch, ActOnResearch]
 

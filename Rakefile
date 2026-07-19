@@ -89,6 +89,11 @@ namespace :'models.dev' do
 end
 
 namespace :agents do
+  desc "Runthe doctor agent"
+  task :doctor do
+    sh "agents/doctor/agent.rb"
+  end
+
   desc "Run the changelog agent"
   task :changelog do
     sh "agents/changelog/agent.rb"
