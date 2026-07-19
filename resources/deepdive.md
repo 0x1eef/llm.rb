@@ -68,6 +68,16 @@ features that didn't make it into the homepage documentation.
 </details>
 
 <details>
+<summary>Context Compaction</summary>
+
+- [Configuration](#configuration)
+- [Standalone usage](#standalone-usage)
+- [Strategies](#strategies)
+- [Manual compaction](#manual-compaction)
+- [Lifecycle callbacks](#lifecycle-callbacks)
+</details>
+
+<details>
 <summary>Cancellation</summary>
 
 - [Cancel a request](#cancel-a-request)
@@ -596,7 +606,7 @@ and are invoked automatically before each `ctx.talk(...)` call.
 
 ### Configuration
 
-Pass a compactor class and options when creating the context:
+Pass a compactor class and options when creating a context or agent:
 
 ```ruby
 ctx = LLM::Context.new(
@@ -604,10 +614,35 @@ ctx = LLM::Context.new(
   compactor: LLM::Compactor::Truncate,
   compactor_options: {keep: 64}
 )
+
+# LLM::Agent accepts the same options
+agent = LLM::Agent.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 128}
+)
 ```
+
+The compactor runs automatically before every `talk` call. This keeps the
+conversation constantly alive — there is no chance of exhausting the context
+window because old messages are dropped before they accumulate. The trade-off
+is that dropped messages are gone, so information may be lost. Set `keep` to
+a higher number to retain more context at the cost of slower accumulation.
 
 The default is [`LLM::Compactor::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html)
 — compaction is disabled unless you opt in.
+
+### Standalone usage
+
+A compactor can be used independently of a context or agent:
+
+```ruby
+compactor = LLM::Compactor::Truncate.new(agent)
+compactor.call(keep: 200)   # or ctx, agent, etc.
+```
+
+This is useful for one-off compaction outside the automatic per-turn cycle,
+or when you want to compact on a different schedule.
 
 ### Strategies
 
