@@ -42,7 +42,7 @@ class LLM::Repl
     # @param [Symbol] method
     # @return [void]
     def markdown(chars, method: :append)
-      chunks = LLM::Repl::Markdown.new(chars).ast
+      chunks = LLM::Repl::Markdown.new(chars, WIDTH).ast
       self.method(method).call(chunks)
     end
 

@@ -184,6 +184,14 @@
   command so `/quit` behaves identically to `/exit` in all respects
   except its name.
 
+* **expand markdown coverage to lists, blockquotes, horizontal rules, links, and images** <br>
+  The curses-based REPL markdown renderer now handles additional node
+  types, including ordered and unordered lists (`<ul>`, `<ol>`, `<li>`),
+  blockquotes (`<blockquote>`), horizontal rules (`<hr>`), hyperlinks
+  (`<a>` rendered with underline), and images (`<img>` rendered as
+  `[image: alt text]`). This provides richer rendering of model
+  responses in the interactive session.
+
 ### Object
 
 * **preserve the original key name in `KeyError` messages** <br>

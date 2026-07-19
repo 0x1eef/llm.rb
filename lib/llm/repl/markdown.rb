@@ -10,9 +10,11 @@ class LLM::Repl
   class Markdown
     ##
     # @param [String] text
+    # @param [Integer] width
     # @return [LLM::Repl::Markdown]
-    def initialize(text)
+    def initialize(text, width)
       @doc = Kramdown::Document.new(text)
+      @width = width
       @ast = []
     end
 
@@ -73,6 +75,20 @@ class LLM::Repl
         emit("\n\n", attrs)
       when :br
         emit("\n", attrs)
+      when :ul, :ol
+        node.children.each { walk(_1, attrs) }
+      when :li
+        node.children.each { walk(_1, attrs) }
+      when :blockquote
+        emit("> ", attrs)
+        node.children.each { walk(_1, attrs) }
+      when :hr
+        emit("─" * @width, attrs)
+        emit("\n\n", attrs)
+      when :a
+        node.children.each { walk(_1, Curses::A_UNDERLINE) }
+      when :img
+        emit("[image: #{node.attr['alt']}]", attrs)
       else
         node.children.each { walk(_1, attrs) }
       end
