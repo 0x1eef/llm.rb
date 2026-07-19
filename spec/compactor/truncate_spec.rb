@@ -8,8 +8,12 @@ RSpec.describe LLM::Compactor::Truncate do
   let(:provider) { LLM.openai(key: "test") }
   let(:ctx) { LLM::Context.new(provider) }
 
-  def add_message(role, content)
-    ctx.messages << LLM::Message.new(role, content)
+  def add_message(role, content, extra = {})
+    ctx.messages << LLM::Message.new(role, content, extra)
+  end
+
+  def add_tool_call(name, args = {})
+    add_message "assistant", "", {tool_calls: [{id: "call_1", name:, arguments: args}]}
   end
 
   describe "#call" do
@@ -92,6 +96,22 @@ RSpec.describe LLM::Compactor::Truncate do
 
       it "compacts with strict threshold" do
         expect(compactor.call(keep: 3).map(&:content)).to eq(%w[first second third])
+      end
+    end
+
+    context "when tool calls span the truncation boundary" do
+      before do
+        add_message "user", "weather?"
+        add_tool_call "get_forecast", location: "NYC"
+        add_message "tool", LLM::Function::Return.new("call_1", "get_forecast", "72°F")
+        add_message "assistant", "It's 72°F"
+        add_message "user", "and in Chicago?"
+      end
+
+      it "keeps the tool_call when its result is at the boundary" do
+        result = compactor.call(keep: 3)
+        expect(result.count(&:tool_call?)).to eq(1)
+        expect(result.count(&:tool_return?)).to eq(1)
       end
     end
 

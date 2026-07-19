@@ -13,7 +13,7 @@ class LLM::Compactor
   class Truncate < self
     ##
     # @param [Integer] keep
-    #  The last n number of messages to keep
+    #  The last (approx) n number of messages to keep
     # @return [Array<LLM::Message>, nil]
     def call(keep: 64)
       if keep > messages.reject(&:system?).size
@@ -31,21 +31,27 @@ class LLM::Compactor
     private
 
     def take(messages, limit)
-      subset = []
-      in_tool_call = false
+      subset, in_tool_call = [], false
       messages.reverse_each.with_index(1) do |m, index|
+        # We travel backwards - so we see a
+        # tool return before we see a tool
+        # call.
+        #
+        # When we see a tool return, our next
+        # task is to find where it was called
+        # from, and we will even override the
+        # limit to do this.
+        #
+        # Otherwise, the conversation will become
+        # corrupted and any attempt to use it will
+        # be an API-level error.
+        in_tool_call ||= m.tool_return?
         if index >= limit
-          # maybe time to break?
-          if in_tool_call
-            # nope, we need to close the tool call
-          else
-            # we're done
-            subset.unshift(m)
-            break
-          end
+          subset.unshift(m)
+          in_tool_call ? next : break
+        else
+          subset.unshift(m)
         end
-        in_tool_call = m.tool_call?
-        subset.unshift(m)
       end
       subset
     end
