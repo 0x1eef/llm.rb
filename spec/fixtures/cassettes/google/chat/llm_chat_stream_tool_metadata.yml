@@ -11,7 +11,7 @@ http_interactions:
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       User-Agent:
-      - llm.rb v12.1.0
+      - llm.rb v12.6.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -36,7 +36,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 10 Jul 2026 03:17:22 GMT
+      - Mon, 20 Jul 2026 03:18:31 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -46,22 +46,22 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=463
+      - gfet4t7; dur=1120
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
     body:
       encoding: UTF-8
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
-        {\"name\": \"system\",\"args\": {\"command\": \"date\"},\"id\": \"6jZE1tKe\"},\"thoughtSignature\":
-        \"EjQKMgERTTIP9UrJsvrMw9wGzkiqK1p8QD337ztNVTAB9ADVRR8QfWZjTjAOU8igGhtbPgnz\"}],\"role\":
+        {\"name\": \"system\",\"args\": {\"command\": \"date\"},\"id\": \"qNNdDDnQ\"},\"thoughtSignature\":
+        \"EjQKMgERTTIPi+Mfmd6yW50h96SrRABuhAvMSaYoWW+cLibUDvyfml6lF66bQPdo20LNf5gA\"}],\"role\":
         \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 58,\"candidatesTokenCount\":
         14,\"totalTokenCount\": 72,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         58}],\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.1-flash-lite\",\"responseId\":
-        \"QWRQaovqNq3oz7IPvqy0oQ4\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        \"hpNdapviN9GGz7IPhpnwiAY\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
         {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
         0}],\"usageMetadata\": {\"promptTokenCount\": 58,\"candidatesTokenCount\":
         14,\"totalTokenCount\": 72,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         58}],\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.1-flash-lite\",\"responseId\":
-        \"QWRQaovqNq3oz7IPvqy0oQ4\"}\r\n\r\n"
-  recorded_at: Fri, 10 Jul 2026 03:17:21 GMT
+        \"hpNdapviN9GGz7IPhpnwiAY\"}\r\n\r\n"
+  recorded_at: Mon, 20 Jul 2026 03:18:30 GMT
 recorded_with: VCR 6.4.0

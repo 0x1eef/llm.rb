@@ -209,11 +209,11 @@ module LLM
       role, model, stream = params.delete(:role),
                             params.delete(:model),
                             LLM::Stream.try(params.delete(:stream))
-      [params.merge!(stream: stream.enabled?), stream, tools, role, model]
+      [params, stream, tools, role, model]
     end
 
     def build_complete_request(prompt, params, role, model, stream)
-      action = stream ? "streamGenerateContent?key=#{@key}&alt=sse" : "generateContent?key=#{@key}"
+      action = stream.enabled? ? "streamGenerateContent?key=#{@key}&alt=sse" : "generateContent?key=#{@key}"
       model.respond_to?(:id) ? model.id : model
       path = ["/v1beta/models/#{model}", action].join(":")
       req  = LLM::Transport::Request.post(path, headers)

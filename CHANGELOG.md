@@ -240,6 +240,16 @@
   "deprecated"`, including `meta-llama/Meta-Llama-3.1-8B-Instruct`,
   `Qwen/Qwen1.5-110B-Chat`, and `mistralai/Mixtral-8x7B-Instruct-v0.1`.
 
+### Fix
+
+* **google: fix `stream` parameter leakage that broke the provider** <br>
+  Fix a bug in the Google provider where `stream: stream.enabled?` was
+  being merged into request parameters, causing API-level errors. The
+  Google provider does not use a `stream` parameter — streaming is
+  controlled via the URL path (`streamGenerateContent` vs
+  `generateContent`). The fix removes the leaked parameter and correctly
+  routes streaming requests through the appropriate path.
+
 ## v12.6.0
 
 Changes since `v12.5.1`.

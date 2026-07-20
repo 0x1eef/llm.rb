@@ -10,7 +10,7 @@ http_interactions:
         answer''s probability","type":"integer"}},"required":["probability"]}}}'
     headers:
       User-Agent:
-      - llm.rb v12.1.0
+      - llm.rb v12.6.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -33,7 +33,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 10 Jul 2026 03:17:26 GMT
+      - Mon, 20 Jul 2026 03:18:40 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -43,7 +43,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=572
+      - gfet4t7; dur=567
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -58,7 +58,7 @@ http_interactions:
                 "parts": [
                   {
                     "text": "{\"probability\": 1}",
-                    "thoughtSignature": "EjQKMgERTTIPFuIUTQHtGtCen+u5NqwoYjlS8s58INpJqvaGYrDs/FeWnnfZM4+XWFt/CXRC"
+                    "thoughtSignature": "EjQKMgERTTIPLs6FLQwcS5eYXhmfnN84H9VvP9igrDTeu5FP+0aNG/cQEqHkVghiY1zBmUFB"
                   }
                 ],
                 "role": "model"
@@ -80,7 +80,7 @@ http_interactions:
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "RWRQat3rJszoz7IP4Kj2kAs"
+          "responseId": "kJNdapL4BvmGz7IP7e6LgAo"
         }
-  recorded_at: Fri, 10 Jul 2026 03:17:25 GMT
+  recorded_at: Mon, 20 Jul 2026 03:18:40 GMT
 recorded_with: VCR 6.4.0

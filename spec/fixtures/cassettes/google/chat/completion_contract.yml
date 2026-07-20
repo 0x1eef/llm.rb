@@ -8,7 +8,7 @@ http_interactions:
       string: '{"contents":[{"role":"user","parts":[{"text":"Hello, world!"}]}]}'
     headers:
       User-Agent:
-      - llm.rb v12.1.0
+      - llm.rb v12.6.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -31,7 +31,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 10 Jul 2026 03:17:18 GMT
+      - Mon, 20 Jul 2026 03:18:27 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -41,7 +41,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=518
+      - gfet4t7; dur=480
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -56,7 +56,7 @@ http_interactions:
                 "parts": [
                   {
                     "text": "Hello, world! How can I help you today?",
-                    "thoughtSignature": "EjQKMgERTTIPGpgu/bMGb+ydsufaMevcZh0sv1erN5757Q5k/aeNcNpLP5iPXT7B38bDsrye"
+                    "thoughtSignature": "EjQKMgERTTIPTxY5khgSw6HKVxHYVrH2y6ia9WaJlHNVspywh0fFlGuWyTY8ydXyFRj3vkYn"
                   }
                 ],
                 "role": "model"
@@ -78,7 +78,7 @@ http_interactions:
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "PmRQapamIcjlqtsP3ouf4Aw"
+          "responseId": "g5NdarPVD6KGz7IPgJPW8Qk"
         }
-  recorded_at: Fri, 10 Jul 2026 03:17:18 GMT
+  recorded_at: Mon, 20 Jul 2026 03:18:27 GMT
 recorded_with: VCR 6.4.0

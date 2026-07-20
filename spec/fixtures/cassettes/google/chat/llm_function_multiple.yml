@@ -11,7 +11,7 @@ http_interactions:
         a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       User-Agent:
-      - llm.rb v12.1.0
+      - llm.rb v12.6.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -34,7 +34,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 10 Jul 2026 03:17:23 GMT
+      - Mon, 20 Jul 2026 03:18:34 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -44,7 +44,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=469
+      - gfet4t7; dur=446
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -61,11 +61,11 @@ http_interactions:
                     "functionCall": {
                       "name": "system",
                       "args": {
-                        "command": "date && pwd && whoami"
+                        "command": "date && pwd && whoami\n"
                       },
-                      "id": "cjKCyAwY"
+                      "id": "Yq8Zx7hp"
                     },
-                    "thoughtSignature": "EjQKMgERTTIPG5Wcf8fx8UBMfniQFz4B68ofmLlowApAqtV3mSgurFNqeXkgaG9HJfiZgyuB"
+                    "thoughtSignature": "EjQKMgERTTIPU44ofdkkDpKAONPmrG3unONqRJ4iLZvca43ZOvXBjK7cxRStru2NimMxJ0U5"
                   }
                 ],
                 "role": "model"
@@ -77,8 +77,8 @@ http_interactions:
           ],
           "usageMetadata": {
             "promptTokenCount": 72,
-            "candidatesTokenCount": 19,
-            "totalTokenCount": 91,
+            "candidatesTokenCount": 20,
+            "totalTokenCount": 92,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
@@ -88,9 +88,9 @@ http_interactions:
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "Q2RQatrzKYHhz7IP0afemQs"
+          "responseId": "ipNdaq-0B_mtz7IP9ZGQmAM"
         }
-  recorded_at: Fri, 10 Jul 2026 03:17:23 GMT
+  recorded_at: Mon, 20 Jul 2026 03:18:33 GMT
 - request:
     method: post
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=TOKEN
@@ -99,12 +99,12 @@ http_interactions:
       string: '{"contents":[{"role":"user","parts":[{"text":"You are a bot that can
         run UNIX commands"}]},{"role":"user","parts":[{"text":"Can you run the date
         command ? Can you run the pwd command ? Can you run the whoami command ?"}]},{"role":"model","parts":[{"functionCall":{"name":"system","args":{"command":"date
-        && pwd && whoami"},"id":"cjKCyAwY"},"thoughtSignature":"EjQKMgERTTIPG5Wcf8fx8UBMfniQFz4B68ofmLlowApAqtV3mSgurFNqeXkgaG9HJfiZgyuB"}]},{"role":"user","parts":[{"functionResponse":{"name":"system","response":{"stderr":"","stdout":"Fri
-        Jul 10 03:17:23 UTC 2026\n/home/robert/projects/llm.rb/\nrobert\n"}}}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Run
+        && pwd && whoami\n"},"id":"Yq8Zx7hp"},"thoughtSignature":"EjQKMgERTTIPU44ofdkkDpKAONPmrG3unONqRJ4iLZvca43ZOvXBjK7cxRStru2NimMxJ0U5"}]},{"role":"user","parts":[{"functionResponse":{"name":"system","response":{"stderr":"","stdout":"Mon
+        Jul 20 03:18:33 UTC 2026\n/home/robert/projects/llm.rb/\nrobert\n"}}}]}],"tools":[{"functionDeclarations":[{"name":"system","description":"Run
         a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}]}]}'
     headers:
       User-Agent:
-      - llm.rb v12.1.0
+      - llm.rb v12.6.0
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -127,7 +127,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 10 Jul 2026 03:17:24 GMT
+      - Mon, 20 Jul 2026 03:18:35 GMT
       Server:
       - scaffolding on HTTPServer2
       X-Xss-Protection:
@@ -137,7 +137,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - gfet4t7; dur=709
+      - gfet4t7; dur=841
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
@@ -151,8 +151,8 @@ http_interactions:
               "content": {
                 "parts": [
                   {
-                    "text": "Yes, I can run those commands for you. Here is the output:\n\n*   **date:** Fri Jul 10 03:17:23 UTC 2026\n*   **pwd:** /home/robert/projects/llm.rb/\n*   **whoami:** robert",
-                    "thoughtSignature": "EjQKMgERTTIP5Uj8JIS5tSTxLFL1++j5zCtp+tIov9O+OaLvJR9Y9IRUnd+UOzqq6c3MlrDV"
+                    "text": "Yes, I have executed those commands for you:\n\n*   **date:** Mon Jul 20 03:18:33 UTC 2026\n*   **pwd:** /home/robert/projects/llm.rb/\n*   **whoami:** robert",
+                    "thoughtSignature": "EjQKMgERTTIPxaYrb84JdyfVJdCmgQpEydqsujUFS6HjOYycTp7LKD1DUD3tzesuZQdy4A5L"
                   }
                 ],
                 "role": "model"
@@ -162,19 +162,19 @@ http_interactions:
             }
           ],
           "usageMetadata": {
-            "promptTokenCount": 145,
-            "candidatesTokenCount": 68,
-            "totalTokenCount": 213,
+            "promptTokenCount": 146,
+            "candidatesTokenCount": 63,
+            "totalTokenCount": 209,
             "promptTokensDetails": [
               {
                 "modality": "TEXT",
-                "tokenCount": 145
+                "tokenCount": 146
               }
             ],
             "serviceTier": "standard"
           },
           "modelVersion": "gemini-3.1-flash-lite",
-          "responseId": "RGRQarT8DqXsz7IPt6ijoAk"
+          "responseId": "ipNdatjqKZaEz7IPnPjJ0Qk"
         }
-  recorded_at: Fri, 10 Jul 2026 03:17:24 GMT
+  recorded_at: Mon, 20 Jul 2026 03:18:34 GMT
 recorded_with: VCR 6.4.0
