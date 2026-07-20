@@ -168,6 +168,13 @@ module LLM
     end
 
     ##
+    # Returns a reversed copy of the internal array.
+    # @return [Array]
+    def reverse
+      @messages.reverse
+    end
+
+    ##
     # @return [String]
     def to_json(...)
       LLM.json.dump(@messages, ...)
