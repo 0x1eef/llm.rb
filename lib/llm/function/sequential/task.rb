@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
-class LLM::Function
+module LLM::Function::Sequential
   ##
-  # The {LLM::Function::CallTask} class wraps a single direct function call
-  # behind the same task-like interface used by spawned concurrency modes.
-  class CallTask
+  # The {LLM::Function::Sequential::Task} class wraps a single
+  # direct function call behind the same task-like interface
+  # used by spawned concurrency modes.
+  class Task
     ##
     # @return [LLM::Function]
     attr_reader :function
 
     ##
     # @param [LLM::Function] function
-    # @return [LLM::Function::CallTask]
+    # @return [LLM::Function::Sequential::Task]
     def initialize(function)
       @function = function
     end
