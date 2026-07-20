@@ -32,6 +32,7 @@ class LLM::Function
   require_relative "function/registry"
   require_relative "function/tracing"
   require_relative "function/array"
+  require_relative "function/group"
   require_relative "function/sequential/group"
   require_relative "function/task"
   require_relative "function/sequential/task"

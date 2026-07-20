@@ -4,7 +4,7 @@ module LLM::Function::Fork
   ##
   # Wraps an array of {Fork::Task} objects that are running
   # in forked child processes.
-  class Group
+  class Group < LLM::Function::Group
     ##
     # @param [Array<LLM::Function::Task>] tasks
     def initialize(tasks)

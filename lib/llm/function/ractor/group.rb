@@ -4,7 +4,7 @@ module LLM::Function::Ractor
   ##
   # Wraps an array of {Ractor::Task} objects that are running
   # {LLM::Function} calls concurrently.
-  class Group
+  class Group < LLM::Function::Group
     ##
     # @param [Array<LLM::Function::Task>] tasks
     def initialize(tasks)

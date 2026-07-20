@@ -5,7 +5,7 @@ module LLM::Function::Thread
   # Wraps an array of {Thread::Task} objects for concurrent
   # thread-based execution. Interrupts all tasks and waits
   # for them to complete.
-  class Group
+  class Group < LLM::Function::Group
     ##
     # @param [Array<LLM::Function::Thread::Task>] tasks
     def initialize(tasks)

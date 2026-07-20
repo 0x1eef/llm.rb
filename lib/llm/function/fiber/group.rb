@@ -5,7 +5,7 @@ module LLM::Function::Fiber
   # Wraps an array of {Fiber::Task} objects for cooperative
   # concurrent execution. Interrupts all tasks and waits
   # for them to complete.
-  class Group
+  class Group < LLM::Function::Group
     ##
     # @param [Array<LLM::Function::Fiber::Task>] tasks
     def initialize(tasks)

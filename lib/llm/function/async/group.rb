@@ -4,7 +4,7 @@ module LLM::Function::Async
   ##
   # Wraps an array of {Async::Task} objects that are running
   # {LLM::Function} calls concurrently using the async gem.
-  class Group
+  class Group < LLM::Function::Group
     ##
     # @param [Array<Async::Task>] tasks
     def initialize(tasks)

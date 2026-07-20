@@ -6,7 +6,7 @@ module LLM::Function::Sequential
   # execution. Provides the same interface as concurrent group
   # wrappers so callers can flow through `spawn(strategy).wait`
   # uniformly.
-  class Group
+  class Group < LLM::Function::Group
     ##
     # @param [Array<LLM::Function>] functions
     def initialize(functions)
