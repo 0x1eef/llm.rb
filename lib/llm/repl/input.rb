@@ -29,8 +29,8 @@ class LLM::Repl
     RIGHT     = Curses::Key::RIGHT
     TAB       = 9
     ESC       = 27
-    ENTER     = [Curses::Key::ENTER, 10, 13]
-    BACKSPACE = [Curses::Key::BACKSPACE, 127]
+    ENTER     = 10
+    BACKSPACE = 127
 
     ##
     # Threshold in seconds. If characters arrive faster than
@@ -101,10 +101,10 @@ class LLM::Repl
       elsif char == RIGHT
         move_right
         :right
-      elsif BACKSPACE.include?(char)
+      elsif BACKSPACE == char
         backspace
         :backspace
-      elsif ENTER.include?(char)
+      elsif ENTER == char
         if @paste = is_paste.()
           insert("\n")
           :char
