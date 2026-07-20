@@ -27,6 +27,9 @@ class LLM::Repl
     DOWN      = Curses::Key::DOWN
     LEFT      = Curses::Key::LEFT
     RIGHT     = Curses::Key::RIGHT
+    PGUP      = Curses::KEY_PPAGE
+    PGDOWN    = Curses::KEY_NPAGE
+
     TAB       = 9
     ESC       = 27
     ENTER     = 10
@@ -72,7 +75,13 @@ class LLM::Repl
       if char and @char != char
         REPEATS[@char] = 0
       end
-      if TAB == char
+      if PGUP == char
+        (window.rows - 3).times { window.scroll_up }
+        :pageup
+      elsif PGDOWN == char
+        (window.rows - 3).times { window.scroll_down }
+        :pagedown
+      elsif TAB == char
         autocomplete
         :tab
       elsif ESC == char
