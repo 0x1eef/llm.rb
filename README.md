@@ -153,11 +153,7 @@ method drops you into a curses-based TUI for talking to an
 agent interactively. The `path:` option saves and restores
 runtime state across sessions. The `tools:` option attaches
 extra tools for the duration of the session. It is like
-`binding.pry` but for agents.
-
-For the full reference &mdash; state persistence, tracer
-integration, skills, keyboard shortcuts, custom commands,
-and every built-in tool &mdash; see the
+`binding.pry` but for agents. For the full reference see the
 [REPL section](https://r.uby.dev/llm/deepdive/#repl) in the
 deepdive.
 

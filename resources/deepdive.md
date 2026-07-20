@@ -1219,6 +1219,8 @@ submitting, allowing multi-line prompts.
 | `PgUp` / `PgDn` | Scroll the transcript by one page |
 | `Tab` | Complete `/command` names |
 | `Esc` | Cancel the current request |
+| `Ctrl+P` | Recall the previous user message |
+| `Ctrl+N` | Recall the next user message |
 
 #### Commands
 

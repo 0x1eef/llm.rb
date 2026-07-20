@@ -105,6 +105,11 @@
 
 ### Buffer
 
+* **add `LLM::Buffer#reverse`** <br>
+  `LLM::Buffer` now exposes a `reverse` method that returns a reversed
+  copy of the internal message array, complementing the existing
+  array-style message management.
+
 * **add Array-like query and mutation methods** <br>
   `LLM::Buffer` now exposes `first`, `reject!`, `select!`, `shift`,
   `clear`, `drop`, and `take` methods, making it easier to query and
@@ -210,6 +215,16 @@
   `<tr>`, `<td>`, and `<th>` nodes, collecting all cells first to
   compute column widths, then emitting each row with padded text
   for clean alignment.
+
+* **add history walking with Ctrl+P and Ctrl+N key mappings** <br>
+  The curses-based REPL input now supports Ctrl+P to walk backward
+  through previously submitted prompts and Ctrl+N to walk forward
+  again. History is derived from the agent's conversation — only
+  `user` messages are stored.
+  <br><br>
+  A new `LLM::Repl::Walker` class manages cursor navigation through
+  the history array, clamping at both boundaries so the cursor cannot
+  overshoot. New submissions are automatically appended to the history.
 
 * **add Page Up/Page Down key mappings for transcript scrolling** <br>
   The curses-based REPL now supports Page Up (`KEY_PPAGE`) and Page

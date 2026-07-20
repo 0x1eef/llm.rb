@@ -12,7 +12,9 @@ class LLM::Repl
       F: Curses::KEY_CTRL_F,
       K: Curses::KEY_CTRL_K,
       Y: Curses::KEY_CTRL_Y,
-      D: Curses::KEY_CTRL_D
+      D: Curses::KEY_CTRL_D,
+      P: Curses::KEY_CTRL_P,
+      N: Curses::KEY_CTRL_N
     }
 
     ##
@@ -63,6 +65,8 @@ class LLM::Repl
       @scroll = 0
       @height = options.fetch(:height, 3)
       @last_char_at = nil
+      @memory = @agent.messages.select(&:user?).map(&:content)
+      @walker = Walker.new(@memory)
       @paste = false
     end
 
@@ -86,6 +90,14 @@ class LLM::Repl
         :tab
       elsif ESC == char
         @agent.cancel!
+      elsif CTRL[:P] == char
+        @buffer = @walker.prev.dup
+        @cursor = @buffer.size
+        :ctrl_p
+      elsif CTRL[:N] == char
+        @buffer = @walker.next.dup
+        @cursor = @buffer.size
+        :ctrl_n
       elsif CTRL[:D] == char
         delete
         :ctrl_d
@@ -118,6 +130,8 @@ class LLM::Repl
           insert("\n")
           :char
         else
+          @memory.push(@buffer.dup)
+          @walker.cursor = @memory.size
           :submit
         end
       elsif char == UP

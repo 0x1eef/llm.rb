@@ -23,6 +23,7 @@ module LLM
     require_relative "repl/stream"
     require_relative "repl/markdown"
     require_relative "repl/command"
+    require_relative "repl/walker"
 
     attr_reader :agent, :provider, :stream,
                 :status, :transcript, :input,
