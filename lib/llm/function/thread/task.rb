@@ -23,7 +23,7 @@ module LLM::Function::Thread
     ##
     # @return [nil]
     def spawn
-      @thread = ::Thread.new { function.call! }
+      @thread = ::Thread.new { function.call }
       @thread.report_on_exception = false
       nil
     end

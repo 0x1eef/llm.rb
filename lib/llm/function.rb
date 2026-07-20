@@ -218,26 +218,23 @@ class LLM::Function
 
   ##
   # Call the function
-  # @return [LLM::Function::Return] The result of the function call
+  # @return [LLM::Function::Return]
   def call
-    call_function
+    llm = @tracer&.llm
+    llm ? llm.with_tracer(@tracer) { call_function } : call_function
   ensure
     @called = true
   end
 
+
   ##
-  # Calls the function concurrently.
-  #
-  # This is the low-level method that powers concurrent tool execution.
-  # Prefer the collection methods on {LLM::Context#functions} for most
-  # use cases: {LLM::Function::Array#call}, {LLM::Function::Array#wait},
-  # or {LLM::Function::Array#spawn}.
+  # Returns a function as a {LLM::Function::Task LLM::Function::Task}.
   #
   # @example
-  #   # Normal usage (via collection)
+  #   # As a group
   #   ctx.talk(ctx.functions.wait)
   #
-  #   # Direct usage (uncommon)
+  #   # As a task
   #   task = tool.task(:thread)
   #   result = task.value
   #
@@ -275,8 +272,6 @@ class LLM::Function
     else
       raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :sequential, :thread, :fiber, :async, :fork, or :ractor"
     end
-  ensure
-    @called = true
   end
 
   ##
@@ -387,11 +382,4 @@ class LLM::Function
   rescue => ex
     Return.new(id, name, {error: true, type: ex.class.name, message: ex.message})
   end
-
-  def call!
-    llm = @tracer&.llm
-    return call unless llm.respond_to?(:with_tracer)
-    llm.with_tracer(@tracer) { call }
-  end
-  public :call!
 end

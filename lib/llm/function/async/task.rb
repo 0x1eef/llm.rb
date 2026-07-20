@@ -29,7 +29,7 @@ module LLM::Function::Async
     def spawn
       @queue = Queue.new
       @async = @reactor.async do
-        @queue << function.call!
+        @queue << function.call
       rescue LLM::Interrupt => e
         @queue << e
         raise

@@ -25,7 +25,7 @@ module LLM::Function::Fiber
       if Fiber.scheduler.nil?
         raise ArgumentError, "Fiber concurrency requires Fiber.scheduler"
       else
-        @fiber = Fiber.schedule { function.call! }
+        @fiber = Fiber.schedule { function.call }
         nil
       end
     end
