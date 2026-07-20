@@ -36,6 +36,7 @@ class LLM::Function
   require_relative "function/task"
   require_relative "function/sequential/task"
   require_relative "function/thread/task"
+  require_relative "function/fiber/task"
   require_relative "function/thread_group"
   require_relative "function/fiber_group"
   require_relative "function/task_group"
@@ -249,18 +250,17 @@ class LLM::Function
   #
   # @return [LLM::Function::Task]
   #   Returns a task whose `#value` is an {LLM::Function::Return}.
-  def spawn(strategy)
+  def spawn(strategy, options = {})
     case strategy
     when :call
-      CallTask.new(self)
+      Sequential::Task.new(self, options)
     when :task
       LLM.require "async" unless defined?(::Async)
       Async { call! }
     when :thread
       Thread::Task.new(self, options)
     when :fiber
-      raise ArgumentError, "Fiber concurrency requires Fiber.scheduler" unless Fiber.scheduler
-      Fiber.schedule { call! }
+      Fiber::Task.new(self, options)
     when :fork
       LLM.require "xchan" unless defined?(::Chan::UNIXSocket)
       span = @tracer&.on_tool_start(id:, name:, arguments:, model:)

@@ -62,7 +62,7 @@ class LLM::Function
     ##
     # @return [nil]
     def interrupt!
-      @fibers.each { _1.task.raise(LLM::Interrupt) if _1.task.alive? }
+      @fibers.each(&:interrupt!)
       nil
     end
     alias_method :cancel!, :interrupt!

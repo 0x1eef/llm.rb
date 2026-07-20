@@ -38,9 +38,10 @@ module LLM::Function::Thread
     ##
     # @return [LLM::Function::Return]
     def wait
+      return @result if defined?(@result)
       @thread = Thread.new { function.call! }
       @thread.report_on_exception = false
-      @thread.value
+      @result = @thread.value
     end
     alias_method :value, :wait
 
