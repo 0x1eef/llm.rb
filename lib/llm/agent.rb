@@ -22,8 +22,8 @@ module LLM
   # * The default tool attempt budget is `25`. After that, the agent sends
   #   advisory tool errors back through the model and keeps the loop in-band.
   #   Set `tool_attempts: nil` to disable that advisory behavior.
-  # * Tool loop execution can be configured with `concurrency :call`,
-  #   `:thread`, `:task`, `:fiber`, or `:ractor`.
+  # * Tool loop execution can be configured with `concurrency :sequential`,
+  #   `:thread`, `:async`, `:fiber`, or `:ractor`.
   #
   # @example
   #   class SystemAdmin < LLM::Agent
@@ -166,9 +166,9 @@ module LLM
     #
     # @param [Symbol, Array<Symbol>, nil] concurrency
     #  Controls how pending tool loops are executed:
-    #  - `:call`: sequential calls
+    #  - `:sequential`: sequential calls
     #  - `:thread`: concurrent threads
-    #  - `:task`: concurrent async tasks
+    #  - `:async`: concurrent async tasks
     #  - `:fiber`: concurrent scheduler-backed fibers
     #  - `:fork`: forked child processes
     #  - `:ractor`: concurrent Ruby ractors for class-based tools; MCP tools are not supported,
@@ -584,7 +584,7 @@ module LLM
     ##
     # @return [Array<LLM::Function::Return>]
     def call_functions
-      strategy = concurrency || :call
+      strategy = concurrency || :sequential
       return wait(strategy) unless @confirm&.any?
       confirmables = @ctx.functions.select { @confirm.include?(_1.name.to_s) }
       results = confirmables.map { method(:on_tool_confirmation).call(_1, strategy) }

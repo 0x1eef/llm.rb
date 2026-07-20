@@ -23,9 +23,9 @@ class LLM::Function
     #
     # @param [Symbol] strategy
     #   Controls concurrency strategy:
-    #   - `:call`: Call functions sequentially without spawning
+    #   - `:sequential`: Call functions sequentially without spawning
     #   - `:thread`: Use threads
-    #   - `:task`: Use async tasks (requires async gem)
+    #   - `:async`: Use async tasks (requires async gem)
     #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
     #   - `:fork`: Use forked child processes
     #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
@@ -33,10 +33,10 @@ class LLM::Function
     # @return [LLM::Function::CallGroup, LLM::Function::ThreadGroup, LLM::Function::TaskGroup, LLM::Function::FiberGroup, LLM::Function::Ractor::Group]
     def spawn(strategy)
       case strategy
-      when :call
+      when :sequential
         CallGroup.new(self)
-      when :task
-        TaskGroup.new(map { |fn| fn.spawn(:task) })
+      when :async
+        TaskGroup.new(map { |fn| fn.spawn(:async) })
       when :thread
         ThreadGroup.new(map { |fn| fn.spawn(:thread) })
       when :fiber
@@ -46,7 +46,7 @@ class LLM::Function
       when :ractor
         Ractor::Group.new(map { |fn| fn.spawn(:ractor) })
       else
-        raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :call, :thread, :task, :fiber, :fork, or :ractor"
+        raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :sequential, :thread, :async, :fiber, :fork, or :ractor"
       end
     end
 

@@ -306,7 +306,7 @@ module LLM
     #  If the stream queue already has tool work, `wait` will drain it
     #  without using this argument.
     #  Otherwise, this controls how pending functions are resolved directly.
-    #  Use `:call` for sequential execution without spawning.
+    #  Use `:sequential` for sequential execution without spawning.
     # @param [Array<LLM::Function>] except
     #  A list of functions to exclude from the wait
     # @return [Array<LLM::Function::Return>]
