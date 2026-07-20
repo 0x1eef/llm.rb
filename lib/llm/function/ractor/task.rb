@@ -7,6 +7,10 @@ class LLM::Function
   # {LLM::Function::Ractor::Mailbox}.
   class Ractor::Task
     ##
+    # @return [LLM::Function, nil]
+    attr_reader :function
+
+    ##
     # @return [LLM::Function::Ractor::Mailbox]
     attr_reader :mailbox
 
@@ -19,6 +23,7 @@ class LLM::Function
     # @param [Object, nil] span
     # @return [LLM::Function::Ractor::Task]
     def initialize(runner_class, id, name, arguments, options = {})
+      @function = options[:function]
       @runner_class = runner_class
       @id = id
       @name = name
@@ -41,7 +46,7 @@ class LLM::Function
     ##
     # @return [Boolean]
     def alive?
-      mailbox.alive?
+      @mailbox&.alive? || false
     end
 
     ##
@@ -55,6 +60,7 @@ class LLM::Function
     ##
     # @return [LLM::Function::Return]
     def wait
+      spawn unless @mailbox
       id, name, value = mailbox.wait
       result = Return.new(id, name, value)
       @tracer&.on_tool_finish(result:, span: @span)

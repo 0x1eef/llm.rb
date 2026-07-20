@@ -39,11 +39,17 @@ class LLM::Function
           result ||= data
           done = true
           waiters.each { _1.send(result) }
+          break unless waiters.empty?
           waiters.clear
         in [:alive?, reply]
           reply.send(!done)
         in [:wait, reply]
-          done ? reply.send(result) : (waiters << reply)
+          if done
+            reply.send(result)
+            break
+          else
+            waiters << reply
+          end
         in [:interrupt]
           @tool&.send(:interrupt)
         end
@@ -52,9 +58,9 @@ class LLM::Function
 
     def spawn
       @tool = ::Ractor.new(@mailbox, @runner_class, @id, @name, @arguments) do |mailbox, runner_class, id, name, arguments|
-        Thread.new do
+        ::Thread.new do
           ::Ractor.receive == :interrupt or next
-          Thread.main.raise(LLM::Interrupt)
+          ::Thread.main.raise(LLM::Interrupt)
         rescue ::Ractor::Error
         end
         kwargs = Hash === arguments ? arguments.transform_keys(&:to_sym) : arguments

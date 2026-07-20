@@ -54,11 +54,11 @@ class LLM::Function
 
     def setup(runner)
       ready = Queue.new
-      thread = Thread.new do
+      thread = ::Thread.new do
         ready << true
         kind = @ch.control.recv
         next unless kind == :interrupt
-        Thread.main.raise(LLM::Interrupt)
+        ::Thread.main.raise(LLM::Interrupt)
       rescue IOError, ArgumentError
       end
       ready.pop

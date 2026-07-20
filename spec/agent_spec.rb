@@ -340,7 +340,7 @@ RSpec.describe LLM::Agent do
     before do
       allow(LLM::Context).to receive(:new).and_return(ctx)
       allow(ctx).to receive(:interrupt!)
-      allow(ctx).to receive(:wait).with(:call).and_return(returns)
+      allow(ctx).to receive(:wait).with(:sequential).and_return(returns)
       allow(ctx).to receive(:wait).with(:thread).and_return(returns)
     end
 
@@ -521,9 +521,9 @@ RSpec.describe LLM::Agent do
     describe "#talk" do
       it "uses sequential calls by default" do
         agent = described_class.new(provider, mode: :responses)
-        allow(ctx).to receive(:wait).with(:call).and_return([tool_return])
+        allow(ctx).to receive(:wait).with(:sequential).and_return([tool_return])
         agent.talk("hello")
-        expect(ctx).to have_received(:wait).with(:call)
+        expect(ctx).to have_received(:wait).with(:sequential)
         expect(ctx).to have_received(:talk).with("hello", hash_including(:stream))
         expect(ctx).to have_received(:talk).with([tool_return], hash_including(:stream))
       end
@@ -621,7 +621,7 @@ RSpec.describe LLM::Agent do
     end
 
     describe "#talk" do
-      let(:concurrency) { :call }
+      let(:concurrency) { :sequential }
       let(:stub_confirmation) { true }
 
       before do
@@ -814,14 +814,14 @@ RSpec.describe LLM::Agent do
     before do
       allow(LLM::Context).to receive(:new).and_return(ctx)
       allow(ctx).to receive(:talk).and_return(double("first_response"), *Array.new(25) { double("response") }, advisory_res, res)
-      allow(ctx).to receive(:wait).with(:call).and_return([double("return")])
+      allow(ctx).to receive(:wait).with(:sequential).and_return([double("return")])
       allow(ctx).to receive(:functions?).and_return(*Array.new(29, true), false, false, false)
       allow(ctx).to receive(:functions).and_return(*Array.new(30, pending_functions), empty_functions, empty_functions, empty_functions)
     end
 
     it "defaults to 25 tool loop attempts" do
       expect(agent.talk("hello")).to eq(res)
-      expect(ctx).to have_received(:wait).with(:call).exactly(26).times
+      expect(ctx).to have_received(:wait).with(:sequential).exactly(26).times
       expect(ctx).to have_received(:talk).with([
         LLM::Function::Return.new("call_1", "echo", {
           error: true,
@@ -836,7 +836,7 @@ RSpec.describe LLM::Agent do
       allow(ctx).to receive(:functions?).and_return(true, false, false)
       allow(ctx).to receive(:functions).and_return(pending_functions, empty_functions, empty_functions)
       expect(agent.talk("hello", tool_attempts: nil)).to eq(res)
-      expect(ctx).to have_received(:wait).with(:call).once
+      expect(ctx).to have_received(:wait).with(:sequential).once
       expect(ctx).not_to have_received(:talk).with([
         LLM::Function::Return.new("call_1", "echo", {
           error: true,

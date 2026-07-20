@@ -20,6 +20,8 @@ class LLM::Function
     # @return [Boolean]
     def alive?
       request(:alive?)
+    rescue ::Ractor::ClosedError
+      false
     end
 
     ##

@@ -99,7 +99,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
     it "calls a function" do
       ctx.talk(prompt)
       expect(ctx.functions).not_to be_empty
-      ctx.talk ctx.wait(:call)
+      ctx.talk ctx.wait(:sequential)
       expect(ctx.functions).to be_empty
     end
   end
@@ -187,7 +187,7 @@ RSpec.describe "LLM::OpenAI::Responses" do
 
     it "calls the function(s)" do
       expect(Kernel).to receive(:system).with(/date/).and_return("2024-01-01")
-      ctx.talk ctx.wait(:call)
+      ctx.talk ctx.wait(:sequential)
       expect(ctx.functions).to be_empty
     end
   end

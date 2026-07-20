@@ -13,6 +13,7 @@ class LLM::Function
     def initialize(fn, options = {})
       @function = fn
       @tracer = options[:tracer]
+      @spawned = false
       @waited = false
     end
 
@@ -25,13 +26,14 @@ class LLM::Function
       )
       @ch = LLM::Object.from(control: xchan(:marshal), result: xchan(:marshal))
       @pid = Kernel.fork { Fork::Job.new(@function, @ch).call }
+      @spawned = true
       self
     end
 
     ##
     # @return [Boolean]
     def alive?
-      return false if @waited
+      return false if @waited || !@pid
       result = ::Process.waitpid(@pid, ::Process::WNOHANG)
       @waited = !result.nil?
       !@waited
@@ -54,6 +56,7 @@ class LLM::Function
     ##
     # @return [LLM::Function::Return]
     def wait
+      spawn unless @spawned
       kind, data = @ch.result.recv
       raise LLM::Interrupt if kind == :interrupt
       raise ArgumentError, "Unknown fork message: #{kind.inspect}" unless kind == :result

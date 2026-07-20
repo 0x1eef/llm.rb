@@ -63,7 +63,7 @@ RSpec.describe LLM::Context do
       end
 
       it "emits tool return callbacks for direct waits" do
-        ctx.wait(:call)
+        ctx.wait(:sequential)
         expect(events).to eq([["system", "system", {ok: true}]])
       end
     end
@@ -648,9 +648,9 @@ RSpec.describe LLM::Context do
       expect(ctx.wait(:thread)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
     end
 
-    it "forwards #wait(:call) to the configured stream when the queue has work" do
+    it "forwards #wait(:sequential) to the configured stream when the queue has work" do
       stream.queue << LLM::Function::Return.new("call_1", "system", {"ok" => true})
-      expect(ctx.wait(:call)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
+      expect(ctx.wait(:sequential)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
     end
 
     it "waits queued stream work even when a guard is configured" do
@@ -662,15 +662,15 @@ RSpec.describe LLM::Context do
     it "falls back to pending functions when the queue is empty" do
       pending = [].extend(LLM::Function::Array)
       expect(ctx).to receive(:functions).and_return(pending)
-      expect(pending).to receive(:spawn).with(:thread).and_return(LLM::Function::ThreadGroup.new([]))
+      expect(pending).to receive(:spawn).with(:thread).and_return(LLM::Function::Thread::Group.new([]))
       expect(ctx.wait(:thread)).to eq([])
     end
 
-    it "flows through pending function spawn groups for #wait(:call)" do
+    it "flows through pending function spawn groups for #wait(:sequential)" do
       pending = [].extend(LLM::Function::Array)
       expect(ctx).to receive(:functions).and_return(pending)
-      expect(pending).to receive(:spawn).with(:call).and_return(LLM::Function::CallGroup.new([]))
-      expect(ctx.wait(:call)).to eq([])
+      expect(pending).to receive(:spawn).with(:sequential).and_return(LLM::Function::Sequential::Group.new([]))
+      expect(ctx.wait(:sequential)).to eq([])
     end
 
     context "when given a per-call stream" do
@@ -689,7 +689,7 @@ RSpec.describe LLM::Context do
       end
 
       it "waits queued stream work with :call" do
-        expect(ctx.wait(:call)).to eq([result])
+        expect(ctx.wait(:sequential)).to eq([result])
       end
 
       it "clears the per-call stream after wait" do
@@ -747,7 +747,7 @@ RSpec.describe LLM::Context do
       owner.resume
     end
 
-    context "when interrupting a call group during wait(:call)" do
+    context "when interrupting a call group during wait(:sequential)" do
       let(:tool) do
         Class.new(LLM::Tool) do
           name "slow"
@@ -773,7 +773,7 @@ RSpec.describe LLM::Context do
 
       it "raises LLM::Interrupt on the thread waiting for tool work" do
         thread = Thread.new do
-          ctx.wait(:call)
+          ctx.wait(:sequential)
         rescue LLM::Interrupt
           :interrupted
         end
@@ -785,7 +785,7 @@ RSpec.describe LLM::Context do
 
       it "clears the queue after interrupt" do
         thread = Thread.new do
-          ctx.wait(:call)
+          ctx.wait(:sequential)
         rescue LLM::Interrupt
           :interrupted
         end
@@ -815,6 +815,7 @@ RSpec.describe LLM::Context do
 
       it "interrupts the queued tool" do
         task = tool.function.tap { _1.arguments = {value: "hello"} }.spawn(:thread)
+        task.spawn
         stream.queue << task
         sleep 0.05 # let the thread enter the tool's call method
         expect(provider).to receive(:interrupt!).with(nil).ordered.and_return(nil)

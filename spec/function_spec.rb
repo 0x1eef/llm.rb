@@ -25,8 +25,8 @@ RSpec.describe LLM::Function do
 
     let(:strategy) { :ractor }
 
-    context "when using call concurrency" do
-      let(:strategy) { :call }
+    context "when using sequential concurrency" do
+      let(:strategy) { :sequential }
 
       it "returns the tool result" do
         expect(task.wait.to_h).to eq(id: "call_1", name: "system", value: {"ok" => true})
@@ -52,6 +52,7 @@ RSpec.describe LLM::Function do
 
       it "tracks task liveness" do
         task = slow_tool.spawn(:ractor)
+        task.spawn
         sleep 0.01 until task.alive?
         expect(task.alive?).to be(true)
         task.wait
@@ -80,6 +81,7 @@ RSpec.describe LLM::Function do
           _1.arguments = {}
         }
         task = fn.spawn(:ractor)
+        task.spawn
         sleep 0.05 until task.alive?
         task.interrupt!
         expect(task.wait.to_h).to eq(id: "call_3", name: "slow", value: {cancelled: true, reason: "interrupted"})
@@ -194,6 +196,7 @@ RSpec.describe LLM::Function do
 
       it "delivers interrupts to the child tool" do
         task = interrupt_tool.spawn(:fork)
+        task.spawn
         sleep 0.05 until task.alive?
         task.interrupt!
         expect(task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true, "interrupted" => true})
@@ -213,6 +216,7 @@ RSpec.describe LLM::Function do
           f.arguments = {}
         end
         task = fn.spawn(:fork)
+        task.spawn
         sleep 0.05 until task.alive?
         task.interrupt!
         expect { task.wait }.to raise_error(LLM::Interrupt)
@@ -221,7 +225,8 @@ RSpec.describe LLM::Function do
 
     context "when using fiber concurrency without a scheduler" do
       it "raises a clear error" do
-        expect { tool.spawn(:fiber) }.to raise_error(
+        task = tool.spawn(:fiber)
+        expect { task.spawn }.to raise_error(
           ArgumentError,
           "Fiber concurrency requires Fiber.scheduler"
         )
@@ -229,9 +234,9 @@ RSpec.describe LLM::Function do
     end
   end
 
-  describe LLM::Function::CallGroup do
+  describe LLM::Function::Sequential::Group do
     describe "#interrupt!" do
-      subject(:group) { LLM::Function::CallGroup.new([function]) }
+      subject(:group) { LLM::Function::Sequential::Group.new([function]) }
 
       let(:fn_class) do
         Class.new(LLM::Tool) do
@@ -251,6 +256,7 @@ RSpec.describe LLM::Function do
 
       it "raises LLM::Interrupt on the thread running wait" do
         thread = Thread.new { group.wait }
+        thread.report_on_exception = false
         sleep 0.05
         group.interrupt!
         expect { thread.value }.to raise_error(LLM::Interrupt)
@@ -261,6 +267,7 @@ RSpec.describe LLM::Function do
           group.wait rescue LLM::Interrupt
           :interrupted
         }
+        thread.report_on_exception = false
         sleep 0.05
         group.interrupt!
         expect(thread.value).to eq(:interrupted)
@@ -276,7 +283,7 @@ RSpec.describe LLM::Function do
           f.id = "call_2"
           f.arguments = {}
         end
-        LLM::Function::CallGroup.new([fn]).wait
+        LLM::Function::Sequential::Group.new([fn]).wait
         expect(group.interrupt!).to be_nil
       end
     end
@@ -293,16 +300,21 @@ RSpec.describe LLM::Function do
 
       context "when wrapping a Thread" do
         it "raises LLM::Interrupt on the thread" do
-          thread = Thread.new { sleep 10 }
-          LLM::Function::Task.new(thread, fn).interrupt!
-          expect { thread.value }.to raise_error(LLM::Interrupt)
+          slow = LLM::Function.new("slow") { _1.define { sleep 10; {ok: true} } }
+          slow.id = "call_1"
+          slow.arguments = {}
+          task = LLM::Function::Thread::Task.new(slow)
+          task.spawn
+          sleep 0.05 until task.alive?
+          task.interrupt!
+          expect { task.wait }.to raise_error(LLM::Interrupt)
         end
       end
 
       context "when wrapping a Fiber" do
         it "does not raise on a dead fiber" do
           fiber = Fiber.new { :done }.tap(&:resume)
-          expect { LLM::Function::Task.new(fiber, fn).interrupt! }.not_to raise_error
+          expect { LLM::Function::Fiber::Task.new(fn).interrupt! }.not_to raise_error
         end
       end
 
@@ -313,29 +325,30 @@ RSpec.describe LLM::Function do
         end
 
         it "raises LLM::Interrupt on the underlying fiber" do
-          reactor = Async::Reactor.new
-          task = reactor.async { sleep 10 }
+          slow = LLM::Function.new("slow") { _1.define { sleep 10; {ok: true} } }
+          slow.id = "call_1"
+          slow.arguments = {}
+          reactor = LLM::Function::Async::Reactor.new
+          task = LLM::Function::Async::Task.new(slow, reactor:)
+          task.spawn
           sleep 0.05 until task.alive?
-          wrapped = LLM::Function::Task.new(task, fn)
-          wrapped.interrupt!
+          task.interrupt!
           expect { task.wait }.to raise_error(LLM::Interrupt)
         ensure
           reactor&.stop
         end
 
         it "is a no-op on a dead async task" do
-          reactor = Async::Reactor.new
-          task = reactor.async { :done }
-          task.wait
-          wrapped = LLM::Function::Task.new(task, fn)
-          expect { wrapped.interrupt! }.not_to raise_error
+          reactor = LLM::Function::Async::Reactor.new
+          task = LLM::Function::Async::Task.new(fn, reactor:).tap(&:wait)
+          expect { task.interrupt! }.not_to raise_error
         ensure
           reactor&.stop
         end
       end
 
-      context "when wrapping an unknown task type" do
-        let(:unknown) do
+      context "when the task responds to interrupt!" do
+        let(:interruptible) do
           Class.new do
             attr_reader :interrupted
             def initialize
@@ -348,14 +361,14 @@ RSpec.describe LLM::Function do
         end
 
         it "calls interrupt! on the task if it responds to it" do
-          LLM::Function::Task.new(unknown, fn).interrupt!
-          expect(unknown.interrupted).to be true
+          interruptible.interrupt!
+          expect(interruptible.interrupted).to be true
         end
       end
 
       it "returns nil" do
-        thread = Thread.new { sleep 10 }
-        expect(LLM::Function::Task.new(thread, fn).interrupt!).to be_nil
+        task = LLM::Function::Thread::Task.new(fn).tap(&:spawn)
+        expect(task.interrupt!).to be_nil
       end
     end
   end
