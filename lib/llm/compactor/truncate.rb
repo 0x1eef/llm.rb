@@ -47,7 +47,7 @@ class LLM::Compactor
           Integer(input)
         end
       else
-        input
+        Integer(input)
       end
     end
 
