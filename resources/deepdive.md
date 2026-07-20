@@ -1123,6 +1123,11 @@ This feature requires that the [curses](https://github.com/ruby/curses)
 and [kramdown](https://github.com/gettalong/kramdown) libraries are
 installed and available to require.
 
+The `name:` option labels the agent throughout the TUI &mdash;
+useful when working with multiple agents. The `path:` option
+persists state across sessions. The `tools:` option attaches
+extra tools for the duration of the session.
+
 ```ruby
 require "llm"
 
@@ -1130,11 +1135,6 @@ llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, name: "my-agent")
 agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
 ```
-
-The `name:` option labels the agent throughout the TUI &mdash;
-useful when working with multiple agents. The `path:` option
-persists state across sessions. The `tools:` option attaches
-extra tools for the duration of the session.
 
 #### State
 
@@ -1199,7 +1199,11 @@ agent.repl(tracer: true, tools: [Debugger])
 
 #### Input
 
-The input area supports several keyboard shortcuts:
+The input area supports several keyboard shortcuts.
+When characters arrive faster than a threshold the REPL
+detects that text is being pasted rather than typed. In
+paste mode pressing `Enter` inserts a newline instead of
+submitting, allowing multi-line prompts.
 
 | Key | Action |
 |---|---|
@@ -1215,11 +1219,6 @@ The input area supports several keyboard shortcuts:
 | `PgUp` / `PgDn` | Scroll the transcript by one page |
 | `Tab` | Complete `/command` names |
 | `Esc` | Cancel the current request |
-
-When characters arrive faster than a threshold the REPL
-detects that text is being pasted rather than typed. In
-paste mode pressing `Enter` inserts a newline instead of
-submitting, allowing multi-line prompts.
 
 #### Commands
 

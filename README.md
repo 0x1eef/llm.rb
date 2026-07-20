@@ -155,6 +155,12 @@ runtime state across sessions. The `tools:` option attaches
 extra tools for the duration of the session. It is like
 `binding.pry` but for agents.
 
+For the full reference &mdash; state persistence, tracer
+integration, skills, keyboard shortcuts, custom commands,
+and every built-in tool &mdash; see the
+[REPL section](https://r.uby.dev/llm/deepdive/#repl) in the
+deepdive.
+
 ```ruby
 require "llm"
 require "llm/tools"
@@ -163,13 +169,6 @@ llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, name: "my-agent")
 agent.repl(path: "agent.json", tools: LLM::Tool.subclasses)
 ```
-
-
-For the full reference &mdash; state persistence, tracer
-integration, skills, keyboard shortcuts, custom commands,
-and every built-in tool &mdash; see the
-[REPL section](https://r.uby.dev/llm/deepdive/#repl) in the
-deepdive.
 
 #### LLM::MCP
 
