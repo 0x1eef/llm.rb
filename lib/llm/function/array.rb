@@ -30,17 +30,17 @@ class LLM::Function
     #   - `:fork`: Use forked child processes
     #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     #
-    # @return [LLM::Function::CallGroup, LLM::Function::ThreadGroup, LLM::Function::TaskGroup, LLM::Function::FiberGroup, LLM::Function::Ractor::Group]
+    # @return [LLM::Function::Sequential::Group, LLM::Function::Thread::Group, LLM::Function::Async::Group, LLM::Function::Fiber::Group, LLM::Function::Fork::Group, LLM::Function::Ractor::Group]
     def spawn(strategy)
       case strategy
       when :sequential
-        CallGroup.new(self)
+        Sequential::Group.new(self)
       when :async
-        TaskGroup.new(map { |fn| fn.spawn(:async) })
+        Async::Group.new(map { |fn| fn.spawn(:async) })
       when :thread
-        ThreadGroup.new(map { |fn| fn.spawn(:thread) })
+        Thread::Group.new(map { |fn| fn.spawn(:thread) })
       when :fiber
-        FiberGroup.new(map { |fn| fn.spawn(:fiber) })
+        Fiber::Group.new(map { |fn| fn.spawn(:fiber) })
       when :fork
         Fork::Group.new(map { |fn| fn.spawn(:fork) })
       when :ractor

@@ -47,7 +47,7 @@ module LLM::Function::Fiber
     ##
     # @return [Class]
     def group_class
-      LLM::Function::FiberGroup
+      LLM::Function::Fiber::Group
     end
   end
 end

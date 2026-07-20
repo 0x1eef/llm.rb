@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
-class LLM::Function
+module LLM::Function::Sequential
   ##
-  # The {LLM::Function::CallGroup} class wraps an array of
-  # {LLM::Function} objects for sequential execution.
-  #
-  # It provides the same basic interface as the concurrent group
+  # Wraps an array of {LLM::Function} objects for sequential
+  # execution. Provides the same interface as concurrent group
   # wrappers so callers can flow through `spawn(strategy).wait`
-  # uniformly, even when the selected strategy is direct calls.
-  class CallGroup
+  # uniformly.
+  class Group
     ##
     # @param [Array<LLM::Function>] functions
-    # @return [LLM::Function::CallGroup]
     def initialize(functions)
       @functions = functions
       @owner = nil

@@ -48,7 +48,7 @@ module LLM::Function::Thread
     ##
     # @return [Class]
     def group_class
-      LLM::Function::ThreadGroup
+      LLM::Function::Thread::Group
     end
   end
 end

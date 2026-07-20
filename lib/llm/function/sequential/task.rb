@@ -41,7 +41,7 @@ module LLM::Function::Sequential
     ##
     # @return [Class]
     def group_class
-      LLM::Function::TaskGroup
+      LLM::Function::Sequential::Group
     end
   end
 end

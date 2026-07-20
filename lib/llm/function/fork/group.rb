@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-class LLM::Function
+module LLM::Function::Fork
   ##
-  # The {LLM::Function::Ractor::Group} class wraps an array of
-  # {LLM::Function::Ractor::Task} objects that are running
-  # {LLM::Function} calls concurrently.
-  class Ractor::Group
+  # Wraps an array of {Fork::Task} objects that are running
+  # in forked child processes.
+  class Group
     ##
     # @param [Array<LLM::Function::Task>] tasks
-    # @return [LLM::Function::Ractor::Group]
     def initialize(tasks)
       @tasks = tasks
     end
