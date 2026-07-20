@@ -7,8 +7,10 @@ module LLM::Function::Async
   class Group < LLM::Function::Group
     ##
     # @param [Array<Async::Task>] tasks
-    def initialize(tasks)
+    # @param [LLM::Function::Reactor] reactor
+    def initialize(tasks, reactor)
       @tasks = tasks
+      @reactor = reactor
     end
 
     ##
@@ -36,6 +38,8 @@ module LLM::Function::Async
     # @return [Array<LLM::Function::Return>]
     def wait
       @tasks.map(&:wait)
+    ensure
+      @reactor.stop
     end
     alias_method :value, :wait
   end

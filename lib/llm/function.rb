@@ -38,6 +38,8 @@ class LLM::Function
   require_relative "function/sequential/task"
   require_relative "function/thread/task"
   require_relative "function/fiber/task"
+  require_relative "function/async/reactor"
+  require_relative "function/async/task"
   require_relative "function/thread/group"
   require_relative "function/fiber/group"
   require_relative "function/async/group"
@@ -255,7 +257,8 @@ class LLM::Function
     when :sequential
       Sequential::Task.new(self, options)
     when :async
-      raise NotImplementedError, "Async strategy not yet implemented"
+      LLM.require "async" unless defined?(::Async)
+      Async::Task.new(self, options)
     when :thread
       Thread::Task.new(self, options)
     when :fiber

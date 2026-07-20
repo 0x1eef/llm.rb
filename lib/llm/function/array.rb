@@ -36,7 +36,10 @@ class LLM::Function
       when :sequential
         Sequential::Group.new(self)
       when :async
-        Async::Group.new(map { |fn| fn.spawn(:async) })
+        LLM.require "async" unless defined?(::Async)
+        reactor = LLM::Function::Async::Reactor.new
+        tasks = map { |fn| fn.spawn(:async, {reactor:}) }
+        Async::Group.new(tasks, reactor)
       when :thread
         Thread::Group.new(map { |fn| fn.spawn(:thread) })
       when :fiber
