@@ -1220,13 +1220,13 @@ submitting, allowing multi-line prompts.
 | `Ctrl+K` | Erase from cursor to the end of the line |
 | `Ctrl+Y` | Paste previously killed text |
 | `Ctrl+D` | Delete the character at the cursor |
+| `Ctrl+P` | Recall the previous user message |
+| `Ctrl+N` | Recall the next user message |
 | `Left / Right` | Move the cursor |
 | `Up / Down` | Scroll the transcript one line |
 | `PgUp` / `PgDn` | Scroll the transcript by one page |
 | `Tab` | Complete `/command` names |
 | `Esc` | Cancel the current request |
-| `Ctrl+P` | Recall the previous user message |
-| `Ctrl+N` | Recall the next user message |
 
 #### Commands
 
