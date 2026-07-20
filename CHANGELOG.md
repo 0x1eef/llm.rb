@@ -15,6 +15,64 @@
 
 ## What's next
 
+### Breaking
+
+* **fix `:async` concurrency (now backed by a managed `Reactor` on a background thread)** <br>
+  The `:async` strategy previously used `Async {}` which spawned its own
+  reactor and blocked the caller until all tasks completed — making it
+  unusable for concurrent tool execution. The strategy also did not
+  support interruption, so cancelling a context with async-backed tool
+  loops was a no-op.
+  <br><br>
+  The fix replaces `Async {}` with a per-turn
+  `LLM::Function::Async::Reactor` that runs on a dedicated background
+  thread. Each tool runs in an `Async::Task` on that reactor.
+  Interruption raises `LLM::Interrupt` on the reactor fiber, matching
+  the pattern used by `Thread::Task`. Results are bridged from the
+  reactor thread back to the caller through a `Queue`.
+  <br><br>
+  This work is what drove the large refactor of the function internals
+  (renamed strategies, split `spawn`/`wait`, repurposed `Task` as a
+  superclass, etc.) — the `:async` strategy needed the same task-shaped
+  interface that the other strategies already had.
+
+* **rename `LLM::Function#spawn` as `LLM::Function#task`** <br>
+  `LLM::Function#task` (previously `spawn`) now consistently returns an
+  object that implements the `LLM::Function::Task` interface. The old
+  implementation alternated between spawning a task immediately or
+  returning it to be executed later; the contract is now that `task`
+  returns a task object that can be spawned, waited on, and passed to
+  `LLM::Function::Group`.
+
+* **rename concurrency strategies (`:call` → `:sequential`, `:task` → `:async`)** <br>
+  The `:call` concurrency strategy is now `:sequential`, and the `:task`
+  strategy is now `:async`. `LLM::Agent.concurrency`, `LLM::Context#wait`,
+  `LLM::Function::Array#task`, and `LLM::Function#task` all accept the
+  new names. The old names raise `ArgumentError`.
+
+* **rename group classes** <br>
+  Group classes have been moved into their strategy's namespace:
+  `FiberGroup` → `Fiber::Group`, `ThreadGroup` → `Thread::Group`,
+  `CallGroup` → `Sequential::Group`, `TaskGroup` → `Async::Group`,
+  `Fork::Group` → `Fork::Group`, `Ractor::Group` → `Ractor::Group`.
+
+* **repurpose `LLM::Function::Task` as a task interface superclass** <br>
+  `LLM::Function::Task` has been repurposed from a general-purpose class
+  that tried to support multiple concurrency strategies into an abstract
+  base class that defines the task interface. Individual strategies
+  (`Sequential::Task`, `Thread::Task`, `Fiber::Task`, `Async::Task`,
+  `Fork::Task`, `Ractor::Task`) now subclass it and implement
+  `spawn`, `alive?`, `interrupt!`, and `wait`.
+
+* **compactor: refactor to strategy-based interface** <br>
+  `LLM::Compactor` has been refactored from a single class that performed
+  LLM-based summarization into a strategy-based superclass. Each subclass
+  implements a different compaction strategy via `call(**opts)`. The old
+  summarization approach (using `model:`, `token_threshold:`,
+  `message_threshold:`, and `retention_window:` options) has been removed.
+  The built-in `LLM::Compactor::Truncate` strategy drops the oldest
+  messages when the conversation exceeds a configured size.
+
 ### Core
 
 * **extend `LLM.require` with an optional version argument** <br>
@@ -60,15 +118,6 @@
   `LLM::Context` instances. When given an agent, the internal context is
   unwrapped automatically, making the compactor API more flexible when
   working with agents.
-
-* **refactor to strategy-based interface** <br>
-  `LLM::Compactor` has been refactored from a single class that performed
-  LLM-based summarization into a strategy-based superclass. Each subclass
-  implements a different compaction strategy via `call(**opts)`. The old
-  summarization approach (using `model:`, `token_threshold:`,
-  `message_threshold:`, and `retention_window:` options) has been removed.
-  The built-in `LLM::Compactor::Truncate` strategy drops the oldest
-  messages when the conversation exceeds a configured size.
 
 #### Context integration
 
@@ -147,25 +196,11 @@
 
 ### Function
 
-* **rename `LLM::Function#spawn` as `LLM::Function#task`** <br>
-  `LLM::Function#task` (previously `spawn`) now consistently returns an
-  object that implements the `LLM::Function::Task` interface. The old
-  implementation alternated between spawning a task immediately or
-  returning it to be executed later; the contract is now that `task`
-  returns a task object that can be spawned, waited on, and passed to
-  `LLM::Function::Group`.
-
 * **consolidate `call` and `call!` into one method** <br>
   The private `call!` method has been merged into the public `call`
   method. The separate `call!` method existed because of tracer-scoping
   logic that is now handled directly inside `call`. All internal call
   sites now use `function.call` instead of `function.call!`.
-
-* **rename concurrency strategies (`:call` → `:sequential`, `:task` → `:async`)** <br>
-  The `:call` concurrency strategy is now `:sequential`, and the `:task`
-  strategy is now `:async`. `LLM::Agent.concurrency`, `LLM::Context#wait`,
-  `LLM::Function::Array#task`, and `LLM::Function#task` all accept the
-  new names. The old names raise `ArgumentError`.
 
 * **add `LLM::Function::Group` as an abstract base class** <br>
   A new abstract base class (`LLM::Function::Group`) defines the
@@ -175,45 +210,12 @@
   `Async::Group`, `Fork::Group`, `Ractor::Group`) now subclasses
   this base.
 
-* **rename group classes to use namespaced constants** <br>
-  Group classes have been moved into their strategy's namespace:
-  `FiberGroup` → `Fiber::Group`, `ThreadGroup` → `Thread::Group`,
-  `CallGroup` → `Sequential::Group`, `TaskGroup` → `Async::Group`,
-  `Fork::Group` → `Fork::Group`, `Ractor::Group` → `Ractor::Group`.
-
 * **split `spawn` and `wait` across all strategies** <br>
   `spawn` now starts execution without blocking, and `wait` collects
   the result. `on_tool_start` has been moved into each task's `spawn`
   method so the tracer span covers actual execution rather than just
   task construction. Each task and group now exposes a public `spawn`
   method alongside the existing `wait`/`value` methods.
-
-* **repurpose `LLM::Function::Task` as a task interface superclass** <br>
-  `LLM::Function::Task` has been repurposed from a general-purpose class
-  that tried to support multiple concurrency strategies into an abstract
-  base class that defines the task interface. Individual strategies
-  (`Sequential::Task`, `Thread::Task`, `Fiber::Task`, `Async::Task`,
-  `Fork::Task`, `Ractor::Task`) now subclass it and implement
-  `spawn`, `alive?`, `interrupt!`, and `wait`.
-
-* **fix `:async` concurrency (now backed by a managed `Reactor` on a background thread)** <br>
-  The `:async` strategy previously used `Async {}` which spawned its own
-  reactor and blocked the caller until all tasks completed — making it
-  unusable for concurrent tool execution. The strategy also did not
-  support interruption, so cancelling a context with async-backed tool
-  loops was a no-op.
-  <br><br>
-  The fix replaces `Async {}` with a per-turn
-  `LLM::Function::Async::Reactor` that runs on a dedicated background
-  thread. Each tool runs in an `Async::Task` on that reactor.
-  Interruption raises `LLM::Interrupt` on the reactor fiber, matching
-  the pattern used by `Thread::Task`. Results are bridged from the
-  reactor thread back to the caller through a `Queue`.
-  <br><br>
-  This work is what drove the large refactor of the function internals
-  (renamed strategies, split `spawn`/`wait`, repurposed `Task` as a
-  superclass, etc.) — the `:async` strategy needed the same task-shaped
-  interface that the other strategies already had.
 
 ### Agent
 
