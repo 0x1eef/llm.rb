@@ -7,10 +7,10 @@ module LLM::Function::Async
   class Group < LLM::Function::Group
     ##
     # @param [Array<Async::Task>] tasks
-    # @param [LLM::Function::Reactor] reactor
-    def initialize(tasks, reactor)
+    # @param [Hash] options
+    def initialize(tasks, options = {})
       @tasks = tasks
-      @reactor = reactor
+      @reactor = options[:reactor] || LLM::Function::Async::Reactor.new
     end
 
     ##
