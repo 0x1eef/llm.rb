@@ -163,7 +163,7 @@ RSpec.describe LLM::Skill do
           fn.id = "call_1"
           fn.arguments = {}
         end
-        expect { function.spawn(:ractor) }.to raise_error(
+        expect { function.task(:ractor) }.to raise_error(
           LLM::RactorError,
           "Ractor concurrency does not support skill-backed tools"
         )
@@ -183,7 +183,7 @@ RSpec.describe LLM::Skill do
           expect(ctx.llm.tracer).to equal(tracer)
           {content: "rain"}
         end
-        expect(function.spawn(:thread).value.to_h).to eq(
+        expect(function.task(:thread).value.to_h).to eq(
           id: "call_1", name: "weather", value: {content: "rain"}
         )
       end

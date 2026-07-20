@@ -231,7 +231,7 @@ RSpec.describe LLM::Stream do
 
       context "when given spawned work" do
         it "waits for the spawned work" do
-          stream.queue << tool.spawn(:thread)
+          stream.queue << tool.task(:thread)
           expect(stream.wait(:thread).map(&:to_h)).to eq(
             [{id: "call_1", name: "system", value: {"ok" => true}}]
           )
@@ -253,7 +253,7 @@ RSpec.describe LLM::Stream do
           end
 
           it "emits on_tool_return" do
-            stream.queue << tool.spawn(:thread)
+            stream.queue << tool.task(:thread)
             returns = stream.wait(:thread)
             expect(stream.events).to eq([[tool, returns.fetch(0)]])
           end
@@ -262,7 +262,7 @@ RSpec.describe LLM::Stream do
 
       context "when given ractor work" do
         before do
-          stream.queue << tool.spawn(:ractor)
+          stream.queue << tool.task(:ractor)
         end
 
         it "waits for the spawned work" do
@@ -283,8 +283,8 @@ RSpec.describe LLM::Stream do
         end
 
         before do
-          stream.queue << tool.spawn(:thread)
-          stream.queue << other_tool.spawn(:ractor)
+          stream.queue << tool.task(:thread)
+          stream.queue << other_tool.task(:ractor)
         end
 
         it "waits for all matching task types" do
@@ -320,7 +320,7 @@ RSpec.describe LLM::Stream do
           let(:result_ids) { stream.wait([:thread, :ractor]).map(&:id) }
 
           before do
-            stream.queue << third_tool.spawn(:thread)
+            stream.queue << third_tool.task(:thread)
             result_ids
           end
 

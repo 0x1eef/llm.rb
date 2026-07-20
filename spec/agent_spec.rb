@@ -630,7 +630,7 @@ RSpec.describe LLM::Agent do
 
       context "when approval executes the confirmed tool" do
         let(:confirmation) do
-          proc { |fn, strategy| fn.spawn(strategy).wait }
+          proc { |fn, strategy| fn.task(strategy).wait }
         end
 
         it "does not execute the confirmed tool twice" do
@@ -697,7 +697,7 @@ RSpec.describe LLM::Agent do
           Class.new(described_class) do
             private
             define_method(:on_tool_confirmation) do |fn, strategy|
-              fn.spawn(strategy).wait
+              fn.task(strategy).wait
             end
           end.tap do |klass|
             klass.tools(*tool_classes)

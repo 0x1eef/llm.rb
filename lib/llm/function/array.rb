@@ -31,23 +31,23 @@ class LLM::Function
     #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)
     #
     # @return [LLM::Function::Sequential::Group, LLM::Function::Thread::Group, LLM::Function::Async::Group, LLM::Function::Fiber::Group, LLM::Function::Fork::Group, LLM::Function::Ractor::Group]
-    def spawn(strategy)
+    def task(strategy)
       case strategy
       when :sequential
         Sequential::Group.new(self)
       when :async
         LLM.require "async" unless defined?(::Async)
         reactor = LLM::Function::Async::Reactor.new
-        tasks = map { |fn| fn.spawn(:async, {reactor:}) }
+        tasks = map { |fn| fn.task(:async, {reactor:}) }
         Async::Group.new(tasks, reactor)
       when :thread
-        Thread::Group.new(map { |fn| fn.spawn(:thread) })
+        Thread::Group.new(map { |fn| fn.task(:thread) })
       when :fiber
-        Fiber::Group.new(map { |fn| fn.spawn(:fiber) })
+        Fiber::Group.new(map { |fn| fn.task(:fiber) })
       when :fork
-        Fork::Group.new(map { |fn| fn.spawn(:fork) })
+        Fork::Group.new(map { |fn| fn.task(:fork) })
       when :ractor
-        Ractor::Group.new(map { |fn| fn.spawn(:ractor) })
+        Ractor::Group.new(map { |fn| fn.task(:ractor) })
       else
         raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :sequential, :thread, :async, :fiber, :fork, or :ractor"
       end
@@ -69,7 +69,7 @@ class LLM::Function
     # @return [Array<LLM::Function::Return>]
     #  Returns values to be reported back to the LLM.
     def wait(strategy)
-      spawn(strategy).wait
+      task(strategy).wait
     end
 
     ##

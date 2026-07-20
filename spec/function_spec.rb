@@ -20,8 +20,8 @@ RSpec.describe LLM::Function do
     end
   end
 
-  describe "#spawn" do
-    subject(:task) { tool.spawn(strategy) }
+  describe "#task" do
+    subject(:task) { tool.task(strategy) }
 
     let(:strategy) { :ractor }
 
@@ -51,7 +51,7 @@ RSpec.describe LLM::Function do
       end
 
       it "tracks task liveness" do
-        task = slow_tool.spawn(:ractor)
+        task = slow_tool.task(:ractor)
         task.spawn
         sleep 0.01 until task.alive?
         expect(task.alive?).to be(true)
@@ -80,7 +80,7 @@ RSpec.describe LLM::Function do
           _1.id = "call_3"
           _1.arguments = {}
         }
-        task = fn.spawn(:ractor)
+        task = fn.task(:ractor)
         task.spawn
         sleep 0.05 until task.alive?
         task.interrupt!
@@ -91,7 +91,7 @@ RSpec.describe LLM::Function do
         task = tool.function.dup.tap {
           _1.id = "call_4"
           _1.arguments = {}
-        }.spawn(:ractor)
+        }.task(:ractor)
         expect(task.interrupt!).to be_nil
       end
     end
@@ -100,7 +100,7 @@ RSpec.describe LLM::Function do
       fn = LLM::Function.new("echo")
       fn.arguments = {"value" => "hello"}
       fn.define { |value:| {value:} }
-      expect { fn.spawn(:ractor) }.to raise_error(
+      expect { fn.task(:ractor) }.to raise_error(
         LLM::RactorError,
         "Ractor concurrency only supports class-based tools"
       )
@@ -145,7 +145,7 @@ RSpec.describe LLM::Function do
         end
 
         it "returns tool errors without hanging" do
-          result = Timeout.timeout(1) { error_tool.spawn(:fork).wait.to_h }
+          result = Timeout.timeout(1) { error_tool.task(:fork).wait.to_h }
           expect(result).to eq(
             id: "call_4",
             name: "system",
@@ -195,7 +195,7 @@ RSpec.describe LLM::Function do
       end
 
       it "delivers interrupts to the child tool" do
-        task = interrupt_tool.spawn(:fork)
+        task = interrupt_tool.task(:fork)
         task.spawn
         sleep 0.05 until task.alive?
         task.interrupt!
@@ -215,7 +215,7 @@ RSpec.describe LLM::Function do
           f.id = "call_4"
           f.arguments = {}
         end
-        task = fn.spawn(:fork)
+        task = fn.task(:fork)
         task.spawn
         sleep 0.05 until task.alive?
         task.interrupt!
@@ -225,7 +225,7 @@ RSpec.describe LLM::Function do
 
     context "when using fiber concurrency without a scheduler" do
       it "raises a clear error" do
-        task = tool.spawn(:fiber)
+        task = tool.task(:fiber)
         expect { task.spawn }.to raise_error(
           ArgumentError,
           "Fiber concurrency requires Fiber.scheduler"

@@ -546,7 +546,7 @@ module LLM
     # @param [Symbol, Array<Symbol>] strategy
     #  The execution strategy that would be used for the tool call.
     # @return [LLM::Function::Return]
-    #  Return either `fn.spawn(strategy).wait` to approve execution or
+    #  Return either `fn.task(strategy).wait` to approve execution or
     #  `fn.cancel(...)` to cancel the call.
     def on_tool_confirmation(fn, strategy)
       fn.cancel

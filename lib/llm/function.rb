@@ -238,7 +238,7 @@ class LLM::Function
   #   ctx.talk(ctx.functions.wait)
   #
   #   # Direct usage (uncommon)
-  #   task = tool.spawn(:thread)
+  #   task = tool.task(:thread)
   #   result = task.value
   #
   # @param [Symbol] strategy
@@ -252,7 +252,7 @@ class LLM::Function
   #
   # @return [LLM::Function::Task]
   #   Returns a task whose `#value` is an {LLM::Function::Return}.
-  def spawn(strategy, options = {})
+  def task(strategy, options = {})
     case strategy
     when :sequential
       Sequential::Task.new(self, options)

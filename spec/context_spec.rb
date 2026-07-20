@@ -662,14 +662,14 @@ RSpec.describe LLM::Context do
     it "falls back to pending functions when the queue is empty" do
       pending = [].extend(LLM::Function::Array)
       expect(ctx).to receive(:functions).and_return(pending)
-      expect(pending).to receive(:spawn).with(:thread).and_return(LLM::Function::Thread::Group.new([]))
+      expect(pending).to receive(:task).with(:thread).and_return(LLM::Function::Thread::Group.new([]))
       expect(ctx.wait(:thread)).to eq([])
     end
 
     it "flows through pending function spawn groups for #wait(:sequential)" do
       pending = [].extend(LLM::Function::Array)
       expect(ctx).to receive(:functions).and_return(pending)
-      expect(pending).to receive(:spawn).with(:sequential).and_return(LLM::Function::Sequential::Group.new([]))
+      expect(pending).to receive(:task).with(:sequential).and_return(LLM::Function::Sequential::Group.new([]))
       expect(ctx.wait(:sequential)).to eq([])
     end
 
@@ -814,7 +814,7 @@ RSpec.describe LLM::Context do
       end
 
       it "interrupts the queued tool" do
-        task = tool.function.tap { _1.arguments = {value: "hello"} }.spawn(:thread)
+        task = tool.function.tap { _1.arguments = {value: "hello"} }.task(:thread)
         task.spawn
         stream.queue << task
         sleep 0.05 # let the thread enter the tool's call method
