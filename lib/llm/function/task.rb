@@ -2,82 +2,52 @@
 
 class LLM::Function
   ##
-  # The {LLM::Function::Task} class wraps a single concurrent function call and
-  # provides a small, uniform interface across threads, scheduler-backed fibers,
-  # and async tasks.
+  # This class is the superclass that all concurrency
+  # strategies must subclass in order to implement their
+  # own Task class. It provides a common interface that
+  # is the same across all concurrency strategies.
   class Task
     ##
-    # @return [Object]
-    attr_reader :task
-
-    ##
-    # @return [LLM::Function, nil]
+    # @return [LLM::Function]
     attr_reader :function
 
     ##
-    # @param [Thread, Fiber, Async::Task, Ractor, LLM::Function::Ractor::Task] task
-    # @param [LLM::Function, nil] function
-    # @return [LLM::Function::Task]
-    def initialize(task, function = nil)
-      @task = task
-      @function = function
+    # @param [LLM::Function] fn
+    # @param [Hash] options
+    #  An optional set of options that are specific
+    #  to a given concurrency strategy.
+    def initialize(fn, options = {})
+      @function = fn
     end
 
     ##
+    # @abstract
     # @return [Boolean]
     def alive?
-      return task.alive? if task.respond_to?(:alive?)
-      false
+      raise NotImplementedError
     end
 
     ##
+    # @abstract
     # @return [nil]
     def interrupt!
-      case task
-      when Thread
-        task.raise(LLM::Interrupt)
-      when Fiber
-        task.raise(LLM::Interrupt) if task.alive?
-      else
-        if defined?(::Async::Task) and ::Async::Task === task
-          task.fiber&.raise(LLM::Interrupt) if task.alive?
-        elsif task.respond_to?(:interrupt!)
-          task.interrupt!
-        end
-      end
-      function&.interrupt!
-      nil
+      raise NotImplementedError
     end
     alias_method :cancel!, :interrupt!
 
     ##
+    # @abstract
     # @return [LLM::Function::Return]
     def wait
-      if Thread === task
-        task.value
-      elsif Fiber === task
-        fiber.alive? ? scheduler.run : nil
-        task.value
-      else
-        task.wait
-      end
+      raise NotImplementedError
     end
     alias_method :value, :wait
 
     ##
+    # @abstract
     # @return [Class]
     def group_class
-      case task
-      when Thread then LLM::Function::ThreadGroup
-      when Fiber then LLM::Function::FiberGroup
-      else LLM::Function::TaskGroup
-      end
-    end
-
-    private
-
-    def scheduler
-      Fiber.scheduler
+      raise NotImplementedError
     end
   end
 end
