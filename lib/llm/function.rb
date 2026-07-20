@@ -33,8 +33,9 @@ class LLM::Function
   require_relative "function/tracing"
   require_relative "function/array"
   require_relative "function/call_group"
-  require_relative "function/call_task"
   require_relative "function/task"
+  require_relative "function/sequential/task"
+  require_relative "function/thread/task"
   require_relative "function/thread_group"
   require_relative "function/fiber_group"
   require_relative "function/task_group"
@@ -249,14 +250,14 @@ class LLM::Function
   # @return [LLM::Function::Task]
   #   Returns a task whose `#value` is an {LLM::Function::Return}.
   def spawn(strategy)
-    task = case strategy
+    case strategy
     when :call
       CallTask.new(self)
     when :task
       LLM.require "async" unless defined?(::Async)
       Async { call! }
     when :thread
-      Thread.new { call! }.tap { _1.report_on_exception = false }
+      Thread::Task.new(self, options)
     when :fiber
       raise ArgumentError, "Fiber concurrency requires Fiber.scheduler" unless Fiber.scheduler
       Fiber.schedule { call! }
@@ -274,7 +275,6 @@ class LLM::Function
     else
       raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :call, :thread, :task, :fiber, :fork, or :ractor"
     end
-    Task.new(task, self)
   ensure
     @called = true
   end
