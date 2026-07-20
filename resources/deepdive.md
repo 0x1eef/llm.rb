@@ -1127,9 +1127,14 @@ installed and available to require.
 require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
 ```
+
+The `name:` option labels the agent throughout the TUI &mdash;
+useful when working with multiple agents. The `path:` option
+persists state across sessions. The `tools:` option attaches
+extra tools for the duration of the session.
 
 #### State
 
@@ -1154,6 +1159,16 @@ you attach additional tools for the duration of the session.
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl(tools: [Debugger])
+```
+
+Load every built-in tool with `LLM::Tool.subclasses`:
+
+```ruby
+require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(tools: LLM::Tool.subclasses)
 ```
 
 #### Skills
@@ -1196,7 +1211,10 @@ The input area supports several keyboard shortcuts:
 | `Ctrl+Y` | Paste previously killed text |
 | `Ctrl+D` | Delete the character at the cursor |
 | `Left / Right` | Move the cursor |
-| `Up / Down` | Scroll the transcript |
+| `Up / Down` | Scroll the transcript one line |
+| `PgUp` / `PgDn` | Scroll the transcript by one page |
+| `Tab` | Complete `/command` names |
+| `Esc` | Cancel the current request |
 
 When characters arrive faster than a threshold the REPL
 detects that text is being pasted rather than typed. In
@@ -1206,7 +1224,9 @@ submitting, allowing multi-line prompts.
 #### Commands
 
 Commands are recognized by a `/` prefix on the input line.
-The built-in command is `/exit`, which leaves the REPL.
+Type `/compact` to free context window space by dropping the
+oldest messages. Type `/exit` to leave the REPL.
+
 The [`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
 class can be subclassed to add custom commands &ndash;
 any subclass that defines a `name`, `description`, and

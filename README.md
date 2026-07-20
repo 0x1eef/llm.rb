@@ -149,154 +149,27 @@ res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}
 #### LLM::REPL
 
 The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
-method allows an agent to spawn a read-eval-print loop
-that can be useful while developing or operating agents.
-It can be used to debug tool calls, confirm an
-agent has done what was expected, or improve an agent by
-asking questions about what it has done up to that point.
-
-This feature requires that the [curses](https://github.com/ruby/curses)
-and [kramdown](https://github.com/gettalong/kramdown) libraries are
-installed and available to require.
-
-The TUI displays a status line with a context-usage bar and cost
-counter, a scrollable transcript with markdown rendering, and a
-multi-line input area. The UI stays responsive while the model
-is generating a response.
-
-##### REPL: Agent
-
-A REPL session is started by calling `repl` on any agent
-instance. The session inherits the agent's model, tools,
-skills, and instructions. An agent can have an optional
-name, which appears throughout the curses UI and helps
-identify an agent which can be useful when you're working
-with many of them.
-
-```ruby
-require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl
-```
-
-##### REPL: State
-
-The `path:` option accepts a file path where runtime state
-is read from and written to. This lets you resume a
-conversation across REPL sessions.
-
-```ruby
-require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(path: "session.json")
-```
-
-##### REPL: Tools
-
-The `tools` option lets you attach additional tools
-for the duration of the session. This is in addition to
-any tools that might already be associated with an agent.
-
-A number of optional tools are distributed as part of
-llm.rb. They power the agents that can be found in the
-[agents/](agents/) directory.
-
-```ruby
-require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(tools: [Debugger])
-```
-
-The following example starts a read-eval-print loop
-with all of the builtin tools available.
+method drops you into a curses-based TUI for talking to an
+agent interactively. The `path:` option saves and restores
+runtime state across sessions. The `tools:` option attaches
+extra tools for the duration of the session. It is like
+`binding.pry` but for agents.
 
 ```ruby
 require "llm"
 require "llm/tools"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(tools: LLM::Tool.subclasses)
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl(path: "agent.json", tools: LLM::Tool.subclasses)
 ```
 
-##### REPL: Skills
 
-The `skills` option lets you load extra skill directories
-without attaching them to an agent permanently. <br>
-Learn more about skills by reading the [deepdive.md](https://r.uby.dev/llm/deepdive/) file.
-
-```ruby
-require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(skills: [__dir__])
-```
-
-##### REPL: Tracer
-
-By default the tracer is disabled for the duration of the
-session. Setting `tracer: true` configures the REPL to use
-the tracer associated with an instance of
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
-
-```ruby
-require "llm"
-
-llm    = LLM.deepseek(key: ENV["KEY"])
-tracer = LLM.logger(llm, path: "agent.log")
-agent  = LLM::Agent.new(llm, tracer:)
-agent.repl(tracer: true, tools: [Debugger])
-```
-
-##### REPL: Commands
-
-Commands are recognized by a `/` prefix and are backed by the
-[`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
-class, which can be subclassed to add custom commands. Once you
-create a subclass, it is automatically added to the repl. A command
-can have zero or more parameters, and all parameters are presumed
-to be a String (at least for now).
-
-```ruby
-require "llm"
-require "llm/repl"
-
-class Greeter < LLM::Command
-  name "greet"
-  description "Greets the given name"
-  parameter :name, String, "The person's name"
-  required %i[name]
-
-  def call(name:)
-    write("Welcome #{name}!\n")
-  end
-end
-```
-
-##### REPL: Input
-
-The input area supports several keyboard shortcuts:
-
-| Key | Action |
-|---|---|
-| `Enter` | Submit the current prompt |
-| `Ctrl+A` | Jump to the start of the line |
-| `Ctrl+E` | Jump to the end of the line |
-| `Ctrl+F` | Move the cursor forward |
-| `Ctrl+K` | Erase from cursor to the end of the line |
-| `Ctrl+Y` | Paste previously killed text |
-| `Ctrl+D` | Delete the character at the cursor |
-| `Tab` | Complete `/command` names |
-| `Left / Right` | Move the cursor |
-| `Up / Down` | Scroll the transcript |
-| `/exit` | Leave the REPL |
+For the full reference &mdash; state persistence, tracer
+integration, skills, keyboard shortcuts, custom commands,
+and every built-in tool &mdash; see the
+[REPL section](https://r.uby.dev/llm/deepdive/#repl) in the
+deepdive.
 
 #### LLM::MCP
 
