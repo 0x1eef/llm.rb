@@ -45,7 +45,7 @@ class LLM::Tool
         .spawn
     end
 
-    LLM.require "test-cmd.rb"
+    LLM.require "test-cmd.rb", "~> 1.1"
     Command = Test::Cmd
   end
 end

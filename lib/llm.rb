@@ -50,15 +50,21 @@ module LLM
 
   ##
   # Requires an optional runtime dependency
-  # @raise [LLM::DependencyError]
+  # @param [String] name
+  #  The name of a gem
+  # @param [String, nil] version
+  #  Optional gem version
+  # @raise [LLM::LoadError]
   #  When the dependency cannot be loaded
-  def self.require(name)
-    super
-  rescue ::LoadError
+  def self.require(name, version = nil)
     names = {"xchan" => "xchan.rb", "net/http/persistent" => "net-http-persistent"}
+    gem(names[name] || name, version) if version
+    super(name)
+  rescue ::LoadError
     name = names[name] || name
     raise LLM::LoadError,
-      "#{name} is an optional runtime dependency but it does not appear to be installed. " \
+      "#{name}#{version ? " #{version}" : ""} is an optional " \
+      "runtime dependency but it does not appear to be installed. " \
       "Consider 'gem install #{name}', adding '#{name}' to your Gemfile or " \
       "opting out of the functionality provided by '#{name}'"
   end

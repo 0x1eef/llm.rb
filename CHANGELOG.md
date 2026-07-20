@@ -15,6 +15,16 @@
 
 ## What's next
 
+### Core
+
+* **extend `LLM.require` with an optional version argument** <br>
+  `LLM.require` now accepts a second `version` parameter that is passed
+  to `Kernel#gem` before loading, enabling version constraints for
+  optional runtime dependencies. For example,
+  `LLM.require "test-cmd.rb", "~> 1.1"` ensures a minimum gem version
+  is available. This is used internally by the `Git`, `Rg`, `Mkdir`,
+  and `Shell` tools to enforce compatibility with the `test-cmd.rb` gem.
+
 ### Compactor
 
 * **add `Truncate` strategy for dropping oldest messages** <br>
