@@ -211,6 +211,19 @@
   compute column widths, then emitting each row with padded text
   for clean alignment.
 
+* **add Page Up/Page Down key mappings for transcript scrolling** <br>
+  The curses-based REPL now supports Page Up (`KEY_PPAGE`) and Page
+  Down (`KEY_NPAGE`) keys for scrolling the transcript by roughly a
+  full page at a time. Each press scrolls by `(window.rows - 3)` lines,
+  keeping a small part of the current page in view for context.
+
+* **fix ENTER and BACKSPACE key mapping reliability** <br>
+  The curses-based REPL now maps ENTER and BACKSPACE to raw character
+  codes from `Curses.getch` (`10` and `127` respectively) instead of
+  relying on `Curses::Key::ENTER` and `Curses::Key::BACKSPACE`. This
+  fixes input handling on terminals where the curses named constants
+  do not map correctly to the actual keypress values.
+
 ### Object
 
 * **preserve the original key name in `KeyError` messages** <br>
