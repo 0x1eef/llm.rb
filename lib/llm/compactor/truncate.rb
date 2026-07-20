@@ -12,11 +12,14 @@ class LLM::Compactor
   # memory.
   class Truncate < self
     ##
-    # @param [Integer] keep
-    #  The last (approx) n number of messages to keep
+    # @param [String, Integer] keep
+    #  The last (approx) n number of messages to keep.
+    #  This parameter can also be a percentage: eg "80%"
+    #  to keep 80% of the most recent messages.
     # @return [Array<LLM::Message>, nil]
     def call(keep: 64)
-      if keep > messages.reject(&:system?).size
+      keep = parse(keep)
+      if keep <= 0 || keep > messages.reject(&:system?).size
         nil
       else
         stream.on_compaction(self)
@@ -29,6 +32,24 @@ class LLM::Compactor
     end
 
     private
+
+    ##
+    # @param [String, Integer] input
+    #  The given input
+    # @return [Integer]
+    #  Returns the number of messages to keep
+    def parse(input)
+      if String === input
+        if input.end_with?("%")
+          count = ctx.messages.reject(&:system?).size
+          (count * (Float(input[0..-2]) / 100)).round
+        else
+          Integer(input)
+        end
+      else
+        input
+      end
+    end
 
     def take(messages, limit)
       subset, in_tool_call = [], false

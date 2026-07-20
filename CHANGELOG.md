@@ -27,6 +27,13 @@
   callbacks. Unlike the previous summarization approach, no LLM call is
   made — the strategy is purely lossy but fast and requires no network.
 
+* **accept percentage string for the `keep:` parameter** <br>
+  `LLM::Compactor::Truncate#call` now accepts a percentage string such
+  as `"80%"` for the `keep:` parameter, which keeps approximately 80%
+  of the most recent messages. Integer values continue to work as
+  before. This makes it easy to trim proportionally rather than to an
+  absolute number of messages.
+
 * **add `Null` strategy for no-op compaction** <br>
   `LLM::Compactor::Null` is a new built-in compaction strategy that does
   nothing. It is used as the default compactor when no strategy is
@@ -153,7 +160,8 @@
   and displays `compact in progress` / `compact complete` feedback in
   the transcript. An optional `n` argument specifies how many messages
   to keep — for example, `/compact 32` keeps the most recent 32 messages,
-  while `/compact` with no argument defaults to keeping the last 128.
+  `/compact 75%` keeps approximately 75% of messages, while `/compact`
+  with no argument defaults to keeping the last 128.
 
 * **add `LLM::Command.complete` for command name completion** <br>
   `LLM::Repl::Command.complete(str)` (also available as `LLM::Command.complete`)

@@ -705,6 +705,11 @@ or when you want to compact on a different schedule.
   conversation would contain an orphaned result with no matching call,
   causing API-level errors on the next turn.
 
+The `keep:` parameter accepts either an integer count or a percentage
+string like `"80%"`, which keeps approximately 80% of the most recent
+messages. This is useful when you want to trim proportionally rather
+than to an absolute number.
+
 ```ruby
 ctx = LLM::Context.new(
   llm,
@@ -721,6 +726,7 @@ agent's context:
 ```
 /compact        # keep last 128 messages
 /compact 50     # keep last 50 messages
+/compact 75%    # keep approximately 75% of messages
 ```
 
 ### Lifecycle callbacks

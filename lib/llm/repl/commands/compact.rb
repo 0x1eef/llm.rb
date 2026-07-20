@@ -18,7 +18,7 @@ class LLM::Repl
     # @return [void]
     def call(n: 128)
       write("compact in progress\n")
-      compactor.call(keep: Integer(n))
+      compactor.call(keep: n)
       write("compact complete\n\n")
     end
 

@@ -56,6 +56,39 @@ RSpec.describe LLM::Compactor::Truncate do
       end
     end
 
+    context "when keep is a percentage string" do
+      before do
+        10.times { |i| add_message "user", "msg #{i}" }
+      end
+
+      it "keeps the specified percentage of messages" do
+        result = compactor.call(keep: "50%")
+        expect(result.size).to eq(5)
+        expect(result.first.content).to eq("msg 5")
+      end
+
+      it "rounds fractional percentages" do
+        result = compactor.call(keep: "33%")
+        expect(result.size).to eq(3)
+      end
+
+      it "returns nil when percentage rounds to zero" do
+        expect(compactor.call(keep: "0%")).to be_nil
+      end
+    end
+
+    context "when keep is a string integer" do
+      before do
+        add_message "user", "first"
+        add_message "assistant", "second"
+        add_message "user", "third"
+      end
+
+      it "parses it as an integer" do
+        expect(compactor.call(keep: "2").map(&:content)).to eq(%w[second third])
+      end
+    end
+
     context "when system messages are present" do
       before do
         add_message "system", "You are helpful"
@@ -108,10 +141,17 @@ RSpec.describe LLM::Compactor::Truncate do
         add_message "user", "and in Chicago?"
       end
 
-      it "keeps the tool_call when its result is at the boundary" do
+      it "keeps tool_call with its return at the boundary" do
         result = compactor.call(keep: 3)
         expect(result.count(&:tool_call?)).to eq(1)
         expect(result.count(&:tool_return?)).to eq(1)
+      end
+
+      it "preserves the tool call before its return" do
+        result = compactor.call(keep: 3)
+        call_idx = result.index(&:tool_call?)
+        ret_idx  = result.index(&:tool_return?)
+        expect(call_idx).to be < ret_idx if call_idx && ret_idx
       end
     end
 
