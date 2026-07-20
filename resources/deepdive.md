@@ -104,7 +104,7 @@ features that didn't make it into the homepage documentation.
 <summary>REPL</summary>
 
 - [LLM::Agent](#llmagent)
-- [State](#state)
+- [Persistence](#persistence)
 - [Tools](#tools)
 - [Skills](#skills-1)
 - [Tracer](#tracer-1)
@@ -1136,7 +1136,7 @@ agent = LLM::Agent.new(llm, name: "my-agent")
 agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
 ```
 
-#### State
+#### Persistence
 
 The `path:` option accepts a file path where runtime state
 is read from and written to. This lets you resume a
@@ -1227,20 +1227,73 @@ Type `/compact` to free context window space by dropping the
 oldest messages. Type `/exit` to leave the REPL.
 
 The [`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
-class can be subclassed to add custom commands &ndash;
-any subclass that defines a `name`, `description`, and
-`call` method is automatically registered and available.
+class is intentionally similar to [`LLM::Tool`](#llmtool) and
+[`LLM::Schema`](#schema) in its interface &ndash; you declare a
+name, description, and parameters with the same vocabulary.
+A subclass is automatically registered and available as `/name`.
+
+##### Parameters
+
+Parameters are declared with `parameter :name, Type, "description"`
+and marked required with `required %i[name]`. The `call` method
+receives them as keyword arguments matching the parameter names.
+Parameters without a user-supplied value fall back to the
+method signature's default.
 
 ```ruby
-class LLM::Repl::Command
-  class Clear < self
-    name "clear"
-    description "clears the transcript"
+class Greeter < LLM::Command
+  name "greet"
+  description "Greets the given name"
+  parameter :name, String, "The person's name"
+  required %i[name]
 
-    def call
-      system("clear") || system("cls")
-    end
+  def call(name:)
+    write "Welcome #{name}!\n"
   end
+end
+```
+
+##### Output
+
+A command writes to the transcript with `write(str, who:)`.
+The `who:` label is rendered in bold. It defaults to
+`command(name): ` where `name` is the command's registered
+name.
+
+```ruby
+def call(name:)
+  write("Greetings #{name}!\n")
+end
+```
+
+##### Help
+
+The built-in [`help`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html#help-class_method)
+class method formats the name, description, and parameter list
+automatically. Use it from inside a command or via `/help`.
+
+```ruby
+class Greeter < LLM::Command
+  name "greet"
+  # ...
+end
+
+# /help greet displays:
+#   Command: greet
+#   Description: Greets the given name
+#
+#   Parameters:
+#     name [String] - The person's name (required)
+```
+
+##### Aliases
+
+Subclassing an existing command inherits its name, description,
+and parameters. This is how `/quit` is an alias of `/exit`:
+
+```ruby
+class Quit < LLM::Repl::Command::Exit
+  name "quit"
 end
 ```
 
