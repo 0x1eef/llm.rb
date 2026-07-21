@@ -309,7 +309,7 @@ class Shell < LLM::Tool
   required %i[name]
   defaults arguments: []
 
-  def call(name:, arguments:)
+  def call(name:, arguments: [])
     out = `#{name.shellescape} #{arguments.map(&:shellescape).join(" ")}`
     {ok: $?.success?, out:}
   end
