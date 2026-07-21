@@ -24,12 +24,23 @@
   support interruption, so cancelling a context with async-backed tool
   loops was a no-op.
   <br><br>
-  The fix replaces `Async {}` with a per-turn
+  The fix replaces `Async {}` with a
   `LLM::Function::Async::Reactor` that runs on a dedicated background
-  thread. Each tool runs in an `Async::Task` on that reactor.
-  Interruption raises `LLM::Interrupt` on the reactor fiber, matching
-  the pattern used by `Thread::Task`. Results are bridged from the
-  reactor thread back to the caller through a `Queue`.
+  thread. The reactor uses a thread-safe inbox `Queue` — work is
+  submitted via `submit(&block)` and consumed by the reactor's event
+  loop, keeping all fibers on one thread. Each tool runs in an
+  `Async::Task` inside that reactor.
+  <br><br>
+  `Async::Group` manages the reactor lifecycle, creating one on demand
+  and assigning it to each `Async::Task` before spawning. The group
+  also handles lazy `spawn` — calling `wait` on a group spawns all
+  tasks automatically.
+  <br><br>
+  Interruption pushes `LLM::Interrupt` to the task's result queue
+  (instead of using `Fiber#raise`), and `alive?` tracks state through a
+  boolean flag rather than referencing the async task directly. Results
+  are bridged from the reactor thread back to the caller through a
+  `Queue`.
   <br><br>
   This work is what drove the large refactor of the function internals
   (renamed strategies, split `spawn`/`wait`, repurposed `Task` as a
