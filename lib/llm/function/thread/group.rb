@@ -13,6 +13,13 @@ module LLM::Function::Thread
     end
 
     ##
+    # @return [nil]
+    def spawn
+      @tasks.each(&:spawn)
+      nil
+    end
+
+    ##
     # @return [Boolean]
     def alive?
       @tasks.any?(&:alive?)

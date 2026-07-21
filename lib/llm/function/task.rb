@@ -22,6 +22,13 @@ class LLM::Function
 
     ##
     # @abstract
+    # @return [nil]
+    def spawn
+      raise NotImplementedError
+    end
+
+    ##
+    # @abstract
     # @return [Boolean]
     def alive?
       raise NotImplementedError

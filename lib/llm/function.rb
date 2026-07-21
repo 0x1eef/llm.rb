@@ -262,15 +262,13 @@ class LLM::Function
       Fiber::Task.new(self, options)
     when :fork
       LLM.require "xchan" unless defined?(::Chan::UNIXSocket)
-      span = @tracer&.on_tool_start(id:, name:, arguments:, model:)
-      Fork::Task.new(self, tracer: @tracer, span:).spawn
+      Fork::Task.new(self, options.merge(tracer: @tracer))
     when :ractor
       raise LLM::RactorError, "Ractor concurrency only supports class-based tools" unless Class === @runner
       if @runner.respond_to?(:skill?) && @runner.skill?
         raise LLM::RactorError, "Ractor concurrency does not support skill-backed tools"
       end
-      span = @tracer&.on_tool_start(id:, name:, arguments:, model:)
-      Ractor::Task.new(@runner, id, name, arguments, tracer: @tracer, span:).spawn
+      Ractor::Task.new(@runner, id, name, arguments, options.merge(tracer: @tracer, model:))
     else
       raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :sequential, :thread, :fiber, :async, :fork, or :ractor"
     end

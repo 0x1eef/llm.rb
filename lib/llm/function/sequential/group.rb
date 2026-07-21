@@ -15,6 +15,13 @@ module LLM::Function::Sequential
     end
 
     ##
+    # @return [nil]
+    def spawn
+      # no-op — execution happens in wait
+      nil
+    end
+
+    ##
     # @return [Boolean]
     def alive?
       false

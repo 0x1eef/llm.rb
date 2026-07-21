@@ -5,16 +5,18 @@ module LLM::Function::Sequential
   # The {LLM::Function::Sequential::Task} class wraps a single
   # direct function call behind the same task-like interface
   # used by spawned concurrency modes.
-  class Task
+  class Task < LLM::Function::Task
     ##
-    # @return [LLM::Function]
-    attr_reader :function
+    # @param [LLM::Function] fn
+    # @param [Hash] options
+    def initialize(fn, options = {})
+      @function = fn
+    end
 
     ##
-    # @param [LLM::Function] function
-    # @return [LLM::Function::Sequential::Task]
-    def initialize(function)
-      @function = function
+    # @return [nil]
+    def spawn
+      # no-op — execution happens in wait
     end
 
     ##
@@ -34,7 +36,7 @@ module LLM::Function::Sequential
     ##
     # @return [LLM::Function::Return]
     def wait
-      function.call
+      @result ||= function.call
     end
     alias_method :value, :wait
 

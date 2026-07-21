@@ -21,6 +21,14 @@ module LLM::Function::Thread
     end
 
     ##
+    # @return [nil]
+    def spawn
+      @thread = Thread.new { function.call! }
+      @thread.report_on_exception = false
+      nil
+    end
+
+    ##
     # @return [Boolean]
     def alive?
       @thread&.alive? || false
@@ -38,10 +46,8 @@ module LLM::Function::Thread
     ##
     # @return [LLM::Function::Return]
     def wait
-      return @result if defined?(@result)
-      @thread = Thread.new { function.call! }
-      @thread.report_on_exception = false
-      @result = @thread.value
+      spawn unless @thread
+      @thread.value
     end
     alias_method :value, :wait
 

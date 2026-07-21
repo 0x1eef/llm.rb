@@ -9,6 +9,13 @@ class LLM::Function
   class Group
     ##
     # @abstract
+    # @return [nil]
+    def spawn
+      raise NotImplementedError
+    end
+
+    ##
+    # @abstract
     # @return [Boolean]
     def alive?
       raise NotImplementedError

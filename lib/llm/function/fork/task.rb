@@ -10,16 +10,19 @@ class LLM::Function
     # @param [LLM::Tracer, nil] tracer
     # @param [Object, nil] span
     # @return [LLM::Function::Fork::Task]
-    def initialize(function, tracer: nil, span: nil)
-      @function = function
-      @tracer = tracer
-      @span = span
+    def initialize(fn, options = {})
+      @function = fn
+      @tracer = options[:tracer]
       @waited = false
     end
 
     ##
     # @return [LLM::Function::Fork::Task]
     def spawn
+      @span = @tracer&.on_tool_start(
+        id: @function.id, name: @function.name,
+        arguments: @function.arguments, model: @function.model
+      )
       @ch = LLM::Object.from(control: xchan(:marshal), result: xchan(:marshal))
       @pid = Kernel.fork { Fork::Job.new(@function, @ch).call }
       self

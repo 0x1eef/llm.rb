@@ -20,6 +20,17 @@ module LLM::Function::Fiber
     end
 
     ##
+    # @return [nil]
+    def spawn
+      if Fiber.scheduler.nil?
+        raise ArgumentError, "Fiber concurrency requires Fiber.scheduler"
+      else
+        @fiber = Fiber.schedule { function.call! }
+        nil
+      end
+    end
+
+    ##
     # @return [Boolean]
     def alive?
       @fiber&.alive? || false
@@ -37,10 +48,8 @@ module LLM::Function::Fiber
     ##
     # @return [LLM::Function::Return]
     def wait
-      return @result if defined?(@result)
-      raise ArgumentError, "Fiber concurrency requires Fiber.scheduler" unless Fiber.scheduler
-      @fiber = Fiber.schedule { function.call! }
-      @result = @fiber.value
+      spawn unless @fiber
+      @result ||= @fiber.value
     end
     alias_method :value, :wait
 

@@ -18,18 +18,22 @@ class LLM::Function
     # @param [LLM::Tracer, nil] tracer
     # @param [Object, nil] span
     # @return [LLM::Function::Ractor::Task]
-    def initialize(runner_class, id, name, arguments, tracer: nil, span: nil)
+    def initialize(runner_class, id, name, arguments, options = {})
       @runner_class = runner_class
       @id = id
       @name = name
       @arguments = arguments
-      @tracer = tracer
-      @span = span
+      @model = options[:model]
+      @tracer = options[:tracer]
     end
 
     ##
     # @return [LLM::Function::Ractor::Task]
     def spawn
+      @span = @tracer&.on_tool_start(
+        id: @id, name: @name,
+        arguments: @arguments, model: @model
+      )
       @mailbox = Ractor::Mailbox.new(build_task)
       self
     end
