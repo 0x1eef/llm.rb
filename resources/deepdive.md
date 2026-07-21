@@ -69,6 +69,19 @@ features that didn't make it into the homepage documentation.
 </details>
 
 <details>
+<summary>Concurrency</summary>
+
+- [Overview](#overview)
+- [sequential](#sequential)
+- [thread](#thread)
+- [fiber](#fiber)
+- [async](#async)
+- [fork](#fork)
+- [ractor](#ractor)
+- [Quick reference](#quick-reference)
+</details>
+
+<details>
 <summary>Context Compaction</summary>
 
 - [Configuration](#configuration)
@@ -175,7 +188,7 @@ class, and it is built on top of
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) -
 the heart of the runtime. An agent manages the tool loop automatically,
 implements a tool loop guard for misbehaving models, and
-it can use five different concurrency strategies to execute
+it can use six different concurrency strategies to execute
 tools.
 
 An agent can be a subclass of
@@ -266,6 +279,14 @@ The model then proceeds to process the tool's response,
 and then might generate its own response, or perhaps call
 another tool.
 
+There is exactly one rule: a tool call must always produce
+a tool response. If a tool raises an exception, the runtime
+rescues it and returns a structured error to the model
+instead. The conversation never enters an invalid state
+because of a crashed tool &mdash; the model always has
+something to work with. This is by design. Keeping the
+tool loop alive is the highest priority.
+
 #### LLM::Tool
 
 A tool can be defined by subclassing
@@ -280,7 +301,7 @@ serve a user's query.
 require "llm"
 require "shellwords"
 
-class Shell < LLM::Shell
+class Shell < LLM::Tool
   name "shell"
   description "execute a shell command"
   parameter :name, String, "the command's name"
@@ -289,7 +310,7 @@ class Shell < LLM::Shell
   defaults arguments: []
 
   def call(name:, arguments:)
-    out = `#{name.shellscape} #{arguments.map(&:shellescape).join(" ")}`
+    out = `#{name.shellescape} #{arguments.map(&:shellescape).join(" ")}`
     {ok: $?.success?, out:}
   end
 end
@@ -301,15 +322,9 @@ agent.talk "What files are in the current working directory?"
 
 #### Errors
 
-Exceptions that might be raised by a tool are automatically
-rescued and returned to the model as a structured error.
-Otherwise &ndash; the conversation's history could be left
-in an invalid state.
-
-That's because a tool call must complete with a tool response,
-that's the only valid response a model expects, so even in the
-case of an error, something must be returned that communicates
-what happened.
+Exceptions raised by a tool are automatically rescued and
+returned to the model as a structured error. The model sees
+something like this:
 
 ```ruby
 class Error < LLM::Tool
@@ -324,6 +339,41 @@ class Error < LLM::Tool
   end
 end
 ```
+
+The runtime wraps the exception into `{error: true, kind: "RuntimeError",
+message: "boom"}` and returns it to the model as the tool response. From
+the model's perspective the tool completed &mdash; it just completed with
+an error. The model can read the error, decide what went wrong, and try
+something else. The conversation stays valid.
+
+You can also handle errors yourself inside `call`. Rescue the exception
+and return whatever shape makes sense for your tool:
+
+```ruby
+class Shell < LLM::Tool
+  name "shell"
+  description "execute a shell command"
+
+  def call(name:, arguments: [])
+    out = `#{name} #{arguments.join(" ")}`
+    {ok: $?.success?, out:}
+  rescue Errno::ENOENT
+    {ok: false, error: "command not found: #{name}"}
+  end
+end
+```
+
+The model receives `{ok: false, error: "command not found: ls"}` and can
+react accordingly &mdash; maybe it corrects the command name and tries
+again. This is often better than letting the runtime's generic error
+wrapper speak for you, because you can provide domain-specific detail
+that helps the model recover.
+
+The principle is the same either way: **return something**. A tool call
+must complete with a tool response. If you don't return a value, and you
+don't raise, the runtime has nothing to send back and the conversation
+is stuck. As long as you return a Hash (or anything the model can
+interpret), the tool loop continues.
 
 #### Confirmation
 
@@ -635,6 +685,134 @@ class Stream < LLM::Stream
   end
 end
 ```
+
+[Back to top](#table-of-contents)
+
+## Concurrency
+
+llm.rb supports six concurrency strategies for tool execution &ndash;
+`:sequential`, `:thread`, `:fiber`, `:async`, `:fork`, and `:ractor`.
+Each one implements the same interface &mdash; `spawn`, `wait`, `alive?`,
+`interrupt!` &mdash; so the caller never has to care which strategy is
+behind a given task.
+
+Choose a strategy per-agent or per-call:
+
+```ruby
+## Per-agent — every tool loop uses :fork
+agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
+
+## Per-call — run a single tool on a thread
+fn = FetchStocks.function
+fn.task(:thread).wait
+```
+
+Interruption is reliable across all six. No matter the backing &mdash;
+thread, fiber, process, ractor &mdash; `LLM::Interrupt` reaches the
+tool and it can rescue, clean up, and either re-raise to cancel the
+turn or return a value to continue.
+
+#### sequential
+
+The default. Tools run one at a time on the calling thread. No
+concurrency, no overhead. `spawn` is a no-op &mdash; execution happens
+in `wait`. `alive?` always returns `false`.
+
+Best for simple agents with a tool or two, debugging, or when tool
+order matters.
+
+#### thread
+
+Each tool runs in its own `Thread`. The thread is created lazily &mdash;
+you can build a task, pass it around, and decide when to run it.
+Threads have `report_on_exception` disabled so errors surface through
+`wait` rather than stderr.
+
+Interruption raises `LLM::Interrupt` directly on the tool's thread,
+which stops it mid-flight.
+
+Best for IO-bound tools &mdash; HTTP calls, database queries. CRuby
+releases the GVL during blocking IO, so you get real concurrency.
+
+#### fiber
+
+Each tool runs in a scheduler-backed `Fiber` via `Fiber.schedule`.
+Requires `Fiber.scheduler` &mdash; raises `ArgumentError` without one.
+Fibers yield cooperatively at IO boundaries, so this pairs well with
+async libraries that set a scheduler.
+
+Interruption raises `LLM::Interrupt` on the fiber, which stops at
+the next yield point.
+
+Best for IO-bound tools inside an async framework. Much lighter than
+threads.
+
+#### async
+
+Each tool runs as an `Async::Task` inside a managed background
+reactor. A dedicated thread runs an `Async::Reactor` event loop.
+Work is submitted through a thread-safe `Queue` inbox and consumed
+by the reactor. All fibers stay on one thread &mdash; no shared-memory
+contention between them.
+
+The reactor is created on demand and shared across all tasks in a
+group. When `Group#wait` is called, tasks are submitted, the reactor
+runs them concurrently, and results are bridged back to the caller
+through per-task queues. The reactor is torn down after `wait`
+completes.
+
+Interruption pushes an `LLM::Interrupt` sentinel into the task's
+result queue instead of using `Fiber#raise` &mdash; cleaner, and it
+avoids surprising the reactor's internal fibers.
+
+Best for IO-bound tools when you want Async's structured concurrency
+model without running your whole application inside a reactor. The
+reactor is self-contained &mdash; your main thread stays synchronous.
+Requires the `async` gem.
+
+#### fork
+
+Each tool runs in a forked child process. Communication uses
+[`xchan`](https://github.com/1robertrb/xchan.rb) (marshal-based
+channels): the parent sends control messages, the child sends
+results back. Each child is a separate OS process with its own
+memory space &mdash; a crash in the tool cannot touch the parent.
+
+`Fork::Task` checks liveness with `Process.waitpid(WNOHANG)` and
+delivers interrupts as messages over the control channel. The child
+raises `LLM::Interrupt` on `Thread.main` when it receives the
+interrupt message. Tracer callbacks fire in both parent and child.
+
+Best for process isolation &mdash; shell commands, native extensions,
+anything you don't want touching the parent's memory. True parallelism
+too, since there's no GVL in separate processes. Requires the
+`xchan` gem.
+
+#### ractor
+
+Each class-based tool runs in a Ruby `Ractor`. `Ractor::Task`
+coordinates through `Ractor::Mailbox`. Interruption sends a message
+through the mailbox; a listener thread inside the ractor raises
+`LLM::Interrupt` on `Thread.main`.
+
+Ractors have restrictions: only class-based tools are supported (no
+blocks, skills, or MCP tools), and arguments must be
+ractor-shareable. The runtime raises `LLM::RactorError` early if
+you try to run an unsupported tool type.
+
+Best for CPU-bound tools, true parallelism without the overhead of
+forking full processes. More restrictive than `:fork` but lighter.
+
+#### Quick reference
+
+| Strategy | Backing | Parallel? | Isolation? | Requires |
+|---|---|---|---|---|
+| `:sequential` | direct call | No | No | &mdash; |
+| `:thread` | `Thread` | IO only (GVL) | No | &mdash; |
+| `:fiber` | `Fiber.schedule` | Cooperative | No | `Fiber.scheduler` |
+| `:async` | `Async::Reactor` on bg thread | Cooperative | No | `async` gem |
+| `:fork` | `Kernel.fork` | Yes (process) | Yes (memory) | `xchan` gem |
+| `:ractor` | `Ractor` | Yes (CPU) | Limited | &mdash; |
 
 [Back to top](#table-of-contents)
 
@@ -957,20 +1135,32 @@ for a number of different reasons, most often because the
 user made a mistake, or the model is making a mistake and
 the user wants to cancel the action.
 
-The runtime has built-in support for cancellation. So for
-example it is possible to cancel a request on the main
-thread from a secondary thread. A number of things happen
-when a request is cancelled. First the request is cancelled
-at the transport level, and each transport handles it a little
-differently. The net effect in every case is that the connection
-is closed.
+The runtime has built-in support for cancellation. Call
+`agent.cancel!` or `ctx.cancel!` from any thread and two
+things happen at once:
 
-The runtime then notifies the rest of the system. so for example,
-if a tool was running, it will receive the `on_interrupt` / `on_cancel`
-callback that lets the tool do any necessary cleanup, or execute its own
-cancellation plan. Tools that were pending (not yet run but requetsed to
-run) are cancelled through
-[`LLM::Function#cancel`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method).
+[`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html)
+is raised on the thread where `talk` is running, so the
+caller can rescue it and know the request was cancelled.
+
+At the same time, `LLM::Interrupt` is raised on every tool
+that is currently executing &mdash; regardless of which
+concurrency strategy it's using. A tool running in a thread
+gets it on that thread. A tool in a fiber gets it on that
+fiber. A tool in a forked process gets it via a message
+over the xchan control channel. The
+delivery mechanism depends on the strategy, but the effect is
+the same: the tool can rescue `LLM::Interrupt`, clean up
+resources, close connections, flush buffers, and either
+re-raise to abort or return a partial result.
+
+Pending tools &mdash; those the model requested but that haven't
+started running yet &mdash; are cancelled through
+[`LLM::Function#cancel`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method)
+without ever being executed.
+
+The transport layer also cancels the in-flight HTTP request,
+closing the connection to the provider.
 
 ```ruby
 require "llm"
@@ -999,8 +1189,8 @@ When a running tool is interrupted &ndash; for example the user presses
 ESC in the [REPL](#repl) &ndash; the runtime raises
 [`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html)
 on the tool's execution context. This behavior is uniform across
-all six concurrency strategies (`:call`, `:thread`, `:fiber`,
-`:task`, `:fork`, and `:ractor`).
+all six concurrency strategies (`:sequential`, `:thread`, `:fiber`,
+`:async`, `:fork`, and `:ractor`).
 
 A tool has two choices:
 
@@ -1035,10 +1225,14 @@ the request outright &ndash; useful when continuing would produce
 garbage. Returning a value lets the model adapt, which can be
 helpful when the interrupt is temporary (e.g. a timeout).
 
-The `:ractor` strategy is cooperative by nature &ndash; the ractor
-must check for a cancel message at safe points in its execution.
-The `:fork` strategy delivers the interrupt via a signal, which
-interrupts blocking syscalls immediately. All other strategies
+The `:ractor` strategy delivers the interrupt through ractor
+message passing &mdash; a listener thread inside the tool ractor
+receives the interrupt message and raises `LLM::Interrupt` on the
+ractor's main thread. The end result is the same as every other
+strategy: the tool can rescue, clean up, and decide.
+The `:fork` strategy delivers the interrupt via a message
+over the xchan control channel, which a listener thread in the
+child process picks up and raises on `Thread.main`. All other strategies
 raise the exception directly on the executing thread or fiber.
 
 [Back to top](#table-of-contents)

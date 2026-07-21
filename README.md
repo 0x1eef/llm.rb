@@ -229,15 +229,19 @@ Document.create!(
 
 #### Concurrency
 
-The runtime supports five different concurrency strategies that have
+The runtime supports six different concurrency strategies that have
 different attributes. The choice between all of them often depends
 on the requirements of your application.
 
-IO-bound tools are a good fit for the `:task`, `:thread`,
+IO-bound tools are a good fit for the `:async`, `:thread`,
 and `:fiber` strategies while true parallelism can be achieved
 with the `:fork` and `:ractor` strategies. The
-`:fork` strategy also provides a separate process that offers
+`:sequential` strategy runs tools one at a time and is the default.
+The `:fork` strategy also provides a separate process that offers
 isolation from its parent.
+
+You can learn more about the llm.rb concurrency model in the
+[deepdive.md](https://r.uby.dev/llm/deepdive/#concurrency).
 
 ```ruby
 require "llm"
