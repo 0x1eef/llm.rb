@@ -5,10 +5,23 @@
 # that can be called by an LLM. Under the hood, it is a wrapper
 # around {LLM::Function LLM::Function} but allows the definition
 # of a function (also known as a tool) as a class.
-# @example
-#   class System < LLM::Tool
-#     name "system"
-#     description "Runs system commands"
+#
+# @example Declarative form (preferred)
+#   class ReadFile < LLM::Tool
+#     name "read-file"
+#     description "Read a file from disk"
+#     parameter :path, String, "The filename or path"
+#     required %i[path]
+#
+#     def call(path:)
+#       {contents: File.read(path)}
+#     end
+#   end
+#
+# @example Block-form DSL (also supported)
+#   class RunCommand < LLM::Tool
+#     name "run-command"
+#     description "Runs a shell command"
 #     params do |schema|
 #       schema.object(command: schema.string.required)
 #     end
@@ -17,6 +30,9 @@
 #       {success: Kernel.system(command)}
 #     end
 #   end
+#
+# @see LLM::Agent Tools are attached to agents
+# @see LLM::Function The function object that Tool wraps
 class LLM::Tool
   require_relative "tool/param"
   extend LLM::Tool::Param

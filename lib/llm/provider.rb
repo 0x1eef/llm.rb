@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 ##
-# The Provider class represents an abstract class for
-# LLM (Language Model) providers.
+# The Provider class is the abstract base for LLM service integrations.
+# Most users interact with providers through {LLM::Agent} or
+# {LLM::Context} rather than calling {#complete} directly.
 #
 # @abstract
 class LLM::Provider
@@ -82,7 +83,9 @@ class LLM::Provider
   end
 
   ##
-  # Provides an interface to the chat completions API
+  # Provides an interface to the chat completions API.
+  # Most users should use {LLM::Context#talk} or {LLM::Agent#talk} instead.
+  #
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
   #   messages = [{role: "system", content: "Your task is to answer all of my questions"}]

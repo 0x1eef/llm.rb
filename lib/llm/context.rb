@@ -2,8 +2,10 @@
 
 module LLM
   ##
-  # {LLM::Context LLM::Context} is the stateful execution boundary in
-  # llm.rb.
+  # {LLM::Context LLM::Context} is the low-level stateful execution
+  # boundary in llm.rb. Most users should start with {LLM::Agent}, which
+  # wraps Context and manages tool loops automatically. Use Context
+  # directly when you need manual control over tool execution.
   #
   # It holds the evolving runtime state for an LLM workflow:
   # conversation history, tool calls and returns, schema and streaming
@@ -22,17 +24,15 @@ module LLM
   #   #!/usr/bin/env ruby
   #   require "llm"
   #
-  #   llm = LLM.openai(key: ENV["KEY"])
-  #   ctx = LLM::Context.new(llm)
-  #
-  #   prompt = LLM::Prompt.new(llm) do
-  #     system "Be concise and show your reasoning briefly."
-  #     user "If a train goes 60 mph for 1.5 hours, how far does it travel?"
-  #     user "Now double the speed for the same time."
-  #   end
-  #
-  #   ctx.talk(prompt)
+  #   llm = LLM.deepseek(key: ENV["KEY"])
+  #   ctx = LLM::Context.new(llm, stream: $stdout)
+  #   ctx.talk "If a train goes 60 mph for 1.5 hours, how far does it travel?"
   #   ctx.messages.each { |m| puts "[#{m.role}] #{m.content}" }
+  #
+  # @see LLM::Agent The recommended high-level interface
+  # @see LLM::Buffer Message history (ctx.messages)
+  # @see LLM::Message Individual messages in the conversation
+  # @see LLM::Response Response returned by each turn
   class Context
     require_relative "context/serializer"
     require_relative "context/deserializer"

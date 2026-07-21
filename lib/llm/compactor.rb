@@ -7,8 +7,8 @@ module LLM
   #
   # A compactor is bound to a context and decides whether and how to compact
   # the conversation history when {#call} is invoked. Each subclass
-  # implements a different strategy: dropping old messages, summarizing them
-  # with an LLM, or restructuring them through a schema.
+  # implements a different strategy: {LLM::Compactor::Truncate} drops the
+  # oldest messages, and {LLM::Compactor::Null} is a no-op (the default).
   #
   # The compactor does not have a separate `compact?` predicate. It inspects
   # the context internally and returns `nil` when nothing needs to happen.

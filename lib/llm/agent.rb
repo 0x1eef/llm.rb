@@ -2,9 +2,10 @@
 
 module LLM
   ##
-  # {LLM::Agent LLM::Agent} provides a class-level DSL for defining
-  # reusable, preconfigured assistants with defaults for model,
-  # tools, schema, and instructions.
+  # {LLM::Agent LLM::Agent} is the recommended entry point for most
+  # use-cases. It provides a class-level DSL for defining reusable,
+  # preconfigured assistants with defaults for model, tools, schema,
+  # and instructions.
   #
   # It wraps the same stateful runtime surface as
   # {LLM::Context LLM::Context}: message history, usage, persistence,
@@ -25,7 +26,7 @@ module LLM
   # * Tool loop execution can be configured with `concurrency :sequential`,
   #   `:thread`, `:async`, `:fiber`, or `:ractor`.
   #
-  # @example
+  # @example Subclass with defaults
   #   class SystemAdmin < LLM::Agent
   #     set model: "gpt-4.1-nano",
   #         instructions: "You are a Linux system admin",
@@ -36,6 +37,15 @@ module LLM
   #   llm = LLM.openai(key: ENV["KEY"])
   #   agent = SystemAdmin.new(llm)
   #   agent.talk("Run 'date'")
+  #
+  # @example Direct instance
+  #   llm = LLM.deepseek(key: ENV["KEY"])
+  #   agent = LLM::Agent.new(llm, stream: $stdout)
+  #   agent.talk "Hello world"
+  #
+  # @see LLM::Context The low-level runtime that Agent wraps
+  # @see LLM::Tool Tools that Agent can call on your behalf
+  # @see LLM::Stream Stream callbacks for model output
   class Agent
     ##
     # @api private

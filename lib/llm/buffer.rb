@@ -3,7 +3,18 @@
 module LLM
   ##
   # {LLM::Buffer LLM::Buffer} provides an Enumerable object that
-  # tracks messages in a conversation thread.
+  # tracks messages in a conversation thread. Access it through
+  # {LLM::Context#messages}.
+  #
+  # @example Working with message history
+  #   ctx.messages.last           # => most recent message
+  #   ctx.messages.first          # => oldest message
+  #   ctx.messages.select! { |m| m.assistant? }
+  #   ctx.messages.reverse        # => reversed copy
+  #   ctx.messages.reject! { |m| m.compaction? }
+  #
+  # @see LLM::Message Individual messages in the buffer
+  # @see LLM::Context Where the buffer lives (ctx.messages)
   class Buffer
     include Enumerable
 

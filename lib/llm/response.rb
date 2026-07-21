@@ -10,12 +10,22 @@ module LLM
   # handling can share one common surface without flattening away
   # specialized behavior.
   #
+  # @example Accessing response data
+  #   res = agent.talk "Weather in Paris?", schema: Weather
+  #   res.content        # => raw text or structured data
+  #   res.content!       # => parsed JSON as LLM::Object
+  #   res.usage          # => token usage (input, output, cache, etc.)
+  #   res.messages       # => message history from this turn
+  #
   # The normalized response keeps the transport response available
   # through {#res}. When the default net/http transport is in use,
   # {LLM::Transport::Response::HTTP
   # LLM::Transport::Response::HTTP} keeps the
   # original `Net::HTTPResponse` available through
   # its own {LLM::Transport::Response::HTTP#res #res}.
+  #
+  # @see LLM::Context Responses are returned by Context#talk
+  # @see LLM::Agent Responses are returned by Agent#talk
   class Response
     require "json"
 

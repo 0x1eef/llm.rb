@@ -27,7 +27,7 @@
 #   a2a = LLM::A2A.rest(url: "https://agent.example.com")
 #   ctx = LLM::Context.new(llm, tools: a2a.skills)
 #   ctx.talk("Analyze this data using the remote agent.")
-#   ctx.talk(ctx.wait(:call)) while ctx.functions?
+#   ctx.talk(ctx.wait(:sequential)) while ctx.pending_functions?
 class LLM::A2A
   require_relative "a2a/card"
   require_relative "a2a/error"

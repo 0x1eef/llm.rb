@@ -11,6 +11,21 @@ module LLM
   # a small helper for collecting asynchronous tool work started from a
   # callback.
   #
+  # @example Subclass with callbacks
+  #   class MyStream < LLM::Stream
+  #     def on_content(content)
+  #       print content
+  #     end
+  #
+  #     def on_reasoning_content(content)
+  #       warn content
+  #     end
+  #   end
+  #
+  #   llm = LLM.deepseek(key: ENV["KEY"])
+  #   agent = LLM::Agent.new(llm, stream: MyStream.new)
+  #   agent.talk "Explain Ruby fibers."
+  #
   # @note The `on_*` callbacks run inline with the streaming parser. They
   #   therefore block streaming progress and should generally return as
   #   quickly as possible.
@@ -19,6 +34,9 @@ module LLM
   # Providers may also call {#on_reasoning_content} and {#on_tool_call} when
   # that data is available. Runtime features such as context compaction may
   # also emit lifecycle callbacks like {#on_transform} or {#on_compaction}.
+  #
+  # @see LLM::Agent Where streams are typically attached
+  # @see LLM::Context Where streams are bound per-turn
   class Stream
     require_relative "stream/queue"
     require_relative "stream/io"
@@ -109,16 +127,8 @@ module LLM
 
     ##
     # Called when a streamed tool call has been fully constructed.
-    # @note A stream implementation may start tool execution here, for
-    #   example by pushing `ctx.spawn(tool, :thread)`,
-    #   `ctx.spawn(tool, :fiber)`, or `ctx.spawn(tool, :task)` onto {#queue}.
-    #   Mixed strategies can also be selected per tool, such as
-    #   `tool.mcp? ? ctx.spawn(tool, :task) : ctx.spawn(tool, :ractor)`.
-    #   Streamed tool resolution now prefers the current request tools, so
-    #   {LLM.function}, MCP tools, bound tool instances, and normal
-    #   {LLM::Tool LLM::Tool} classes can all resolve through the same
-    #   request-local path. The current `:ractor` mode is for class-based
-    #   tools and does not support MCP tools.
+    # A stream implementation may start tool execution here by pushing
+    # `@queue << tool.task(:thread)` onto {#queue}.
     # @param [LLM::Function] tool
     #  The parsed tool call.
     # @return [nil]
@@ -128,9 +138,8 @@ module LLM
 
     ##
     # Called when queued streamed tool work returns.
-    # @note This callback runs when {#wait} resolves work that was queued from
-    #   {#on_tool_call}, such as values returned by `ctx.spawn(tool, :thread)`,
-    #   `ctx.spawn(tool, :fiber)`, or `ctx.spawn(tool, :task)`.
+    # This callback runs when {#wait} resolves work queued from
+    # {#on_tool_call}.
     # @param [LLM::Function] tool
     #  The tool that returned.
     # @param [LLM::Function::Return] result
