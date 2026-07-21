@@ -36,7 +36,7 @@ RSpec.describe "LLM::Context: google" do
       before { ctx.talk("What is the date?") }
 
       it "synthesizes an id for the pending function" do
-        expect(ctx.functions.first.id).to start_with("google_")
+        expect(ctx.pending_functions.first.id).to start_with("google_")
       end
     end
 

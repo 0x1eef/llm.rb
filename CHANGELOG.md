@@ -15,12 +15,14 @@
 
 ## What's next
 
-Six breaking changes. Concurrency strategies have been renamed
+Seven breaking changes. Concurrency strategies have been renamed
 (`:call` → `:sequential`, `:task` → `:async`), `spawn` is now
 `task`, and the `:async` strategy has been rebuilt from the ground
 up — it no longer blocks and now supports interruption. The compactor
 has been refactored into pluggable strategies. Interruption is now
-reliable across all six concurrency backends.
+reliable across all six concurrency backends. The `functions` and
+`functions?` methods have been renamed to `pending_functions` and
+`pending_functions?`.
 
 ### Migration from v12.6.0
 
@@ -35,16 +37,17 @@ reliable across all six concurrency backends.
 | `LLM::Function::TaskGroup` | `LLM::Function::Async::Group` |
 | `Compactor.new(model:, token_threshold:)` | `Compactor::Truncate.new(ctx)` |
 | `on_compaction(ctx, compactor)` | `on_compaction(compactor)` |
+| `ctx.functions` / `ctx.functions?` | `ctx.pending_functions` / `ctx.pending_functions?` |
+| `agent.functions` / `agent.functions?` | `agent.pending_functions` / `agent.pending_functions?` |
 
 ### Breaking
 
 * **rename `LLM::Function#spawn` as `LLM::Function#task`** <br>
-  `LLM::Function#task` (previously `spawn`) now consistently returns an
-  object that implements the `LLM::Function::Task` interface. The old
-  implementation alternated between spawning a task immediately or
-  returning it to be executed later; the contract is now that `task`
-  returns a task object that can be spawned, waited on, and passed to
-  `LLM::Function::Group`.
+  `LLM::Function#task` (previously `spawn`) now returns a
+  `LLM::Function::Task` object that can be spawned, waited on,
+  and passed to `LLM::Function::Group`. The old implementation
+  alternated between spawning immediately or returning a raw
+  thread/fiber — the contract is now consistent.
 
 * **rename concurrency strategies (`:call` → `:sequential`,**
   **`:task` → `:async`)** <br>
@@ -106,6 +109,14 @@ reliable across all six concurrency backends.
   `message_threshold:`, and `retention_window:` options) has been removed.
   The built-in `LLM::Compactor::Truncate` strategy drops the oldest
   messages when the conversation exceeds a configured size.
+
+* **rename `LLM::Context#{functions,functions?}` and `LLM::Agent#{functions,functions?}`** <br>
+  `LLM::Context#functions` and `LLM::Context#functions?` have been renamed
+  to `LLM::Context#pending_functions` and `LLM::Context#pending_functions?`
+  respectively. The same rename applies to `LLM::Agent#functions` (now
+  `LLM::Agent#pending_functions`). The `pending_functions` name was already
+  available as an alias in v12.5.0; this change removes the old `functions`
+  name entirely.
 
 ### Core
 
@@ -295,8 +306,8 @@ reliable across all six concurrency backends.
   Ctrl+P and Ctrl+N walk through conversation history (user messages
   only, managed by `LLM::Repl::Walker`). Page Up/Down scroll the
   transcript by a page. ENTER and BACKSPACE are now mapped to raw
-  character codes from `Curses.getch` instead of relying on
-  `Curses::Key::ENTER` and `Curses::Key::BACKSPACE`.
+  character codes from `Curses.getch` instead of `Curses::Key`
+  constants.
 
 ### Object
 

@@ -104,17 +104,17 @@ module LLM::ActiveRecord
       end
 
       ##
-      # @see LLM::Context#functions
+      # @see LLM::Context#pending_functions
       # @return [Array<LLM::Function>]
-      def functions
-        ctx.functions
+      def pending_functions
+        ctx.pending_functions
       end
 
       ##
-      # @see LLM::Context#functions?
+      # @see LLM::Context#pending_functions?
       # @return [Boolean]
-      def functions?
-        ctx.functions?
+      def pending_functions?
+        ctx.pending_functions?
       end
 
       ##

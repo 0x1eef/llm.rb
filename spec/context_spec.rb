@@ -59,7 +59,7 @@ RSpec.describe LLM::Context do
       end
 
       before do
-        allow(ctx).to receive(:functions).and_return([function].extend(LLM::Function::Array))
+        allow(ctx).to receive(:pending_functions).and_return([function].extend(LLM::Function::Array))
       end
 
       it "emits tool return callbacks for direct waits" do
@@ -360,8 +360,8 @@ RSpec.describe LLM::Context do
       expect(ctx.returns.map(&:id)).to eq(["call_1"])
     end
 
-    it "does not include the tool call in ctx.functions" do
-      expect(ctx.functions).to be_empty
+    it "does not include the tool call in ctx.pending_functions" do
+      expect(ctx.pending_functions).to be_empty
     end
   end
 
@@ -393,7 +393,7 @@ RSpec.describe LLM::Context do
     end
 
     it "resolves and calls the bound tool instance" do
-      result = ctx.functions.fetch(0).call
+      result = ctx.pending_functions.fetch(0).call
       expect(result.to_h).to eq(
         id: "call_1",
         name: "echo",
@@ -464,7 +464,7 @@ RSpec.describe LLM::Context do
       end
 
       it "returns true" do
-        expect(ctx.functions?).to eq(true)
+        expect(ctx.pending_functions?).to eq(true)
       end
     end
 
@@ -478,13 +478,13 @@ RSpec.describe LLM::Context do
       end
 
       it "returns true" do
-        expect(ctx.functions?).to eq(true)
+        expect(ctx.pending_functions?).to eq(true)
       end
     end
 
     context "when there is no queued or unresolved tool work" do
       it "returns false" do
-        expect(ctx.functions?).to eq(false)
+        expect(ctx.pending_functions?).to eq(false)
       end
     end
   end
@@ -661,14 +661,14 @@ RSpec.describe LLM::Context do
 
     it "falls back to pending functions when the queue is empty" do
       pending = [].extend(LLM::Function::Array)
-      expect(ctx).to receive(:functions).and_return(pending)
+      expect(ctx).to receive(:pending_functions).and_return(pending)
       expect(pending).to receive(:task).with(:thread).and_return(LLM::Function::Thread::Group.new([]))
       expect(ctx.wait(:thread)).to eq([])
     end
 
     it "flows through pending function spawn groups for #wait(:sequential)" do
       pending = [].extend(LLM::Function::Array)
-      expect(ctx).to receive(:functions).and_return(pending)
+      expect(ctx).to receive(:pending_functions).and_return(pending)
       expect(pending).to receive(:task).with(:sequential).and_return(LLM::Function::Sequential::Group.new([]))
       expect(ctx.wait(:sequential)).to eq([])
     end
@@ -716,7 +716,7 @@ RSpec.describe LLM::Context do
             {id: "call_1", name: "system", arguments: {"command" => "date"}}
           ]
         })
-        pending = ctx.functions
+        pending = ctx.pending_functions
         expect(pending).not_to receive(:spawn)
         allow(ctx).to receive(:functions).and_return(pending)
         expect(ctx.wait(:thread).map(&:value)).to eq([{error: true, type: LLM::GuardError.name, message: "stop"}])

@@ -69,8 +69,8 @@ RSpec.shared_examples "LLM::Context: tool stream" do |dirname, options = {}|
 
     it "calls the function(s)" do
       expect(Kernel).to receive(:system).with("date").and_return(true)
-      ctx.talk ctx.functions.map(&:call)
-      expect(ctx.functions).to be_empty
+      ctx.talk ctx.pending_functions.map(&:call)
+      expect(ctx.pending_functions).to be_empty
     end
   end
 end

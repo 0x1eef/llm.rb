@@ -336,10 +336,9 @@ module LLM
 
     ##
     # @return [Array<LLM::Function>]
-    def functions
-      @tracer ? @llm.with_tracer(@tracer) { @ctx.functions } : @ctx.functions
+    def pending_functions
+      @tracer ? @llm.with_tracer(@tracer) { @ctx.pending_functions } : @ctx.pending_functions
     end
-    alias_method :pending_functions, :functions
 
     ##
     # @see LLM::Context#returns
@@ -596,10 +595,10 @@ module LLM
     def call_functions
       strategy = concurrency || :sequential
       return wait(strategy) unless @confirm&.any?
-      confirmables = @ctx.functions.select { @confirm.include?(_1.name.to_s) }
+      confirmables = @ctx.pending_functions.select { @confirm.include?(_1.name.to_s) }
       results = confirmables.map { method(:on_tool_confirmation).call(_1, strategy) }
       @ctx.method(:emit_tool_returns).call(confirmables, results)
-      if (@ctx.functions - confirmables).any?
+      if (@ctx.pending_functions - confirmables).any?
         [*results, *wait(strategy, except: confirmables)]
       else
         results
@@ -617,13 +616,13 @@ module LLM
         stream = params[:stream] || @ctx.params[:stream]
         params[:stream] = LLM::Stream.try(stream, extra: {concurrency:})
         res = talk.call(apply_instructions(prompt), params)
-        while @ctx.functions?
+        while @ctx.pending_functions?
           if max
             max.times do
-              break unless @ctx.functions?
+              break unless @ctx.pending_functions?
               res = talk.call(call_functions, params)
             end
-            res = talk.call(@ctx.functions.map(&:rate_limit), params) if @ctx.functions?
+            res = talk.call(@ctx.pending_functions.map(&:rate_limit), params) if @ctx.pending_functions?
           else
             res = talk.call(call_functions, params)
           end

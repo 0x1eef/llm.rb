@@ -243,7 +243,7 @@ module LLM
     ##
     # Returns an array of functions that can be called
     # @return [Array<LLM::Function>]
-    def functions
+    def pending_functions
       return_ids = returns.map(&:id)
       @messages
         .select(&:assistant?)
@@ -255,16 +255,14 @@ module LLM
           end
         end.extend(LLM::Function::Array)
     end
-    alias_method :pending_functions, :functions
-
     ##
     # Returns whether there is pending tool work in this context.
     # This prefers queued streamed tool work when present, and otherwise
     # falls back to unresolved functions derived from the message history.
     # @return [Boolean]
-    def functions?
+    def pending_functions?
       pending = queue
-      (pending && !pending.empty?) || functions.any?
+      (pending && !pending.empty?) || pending_functions.any?
     end
 
     ##
@@ -312,7 +310,7 @@ module LLM
     # @return [Array<LLM::Function::Return>]
     def wait(strategy, except: [])
       if stream.queue.empty?
-        tools  = except.empty? ? functions : functions - except
+        tools  = except.empty? ? pending_functions : pending_functions - except
         guards = guarded_returns(tools:)
         return guards if guards
         @queue = tools.task(strategy)
@@ -335,7 +333,7 @@ module LLM
     def interrupt!
       llm.interrupt!(@owner)
       queue&.interrupt!
-      functions.each(&:interrupt!)
+      pending_functions.each(&:interrupt!)
       @queue = nil
       @owner = nil
       nil

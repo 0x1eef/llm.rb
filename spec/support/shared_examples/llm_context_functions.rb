@@ -19,19 +19,19 @@ RSpec.shared_examples "LLM::Context: functions" do |dirname, options = {}|
 
     it "calls the function" do
       expect(Kernel).to receive(:system).with("date").and_return("2025-08-24")
-      ctx.talk ctx.functions[0].call
-      expect(ctx.functions).to be_empty
+      ctx.talk ctx.pending_functions[0].call
+      expect(ctx.pending_functions).to be_empty
     end
 
     it "calls the function" do
       expect(Kernel).to receive(:system).with("date").and_return("2025-08-24")
-      ctx.talk ctx.functions.map(&:call)
-      expect(ctx.functions).to be_empty
+      ctx.talk ctx.pending_functions.map(&:call)
+      expect(ctx.pending_functions).to be_empty
     end
 
     it "includes a message with a return value" do
       allow(Kernel).to receive(:system).with("date").and_return("2025-08-24")
-      ctx.talk ctx.functions.map(&:call)
+      ctx.talk ctx.pending_functions.map(&:call)
       expect(returns.size).to be(1)
     end
   end
@@ -65,12 +65,12 @@ RSpec.shared_examples "LLM::Context: functions" do |dirname, options = {}|
 
     it "calls the functions" do
       i = 0
-      until ctx.functions.empty?
+      until ctx.pending_functions.empty?
         raise "Too many iterations, something is wrong" if i == 3
-        ctx.talk ctx.functions.map(&:call)
+        ctx.talk ctx.pending_functions.map(&:call)
         i += 1
       end
-      expect(ctx.functions).to be_empty
+      expect(ctx.pending_functions).to be_empty
     end
   end
 

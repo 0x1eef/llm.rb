@@ -41,7 +41,7 @@ RSpec.describe "LLM::Skill: openai",
   describe "through LLM::Context" do
     subject(:result) do
       ctx.talk(prompt)
-      ctx.talk(ctx.functions.map(&:call))
+      ctx.talk(ctx.pending_functions.map(&:call))
     end
 
     it "runs a real skill directory through the tool loop" do

@@ -311,7 +311,7 @@ RSpec.describe LLM::Agent do
     let(:returns) { [double("return")] }
     let(:usage) { LLM::Object.from(input_tokens: 1, output_tokens: 2, total_tokens: 3) }
     let(:messages) { double("messages") }
-    let(:functions) { empty_functions }
+    let(:pending_functions) { empty_functions }
     let(:cost) { double("cost") }
     let(:payload) { {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []} }
     let(:params) { {model: "gpt-4.1"} }
@@ -319,7 +319,7 @@ RSpec.describe LLM::Agent do
       instance_double(
         LLM::Context,
         messages:,
-        functions:,
+        pending_functions:,
         returns:,
         usage:,
         mode: :completions,
@@ -349,9 +349,9 @@ RSpec.describe LLM::Agent do
       it { is_expected.to be(messages) }
     end
 
-    describe "#functions" do
-      subject { agent.functions }
-      it { is_expected.to be(functions) }
+    describe "#pending_functions" do
+      subject { agent.pending_functions }
+      it { is_expected.to be(pending_functions) }
     end
 
     describe "#returns" do
@@ -492,7 +492,7 @@ RSpec.describe LLM::Agent do
       instance_double(
         LLM::Context,
         messages: [],
-        functions: pending_functions,
+        pending_functions:,
         returns: [],
         usage: LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0),
         mode: :responses,
@@ -500,7 +500,7 @@ RSpec.describe LLM::Agent do
         context_window: 0,
         model: "gpt-4.1",
         params: {},
-        functions?: false,
+        pending_functions?: false,
         to_h: {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []},
         prompt: nil,
         image_url: nil,
@@ -514,8 +514,8 @@ RSpec.describe LLM::Agent do
       allow(LLM::Context).to receive(:new).and_return(ctx)
       allow(ctx).to receive(:talk).and_return(double("first_response"), double("second_response"))
       allow(ctx).to receive(:wait)
-      allow(ctx).to receive(:functions?).and_return(true, true, false, false)
-      allow(ctx).to receive(:functions).and_return(pending_functions, pending_functions, empty_functions, empty_functions)
+      allow(ctx).to receive(:pending_functions?).and_return(true, true, false, false)
+      allow(ctx).to receive(:pending_functions).and_return(pending_functions, pending_functions, empty_functions, empty_functions)
     end
 
     describe "#talk" do
@@ -749,7 +749,7 @@ RSpec.describe LLM::Agent do
     end
 
     describe "#functions" do
-      subject(:functions) { agent.functions }
+      subject(:functions) { agent.pending_functions }
 
       let(:message) do
         LLM::Message.new("assistant", nil, {
@@ -790,7 +790,7 @@ RSpec.describe LLM::Agent do
       instance_double(
         LLM::Context,
         messages: [],
-        functions: pending_functions,
+        pending_functions:,
         returns: [],
         usage: LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0),
         mode: :completions,
@@ -803,7 +803,7 @@ RSpec.describe LLM::Agent do
         local_file: nil,
         remote_file: nil,
         params: {},
-        functions?: false,
+        pending_functions?: false,
         tracer: nil
       )
     end
@@ -815,8 +815,8 @@ RSpec.describe LLM::Agent do
       allow(LLM::Context).to receive(:new).and_return(ctx)
       allow(ctx).to receive(:talk).and_return(double("first_response"), *Array.new(25) { double("response") }, advisory_res, res)
       allow(ctx).to receive(:wait).with(:sequential).and_return([double("return")])
-      allow(ctx).to receive(:functions?).and_return(*Array.new(29, true), false, false, false)
-      allow(ctx).to receive(:functions).and_return(*Array.new(30, pending_functions), empty_functions, empty_functions, empty_functions)
+      allow(ctx).to receive(:pending_functions?).and_return(*Array.new(29, true), false, false, false)
+      allow(ctx).to receive(:pending_functions).and_return(*Array.new(30, pending_functions), empty_functions, empty_functions, empty_functions)
     end
 
     it "defaults to 25 tool loop attempts" do
@@ -833,8 +833,8 @@ RSpec.describe LLM::Agent do
 
     it "disables advisory tool-limit returns when tool_attempts is nil" do
       allow(ctx).to receive(:talk).and_return(double("first_response"), res)
-      allow(ctx).to receive(:functions?).and_return(true, false, false)
-      allow(ctx).to receive(:functions).and_return(pending_functions, empty_functions, empty_functions)
+      allow(ctx).to receive(:pending_functions?).and_return(true, false, false)
+      allow(ctx).to receive(:pending_functions).and_return(pending_functions, empty_functions, empty_functions)
       expect(agent.talk("hello", tool_attempts: nil)).to eq(res)
       expect(ctx).to have_received(:wait).with(:sequential).once
       expect(ctx).not_to have_received(:talk).with([
