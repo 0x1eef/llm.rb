@@ -30,7 +30,62 @@ An agent responsible for maintaining the `CHANGELOG.md` file for the `llm.rb` pr
 
 ---
 
-## Guidelines for Changelog Entries
-- **Clarity**: Write concise, descriptive entries.
-- **Consistency**: Follow the existing format and style of the changelog.
-- **Relevance**: Only include changes that impact users or developers.
+## Voice and Style
+
+The changelog should match the voice of the project's README and commit log. Key characteristics:
+
+### Tone
+- **Direct and factual**. Say what changed and why. No marketing language, no fluff, no jokes.
+- **Complete sentences** ending with periods.
+- **Technical but accessible**. Assume the reader is a Ruby developer familiar with the project.
+
+### Format
+- Use `* **feature name**: description <br>` for each entry. The feature name is bold, followed by a colon and a space, then the description.
+- Use backticks for class names, method names, symbols, and code references: `` `LLM::Agent` ``, `` `ctx.talk` ``, `` `:thread` ``.
+- Use `<br>` for line breaks within an entry. Use `<br><br>` between paragraphs inside a single entry.
+- Group related entries under `### Category` headers. Use sentence case for category names: `### Core`, `### Fix`, `### Agent`, `### Compactor`, etc.
+- Use `### Breaking` for breaking changes. List each breaking change with a bold name and explanation of both the old and new behavior.
+
+### Punctuation
+- **No unicode dashes**. Never use em-dashes (—), en-dashes (–), or any other unicode dash characters.
+- **No hyphens as clause connectives**. When the original text uses an em-dash between two independent clauses ("X — Y"), do not substitute with a bare hyphen ("X - Y"). Instead, restructure the sentence: use a period ("X. Y"), a semicolon ("X; Y"), a colon ("X: Y"), or a conjunction ("X and Y") — whichever fits the rhythm. A bare hyphen reads as a weak placeholder, not as the author's voice. Make it a last resort.
+- **No comma splices**. When joining two independent clauses, use a period, semicolon, or conjunction rather than a bare comma.
+- **No unicode quotes**. Never use smart/curly quotes. Use ASCII straight quotes.
+- **No exclamation marks**. End sentences with periods.
+- **No emoji**.
+
+### Word choice
+- Use present tense for descriptions: "adds", "fixes", "renames", "replaces".
+- Use past tense only when describing the previous behavior: "The old `spawn` returned a thread; the new `task` returns a `Task` object."
+- Prefer active voice: "The `:fork` strategy forks a child process" not "A child process is forked by the `:fork` strategy."
+- Be specific about what changed: "Fix a bug where X caused Y" not "Improve reliability."
+
+### Entry structure
+- Start with the change itself, then explain the motivation or effect if needed.
+- For fixes: describe the bug first, then the fix. "Fix a bug where X. The fix does Y."
+- For additions: describe what was added and what it does. "Add `LLM::Compactor::Truncate` for dropping oldest messages."
+- For renames: include both the old and new name. "Rename X to Y."
+- **Be concise**. Entries should be one to three sentences. If an entry runs to 3+ paragraphs, trim it. Say the same thing with less. The reader only needs to know what changed, what the old behavior was (if breaking), and the key detail of how it works now. Omit implementation internals that don't affect the caller.
+
+### API doc links
+
+Link class, module, and method references to the r.uby.dev API docs when they
+first appear in a section, following the same convention as the README. The
+URL pattern is `https://r.uby.dev/api-docs/llm.rb/ClassName.html`, with an
+optional `#method_name-instance_method` or `#method_name-class_method` anchor.
+
+Format as a markdown link with backtick code text:
+
+```
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+[`LLM::Agent#repl`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
+[`LLM::Agent.name`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#name-class_method)
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
+[`LLM::Stream`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html)
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
+[`LLM::Compactor::Truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html)
+```
+
+Only link the first mention of a class in each section. Do not link every
+occurrence.
