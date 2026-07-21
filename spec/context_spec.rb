@@ -935,5 +935,4 @@ RSpec.describe LLM::Context do
       end
     end
   end
-
 end

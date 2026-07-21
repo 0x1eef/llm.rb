@@ -102,7 +102,7 @@ module LLM
     #  Return's the agents name
     def self.name(name = UNDEFINED, &block)
       if name.equal?(UNDEFINED)
-        @name || self.class.to_s.gsub(/(.)([A-Z])/, '\1-\2').downcase
+        @name || self.to_s.gsub(/(.)([A-Z])/, '\\1-\\2').downcase
       else
         @name = block || name
       end

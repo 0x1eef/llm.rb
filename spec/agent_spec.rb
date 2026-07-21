@@ -30,6 +30,28 @@ RSpec.describe LLM::Agent do
     end
   end
 
+  describe ".name" do
+    context "when no name is set on the class" do
+      before { stub_const "TestAgent", Class.new(described_class) }
+      let(:agent) { TestAgent }
+      it "derives a name from the class name" do
+        expect(agent.name).to eq("test-agent")
+      end
+    end
+
+    context "when a custom name is set" do
+      let(:agent) do
+        Class.new(described_class) do
+          name "admin"
+        end
+      end
+
+      it "returns the custom name" do
+        expect(agent.name).to eq("admin")
+      end
+    end
+  end
+
   shared_examples "agent behavior" do
     let(:schema) do
       Class.new(LLM::Schema) do
