@@ -15,16 +15,67 @@
 
 ## What's next
 
+Six breaking changes. Concurrency strategies have been renamed
+(`:call` → `:sequential`, `:task` → `:async`), `spawn` is now
+`task`, and the `:async` strategy has been rebuilt from the ground
+up — it no longer blocks and now supports interruption. The compactor
+has been refactored into pluggable strategies. Interruption is now
+reliable across all six concurrency backends.
+
+### Migration from v12.6.0
+
+| Old | New |
+|-----|-----|
+| `fn.spawn(:call)` | `fn.task(:sequential)` |
+| `fn.spawn(:task)` | `fn.task(:async)` |
+| `ctx.wait(:call)` | `ctx.wait(:sequential)` |
+| `agent.concurrency :task` | `agent.concurrency :async` |
+| `LLM::Function::FiberGroup` | `LLM::Function::Fiber::Group` |
+| `LLM::Function::CallGroup` | `LLM::Function::Sequential::Group` |
+| `LLM::Function::TaskGroup` | `LLM::Function::Async::Group` |
+| `Compactor.new(model:, token_threshold:)` | `Compactor::Truncate.new(ctx)` |
+| `on_compaction(ctx, compactor)` | `on_compaction(compactor)` |
+
 ### Breaking
 
-* **fix `:async` concurrency (now backed by a managed `Reactor` on a background thread)** <br>
+* **rename `LLM::Function#spawn` as `LLM::Function#task`** <br>
+  `LLM::Function#task` (previously `spawn`) now consistently returns an
+  object that implements the `LLM::Function::Task` interface. The old
+  implementation alternated between spawning a task immediately or
+  returning it to be executed later; the contract is now that `task`
+  returns a task object that can be spawned, waited on, and passed to
+  `LLM::Function::Group`.
+
+* **rename concurrency strategies (`:call` → `:sequential`,**
+  **`:task` → `:async`)** <br>
+  The `:call` concurrency strategy is now `:sequential`, and the `:task`
+  strategy is now `:async`. `LLM::Agent.concurrency`, `LLM::Context#wait`,
+  `LLM::Function::Array#task`, and `LLM::Function#task` all accept the
+  new names. The old names raise `ArgumentError`.
+
+* **rename group classes** <br>
+  Group classes have been moved into their strategy's namespace:
+  `FiberGroup` → `Fiber::Group`, `ThreadGroup` → `Thread::Group`,
+  `CallGroup` → `Sequential::Group`, `TaskGroup` → `Async::Group`,
+  `Fork::Group` → `Fork::Group`, `Ractor::Group` → `Ractor::Group`.
+
+* **repurpose `LLM::Function::Task` as a task interface superclass** <br>
+  `LLM::Function::Task` has been repurposed from a general-purpose class
+  that tried to support multiple concurrency strategies into an abstract
+  base class that defines the task interface. Individual strategies
+  (`Sequential::Task`, `Thread::Task`, `Fiber::Task`, `Async::Task`,
+  `Fork::Task`, `Ractor::Task`) now subclass it and implement
+  `spawn`, `alive?`, `interrupt!`, and `wait`.
+
+* **fix `:async` concurrency (now backed by a managed**
+  **`LLM::Function::Async::Reactor` on a background thread)** <br>
   The `:async` strategy previously used `Async {}` which spawned its own
   reactor and blocked the caller until all tasks completed — making it
   unusable for concurrent tool execution. The strategy also did not
   support interruption, so cancelling a context with async-backed tool
   loops was a no-op.
   <br><br>
-  The fix replaces `Async {}` with a
+  The fix replaces `Async {}` with a per-turn
   `LLM::Function::Async::Reactor` that runs on a dedicated background
   thread. The reactor uses a thread-safe inbox `Queue` — work is
   submitted via `submit(&block)` and consumed by the reactor's event
@@ -46,34 +97,6 @@
   (renamed strategies, split `spawn`/`wait`, repurposed `Task` as a
   superclass, etc.) — the `:async` strategy needed the same task-shaped
   interface that the other strategies already had.
-
-* **rename `LLM::Function#spawn` as `LLM::Function#task`** <br>
-  `LLM::Function#task` (previously `spawn`) now consistently returns an
-  object that implements the `LLM::Function::Task` interface. The old
-  implementation alternated between spawning a task immediately or
-  returning it to be executed later; the contract is now that `task`
-  returns a task object that can be spawned, waited on, and passed to
-  `LLM::Function::Group`.
-
-* **rename concurrency strategies (`:call` → `:sequential`, `:task` → `:async`)** <br>
-  The `:call` concurrency strategy is now `:sequential`, and the `:task`
-  strategy is now `:async`. `LLM::Agent.concurrency`, `LLM::Context#wait`,
-  `LLM::Function::Array#task`, and `LLM::Function#task` all accept the
-  new names. The old names raise `ArgumentError`.
-
-* **rename group classes** <br>
-  Group classes have been moved into their strategy's namespace:
-  `FiberGroup` → `Fiber::Group`, `ThreadGroup` → `Thread::Group`,
-  `CallGroup` → `Sequential::Group`, `TaskGroup` → `Async::Group`,
-  `Fork::Group` → `Fork::Group`, `Ractor::Group` → `Ractor::Group`.
-
-* **repurpose `LLM::Function::Task` as a task interface superclass** <br>
-  `LLM::Function::Task` has been repurposed from a general-purpose class
-  that tried to support multiple concurrency strategies into an abstract
-  base class that defines the task interface. Individual strategies
-  (`Sequential::Task`, `Thread::Task`, `Fiber::Task`, `Async::Task`,
-  `Fork::Task`, `Ractor::Task`) now subclass it and implement
-  `spawn`, `alive?`, `interrupt!`, and `wait`.
 
 * **compactor: refactor to strategy-based interface** <br>
   `LLM::Compactor` has been refactored from a single class that performed
@@ -174,36 +197,26 @@
 
 ### Schema
 
-* **track property definition order in the `index` attribute** <br>
-  `LLM::Schema::Leaf` now has an `index` accessor that tracks the order
-  in which properties are defined. Each property receives an incrementing
-  index as it is added to the schema, matching the same convention used
-  by `LLM::Command::Parameter`.
-
-* **store `@properties` as an `LLM::Object`** <br>
-  `LLM::Schema::Object` now stores its `@properties` hash as an
-  `LLM::Object` instead of a plain `Hash`, enabling indifferent-access
-  lookups with both string and symbol keys.
+* **properties are now ordered and support indifferent access** <br>
+  `LLM::Schema::Leaf` tracks property definition order in a new `index`
+  attribute, matching the convention already used by
+  `LLM::Command::Parameter`. Internally, `@properties` is stored as an
+  `LLM::Object` instead of a plain `Hash`, so lookups with both string
+  and symbol keys work.
 
 ### Buffer
 
-* **add `LLM::Buffer#reverse`** <br>
-  `LLM::Buffer` now exposes a `reverse` method that returns a reversed
-  copy of the internal message array, complementing the existing
-  array-style message management.
-
-* **add Array-like query and mutation methods** <br>
+* **more array-like message management** <br>
   `LLM::Buffer` now exposes `first`, `reject!`, `select!`, `shift`,
-  `clear`, `drop`, and `take` methods, making it easier to query and
-  mutate `LLM::Context#messages` like an ordinary Array. `reject!` is
-  also aliased as `delete_if` for familiarity.
+  `clear`, `drop`, `take`, and `reverse`, making it easier to query
+  and mutate `LLM::Context#messages` like an ordinary Array. `reject!`
+  is aliased as `delete_if` for familiarity.
 
-* **distinguish `nil` from `undefined` in `last`** <br>
+* **`last(nil)` no longer returns the last message** <br>
   `LLM::Buffer#last` now uses an internal `UNDEFINED` sentinel to
-  distinguish between calling `last` with no argument (returns the
-  last message) and `last(nil)` (an error). Previously, `nil` was
-  indistinguishable from no argument, causing `last(nil)` to
-  incorrectly return the last message.
+  distinguish between no argument (`last` — returns the last message)
+  and `nil` (`last(nil)` — treated as an argument). Previously `nil`
+  was indistinguishable from no argument.
 
 ### Function
 
@@ -243,107 +256,47 @@
 
 ### REPL
 
-* **add `name:` parameter to identify the agent** <br>
-  `LLM::Agent#repl` and `LLM::Repl.new` now accept a `name:` parameter
-  (defaulting to `LLM::Agent#name`) that customises the input prompt to
-  `provider(name)> ` and the transcript label from the hardcoded
-  `agent:` to the given name. This makes it easier to distinguish
-  multiple REPL sessions or give the agent a recognisable identity
-  in the curses-based UI.
+* **agent identity in the prompt** <br>
+  `LLM::Agent#repl` and `LLM::Repl.new` accept a `name:` parameter
+  (defaulting to `LLM::Agent#name`) that sets the input prompt to
+  `provider(name)> ` and labels transcript messages with the agent's
+  name instead of a hardcoded `agent:`. Useful when running multiple
+  sessions.
 
-* **add `compact` command for context window compaction** <br>
-  The curses-based REPL now has a `/compact` command that frees space
-  in the context window using the `LLM::Compactor::Truncate` strategy.
-  Typing `/compact` invokes the compactor, drops the oldest messages,
-  and displays `compact in progress` / `compact complete` feedback in
-  the transcript. An optional `n` argument specifies how many messages
-  to keep — for example, `/compact 32` keeps the most recent 32 messages,
-  `/compact 75%` keeps approximately 75% of messages, while `/compact`
-  with no argument defaults to keeping the last 128.
+* **`/compact` command** <br>
+  New built-in `/compact` command frees context window space by
+  dropping the oldest messages via `LLM::Compactor::Truncate`.
+  Supports both integer (`/compact 32`) and percentage (`/compact 75%`)
+  arguments. Defaults to keeping the last 128 messages.
 
-* **add `LLM::Command.complete` for command name completion** <br>
-  `LLM::Repl::Command.complete(str)` (also available as `LLM::Command.complete`)
-  returns an array of command names whose names start with the given input
-  string, providing the foundation for tab-completion of command names in
-  the REPL.
+* **tab-completion for `/` commands** <br>
+  Pressing Tab on an input line starting with `/` autocompletes the
+  command name. Repeated Tab presses cycle through matching commands.
+  Powered by `LLM::Command.complete(str)` which is available outside
+  the REPL too.
 
-* **implement tab-complete for command names** <br>
-  The curses-based REPL input now supports tab-completion for `/` commands.
-  Pressing the Tab key while the input begins with `/` matches the typed
-  prefix against the command registry and fills in the first matching command
-  name. This provides quick access to commands like `/compact`, `/help`,
-  `/exit`, and `/quit` without typing the full name.
+* **command system enhancements** <br>
+  Commands can set parameter defaults in their `call` method signature
+  (e.g., `def call(n: 128)`). Aliases like `/quit` now inherit their
+  parent's description and parameters. Commands also have access to
+  the active `agent` and `repl` via public readers.
 
-* **cycle through tab-complete matches on repeated Tab presses** <br>
-  Pressing Tab again after an autocomplete cycles through the remaining
-  matching commands. Each subsequent Tab advances to the next candidate,
-  making it easy to reach any command without typing the full name.
+* **tool argument sorting** <br>
+  Tool parameters in the status bar are now displayed in definition
+  order (using the new `index` attribute), regardless of the order
+  the model returns them.
 
-* **expose `agent` and `repl` readers on Command** <br>
-  `LLM::Repl::Command` now exposes `agent` (the active `LLM::Agent`)
-  and `repl` (the active `LLM::Repl`) as public readers, making it
-  easy for custom commands to access the agent and the repl interface
-  without reaching through internal references.
+* **expanded markdown rendering** <br>
+  The curses-based markdown renderer now handles lists (`<ul>`, `<ol>`),
+  blockquotes, horizontal rules, hyperlinks (underline), images
+  (`[image: alt text]`), and tables (aligned columns).
 
-* **allow commands to set parameter defaults** <br>
-  Commands can now set default values for their parameters directly in
-  their `call` method signature. When a user provides fewer arguments
-  than declared parameters, the default value from the signature is
-  used instead of passing `nil`. This enables commands like `/compact`
-  to define defaults such as `def call(n: 128)` and have those defaults
-  apply when no argument is given.
-
-* **sort tool arguments by parameter definition order** <br>
-  The curses-based REPL now sorts tool parameters by their definition
-  order (using the new `index` attribute) when displaying tool arguments
-  in the status bar and when assigning argument values to parameters.
-  This ensures consistent display regardless of the order in which the
-  model returns the arguments.
-
-* **aliases inherit parent description and parameters** <br>
-  `LLM::Command` subclasses that alias another command (e.g.,
-  `class Quit < Command::Exit`) now inherit the parent's description
-  and parameter definitions. Previously, an alias had neither a
-  description nor parameters; now they are copied from the parent
-  command so `/quit` behaves identically to `/exit` in all respects
-  except its name.
-
-* **expand markdown coverage to lists, blockquotes, horizontal rules, links, and images** <br>
-  The curses-based REPL markdown renderer now handles additional node
-  types, including ordered and unordered lists (`<ul>`, `<ol>`, `<li>`),
-  blockquotes (`<blockquote>`), horizontal rules (`<hr>`), hyperlinks
-  (`<a>` rendered with underline), and images (`<img>` rendered as
-  `[image: alt text]`). This provides richer rendering of model
-  responses in the interactive session.
-
-* **render tables with aligned columns** <br>
-  The curses-based REPL markdown renderer now handles `<table>`,
-  `<tr>`, `<td>`, and `<th>` nodes, collecting all cells first to
-  compute column widths, then emitting each row with padded text
-  for clean alignment.
-
-* **add history walking with Ctrl+P and Ctrl+N key mappings** <br>
-  The curses-based REPL input now supports Ctrl+P to walk backward
-  through previously submitted prompts and Ctrl+N to walk forward
-  again. History is derived from the agent's conversation — only
-  `user` messages are stored.
-  <br><br>
-  A new `LLM::Repl::Walker` class manages cursor navigation through
-  the history array, clamping at both boundaries so the cursor cannot
-  overshoot. New submissions are automatically appended to the history.
-
-* **add Page Up/Page Down key mappings for transcript scrolling** <br>
-  The curses-based REPL now supports Page Up (`KEY_PPAGE`) and Page
-  Down (`KEY_NPAGE`) keys for scrolling the transcript by roughly a
-  full page at a time. Each press scrolls by `(window.rows - 3)` lines,
-  keeping a small part of the current page in view for context.
-
-* **fix ENTER and BACKSPACE key mapping reliability** <br>
-  The curses-based REPL now maps ENTER and BACKSPACE to raw character
-  codes from `Curses.getch` (`10` and `127` respectively) instead of
-  relying on `Curses::Key::ENTER` and `Curses::Key::BACKSPACE`. This
-  fixes input handling on terminals where the curses named constants
-  do not map correctly to the actual keypress values.
+* **input improvements** <br>
+  Ctrl+P and Ctrl+N walk through conversation history (user messages
+  only, managed by `LLM::Repl::Walker`). Page Up/Down scroll the
+  transcript by a page. ENTER and BACKSPACE are now mapped to raw
+  character codes from `Curses.getch` instead of relying on
+  `Curses::Key::ENTER` and `Curses::Key::BACKSPACE`.
 
 ### Object
 
