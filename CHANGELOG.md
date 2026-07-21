@@ -15,7 +15,9 @@
 
 ## What's next
 
-The next release will be v13.0.0 (not released yet).
+_No unreleased changes yet._
+
+## v13.0.0
 
 v13.0.0 relicenses the project under the MIT license, replacing
 the Business Source License that was introduced in v12.0.0. No
