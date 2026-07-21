@@ -6,9 +6,9 @@ class LLM::Function
   # and exchanges control and result messages with the child process.
   class Fork::Task
     ##
-    # @param [LLM::Function] function
-    # @param [LLM::Tracer, nil] tracer
-    # @param [Object, nil] span
+    # @param [LLM::Function] fn
+    # @param [Hash] options
+    # @option options [LLM::Tracer, nil] :tracer
     # @return [LLM::Function::Fork::Task]
     def initialize(fn, options = {})
       @function = fn

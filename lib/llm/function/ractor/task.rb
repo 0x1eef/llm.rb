@@ -19,8 +19,10 @@ class LLM::Function
     # @param [String, nil] id
     # @param [String] name
     # @param [Hash, Array, nil] arguments
-    # @param [LLM::Tracer, nil] tracer
-    # @param [Object, nil] span
+    # @param [Hash] options
+    # @option options [LLM::Tracer, nil] :tracer
+    # @option options [LLM::Function, nil] :function
+    # @option options [String, nil] :model
     # @return [LLM::Function::Ractor::Task]
     def initialize(runner_class, id, name, arguments, options = {})
       @function = options[:function]
