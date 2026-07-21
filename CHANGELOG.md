@@ -392,6 +392,14 @@ reliable across all six concurrency backends. The `functions` and
   `generateContent`). The fix removes the leaked parameter and correctly
   routes streaming requests through the appropriate path.
 
+* **fork: fix deadlock on xchan.rb channel** <br>
+  Fix a deadlock in the `:fork` concurrency strategy where both the
+  writer and reader could get stuck on the xchan channel, preventing the
+  reader from draining the channel. The deadlock surfaced as an errno
+  failure, especially with large tool returns. The fix requires xchan.rb
+  v0.22.0 and uses the `SOCK_STREAM` socket type for communicating a
+  tool's return value.
+
 ## v12.6.0
 
 Changes since `v12.5.1`.

@@ -24,7 +24,10 @@ class LLM::Function
         id: @function.id, name: @function.name,
         arguments: @function.arguments, model: @function.model
       )
-      @ch = LLM::Object.from(control: xchan(:marshal), result: xchan(:marshal))
+      @ch = LLM::Object.from(
+        control: xchan(:marshal),
+        result: xchan(:marshal, sock: Socket::SOCK_STREAM)
+      )
       @pid = Kernel.fork { Fork::Job.new(@function, @ch).call }
       @spawned = true
       self
