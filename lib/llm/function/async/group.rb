@@ -23,6 +23,8 @@ module LLM::Function::Async
         task.spawn
       end
       nil
+    ensure
+      @spawned = true
     end
 
     ##
@@ -42,7 +44,7 @@ module LLM::Function::Async
     ##
     # @return [Array<LLM::Function::Return>]
     def wait
-      spawn
+      spawn unless @spawned
       @tasks.map(&:wait)
     ensure
       @reactor.stop

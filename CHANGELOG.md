@@ -257,6 +257,13 @@ reliable across all six concurrency backends. The `functions` and
   task construction. Each task and group now exposes a public `spawn`
   method alongside the existing `wait`/`value` methods.
 
+* **spawn tasks lazily in `Group#wait`** <br>
+  All concurrency strategy groups (Fiber::Group, Fork::Group,
+  Ractor::Group, Thread::Group) now automatically spawn their tasks
+  when `wait` is called if they haven't been spawned yet, matching
+  the existing `Async::Group` behavior. This makes the spawn/wait
+  contract consistent across all six concurrency backends.
+
 ### Agent
 
 * **add `name` class DSL and instance method** <br>
@@ -331,6 +338,14 @@ reliable across all six concurrency backends. The `functions` and
   `Qwen/Qwen1.5-110B-Chat`, and `mistralai/Mixtral-8x7B-Instruct-v0.1`.
 
 ### Fix
+
+* **agent: fix default name resolution when name is not explicitly set** <br>
+  Fix a bug where `LLM::Agent` derived its default name from
+  `self.class` instead of `self`, causing the name to be `"class"`
+  instead of a parameterized version of the actual class name
+  (e.g., `"system-admin"` for `SystemAdmin`). The fix uses `self`
+  directly, which correctly resolves the class name at the instance
+  level.
 
 * **google: fix `stream` parameter leakage that broke the provider** <br>
   Fix a bug in the Google provider where `stream: stream.enabled?` was

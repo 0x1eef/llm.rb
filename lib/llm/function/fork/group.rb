@@ -16,6 +16,8 @@ module LLM::Function::Fork
     def spawn
       @tasks.each(&:spawn)
       nil
+    ensure
+      @spawned = true
     end
 
     ##
@@ -35,6 +37,7 @@ module LLM::Function::Fork
     ##
     # @return [Array<LLM::Function::Return>]
     def wait
+      spawn unless @spawned
       @tasks.map(&:wait)
     end
     alias_method :value, :wait
