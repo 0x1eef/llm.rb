@@ -44,6 +44,11 @@ features that didn't make it into the homepage documentation.
 - [LLM::Tool](#llmtool)
 - [Errors](#errors)
 - [Confirmation](#confirmation)
+- [Manual tool loop](#manual-tool-loop)
+  - [Executing](#executing)
+  - [Per-tool confirmation](#per-tool-confirmation)
+  - [Full loop](#full-loop)
+  - [Trade-offs](#trade-offs)
 </details>
 
 <details>
@@ -442,7 +447,7 @@ else
 end
 ```
 
-### Executing pending functions
+### Executing
 
 When the model asks to call tools, call `ctx.wait(:strategy)` to run
 them. `ctx.wait` picks up pending functions, spawns them, waits for
@@ -460,7 +465,7 @@ ctx.talk("What's the weather in Tokyo?")
 ctx.talk ctx.wait(:thread)
 ```
 
-### Iterating and asking for confirmation
+### Per-tool confirmation
 
 Because `pending_functions` returns a regular array, you can inspect
 each function before execution. Call `ctx.wait(:thread)` to execute
