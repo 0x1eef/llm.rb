@@ -19,13 +19,13 @@ The next release will be v13.0.0 (not released yet).
 
 v13.0.0 relicenses the project under the MIT license, replacing
 the Business Source License that was introduced in v12.0.0. No
-commercial license is needed — commercial, personal, educational, and
+commercial license is needed. Commercial, personal, educational, and
 all other uses are now permitted under the standard MIT terms.
 
 Seven breaking changes. Concurrency strategies have been renamed
 (`:call` → `:sequential`, `:task` → `:async`), `spawn` is now
 `task`, and the `:async` strategy has been rebuilt from the ground
-up — it no longer blocks and now supports interruption. The compactor
+up. It no longer blocks and now supports interruption. The compactor
 has been refactored into pluggable strategies. Interruption is now
 reliable across all six concurrency backends. The `functions` and
 `functions?` methods have been renamed to `pending_functions` and
@@ -50,18 +50,23 @@ reliable across all six concurrency backends. The `functions` and
 ### Breaking
 
 * **rename `LLM::Function#spawn` as `LLM::Function#task`** <br>
-  `LLM::Function#task` (previously `spawn`) now returns a
-  `LLM::Function::Task` object that can be spawned, waited on,
-  and passed to `LLM::Function::Group`. The old implementation
-  alternated between spawning immediately or returning a raw
-  thread/fiber — the contract is now consistent.
+  [`LLM::Function#task`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#task-instance_method)
+  (previously `spawn`) now consistently returns a
+  [`LLM::Function::Task`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html)
+  object that can be spawned, waited on, and passed to
+  [`LLM::Function::Group`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Group.html).
+  The old implementation alternated between spawning immediately or
+  returning a raw thread or fiber.
 
 * **rename concurrency strategies (`:call` → `:sequential`,**
   **`:task` → `:async`)** <br>
   The `:call` concurrency strategy is now `:sequential`, and the `:task`
-  strategy is now `:async`. `LLM::Agent.concurrency`, `LLM::Context#wait`,
-  `LLM::Function::Array#task`, and `LLM::Function#task` all accept the
-  new names. The old names raise `ArgumentError`.
+  strategy is now `:async`.
+  [`LLM::Agent.concurrency`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#concurrency-class_method),
+  [`LLM::Context#wait`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait-instance_method),
+  `LLM::Function::Array#task`, and
+  [`LLM::Function#task`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#task-instance_method)
+  all accept the new names. The old names raise `ArgumentError`.
 
 * **rename group classes** <br>
   Group classes have been moved into their strategy's namespace:
@@ -79,51 +84,47 @@ reliable across all six concurrency backends. The `functions` and
 
 * **fix `:async` concurrency (now backed by a managed**
   **`LLM::Function::Async::Reactor` on a background thread)** <br>
-  The `:async` strategy previously used `Async {}` which spawned its own
-  reactor and blocked the caller until all tasks completed — making it
-  unusable for concurrent tool execution. The strategy also did not
-  support interruption, so cancelling a context with async-backed tool
-  loops was a no-op.
-  <br><br>
-  The fix replaces `Async {}` with a per-turn
-  `LLM::Function::Async::Reactor` that runs on a dedicated background
-  thread. The reactor uses a thread-safe inbox `Queue` — work is
+  The `:async` strategy previously used `Async {}` which blocked the
+  caller until all tasks completed and did not support interruption.
+  The fix replaces it with a per-turn
+  `LLM::Function::Async::Reactor` on a background thread. Work is
   submitted via `submit(&block)` and consumed by the reactor's event
-  loop, keeping all fibers on one thread. Each tool runs in an
-  `Async::Task` inside that reactor.
+  loop through a thread-safe `Queue`. `Async::Group` manages the
+  reactor lifecycle and spawns tasks lazily on `wait`.
   <br><br>
-  `Async::Group` manages the reactor lifecycle, creating one on demand
-  and assigning it to each `Async::Task` before spawning. The group
-  also handles lazy `spawn` — calling `wait` on a group spawns all
-  tasks automatically.
-  <br><br>
-  Interruption pushes `LLM::Interrupt` to the task's result queue
-  (instead of using `Fiber#raise`), and `alive?` tracks state through a
-  boolean flag rather than referencing the async task directly. Results
-  are bridged from the reactor thread back to the caller through a
-  `Queue`.
-  <br><br>
-  This work is what drove the large refactor of the function internals
-  (renamed strategies, split `spawn`/`wait`, repurposed `Task` as a
-  superclass, etc.) — the `:async` strategy needed the same task-shaped
-  interface that the other strategies already had.
+  Interruption pushes [`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html)
+  to the task's result queue instead of using `Fiber#raise`, and
+  results are bridged back to the caller through a second `Queue`.
+  This work drove the broader refactor of strategy naming, the
+  spawn/wait split, and the `Task` superclass. The `:async` strategy
+  needed the same interface the other strategies already had.
 
 * **compactor: refactor to strategy-based interface** <br>
-  `LLM::Compactor` has been refactored from a single class that performed
-  LLM-based summarization into a strategy-based superclass. Each subclass
+  [`LLM::Compactor`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor.html)
+  has been refactored from a single class that performed LLM-based
+  summarization into a strategy-based superclass. Each subclass
   implements a different compaction strategy via `call(**opts)`. The old
   summarization approach (using `model:`, `token_threshold:`,
   `message_threshold:`, and `retention_window:` options) has been removed.
-  The built-in `LLM::Compactor::Truncate` strategy drops the oldest
-  messages when the conversation exceeds a configured size.
+  The built-in
+  [`LLM::Compactor::Truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html)
+  strategy drops the oldest messages when the conversation exceeds a
+  configured size.
 
 * **rename `LLM::Context#{functions,functions?}` and `LLM::Agent#{functions,functions?}`** <br>
-  `LLM::Context#functions` and `LLM::Context#functions?` have been renamed
-  to `LLM::Context#pending_functions` and `LLM::Context#pending_functions?`
-  respectively. The same rename applies to `LLM::Agent#functions` (now
-  `LLM::Agent#pending_functions`). The `pending_functions` name was already
-  available as an alias in v12.5.0; this change removes the old `functions`
-  name entirely.
+  [`LLM::Context#functions`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#functions-instance_method)
+  and
+  [`LLM::Context#functions?`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#functions%3F-instance_method)
+  have been renamed to
+  [`LLM::Context#pending_functions`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions-instance_method)
+  and
+  [`LLM::Context#pending_functions?`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions%3F-instance_method)
+  respectively. The same rename applies to
+  [`LLM::Agent#functions`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#functions-instance_method)
+  (now
+  [`LLM::Agent#pending_functions`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#pending_functions-instance_method)).
+  The `pending_functions` name was already available as an alias in
+  v12.5.0; this change removes the old `functions` name entirely.
 
 ### Core
 
@@ -138,14 +139,15 @@ reliable across all six concurrency backends. The `functions` and
 ### Compactor
 
 * **add `Truncate` strategy for dropping oldest messages** <br>
-  `LLM::Compactor::Truncate` is a new built-in compaction strategy that
-  drops the oldest messages when the conversation exceeds a configured
-  size. It uses a smarter pruning approach that keeps tool call/return
-  pairs intact — the algorithm never breaks in the middle of a tool call
-  sequence. It is configured with `keep:` (default 64) and emits the
-  standard `on_compaction` and `on_compaction_finish` stream lifecycle
-  callbacks. Unlike the previous summarization approach, no LLM call is
-  made — the strategy is purely lossy but fast and requires no network.
+  [`LLM::Compactor::Truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html)
+  is a new built-in compaction strategy that drops the oldest messages
+  when the conversation exceeds a configured size. It preserves tool
+  call/return pairs so the algorithm never breaks in the middle of a
+  sequence. Configured with `keep:` (default 64), it emits the standard
+  `on_compaction` and `on_compaction_finish`
+  [`LLM::Stream`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html)
+  lifecycle callbacks. No LLM call is made; the strategy is purely
+  lossy but fast and requires no network.
 
 * **raise when given an unparseable `keep:` value** <br>
   `LLM::Compactor::Truncate` now raises `ArgumentError` when the `keep:`
@@ -160,104 +162,122 @@ reliable across all six concurrency backends. The `functions` and
   absolute number of messages.
 
 * **add `Null` strategy for no-op compaction** <br>
-  `LLM::Compactor::Null` is a new built-in compaction strategy that does
-  nothing. It is used as the default compactor when no strategy is
-  configured on a context, ensuring the compactor interface is always
-  present without requiring a separate nil check.
+  [`LLM::Compactor::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html)
+  is a new built-in compaction strategy that does nothing. It is used as
+  the default compactor when no strategy is configured on a context,
+  ensuring the compactor interface is always present without requiring a
+  separate nil check.
 
 * **accept both `LLM::Agent` and `LLM::Context`** <br>
-  `LLM::Compactor#initialize` now accepts both `LLM::Agent` and
-  `LLM::Context` instances. When given an agent, the internal context is
-  unwrapped automatically, making the compactor API more flexible when
-  working with agents.
+  [`LLM::Compactor#initialize`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor.html#initialize-instance_method)
+  now accepts both `LLM::Agent` and `LLM::Context` instances. When given
+  an agent, the internal context is unwrapped automatically, making the
+  compactor API more flexible when working with agents.
 
 #### Context integration
 
 * **accept `compactor` and `compactor_options` parameters** <br>
-  `LLM::Context` now accepts `compactor:` (a compactor class defaulting to
-  `LLM::Compactor::Null`) and `compactor_options:` (a hash of options
-  forwarded to the compactor's `call` method) parameters. The compactor
-  is automatically invoked at the beginning of each `talk` turn. The
-  previous `compactor=` setter has been removed in favour of
-  constructor-driven configuration.
+  [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+  now accepts `compactor:` (a compactor class defaulting to
+  [`LLM::Compactor::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html))
+  and `compactor_options:` (a hash of options forwarded to the
+  compactor's `call` method) parameters. The compactor is automatically
+  invoked at the beginning of each `talk` turn. The previous `compactor=`
+  setter has been removed in favour of constructor-driven configuration.
 
 * **`on_compaction` and `on_compaction_finish` receive a single argument** <br>
-  `LLM::Stream#on_compaction` and `LLM::Stream#on_compaction_finish` now
-  accept a single argument (the compactor instance) instead of two arguments
-  (context and compactor). The context is still available via
-  `LLM::Compactor#ctx`, so access to the context is not lost. This simplifies
-  the callback interface for compaction lifecycle observers.
+  [`LLM::Stream#on_compaction`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction-instance_method)
+  and
+  [`LLM::Stream#on_compaction_finish`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction_finish-instance_method)
+  now accept a single argument (the compactor instance) instead of two
+  arguments (context and compactor). The context is still available via
+  `LLM::Compactor#ctx`, so access to the context is not lost. This
+  simplifies the callback interface for compaction lifecycle observers.
 
 ### Tools
 
 * **add `LLM::Tool::Utils` module for shared command execution logic** <br>
-  A new `LLM::Tool::Utils` module provides shared `wait(command:, timeout:)`
-  and `now` helper methods for tools that execute commands. Tools that
-  include `Utils` can wait on a running command and automatically kill it
-  when it exceeds the configured timeout, using `Process.clock_gettime` with
-  `CLOCK_MONOTONIC` for precise timing. The module is used by both the
-  `Shell` and `Rg` tools internally.
+  A new
+  [`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
+  module provides shared `wait(command:, timeout:)` and `now` helper
+  methods for tools that execute commands. Tools that include `Utils` can
+  wait on a running command and automatically kill it when it exceeds the
+  configured timeout, using `Process.clock_gettime` with `CLOCK_MONOTONIC`
+  for precise timing. The module is used by both the `Shell` and `Rg`
+  tools internally.
 
 * **shell: add `timeout` parameter for command execution deadlines** <br>
-  The `LLM::Tool::Shell` tool now accepts a `timeout` parameter (default 60s)
-  that automatically kills commands exceeding the specified time limit,
-  preventing hung processes from blocking the agent indefinitely.
+  The
+  [`LLM::Tool::Shell`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html)
+  tool now accepts a `timeout` parameter (default 60s) that automatically
+  kills commands exceeding the specified time limit, preventing hung
+  processes from blocking the agent indefinitely.
 
 * **rg: add `timeout` parameter for search execution deadlines** <br>
-  The `LLM::Tool::Rg` tool now accepts a `timeout` parameter (default 5s)
-  that automatically kills search commands exceeding the specified time limit,
-  preventing long-running searches from blocking the agent indefinitely.
+  The
+  [`LLM::Tool::Rg`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html)
+  tool now accepts a `timeout` parameter (default 5s) that automatically
+  kills search commands exceeding the specified time limit, preventing
+  long-running searches from blocking the agent indefinitely.
 
 * **git: add `timeout` parameter for command execution deadlines** <br>
-  The `LLM::Tool::Git` tool now accepts a `timeout` parameter (default 5s)
-  that automatically kills git commands exceeding the specified time limit,
-  preventing hung processes from blocking the agent indefinitely.
+  The
+  [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html)
+  tool now accepts a `timeout` parameter (default 5s) that automatically
+  kills git commands exceeding the specified time limit, preventing hung
+  processes from blocking the agent indefinitely.
 
 ### Schema
 
 * **properties are now ordered and support indifferent access** <br>
-  `LLM::Schema::Leaf` tracks property definition order in a new `index`
-  attribute, matching the convention already used by
-  `LLM::Command::Parameter`. Internally, `@properties` is stored as an
-  `LLM::Object` instead of a plain `Hash`, so lookups with both string
-  and symbol keys work.
+  [`LLM::Schema::Leaf`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema/Leaf.html)
+  tracks property definition order in a new `index` attribute, matching
+  the convention already used by
+  [`LLM::Command::Parameter`](https://r.uby.dev/api-docs/llm.rb/LLM/Command/Parameter.html).
+  Internally, `@properties` is stored as an
+  [`LLM::Object`](https://r.uby.dev/api-docs/llm.rb/LLM/Object.html)
+  instead of a plain `Hash`, so lookups with both string and symbol keys
+  work.
 
 ### Buffer
 
 * **more array-like message management** <br>
-  `LLM::Buffer` now exposes `first`, `reject!`, `select!`, `shift`,
-  `clear`, `drop`, `take`, and `reverse`, making it easier to query
-  and mutate `LLM::Context#messages` like an ordinary Array. `reject!`
-  is aliased as `delete_if` for familiarity.
+  [`LLM::Buffer`](https://r.uby.dev/api-docs/llm.rb/LLM/Buffer.html)
+  now exposes `first`, `reject!`, `select!`, `shift`, `clear`, `drop`,
+  `take`, and `reverse`, making it easier to query and mutate
+  `LLM::Context#messages` like an ordinary Array. `reject!` is aliased
+  as `delete_if` for familiarity.
 
 * **`last(nil)` no longer returns the last message** <br>
   `LLM::Buffer#last` now uses an internal `UNDEFINED` sentinel to
-  distinguish between no argument (`last` — returns the last message)
-  and `nil` (`last(nil)` — treated as an argument). Previously `nil`
+  distinguish between no argument (`last` returns the last message)
+  and `nil` (`last(nil)` is treated as an argument). Previously `nil`
   was indistinguishable from no argument.
 
 ### Function
 
 * **consolidate `call` and `call!` into one method** <br>
-  The private `call!` method has been merged into the public `call`
-  method. The separate `call!` method existed because of tracer-scoping
-  logic that is now handled directly inside `call`. All internal call
-  sites now use `function.call` instead of `function.call!`.
+  The private `call!` method has been merged into the public
+  [`LLM::Function#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#call-instance_method).
+  The separate `call!` method existed for tracer-scoping logic now
+  handled directly inside `call`. All internal call sites now use
+  `function.call` instead of `function.call!`.
 
 * **add `LLM::Function::Group` as an abstract base class** <br>
-  A new abstract base class (`LLM::Function::Group`) defines the
-  interface that all concurrency strategy groups must implement:
-  `alive?`, `interrupt!`, and `wait`. Each strategy group
+  A new abstract base class
+  ([`LLM::Function::Group`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Group.html))
+  defines the interface that all concurrency strategy groups must
+  implement: `alive?`, `interrupt!`, and `wait`. Each strategy group
   (`Sequential::Group`, `Thread::Group`, `Fiber::Group`,
   `Async::Group`, `Fork::Group`, `Ractor::Group`) now subclasses
   this base.
 
 * **split `spawn` and `wait` across all strategies** <br>
   `spawn` now starts execution without blocking, and `wait` collects
-  the result. `on_tool_start` has been moved into each task's `spawn`
-  method so the tracer span covers actual execution rather than just
-  task construction. Each task and group now exposes a public `spawn`
-  method alongside the existing `wait`/`value` methods.
+  the result. `on_tool_start` moved into each task's `spawn` so the
+  tracer span covers execution rather than construction. Each task and
+  group now exposes a public `spawn` method alongside the existing
+  `wait`/`value` methods.
 
 * **spawn tasks lazily in `Group#wait`** <br>
   All concurrency strategy groups (Fiber::Group, Fork::Group,
@@ -269,36 +289,40 @@ reliable across all six concurrency backends. The `functions` and
 ### Agent
 
 * **add `name` class DSL and instance method** <br>
-  `LLM::Agent` now has a `name` class DSL (`name "admin"`) and a
-  corresponding `#name` instance method. The name is resolved through
-  the same lazy-resolution path as other agent attributes — it can be
-  set via `LLM::Agent.set(name: ...)`, `LLM::Agent.new(name: ...)`,
-  or the class DSL. When no name is given, a default is derived from
-  the class name (e.g., `SystemAdmin` becomes `system-admin`). The
-  agent's name is used by the REPL as the default prompt label and
-  transcript prefix, making it easier to distinguish multiple sessions
-  or give the agent a recognisable identity in the curses-based UI.
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) now
+  has a `name` class DSL (`name "admin"`) and a corresponding `#name`
+  instance method. The name is resolved through the same lazy-resolution
+  path as other agent attributes. It can be set via
+  `LLM::Agent.set(name: ...)`, `LLM::Agent.new(name: ...)`, or the class
+  DSL. When no name is given, a default is derived from the class name
+  (e.g., `SystemAdmin` becomes `system-admin`). The REPL uses the name
+  as the prompt label and transcript prefix, making it easier to
+  distinguish multiple sessions.
 
 ### REPL
 
 * **agent identity in the prompt** <br>
-  `LLM::Agent#repl` and `LLM::Repl.new` accept a `name:` parameter
-  (defaulting to `LLM::Agent#name`) that sets the input prompt to
-  `provider(name)> ` and labels transcript messages with the agent's
-  name instead of a hardcoded `agent:`. Useful when running multiple
-  sessions.
+  [`LLM::Agent#repl`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
+  and
+  [`LLM::Repl.new`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#initialize-instance_method)
+  accept a `name:` parameter (defaulting to `LLM::Agent#name`) that sets
+  the input prompt to `provider(name)> ` and labels transcript messages
+  with the agent's name instead of a hardcoded `agent:`. Useful when
+  running multiple sessions.
 
 * **`/compact` command** <br>
-  New built-in `/compact` command frees context window space by
-  dropping the oldest messages via `LLM::Compactor::Truncate`.
+  New built-in `/compact` command frees context window space by dropping
+  the oldest messages via
+  [`LLM::Compactor::Truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html).
   Supports both integer (`/compact 32`) and percentage (`/compact 75%`)
   arguments. Defaults to keeping the last 128 messages.
 
 * **tab-completion for `/` commands** <br>
   Pressing Tab on an input line starting with `/` autocompletes the
   command name. Repeated Tab presses cycle through matching commands.
-  Powered by `LLM::Command.complete(str)` which is available outside
-  the REPL too.
+  Powered by
+  [`LLM::Command.complete(str)`](https://r.uby.dev/api-docs/llm.rb/LLM/Command.html#complete-class_method)
+  which is available outside the REPL too.
 
 * **command system enhancements** <br>
   Commands can set parameter defaults in their `call` method signature
@@ -318,10 +342,11 @@ reliable across all six concurrency backends. The `functions` and
 
 * **input improvements** <br>
   Ctrl+P and Ctrl+N walk through conversation history (user messages
-  only, managed by `LLM::Repl::Walker`). Page Up/Down scroll the
-  transcript by a page. ENTER and BACKSPACE are now mapped to raw
-  character codes from `Curses.getch` instead of `Curses::Key`
-  constants.
+  only, managed by
+  [`LLM::Repl::Walker`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Walker.html)).
+  Page Up/Down scroll the transcript by a page. ENTER and BACKSPACE are
+  now mapped to raw character codes from `Curses.getch` instead of
+  `Curses::Key` constants.
 
 ### Object
 
@@ -356,13 +381,13 @@ reliable across all six concurrency backends. The `functions` and
   explicitly subclass `LLM::Function::Task` and accept an options hash
   as their second argument, matching the constructor signature used
   by the other four task classes. The interface was already compatible
-  but the inheritance was missing by mistake — now consistent across
+  but the inheritance was missing by mistake. It is now consistent across
   all six concurrency backends.
 
 * **google: fix `stream` parameter leakage that broke the provider** <br>
   Fix a bug in the Google provider where `stream: stream.enabled?` was
   being merged into request parameters, causing API-level errors. The
-  Google provider does not use a `stream` parameter — streaming is
+  Google provider does not use a `stream` parameter. Streaming is
   controlled via the URL path (`streamGenerateContent` vs
   `generateContent`). The fix removes the leaked parameter and correctly
   routes streaming requests through the appropriate path.
