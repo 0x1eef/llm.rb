@@ -2,20 +2,14 @@
 
 module LLM::Function::Async
   ##
-  # {LLM::Function::Async::Task LLM::Function::Async::Task}
-  # wraps a function call in an {Async::Task} running on a
-  # shared {LLM::Function::Async::Reactor}. The task is
-  # spawned lazily in {#wait} (or explicitly in {#spawn}).
+  # {LLM::Function::Async::Task} wraps a function call in an
+  # {Async::Task} running on a shared
+  # {LLM::Function::Async::Reactor}. The task is spawned lazily
+  # in {#wait} or explicitly in {#spawn}.
   #
-  # Results are bridged from the reactor thread to the caller
-  # through a {Queue}. Interrupt raises {LLM::Interrupt} on
-  # the reactor fiber via `fiber.raise`, which matches the
-  # pattern used by {LLM::Function::Thread::Task}.
+  # Work is submitted to the reactor through its inbox queue.
+  # Results are bridged back through the task's own queue.
   class Task < LLM::Function::Task
-    ##
-    # @return [LLM::Function::Async::Reactor]
-    attr_accessor :reactor
-
     ##
     # @param [LLM::Function] fn
     # @param [Hash] options
@@ -26,13 +20,21 @@ module LLM::Function::Async
     end
 
     ##
-    # Spawns the async task on the reactor. The function runs
-    # inside the reactor thread; the result is pushed to a
-    # queue that {#wait} consumes.
+    # Assign the reactor. Used when a task is created before its
+    # reactor is available.
+    # @param [LLM::Function::Async::Reactor] reactor
+    def reactor=(reactor)
+      @reactor = reactor
+    end
+
+    ##
+    # Submit the function call to the reactor. The result is
+    # pushed to a queue that {#wait} consumes.
     # @return [nil]
     def spawn
       @queue = Queue.new
-      @async = @reactor.async do
+      @alive = true
+      @reactor.submit do
         @queue << function.call
       rescue LLM::Interrupt => e
         @queue << e
@@ -44,28 +46,29 @@ module LLM::Function::Async
     ##
     # @return [Boolean]
     def alive?
-      @async&.alive? || false
+      @alive || false
     end
 
     ##
-    # Raises {LLM::Interrupt} on the reactor fiber. The async
-    # block catches it, unblocks the queue, and re-raises so
-    # the exception propagates through the reactor.
+    # Push an interrupt sentinel to the result queue. The reactor
+    # thread continues running but the result is discarded.
     # @return [nil]
     def interrupt!
-      @async&.fiber&.raise(LLM::Interrupt) if @async&.alive?
+      if @queue
+        @alive = false
+        @queue << LLM::Interrupt.new
+      end
       nil
     end
     alias_method :cancel!, :interrupt!
 
     ##
-    # Waits for the async task to complete and returns the
-    # function's return value. If the task was interrupted,
-    # re-raises {LLM::Interrupt}.
+    # Wait for the result queue to contain a value.
     # @return [LLM::Function::Return]
     def wait
-      spawn unless @async
+      spawn unless @queue
       result = @queue.pop
+      @alive = false
       raise result if LLM::Interrupt === result
       result
     end

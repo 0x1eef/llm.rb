@@ -2,12 +2,14 @@
 
 module LLM::Function::Async
   ##
-  # Wraps an array of {Async::Task} objects that are running
-  # {LLM::Function} calls concurrently using the async gem.
+  # Wraps an array of {Async::Task} objects running on a shared
+  # {LLM::Function::Async::Reactor}. The reactor is created on
+  # demand if not provided.
   class Group < LLM::Function::Group
     ##
     # @param [Array<Async::Task>] tasks
     # @param [Hash] options
+    # @option options [LLM::Function::Async::Reactor] :reactor
     def initialize(tasks, options = {})
       @tasks = tasks
       @reactor = options[:reactor] || LLM::Function::Async::Reactor.new

@@ -2,38 +2,47 @@
 
 module LLM::Function::Async
   ##
-  # Manages an {::Async::Reactor} and its background thread.
-  # Created per-turn by {Array#spawn(:async)} and shut down
-  # when all tasks complete.
+  # Manages an {::Async::Reactor} on a background thread. Work
+  # is submitted through a thread-safe queue and run inside the
+  # reactor. The reactor and its fibers stay on one thread.
   class Reactor
-    ##
-    # @return [Async::Reactor]
-    attr_reader :reactor
-
     ##
     # @return [Thread]
     attr_reader :thread
 
     def initialize
-      LLM.require "async" unless defined?(::Async)
-      @reactor = ::Async::Reactor.new
-      @thread = ::Thread.new { @reactor.run }
+      @inbox = Queue.new
+      @thread = ::Thread.new { run }
     end
 
     ##
-    # Spawn a task inside the reactor.
-    # @yield block to run inside the task
-    # @return [Async::Task]
-    def async(&)
-      @reactor.async(&)
+    # Submit a block to run inside the reactor.
+    # @return [nil]
+    def submit(&block)
+      @inbox << block
+      nil
     end
 
     ##
     # Stop the reactor and wait for the thread to finish.
     def stop
-      @reactor.stop
+      @inbox << :stop
       @thread.join(5)
       @thread.kill if @thread.alive?
+    end
+
+    private
+
+    def run
+      reactor = ::Async::Reactor.new
+      reactor.async do
+        loop do
+          work = @inbox.pop
+          break if work == :stop
+          reactor.async { work.call }
+        end
+      end
+      reactor.run
     end
   end
 end
