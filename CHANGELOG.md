@@ -15,6 +15,11 @@
 
 ## What's next
 
+This release relicenses the project under the MIT license, replacing
+the Business Source License that was introduced in v12.0.0. No
+commercial license is needed — commercial, personal, educational, and
+all other uses are now permitted under the standard MIT terms.
+
 Seven breaking changes. Concurrency strategies have been renamed
 (`:call` → `:sequential`, `:task` → `:async`), `spawn` is now
 `task`, and the `:async` strategy has been rebuilt from the ground

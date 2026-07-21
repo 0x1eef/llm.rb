@@ -16,7 +16,7 @@ functionality &ndash; such as ActiveRecord support &ndash; require
 optional dependencies that are opt-in.
 DESCRIPTION
 
-  spec.license = "BUSL-1.1"
+  spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
 
   spec.homepage = "https://r.uby.dev/llm/"
