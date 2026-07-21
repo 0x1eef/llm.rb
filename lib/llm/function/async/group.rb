@@ -16,7 +16,10 @@ module LLM::Function::Async
     ##
     # @return [nil]
     def spawn
-      @tasks.each(&:spawn)
+      @tasks.each do |task|
+        task.reactor = @reactor
+        task.spawn
+      end
       nil
     end
 
@@ -37,6 +40,7 @@ module LLM::Function::Async
     ##
     # @return [Array<LLM::Function::Return>]
     def wait
+      spawn
       @tasks.map(&:wait)
     ensure
       @reactor.stop

@@ -13,6 +13,10 @@ module LLM::Function::Async
   # pattern used by {LLM::Function::Thread::Task}.
   class Task < LLM::Function::Task
     ##
+    # @return [LLM::Function::Async::Reactor]
+    attr_accessor :reactor
+
+    ##
     # @param [LLM::Function] fn
     # @param [Hash] options
     # @option options [LLM::Function::Async::Reactor] :reactor
