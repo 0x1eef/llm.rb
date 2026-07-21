@@ -15,7 +15,9 @@
 
 ## What's next
 
-This release relicenses the project under the MIT license, replacing
+The next release will be v13.0.0 (not released yet).
+
+v13.0.0 relicenses the project under the MIT license, replacing
 the Business Source License that was introduced in v12.0.0. No
 commercial license is needed — commercial, personal, educational, and
 all other uses are now permitted under the standard MIT terms.
