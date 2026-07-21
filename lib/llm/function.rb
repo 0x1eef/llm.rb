@@ -269,7 +269,7 @@ class LLM::Function
       if @runner.respond_to?(:skill?) && @runner.skill?
         raise LLM::RactorError, "Ractor concurrency does not support skill-backed tools"
       end
-      Ractor::Task.new(@runner, id, name, arguments, options.merge(function: self, tracer: @tracer, model:))
+      Ractor::Task.new(self, options.merge(runner_class: @runner, id:, name:, arguments:, tracer: @tracer, model:))
     else
       raise ArgumentError, "Unknown strategy: #{strategy.inspect}. Expected :sequential, :thread, :fiber, :async, :fork, or :ractor"
     end

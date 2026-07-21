@@ -5,33 +5,29 @@ class LLM::Function
   # The {LLM::Function::Ractor::Task} class wraps a ractor-backed function
   # call and delegates mailbox coordination to
   # {LLM::Function::Ractor::Mailbox}.
-  class Ractor::Task
-    ##
-    # @return [LLM::Function, nil]
-    attr_reader :function
-
+  class Ractor::Task < LLM::Function::Task
     ##
     # @return [LLM::Function::Ractor::Mailbox]
     attr_reader :mailbox
 
     ##
-    # @param [Class] runner_class
-    # @param [String, nil] id
-    # @param [String] name
-    # @param [Hash, Array, nil] arguments
+    # @param [LLM::Function] fn
     # @param [Hash] options
     # @option options [LLM::Tracer, nil] :tracer
-    # @option options [LLM::Function, nil] :function
+    # @option options [Class] :runner_class
+    # @option options [String, nil] :id
+    # @option options [String] :name
+    # @option options [Hash, Array, nil] :arguments
     # @option options [String, nil] :model
     # @return [LLM::Function::Ractor::Task]
-    def initialize(runner_class, id, name, arguments, options = {})
-      @function = options[:function]
-      @runner_class = runner_class
-      @id = id
-      @name = name
-      @arguments = arguments
-      @model = options[:model]
-      @tracer = options[:tracer]
+    def initialize(fn, options = {})
+      super
+      @runner_class = options.fetch(:runner_class)
+      @id = options.fetch(:id)
+      @name = options.fetch(:name)
+      @arguments = options.fetch(:arguments)
+      @model = options.fetch(:model, nil)
+      @tracer = options.fetch(:tracer, nil)
     end
 
     ##

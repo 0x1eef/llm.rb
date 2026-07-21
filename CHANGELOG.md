@@ -334,10 +334,12 @@ reliable across all six concurrency backends. The `functions` and
 
 ### Registry
 
-* **mark deprecated models in DeepInfra registry** <br>
-  Update `data/deepinfra.json` to mark several models as `"status":
-  "deprecated"`, including `meta-llama/Meta-Llama-3.1-8B-Instruct`,
-  `Qwen/Qwen1.5-110B-Chat`, and `mistralai/Mixtral-8x7B-Instruct-v0.1`.
+* **refresh model metadata across providers** <br>
+  Update `data/*.json` files with current provider model listings and
+  pricing. Mark several DeepInfra models as deprecated (`meta-llama/
+  Meta-Llama-3.1-8B-Instruct`, `Qwen/Qwen1.5-110B-Chat`, and
+  `mistralai/Mixtral-8x7B-Instruct-v0.1`). Correct xAI cache-read
+  pricing from $0.50 to $0.30 per million input tokens.
 
 ### Fix
 
@@ -348,6 +350,14 @@ reliable across all six concurrency backends. The `functions` and
   (e.g., `"system-admin"` for `SystemAdmin`). The fix uses `self`
   directly, which correctly resolves the class name at the instance
   level.
+
+* **function: make Fork::Task and Ractor::Task inherit LLM::Function::Task** <br>
+  `LLM::Function::Fork::Task` and `LLM::Function::Ractor::Task` now
+  explicitly subclass `LLM::Function::Task` and accept an options hash
+  as their second argument, matching the constructor signature used
+  by the other four task classes. The interface was already compatible
+  but the inheritance was missing by mistake — now consistent across
+  all six concurrency backends.
 
 * **google: fix `stream` parameter leakage that broke the provider** <br>
   Fix a bug in the Google provider where `stream: stream.enabled?` was

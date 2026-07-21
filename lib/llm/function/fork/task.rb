@@ -4,15 +4,15 @@ class LLM::Function
   ##
   # The {LLM::Function::Fork::Task} class wraps a fork-backed function call
   # and exchanges control and result messages with the child process.
-  class Fork::Task
+  class Fork::Task < LLM::Function::Task
     ##
     # @param [LLM::Function] fn
     # @param [Hash] options
     # @option options [LLM::Tracer, nil] :tracer
     # @return [LLM::Function::Fork::Task]
     def initialize(fn, options = {})
-      @function = fn
-      @tracer = options[:tracer]
+      super
+      @tracer = options.fetch(:tracer, nil)
       @spawned = false
       @waited = false
     end
