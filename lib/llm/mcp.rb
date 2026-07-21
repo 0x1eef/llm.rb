@@ -13,6 +13,28 @@
 # An MCP client is stateful. Coordinate lifecycle operations such as
 # {#start} and {#stop}; request methods can be issued concurrently and
 # responses are matched by JSON-RPC id.
+#
+# @example stdio transport
+#   llm   = LLM.deepseek(key: ENV["KEY"])
+#   mcp   = LLM::MCP.stdio(argv: ["npx", "-y", "@forgejo/mcp-server"])
+#   agent = LLM::Agent.new(llm)
+#
+#   # Preferred: session keeps one process alive across multiple calls
+#   mcp.session do
+#     agent.talk "What's happening on forgejo?", tools: mcp.tools
+#   end
+#
+#   # Also works: one-shot, spawns a new process per call
+#   agent.talk "What's happening on forgejo?", tools: mcp.tools
+#
+# @example HTTP transport
+#   mcp = LLM::MCP.http(
+#     url: "https://api.githubcopilot.com/mcp/",
+#     headers: {"Authorization" => "Bearer #{ENV.fetch('GITHUB_PAT')}"},
+#     transport: :net_http_persistent
+#   )
+#   agent = LLM::Agent.new(llm)
+#   agent.talk "What's happening on GitHub?", tools: mcp.tools
 class LLM::MCP
   require_relative "mcp/error"
   require_relative "mcp/command"
