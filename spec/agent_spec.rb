@@ -52,6 +52,27 @@ RSpec.describe LLM::Agent do
     end
   end
 
+  describe ".description" do
+    context "when no description is set on the class" do
+      let(:agent) { Class.new(described_class) }
+      it "returns nil" do
+        expect(agent.description).to eq(nil)
+      end
+    end
+
+    context "when a description is set" do
+      let(:agent) do
+        Class.new(described_class) do
+          description "release engineer"
+        end
+      end
+
+      it "returns the description" do
+        expect(agent.description).to eq("release engineer")
+      end
+    end
+  end
+
   shared_examples "agent behavior" do
     let(:schema) do
       Class.new(LLM::Schema) do

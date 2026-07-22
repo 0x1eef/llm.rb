@@ -96,6 +96,10 @@ module LLM
 
     ##
     # Set or get an agent's name
+    # @note
+    #  This method serves as a self-documenting string
+    #  and it is used by {LLM:Repl LLM::Repl}. It is
+    #  optional but recommended.
     # @param [String] name
     #  The agent name
     # @return [String]
@@ -105,6 +109,23 @@ module LLM
         @name || self.to_s.gsub(/(.)([A-Z])/, '\\1-\\2').downcase
       else
         @name = block || name
+      end
+    end
+
+    ##
+    # Set or get an agent's description
+    # @note
+    #  This method serves as a self-documenting string.
+    #  It is optional but recommended.
+    # @param [String] description
+    #  The agent's description
+    # @return [String, nil]
+    #  Returns the agent's description
+    def self.description(desc = UNDEFINED, &block)
+      if desc.equal?(UNDEFINED)
+        @desc
+      else
+        @desc = block || desc
       end
     end
 
@@ -277,8 +298,8 @@ module LLM
     # @option params [Symbol, Array<Symbol>, nil] :concurrency Defaults to the agent class concurrency
     def initialize(llm, params = {})
       @llm = llm
-      fields = %i[name model skills schema tracer stream tools concurrency instructions confirm]
-      fields_ivar = %i[name tracer concurrency instructions confirm]
+      fields = %i[name description model skills schema tracer stream tools concurrency instructions confirm]
+      fields_ivar = %i[name description tracer concurrency instructions confirm]
       fields.each do |field|
         resolvable = params.key?(field) ? params.delete(field) : self.class.public_send(field)
         resolve_symbol = !%i[concurrency].include?(field)
@@ -300,6 +321,13 @@ module LLM
     # @return [String]
     def name
       @name
+    end
+
+    ##
+    # Returns the agent's description
+    # @return [String, nil]
+    def description
+      @description
     end
 
     ##
