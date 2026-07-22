@@ -89,9 +89,22 @@ namespace :'models.dev' do
 end
 
 namespace :agents do
-  desc "Run QA on documentation"
-  task :qadoc do
-    sh "agents/qadoc/agent.rb"
+  desc "a documentation engineer"
+  namespace :scribe do
+    desc "Run REPL"
+    task :repl do
+      sh "agents/scribe/agent.rb repl"
+    end
+
+    desc "Audit documentation for regressions and inaccuracies"
+    task :audit do
+      sh "agents/scribe/agent.rb audit"
+    end
+
+    desc "Find documentation gaps and improvements"
+    task :improvements do
+      sh "agents/scribe/agent.rb improvements"
+    end
   end
 
   desc "a release engineer"
