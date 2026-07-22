@@ -94,11 +94,6 @@ namespace :agents do
     sh "agents/qadoc/agent.rb"
   end
 
-  desc "Run the doctor agent"
-  task :doctor do
-    sh "agents/doctor/agent.rb"
-  end
-
   desc "Run the changelog agent"
   task :changelog do
     sh "agents/changelog/agent.rb"
@@ -107,11 +102,6 @@ namespace :agents do
   desc "Run the release agent"
   task :release, [:version] do |_t, args|
     sh "agents/release/agent.rb #{args[:version]}"
-  end
-
-  desc "Run the prompt agent"
-  task :prompt do
-    sh "agents/changelog/agent.rb"
   end
 
   namespace :backport do

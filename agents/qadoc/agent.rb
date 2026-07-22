@@ -13,7 +13,15 @@ class Agent < LLM::Agent
       :concurrency  => :thread
 
   def run
+    talk("Run a full documentation audit")
+  end
+
+  def find_regressions
     talk("Audit the documentation for regressions and inaccuracies")
+  end
+
+  def find_improvements
+    talk("Analyze documentation for gaps and improvement opportunities")
   end
 
   private
@@ -33,7 +41,12 @@ end
 
 def main(argv)
   llm   = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
-  agent = Agent.new(llm).tap(&:run)
+  agent = Agent.new(llm)
+  case argv[0]
+  when "find-regressions" then agent.find_regressions
+  when "find-improvements" then agent.find_improvements
+  else agent.run
+  end
   agent.repl(path: "contexts/qadoc.json")
 end
 main(ARGV)
