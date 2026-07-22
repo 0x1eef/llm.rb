@@ -114,7 +114,8 @@ module LLM
     end
 
     ##
-    # Returns true when a skill should inherit tools from its parent
+    # Returns true when a skill should inherit tools
+    # from its parent
     # @return [Boolean]
     def inherit_tools?
       @inherit_tools
@@ -149,7 +150,11 @@ module LLM
     def parse_tools(tools)
       case tools
       when String
-        tools == "inherit" ? [true, []] : raise_invalid_error!(tools)
+        case tools
+        when "inherit" then [true, []]
+        when "all", "*" then [false, LLM::Tool.registry]
+        else raise_invalid_error!(tools)
+        end
       when Array
         [false, [*@frontmatter.tools].map { LLM::Tool.find_by_name!(_1) }]
       when NilClass

@@ -130,6 +130,23 @@ RSpec.describe LLM::Skill do
         end
       end
     end
+
+    context "when given a skill that loads all tools" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          tools: all
+          ---
+          Use the available tools
+        MD
+      end
+
+      it "loads the full registry" do
+        expect(skill.tools).to eq(LLM::Tool.registry)
+      end
+    end
   end
 
   describe "#to_tool" do

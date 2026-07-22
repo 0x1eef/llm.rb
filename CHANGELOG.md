@@ -34,6 +34,14 @@
   a `SKILL.md` inside a directory. This makes it possible to load a single
   markdown file as a skill without placing it in a dedicated directory.
 
+* **extend with `all` keyword for loading the full tool registry** <br>
+  `LLM::Skill` now supports `tools: all` (or `tools: "*"`) in the frontmatter
+  to load all tools from the global
+  [`LLM::Tool.registry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#registry-class_method).
+  Previously, the `tools:` frontmatter only accepted `inherit`, an array of tool
+  names, or nothing. The new `all` keyword makes it possible to give a skill
+  access to every registered tool without listing them individually.
+
 ### Fix
 
 * **tools: rescue `LLM::Interrupt` in shell-based tools** <br>
