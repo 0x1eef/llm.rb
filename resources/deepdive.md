@@ -338,14 +338,14 @@ class Error < LLM::Tool
 
   ##
   # Returns
-  # {error: true, kind: "RuntimeError", message: "boom"}
+  # {error: true, type: "RuntimeError", message: "boom"}
   def call
     raise "boom"
   end
 end
 ```
 
-The runtime wraps the exception into `{error: true, kind: "RuntimeError",
+The runtime wraps the exception into `{error: true, type: "RuntimeError",
 message: "boom"}` and returns it to the model as the tool response. From
 the model's perspective the tool completed &mdash; it just completed with
 an error. The model can read the error, decide what went wrong, and try
@@ -396,7 +396,7 @@ class AdminAgent < LLM::Agent
 
   def on_tool_confirmation(fn, strategy)
     print "Run #{fn.name} with #{fn.arguments}? [y/N] "
-    $stdin.gets&.match?(/\Ay\z/i) ? wait(strategy) : fn.cancel
+    $stdin.gets&.match?(/\Ay\z/i) ? fn.task(strategy).wait : fn.cancel
   end
 end
 

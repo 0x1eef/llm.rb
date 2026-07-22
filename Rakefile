@@ -89,7 +89,12 @@ namespace :'models.dev' do
 end
 
 namespace :agents do
-  desc "Runthe doctor agent"
+  desc "Run QA on documentation"
+  task :qadoc do
+    sh "agents/qadoc/agent.rb"
+  end
+
+  desc "Run the doctor agent"
   task :doctor do
     sh "agents/doctor/agent.rb"
   end

@@ -3,7 +3,7 @@
 class LLM::Function
   ##
   # The {LLM::Function::Array} module extends the array
-  # returned by {LLM::Context#functions} with methods
+  # returned by {LLM::Context#pending_functions} with methods
   # that can call all pending functions sequentially or
   # concurrently. The return values can be reported back
   # to the LLM on the next turn.
@@ -57,9 +57,9 @@ class LLM::Function
     #
     # @param [Symbol] strategy
     #   Controls concurrency strategy:
-    #   - `:call`: Call each function sequentially through a call group
+    #   - `:sequential`: Call functions sequentially without spawning
     #   - `:thread`: Use threads
-    #   - `:task`: Use async tasks (requires async gem)
+    #   - `:async`: Use async tasks (requires async gem)
     #   - `:fiber`: Use scheduler-backed fibers (requires Fiber.scheduler)
     #   - `:fork`: Use forked child processes
     #   - `:ractor`: Use Ruby ractors (class-based tools only; MCP tools are not supported)

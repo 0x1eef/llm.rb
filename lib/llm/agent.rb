@@ -11,8 +11,8 @@ module LLM
   # {LLM::Context LLM::Context}: message history, usage, persistence,
   # streaming parameters, and provider-backed requests still flow through
   # an underlying context. The defining behavior of an agent is that it
-  # automatically resolves pending tool calls for you during `talk` and
-  # `respond`, instead of leaving tool loops to the caller.
+  # automatically resolves pending tool calls for you during `talk`,
+  # instead of leaving tool loops to the caller.
   #
   # **Notes:**
   # * Instructions are injected once unless a system message is already present.
@@ -24,7 +24,7 @@ module LLM
   #   advisory tool errors back through the model and keeps the loop in-band.
   #   Set `tool_attempts: nil` to disable that advisory behavior.
   # * Tool loop execution can be configured with `concurrency :sequential`,
-  #   `:thread`, `:async`, `:fiber`, or `:ractor`.
+  #   `:thread`, `:async`, `:fiber`, `:fork`, or `:ractor`.
   #
   # @example Subclass with defaults
   #   class SystemAdmin < LLM::Agent
