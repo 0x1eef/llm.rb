@@ -94,14 +94,22 @@ namespace :agents do
     sh "agents/qadoc/agent.rb"
   end
 
-  desc "Run the changelog agent"
-  task :changelog do
-    sh "agents/changelog/agent.rb"
-  end
+  desc "a release engineer"
+  namespace :dexter do
+    desc "Run REPL"
+    task :repl do
+      sh "agents/dexter/agent.rb repl"
+    end
 
-  desc "Run the release agent"
-  task :release, [:version] do |_t, args|
-    sh "agents/release/agent.rb #{args[:version]}"
+    desc "Maintain CHANGELOG.md"
+    task :changelog do
+      sh "agents/dexter/agent.rb changelog"
+    end
+
+    desc "Prepare a release"
+    task :release, [:version] do |_t, args|
+      sh "agents/dexter/agent.rb release #{args[:version]}"
+    end
   end
 
   namespace :backport do
