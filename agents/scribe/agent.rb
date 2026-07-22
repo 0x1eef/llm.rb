@@ -9,7 +9,7 @@ class Agent < LLM::Agent
       :description  => "a documentation engineer",
       :instructions => File.read(File.join(__dir__, "prompt.md")),
       :skills       => %w[audit.md improvements.md review.md].map { File.join(__dir__, _1) },
-      :tools        => [LLM::Tool::Git, LLM::Tool::ReadFile, LLM::Tool::Rg, LLM::Tool::SwapText],
+      :tools        => LLM::Tool.subclasses,
       :tracer       => :set_tracer
 
   def audit!
