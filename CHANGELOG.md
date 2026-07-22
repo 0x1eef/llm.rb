@@ -15,7 +15,16 @@
 
 ## What's next
 
-_No unreleased changes yet._
+### Fix
+
+* **tools: rescue `LLM::Interrupt` in shell-based tools** <br>
+  [`LLM::Tool::Shell`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html),
+  [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html),
+  [`LLM::Tool::Mkdir`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Mkdir.html),
+  and
+  [`LLM::Tool::Rg`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html)
+  now rescue `LLM::Interrupt` and kill their running command, preventing
+  orphaned child processes when a tool is interrupted during execution.
 
 ## v13.0.0
 

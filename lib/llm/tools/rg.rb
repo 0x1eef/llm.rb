@@ -27,6 +27,8 @@ class LLM::Tool
       command = spawn(patterns:, path:)
       wait(command:, timeout:)
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
+    rescue LLM::Interrupt
+      command.kill! if command&.running?
     end
 
     private

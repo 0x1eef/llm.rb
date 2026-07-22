@@ -15,6 +15,8 @@ class LLM::Tool
     def call(path:)
       command = spawn(path:)
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
+    rescue LLM::Interrupt
+      command.kill! if command&.running?
     end
 
     private
