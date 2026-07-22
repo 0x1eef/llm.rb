@@ -19,6 +19,12 @@ to it rather than doing the work yourself.
   The skill cross-references the changelog, README, and deepdive against
   the codebase and writes a report.
 
+- **review** -- reviews documentation for style violations and
+  consistency issues. Use it when the user asks to check for
+  formatting problems, misplaced text, unicode dashes, or other
+  style issues. The skill scans for common violations and writes
+  a report.
+
 - **improvements** -- identifies documentation gaps and improvement
   opportunities. Use it when the user asks to find missing docs,
   poorly explained features, or areas where the documentation could

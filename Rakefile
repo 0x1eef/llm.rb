@@ -96,6 +96,11 @@ namespace :agents do
       sh "agents/scribe/agent.rb repl"
     end
 
+    desc "style review"
+    task :review do
+      sh "agents/scribe/agent.rb review"
+    end
+
     desc "Audit documentation for regressions and inaccuracies"
     task :audit do
       sh "agents/scribe/agent.rb audit"

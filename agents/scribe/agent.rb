@@ -8,7 +8,7 @@ class Agent < LLM::Agent
   set :name         => "scribe",
       :description  => "a documentation engineer",
       :instructions => File.read(File.join(__dir__, "prompt.md")),
-      :skills       => %w[audit.md improvements.md].map { File.join(__dir__, _1) },
+      :skills       => %w[audit.md improvements.md review.md].map { File.join(__dir__, _1) },
       :tools        => [LLM::Tool::Git, LLM::Tool::ReadFile, LLM::Tool::Rg, LLM::Tool::SwapText],
       :tracer       => :set_tracer
 
@@ -18,6 +18,10 @@ class Agent < LLM::Agent
 
   def improvements!
     talk("Analyze documentation for gaps and improvement opportunities")
+  end
+
+  def review!
+    talk("Review documentation for style violations and consistency issues")
   end
 
   private
@@ -39,8 +43,11 @@ def main(argv)
   when "improvements"
     agent.improvements!
     agent.repl(path: "contexts/scribe.json")
+  when "review"
+    agent.review!
+    agent.repl(path: "contexts/scribe.json")
   else
-    warn "agent: expected audit, improvements, or repl but got #{argv[0]}"
+    warn "agent: expected audit, improvements, review, or repl but got #{argv[0]}"
     exit 1
   end
 end

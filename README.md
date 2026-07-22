@@ -16,7 +16,7 @@ Welcome to the canonical llm.rb repository.
 
 llm.rb is an advanced runtime for building capable AI applications
 on CRuby. By default it has zero runtime dependencies although certain
-functionality &ndash; such as ActiveRecord support &ndash; require
+functionality (such as ActiveRecord support) require
 optional dependencies that are opt-in.
 
 When you want to learn more than what the README covers, checkout
