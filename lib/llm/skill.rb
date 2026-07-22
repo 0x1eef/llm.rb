@@ -8,6 +8,11 @@ module LLM
   # {#to_tool}. This keeps skills on the same execution path as local tools.
   class Skill
     ##
+    # @api private
+    File = ::File
+    private_constant :File
+
+    ##
     # Load a skill from a directory.
     # @param [String, Pathname] path
     # @return [LLM::Skill]
@@ -63,8 +68,14 @@ module LLM
     # Load and parse the skill.
     # @return [LLM::Skill]
     def load!
-      path = ::File.join(@path, "SKILL.md")
-      parse(::File.read(path))
+      if File.file?(@path)
+        parse(File.read(@path))
+      elsif File.directory?(@path)
+        path = File.join(@path, "SKILL.md")
+        parse(File.read(path))
+      else
+        raise LLM::Error, "'#{@path}' is neither a file or directory"
+      end
       self
     end
 

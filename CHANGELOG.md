@@ -15,6 +15,25 @@
 
 ## What's next
 
+### Agent
+
+* **add `description` class DSL and instance method** <br>
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) now
+  has a `description` class DSL (`description "release engineer"`) and a
+  corresponding `#description` instance method. The description is an
+  optional self-documenting string that serves as a brief summary of the
+  agent's purpose. It can be set via the class DSL,
+  `LLM::Agent.set(description: ...)`, or `LLM::Agent.new(description: ...)`.
+
+### Skills
+
+* **accept a path to a markdown file** <br>
+  [`LLM::Skill.load`](https://r.uby.dev/api-docs/llm.rb/LLM/Skill.html#load-class_method)
+  now accepts a path to a markdown file in addition to a directory path.
+  When given a file path, the file is read directly instead of looking for
+  a `SKILL.md` inside a directory. This makes it possible to load a single
+  markdown file as a skill without placing it in a dedicated directory.
+
 ### Fix
 
 * **tools: rescue `LLM::Interrupt` in shell-based tools** <br>

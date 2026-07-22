@@ -5,7 +5,9 @@ require "llm"
 require "llm/tools"
 
 class Agent < LLM::Agent
-  set :instructions => :set_instructions,
+
+  set :name         => "dexter",
+      :instructions => :set_instructions,
       :tools        => :set_tools,
       :tracer       => :set_tracer,
       :concurrency  => :thread
