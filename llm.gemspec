@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = <<~DESCRIPTION
 llm.rb is an advanced runtime for building capable AI applications
 on CRuby. By default it has zero runtime dependencies although certain
-functionality &ndash; such as ActiveRecord support &ndash; require
+functionality (such as ActiveRecord support) require
 optional dependencies that are opt-in.
 DESCRIPTION
 

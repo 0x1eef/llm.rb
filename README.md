@@ -373,9 +373,9 @@ In no particular order:
 <summary>I have a limited budget. What should I do?</summary>
 <br>
 <p>
-There a few options. The first option is to host
+There are a few options. The first option is to host
 your own model, and use the ollama or llamacpp
-providers. This can be diffilcult though because
+providers. This can be difficult though because
 a capable model requires hardware that can
 match it. If you have the ability to self-host,
 this would be my first option.

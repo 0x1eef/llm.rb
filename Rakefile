@@ -96,19 +96,24 @@ namespace :agents do
       sh "agents/scribe/agent.rb repl"
     end
 
+    desc "fix yardoc warnings"
+    task :yardoc do
+      sh "agents/scribe/agent.rb yardoc"
+    end
+
     desc "style review"
-    task :review do
-      sh "agents/scribe/agent.rb review"
+    task :style do
+      sh "agents/scribe/agent.rb style"
     end
 
     desc "Audit documentation for regressions and inaccuracies"
-    task :audit do
-      sh "agents/scribe/agent.rb audit"
+    task :regressions do
+      sh "agents/scribe/agent.rb regressions"
     end
 
     desc "Find documentation gaps and improvements"
-    task :improvements do
-      sh "agents/scribe/agent.rb improvements"
+    task :coverage do
+      sh "agents/scribe/agent.rb coverage"
     end
   end
 

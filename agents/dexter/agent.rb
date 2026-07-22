@@ -9,7 +9,7 @@ class Agent < LLM::Agent
       :description  => "release engineer",
       :instructions => File.read(File.join(__dir__, "prompt.md")),
       :skills       => %w[changelog.md release.md].map { File.join(__dir__, _1) },
-      :tools        => [LLM::Tool::Git, LLM::Tool::ReadFile, LLM::Tool::Rg, LLM::Tool::SwapText],
+      :tools        => [LLM::Tool::Git, LLM::Tool::ReadFile, LLM::Tool::Rg, LLM::Tool::EditFile],
       :tracer       => :set_tracer
 
   def changelog!

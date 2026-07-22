@@ -1,5 +1,5 @@
 ---
-name: improvements
+name: coverage
 description: identifies documentation gaps and improvement opportunities
 tools: all
 ---
@@ -33,7 +33,7 @@ presented to help surface features more effectively.
 
 ### Step 3: Write the Report
 
-- Write findings to `research/scribe/improvements.md`.
+- Write findings to `research/scribe/coverage.md`.
 - For each gap, describe:
   - What the feature does
   - Where it's currently documented (or not)

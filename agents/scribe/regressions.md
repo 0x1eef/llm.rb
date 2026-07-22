@@ -1,5 +1,5 @@
 ---
-name: audit
+name: regressions
 description: audits documentation for regressions and inaccuracies
 tools: all
 ---
@@ -57,7 +57,7 @@ code does and what the docs say.
 
 ### Step 5: Write the Report
 
-- Write findings to `research/scribe/audit.md`.
+- Write findings to `research/scribe/regressions.md`.
 - For each issue, describe:
   - The file and location (line numbers if applicable)
   - What the documentation says

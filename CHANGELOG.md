@@ -452,7 +452,7 @@ reliable across all six concurrency backends. The `functions` and
 
 Changes since `v12.5.1`.
 
-This release adds bulk defaults for tools and agents — `LLM::Tool.defaults`
+This release adds bulk defaults for tools and agents: `LLM::Tool.defaults`
 for setting parameter defaults and `LLM::Agent.set` for mass-assigning
 class-level defaults, both mirrored on ActiveRecord and Sequel agent models.
 
@@ -488,7 +488,7 @@ prior call.
   On cancel, `LLM::Interrupt` is now raised on the thread that is
   running a tool. The tool can rescue `LLM::Interrupt` and gracefully
   terminate (e.g., clean up resources). The previous approach used
-  `Thread#interrupt` which was less reliable — it did not interrupt a
+  `Thread#interrupt` which was less reliable. It did not interrupt a
   sleeping thread.
 
 * **function: suppress thread exception reporting in `:thread` concurrency** <br>
@@ -514,15 +514,15 @@ prior call.
   `LLM::Interrupt` is now raised on the active fiber via `Fiber#raise`
   when interrupting `:fiber`-concurrency tools.
   <br><br>
-  `Task#interrupt!` now dispatches by task type — `Thread#raise` for
-  threads, `Fiber#raise` for fibers — making interruption reliable
+  `Task#interrupt!` now dispatches by task type: `Thread#raise` for
+  threads, `Fiber#raise` for fibers. Making interruption reliable
   across all concurrency strategies.
 
 * **function: raise `LLM::Interrupt` on fork-backed tool tasks** <br>
   `LLM::Interrupt` is now raised on the main thread of a fork child
   process via `Thread.main.raise(LLM::Interrupt)` when interrupting
   `:fork`-concurrency tools, and the fork `Task#wait` re-raises the
-  interrupt on the parent side — making interruption reliable across
+  interrupt on the parent side. Making interruption reliable across
   all concurrency strategies including `:fork`.
 
 * **function: raise `LLM::Interrupt` on `Async::Task`-backed tool tasks** <br>
@@ -540,7 +540,7 @@ prior call.
   raises `LLM::Interrupt` on the ractor's main thread.
   <br><br>
   `Task#interrupt!` delegates to the mailbox to send the interrupt
-  message — extending reliable interruption to the `:ractor`
+  message. Extending reliable interruption to the `:ractor`
   concurrency strategy.
 
 ## v12.5.1
@@ -687,7 +687,7 @@ OpenAI, Google, DeepInfra, DeepSeek, and xAI model entries.
 
 * **repl: display command errors in the curses UI** <br>
   Commands invoked with too few arguments now display an error
-  message — `command(<name>): too few arguments` — directly in
+  message: `command(<name>): too few arguments`. Displayed directly in
   the curses transcript area, giving immediate feedback instead
   of silently failing.
 
@@ -811,7 +811,7 @@ a command system foundation with the `/exit` command, and several new
 keybindings (Ctrl+F, Ctrl+K, Ctrl+Y). Tool calls are rendered with a
 compact function-call syntax in the status bar.
 
-Two new built-in tools — `LLM::Tool::Ls` and `LLM::Tool::Which` — are
+Two new built-in tools: `LLM::Tool::Ls` and `LLM::Tool::Which` are
 available as opt-in additions for file listing and executable lookup.
 
 Model metadata has been refreshed across providers, the REPL loop
@@ -878,7 +878,7 @@ area.
   The curses-based REPL input now detects paste operations by tracking
   the rate at which characters arrive. A paste rate of ≤50ms is
   assumed to be a burst of characters that could only be explained by
-  a paste — no human types that fast. Multiline pastes are supported
+  a paste. No human types that fast. Multiline pastes are supported
   through internal refactoring of the input handling logic.
 
 * **repl: optimize paste mode rendering** <br>
@@ -901,7 +901,7 @@ area.
 
 * **repl: render tool calls in a function-call syntax** <br>
   The curses-based REPL status bar now renders tool calls with a
-  compact function-call syntax — `tool(key: value)` instead of
+  compact function-call syntax: `tool(key: value)` instead of
   `tool: name`. Strings are quoted and truncated, arrays show their
   first two elements, and hashes collapse to `{…}`, making it easier
   to see what arguments the model is passing. The `tool done` status
@@ -1029,8 +1029,8 @@ tracer logger instances with less verbosity.
   streamed content via `#<<`. `LLM::Stream::Disabled` represents an explicitly
   disabled stream with no-op callbacks.
 
-  This is part of an internal refactoring that lets all stream values — IO
-  objects, `true`, `false`, `nil`, and `LLM::Stream` instances themselves —
+  This is part of an internal refactoring that lets all stream values: IO
+  objects, `true`, `false`, `nil`, and `LLM::Stream` instances themselves
   be represented by the same `LLM::Stream` interface via the new
   `LLM::Stream.try` factory method.
 
@@ -1099,7 +1099,7 @@ tracer logger instances with less verbosity.
 
 * **repl: add extra padding between markdown nodes** <br>
   The curses-based REPL markdown renderer now adds extra vertical spacing
-  between certain markdown elements — paragraphs, headers, and codeblocks —
+  between certain markdown elements: paragraphs, headers, and codeblocks
   for improved readability of model responses.
 
 * **repl: add a visual divider between transcript and the rows below it** <br>

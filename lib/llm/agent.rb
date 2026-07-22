@@ -98,7 +98,7 @@ module LLM
     # Set or get an agent's name
     # @note
     #  This method serves as a self-documenting string
-    #  and it is used by {LLM:Repl LLM::Repl}. It is
+    #  and it is used by {LLM::Repl LLM::Repl}. It is
     #  optional but recommended.
     # @param [String] name
     #  The agent name
@@ -117,7 +117,7 @@ module LLM
     # @note
     #  This method serves as a self-documenting string.
     #  It is optional but recommended.
-    # @param [String] description
+    # @param [String] desc
     #  The agent's description
     # @return [String, nil]
     #  Returns the agent's description

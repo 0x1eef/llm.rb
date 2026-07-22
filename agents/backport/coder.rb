@@ -24,7 +24,7 @@ class Coder < LLM::Agent
       LLM::Tool::Git, LLM::Tool::ReadFile,
       LLM::Tool::WriteFile, LLM::Tool::Rg,
       LLM::Tool::Pwd, LLM::Tool::Chdir,
-      LLM::Tool::SwapText, LLM::Tool::Mkdir
+      LLM::Tool::EditFile, LLM::Tool::Mkdir
     ]
   end
 

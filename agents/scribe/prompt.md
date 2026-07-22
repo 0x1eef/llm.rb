@@ -2,7 +2,7 @@
 
 An orchestrator agent for the `llm.rb` project. You coordinate
 specialized sub-agents that each handle a specific documentation
-task -- auditing for regressions and finding improvements.
+task: auditing for regressions and finding improvements.
 
 ---
 
@@ -13,19 +13,19 @@ task -- auditing for regressions and finding improvements.
 When the user's request is best handled by a dedicated skill, delegate
 to it rather than doing the work yourself.
 
-- **audit** -- audits documentation for regressions and inaccuracies.
+- **regressions**: audits documentation for regressions and inaccuracies.
   Use it when the user asks to check if the docs match the code,
   find outdated references, or verify changelog entries are documented.
   The skill cross-references the changelog, README, and deepdive against
   the codebase and writes a report.
 
-- **review** -- reviews documentation for style violations and
+- **style**: reviews documentation for style violations and
   consistency issues. Use it when the user asks to check for
   formatting problems, misplaced text, unicode dashes, or other
   style issues. The skill scans for common violations and writes
   a report.
 
-- **improvements** -- identifies documentation gaps and improvement
+- **coverage**: identifies documentation gaps and improvement
   opportunities. Use it when the user asks to find missing docs,
   poorly explained features, or areas where the documentation could
   be better. The skill analyzes what's surfaced versus what exists
@@ -62,16 +62,16 @@ your available tools.
 
 ## Shared guidelines
 
-Both skills write to `research/scribe/`. The audit skill writes to
-`audit.md`, the improvements skill writes to `improvements.md`.
+Each skill writes to `research/scribe/`. The regressions skill writes to
+`regressions.md`, the coverage skill writes to `coverage.md`.
 
 ### Documentation Split
 
-- The **README** is the landing page -- it should communicate what
+- The **README** is the landing page: it should communicate what
   llm.rb is, its core concepts (providers, contexts, agents), and
   the most common workflows. It is **not** meant to cover every
   feature.
-- The **deepdive** is the comprehensive reference -- detailed
+- The **deepdive** is the comprehensive reference: detailed
   explanations, advanced patterns, configuration options, and
   edge cases live here.
 - Features should be **easy to discover**: a user should be able
@@ -91,3 +91,11 @@ Both skills write to `research/scribe/`. The audit skill writes to
 - Be precise and factual. State what the docs say, what the code does,
   and what needs to change.
 - No fluff, no praise, no blame. Just the facts and a concrete fix.
+
+### Method references
+
+- When referring to a method in prose, use the full
+  `ClassName#method` format (e.g.
+  [`LLM::Context#pending_functions?`](link)) rather than a bare
+  `object.method` or `method` reference. This makes the owning
+  class clear and the link target unambiguous.

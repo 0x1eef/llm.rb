@@ -3,48 +3,58 @@
 
 require "llm"
 require "llm/tools"
+require "fileutils"
 
 class Agent < LLM::Agent
   set :name         => "scribe",
       :description  => "a documentation engineer",
       :instructions => File.read(File.join(__dir__, "prompt.md")),
-      :skills       => %w[audit.md improvements.md review.md].map { File.join(__dir__, _1) },
+      :skills       => %w[regressions.md coverage.md style.md].map { File.join(__dir__, _1) },
       :tools        => LLM::Tool.subclasses,
       :tracer       => :set_tracer
 
-  def audit!
+  def yardoc
+    talk("Run 'bundle exec yardoc' and fix all warnings")
+  end
+
+  def regressions
+    rm "regressions.md"
     talk("Audit the documentation for regressions and inaccuracies")
   end
 
-  def improvements!
+  def coverage
+    rm "coverage.md"
     talk("Analyze documentation for gaps and improvement opportunities")
   end
 
-  def review!
+  def style
+    rm "style.md"
     talk("Review documentation for style violations and consistency issues")
   end
 
   private
 
   def set_tracer
-    LLM::Tracer::Logger.new(llm, io: $stderr)
+    LLM::Tracer::PrettyLogger.new(llm, io: $stderr)
+  end
+
+  def rm(doc)
+    target = File.join(research_dir, "scribe", doc)
+    File.exist?(target) ? FileUtils.rm(target) : nil
+  end
+
+  def research_dir
+    File.realpath File.join(__dir__, "..", "..", "research")
   end
 end
 
 def main(argv)
   llm   = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
   agent = Agent.new(llm)
-  case argv[0]
-  when "repl"
+  if argv[0] == "repl"
     agent.repl(path: "contexts/scribe.json")
-  when "audit"
-    agent.audit!
-    agent.repl(path: "contexts/scribe.json")
-  when "improvements"
-    agent.improvements!
-    agent.repl(path: "contexts/scribe.json")
-  when "review"
-    agent.review!
+  elsif agent.respond_to?(argv[0])
+    agent.method(argv[0]).call(*argv[1..])
     agent.repl(path: "contexts/scribe.json")
   else
     warn "agent: expected audit, improvements, review, or repl but got #{argv[0]}"

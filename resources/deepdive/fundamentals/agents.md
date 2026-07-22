@@ -1,0 +1,135 @@
+
+## Agents
+### Introduction
+
+#### Overview
+
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+is the recommended entry point for most use-cases. It provides a
+class-level DSL for defining reusable, preconfigured assistants
+with defaults for model, tools, schema, and instructions. Under
+the hood it delegates to
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html),
+so it has the same runtime surface: message history, streaming,
+serialization, compaction, and concurrency.
+
+#### How it works
+
+An agent holds a conversation with a model. You send input with
+[`LLM::Agent#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk),
+the model responds, and if it requests tools the agent
+executes them automatically and feeds the results back. It enables
+a loop guard by default that detects repeated tool-call patterns
+and blocks stuck execution. The default tool attempt budget is 25.
+After that, the agent sends advisory errors back through the model
+and keeps the loop in-band. Instructions are injected once unless
+a system message is already present.
+
+#### Why would I use it?
+
+Agents manage the tool loop for you. They guard against infinite
+loops, keep conversation state across turns, and let you define
+reusable configurations at the class level. If you need manual
+control over the tool loop, use
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+directly instead.
+
+#### Notes
+
+Agents support the same concurrency strategies, compaction,
+cancellation, and serialization as contexts. The trade-off between
+a subclass and a direct instance is only in how the agent is
+organized, not in what it can do. Tool loop execution can be
+configured with `concurrency: :sequential`, `:thread`, `:async`,
+`:fiber`, `:fork`, or `:ractor`.
+
+
+### Reusable agents
+
+#### Overview
+
+A subclass of
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+gives you a reusable agent with its own behavior. You define the model, tools, and other
+attributes at the class level, and each instance picks them up
+as defaults. Attributes can be overridden per-instance, and they
+can be plain values, blocks, or Symbols that resolve to methods.
+The class becomes a self-contained worker that you can instantiate
+and talk to from anywhere.
+
+#### How it works
+
+A subclass declares its defaults with `set`. Each key is a
+class-level accessor: `model`, `tools`, `instructions`, `stream`,
+`tracer`, `concurrency`, `schema`, `confirm`. When you create a
+new instance, any keyword arguments override the class-level
+defaults.
+
+```ruby
+class Agent < LLM::Agent
+  set model: "deepseek-v4-pro",
+      tools: [Shell]
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = Agent.new(llm)
+agent.talk "Run 'date'"
+```
+
+#### Why would I use it?
+
+A subclass is useful when multiple parts of an application need to
+call the same agent. The configuration and any helper methods live in one place. Define a
+`research!` method that kicks off the agent's work. The subclass
+becomes a self-contained worker.
+
+#### Notes
+
+Attributes passed to `set` can be plain values, blocks, or
+Symbols. A Symbol is evaluated as an instance method on the
+subclass, so `tracer: :set_tracer` calls `set_tracer` on the
+instance. A block like `stream: -> { $stdout }` is evaluated
+when the attribute is first accessed.
+
+### Throwaway agents
+
+#### Overview
+
+An
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+instance is the simplest way to get started. You pass a provider and any configuration as keyword
+arguments, and the agent runs the tool loop and manages state
+just like a subclass would. This is the right choice when you
+are prototyping, running a one-off task, or when the agent's
+configuration is determined at runtime.
+
+#### How it works
+
+A direct instance takes the same attributes as keyword arguments
+to `LLM::Agent.new`. The first argument is always the provider.
+Everything else is optional. The agent runs the tool loop
+and manages state under the hood through a
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html).
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "Hello world"
+```
+
+#### Why would I use it?
+
+A direct instance is the right choice for quick experiments, one-shot
+tasks, or when defining a class would be overkill. It is also
+the right choice when the agent's configuration is determined at
+runtime and building a class hierarchy would be overkill.
+
+#### Notes
+
+Direct instances accept all the same options as subclasses. The
+difference is only in how the agent is organized, not in what it
+can do. Under the hood,
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+creates a
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+that manages the message history.
