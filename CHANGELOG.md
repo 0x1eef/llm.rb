@@ -42,6 +42,16 @@
   names, or nothing. The new `all` keyword makes it possible to give a skill
   access to every registered tool without listing them individually.
 
+### Tools
+
+* **add `LLM::Tool::Ruby` for executing Ruby code in a subprocess** <br>
+  [`LLM::Tool::Ruby`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html)
+  is a new built-in tool that runs a string of Ruby code in a separate
+  Ruby process with a configurable timeout (default 15s). The code runs
+  in an isolated address space unaware of its parent, making it useful
+  for safe(ish) dynamic code execution. It must be required explicitly
+  with `require "llm/tools/ruby"` and requires the `test-cmd.rb` gem.
+
 ### Fix
 
 * **tools: rescue `LLM::Interrupt` in shell-based tools** <br>
