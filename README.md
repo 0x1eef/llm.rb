@@ -19,6 +19,9 @@ on CRuby. By default it has zero runtime dependencies although certain
 functionality &ndash; such as ActiveRecord support &ndash; require
 optional dependencies that are opt-in.
 
+When you want to learn more than what the README covers, checkout
+the [deepdive.md](https://r.uby.dev/llm/deepdive/).
+
 ## Features
 
 The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
@@ -35,9 +38,6 @@ The runtime builds on top of three core concepts: providers, contexts, and agent
 so once you learn the fundamentals, everything else falls into place naturally. And once
 you learn llm.rb, you will also be able to use <a href="https://r.uby.dev/mruby-llm">mruby-llm</a> and
 <a href="https://r.uby.dev/wasm-llm">wasm-llm</a> because the API is pretty much identical.
-
-For detailed explanations, configuration, and advanced patterns, see the
-[deepdive.md](https://r.uby.dev/llm/deepdive/).
 
 ## Install
 
@@ -198,6 +198,38 @@ llm   = LLM.deepseek(key: ENV["KEY"])
 a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
 agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
 agent.talk "Run the skill"
+```
+
+#### LLM::Skill
+
+A skill turns a markdown file into a callable tool. When the model
+calls it, the runtime spawns a subagent with the skill's instructions
+as its system prompt and the skill's own tool set. The subagent runs
+one turn and returns the result, then is discarded. Each call
+is fresh and stateless. For a deeper explanation see the
+[deepdive.md](https://r.uby.dev/llm/deepdive/#skills).
+
+**SKILL.md**
+
+```markdown
+---
+name: summary
+description: Reads recent git history and writes a summary
+tools: all
+---
+
+Collect the recent git log, analyze each commit,
+and write a summary to summary.txt.
+```
+
+**agent.rb**
+
+```ruby
+require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, skills: ["./skills/summary"])
+agent.talk "Summarize the last week of work"
 ```
 
 #### RAG

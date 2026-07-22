@@ -54,8 +54,10 @@ features that didn't make it into the homepage documentation.
 <details>
 <summary>Skills</summary>
 
-- [SKILL.md](#skillmd)
-- [Run it](#run-it)
+- [Overview](#overview-1)
+- [How it works](#how-it-works)
+- [Why this matters](#why-this-matters)
+- [Frontmatter](#frontmatter)
 </details>
 
 <details>
@@ -537,55 +539,86 @@ abstraction doesn't expose.
 
 ## Skills
 
-The skill concept is borrowed from tools like Claude and
-Codex, but llm.rb gives it a runtime of its own. A skill
-is a directory with a `SKILL.md` file. That file contains
-frontmatter where the skill's name, description, and tools
-can be declared.
+### Overview
 
-#### SKILL.md
+A skill is a markdown file that becomes a tool. When the
+model calls that tool, the runtime spawns a subagent.
+The subagent gets its own system prompt (the skill body),
+its own tool set (from the frontmatter), and a slice of
+recent parent context. It runs one turn and returns the
+result, then is discarded.
 
-The `SKILL.md` file can look like this. When a skill runs,
-the runtime spawns a subagent with its own context window
-and message history. Some context is inherited from the
-parent agent, though.
+This gives you a supervisor/worker architecture with a
+single parent agent. The parent decides when to delegate
+work, the skill handles it with focused instructions and
+limited tools, and the parent evaluates the result. You
+get isolation without complexity.
 
-By default the subagent can only access the tools declared
-by the skill. The `inherit` directive lets it inherit the
-parent agent's tools instead, including A2A and MCP tools.
+### How it works
 
-```markdown
----
-name: git-skill
-description: reads my git history and writes a summary
-tools: ['git-log', 'git-show', 'write-file']
----
+You have one parent agent, zero or more skill files. Each
+skill is registered as a tool the model can call.
 
-## Task
+When the model calls a skill, a subagent is created with:
 
-Collect a log of recent history.
-Analyze each commit.
-Write a summary to summary.txt
-```
+* **Its own system prompt** -- the body of your SKILL.md
+* **Limited tools** -- only what you declare in the frontmatter
+* **Context awareness** -- the last 8 user/assistant messages from
+  the parent (tool calls stripped)
 
-#### Run it
-
-Given the skill above, llm.rb only needs the path to the
-directory that contains `SKILL.md`. Under the hood, a skill
-is represented as a tool the model can call. That means
-a skill can be called whenever it satisfies the user's
-request &ndash; in the same way that a regular tool can.
-
-This feature also works with both the ActiveRecord, and
-Sequel integrations.
+The subagent runs one turn and returns. The parent sees the
+result like any other tool return and decides what to do next.
 
 ```ruby
 require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, skills: [__dir__])
-agent.talk "run the git skill"
+agent = LLM::Agent.new(llm, skills: ["./skills/git-log", "./skills/deploy"])
+agent.talk "Review the recent commits, then deploy if everything looks clean"
 ```
+
+### Why this matters
+
+Because each skill spawns a fresh subagent with constrained
+tools, you can build a clear hierarchy:
+
+**The parent supervises.** It decides which skill to call,
+inspects the result, and can iterate or compose multiple
+skills together. The parent stays in control.
+
+**Each skill is focused.** Give a skill a narrow prompt and
+only the tools it needs. A changelog skill gets `git-log`
+and `write-file`, not the shell. A deploy skill gets
+deployment tools, not file readers. The less a subagent
+has, the less it can wander.
+
+**Skills are stateless.** Every call is independent. No
+carryover, no cross-contamination. If a subagent produces
+garbage, the parent tries again or moves on.
+
+### Frontmatter
+
+Every skill file begins with YAML frontmatter that sets the
+skill's identity and tool access. The markdown body that
+follows the frontmatter becomes the subagent's system prompt.
+
+| Field | Purpose |
+|---|---|
+| `name` | A short identifier for the skill. Used as the tool name. |
+| `description` | Explains to the model what the skill does. Used as the tool description. |
+| `tools` | Controls what the subagent can call. See the table below. |
+
+The `tools` field accepts four forms. Use `inherit` when the
+skill should operate with the same capabilities as the parent.
+Use an explicit list to restrict the subagent to only the tools
+it needs. The fewer tools a subagent has, the less it can wander.
+
+| Value | Behavior |
+|---|---|
+| `inherit` | Copies the parent agent's tools, excluding other skills. |
+| `all` or `"*"` | Every tool in the global registry. |
+| `['name1', 'name2']` | Only the named tools. Raises an error if not found. |
+| (omitted) | No tools at all. |
 
 [Back to top](#table-of-contents)
 
