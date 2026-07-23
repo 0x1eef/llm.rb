@@ -204,7 +204,7 @@ class LLM::Function
         @params = params
       end
     else
-      @params
+      @params || LLM::Schema::Object.new({})
     end
   end
 

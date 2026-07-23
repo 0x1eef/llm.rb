@@ -383,4 +383,24 @@ RSpec.describe LLM::Function do
       )
     end
   end
+
+  describe "#params" do
+    context "when no parameters are defined" do
+      it "returns an empty schema hash" do
+        fn = tool_class.function
+        expect(fn.params).to eq(LLM::Schema::Object.new({}))
+      end
+    end
+
+    context "when parameters are defined" do
+      it "returns the defined schema" do
+        tool = Class.new(LLM::Tool) do
+          name "greeter"
+          parameter :name, String, "The name"
+          required %i[name]
+        end
+        expect(tool.function.params[:name]).to_not be_nil
+      end
+    end
+  end
 end

@@ -136,6 +136,10 @@ RSpec.describe LLM::Tool do
         }
       )
     end
+
+    it "returns an empty schema hash" do
+      expect(shell.function.params).to eq(LLM::Schema::Object.new({}))
+    end
   end
 
   describe "#function" do
