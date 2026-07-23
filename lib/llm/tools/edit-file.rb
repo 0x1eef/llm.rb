@@ -2,11 +2,11 @@
 
 class LLM::Tool
   ##
-  # The {LLM::Tool::SwapText LLM::Tool::SwapText} class
+  # The {LLM::Tool::EditFile LLM::Tool::EditFile} class
   # implements a tool that can substitute one piece of
   # text for another piece of text in a given file.
-  class SwapText < self
-    name "swap-text"
+  class EditFile < self
+    name "edit-file"
     description "Replace an exact snippet in a file"
     parameter :path, String, "Path to file"
     parameter :before, String, "Exact text to replace"
