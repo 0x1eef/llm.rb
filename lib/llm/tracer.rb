@@ -12,6 +12,7 @@ module LLM
     require_relative "tracer/logger"
     require_relative "tracer/telemetry"
     require_relative "tracer/null"
+    require_relative "tracer/pretty_logger"
 
     ##
     # @return [LLM::Provider]
