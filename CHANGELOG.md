@@ -52,6 +52,24 @@
   for safe(ish) dynamic code execution. It must be required explicitly
   with `require "llm/tools/ruby"` and requires the `test-cmd.rb` gem.
 
+* **rename `LLM::Tool::SwapText` to `LLM::Tool::EditFile`** <br>
+  The `SwapText` tool has been renamed to
+  [`LLM::Tool::EditFile`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/EditFile.html)
+  to better match the naming of sibling tools (`ReadFile`, `WriteFile`).
+  The old `require "llm/tools/swap_text"` path no longer exists; use
+  `require "llm/tools/edit-file"` instead.
+
+### Tracer
+
+* **add `LLM::Tracer::PrettyLogger` for human-readable tracing** <br>
+  [`LLM::Tracer::PrettyLogger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html)
+  is a new tracer that writes human-readable request and tool-call logs to a
+  console or file. Unlike the structured JSON output of
+  `LLM::Tracer::Logger`, the pretty logger emits single-line entries with
+  inline context, making it easier to follow agent activity at a glance.
+  It writes to `$stderr` by default and accepts an `io:` option for file
+  output.
+
 ### Fix
 
 * **tools: rescue `LLM::Interrupt` in shell-based tools** <br>
@@ -62,6 +80,19 @@
   [`LLM::Tool::Rg`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html)
   now rescue `LLM::Interrupt` and kill their running command, preventing
   orphaned child processes when a tool is interrupted during execution.
+
+* **agent: fix default name derivation** <br>
+  Fix a bug where `LLM::Agent` used without a subclass derived its default
+  name as `"l-lm-agent"` instead of `"agent"`. The fix replaces the
+  regex-based parameterization with a pattern that correctly handles
+  single-word class names and multi-word namespaced names.
+
+* **function: `#params` always returns an `LLM::Object`** <br>
+  [`LLM::Function#params`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#params-instance_method)
+  now always returns an `LLM::Object` representing the function's parameter
+  schema. Previously it returned `nil` when a function defined no parameters,
+  forcing every caller to guard against `nil`. All provider adapters now use
+  `fn.params.to_h` instead of `fn.params || {type: "object", properties: {}}`.
 
 ## v13.0.0
 

@@ -23,7 +23,7 @@ class Agent < LLM::Agent
   private
 
   def set_tracer
-    LLM::Tracer::Logger.new(llm, io: $stderr)
+    LLM::Tracer::PrettyLogger.new(llm, io: $stderr)
   end
 end
 
