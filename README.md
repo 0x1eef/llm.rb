@@ -154,7 +154,7 @@ agent interactively. The `path:` option saves and restores
 runtime state across sessions. The `tools:` option attaches
 extra tools for the duration of the session. It is like
 `binding.pry` but for agents. For the full reference see the
-[REPL section](https://r.uby.dev/llm/deepdive/#repl) in the
+[REPL section](https://r.uby.dev/llm/deepdive/fundamentals/repl) in the
 deepdive.
 
 ```ruby
@@ -207,7 +207,7 @@ calls it, the runtime spawns a subagent with the skill's instructions
 as its system prompt and the skill's own tool set. The subagent runs
 one turn and returns the result, then is discarded. Each call
 is fresh and stateless. For a deeper explanation see the
-[deepdive.md](https://r.uby.dev/llm/deepdive/#skills).
+[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/skills).
 
 **SKILL.md**
 
@@ -273,7 +273,7 @@ The `:fork` strategy also provides a separate process that offers
 isolation from its parent.
 
 You can learn more about the llm.rb concurrency model in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/#concurrency).
+[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/concurrency/).
 
 ```ruby
 require "llm"
