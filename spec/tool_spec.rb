@@ -132,7 +132,7 @@ RSpec.describe LLM::Tool do
         function: {
           name: "shell",
           description: "run shell commands",
-          parameters: {type: "object", properties: {}}
+          parameters: {type: "object", properties: {}, required: []}
         }
       )
     end

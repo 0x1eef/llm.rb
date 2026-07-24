@@ -123,7 +123,7 @@ module LLM
     # @param [LLM::Function] fn
     # @return [Hash]
     def adapt_function(fn)
-      params = fn.params || {type: "object", properties: {}}
+      params = fn.params.to_h
       {
         type: "function",
         function: {name: fn.name, description: fn.description, parameters: params}

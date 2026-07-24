@@ -24,7 +24,7 @@ RSpec.describe "LLM::Mistral tool adaptation" do
         function: {
           name: :system,
           description: "Runs system commands",
-          parameters: tool.params
+          parameters: tool.params.to_h
         }
       }])
     end

@@ -92,7 +92,7 @@ class LLM::OpenAI
     def adapt_function(fn)
       {
         type: "function", name: fn.name, description: fn.description,
-        parameters: (fn.params || {type: "object", properties: {}}).to_h.merge(additionalProperties: false), strict: false
+        parameters: fn.params.to_h.merge(additionalProperties: false), strict: false
       }.compact
     end
 

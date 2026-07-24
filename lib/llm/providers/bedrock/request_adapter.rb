@@ -74,7 +74,7 @@ class LLM::Bedrock
           name: function.name,
           description: function.description,
           inputSchema: {
-            json: function.params || default_input_schema
+            json: function.params.to_h
           }
         }
       }

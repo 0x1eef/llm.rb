@@ -88,7 +88,7 @@ module LLM
       {
         name: fn.name,
         description: fn.description,
-        input_schema: fn.params || {type: "object", properties: {}}
+        input_schema: fn.params.to_h
       }.compact
     end
 
