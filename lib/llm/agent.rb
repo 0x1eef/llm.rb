@@ -53,6 +53,11 @@ module LLM
     private_constant :UNDEFINED
 
     ##
+    # @api private
+    CASE_PATTERN = /(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/
+    private_constant :CASE_PATTERN
+
+    ##
     # Returns a provider
     # @return [LLM::Provider]
     attr_reader :llm
@@ -106,7 +111,12 @@ module LLM
     #  Return's the agents name
     def self.name(name = UNDEFINED, &block)
       if name.equal?(UNDEFINED)
-        @name || self.to_s.gsub(/(.)([A-Z])/, '\\1-\\2').downcase
+        if @name.nil?
+          name  = self.to_s.split("::").last
+          @name = name.gsub(CASE_PATTERN, '-').downcase
+        else
+          @name
+        end
       else
         @name = block || name
       end

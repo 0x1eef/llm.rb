@@ -31,6 +31,14 @@ RSpec.describe LLM::Agent do
   end
 
   describe ".name" do
+    context "when given an instance of LLM::Agent" do
+      let(:agent) { described_class.new(provider) }
+
+      it "derives a name from the class name" do
+        expect(agent.name).to eq("agent")
+      end
+    end
+
     context "when no name is set on the class" do
       before { stub_const "TestAgent", Class.new(described_class) }
       let(:agent) { TestAgent }
