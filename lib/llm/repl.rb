@@ -28,7 +28,7 @@ module LLM
     attr_reader :agent, :provider, :stream,
                 :status, :transcript, :input,
                 :window, :tools, :thread,
-                :name, :path
+                :name, :path, :width
 
     ##
     # @param [LLM::Agent] agent
@@ -42,12 +42,13 @@ module LLM
     #  Zero or more skills
     # @return [LLM::Repl]
     def initialize(agent:, name: nil, tools: [], skills: [], path: nil)
+      @width = 80
       @path = path
       @name = name || "agent"
       @agent = configure(agent:, path:)
       @provider = agent.llm.name
       @status = Status.new(@agent)
-      @transcript = Transcript.new
+      @transcript = Transcript.new(self)
       @input = Input.new(self, height: 3)
       @window = Window.new(@status, @transcript, @input)
       @thread = nil
@@ -86,20 +87,21 @@ module LLM
     end
 
     ##
-    # @param [String] chars
+    # @param [String, Array] chars
     # @param [Object] attrs
+    # @param [Symbol] method (:append, :replace)
     # @return [void]
-    def write(chars, attrs = nil)
-      transcript.write(chars, attrs)
+    def write(chars, attrs = nil, method: :append)
+      transcript.write(chars, attrs, method:)
       window.redraw
     end
 
     ##
+    # Returns an AST
     # @param [String] chars
-    # @return [void]
+    # @return [Array<{text: String, attrs?: Integer}>]
     def markdown(chars)
-      transcript.markdown(chars)
-      window.redraw
+      LLM::Repl::Markdown.new(chars, width).ast
     end
 
     ##
@@ -158,7 +160,7 @@ module LLM
         window.scroll_to_bottom
         status.text = thinking_text
         write("user: ", Curses::A_BOLD)
-        markdown(text)
+        write markdown(text)
         write("\n#{name}: ", Curses::A_BOLD)
         @thread = Thread.new do
           @queue << [:start]
@@ -217,7 +219,7 @@ module LLM
           transcript.start
           stream.empty!
         when :stream
-          transcript.markdown(value, method: :replace)
+          write markdown(value), method: :replace
         when :status
           self.status = value
         when :done

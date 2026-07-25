@@ -15,11 +15,12 @@ class LLM::Repl
   # by its index number. The streaming path reuses a single
   # row by overwriting its contents repeatedly.
   class Transcript
-    WIDTH = 80
-
     ##
+    # @param [LLM::Repl] repl
+    #  An instance of {LLM::Repl LLM::Repl}.
     # @return [LLM::Repl::Transcript]
-    def initialize
+    def initialize(repl)
+      @repl = repl
       @rows = [[]]
       @cursor = nil
       @snapshot = nil
@@ -27,22 +28,17 @@ class LLM::Repl
     end
 
     ##
-    # @param [String] chars
+    # @param [String, Array] chars
     # @param [Object] attrs
     # @param [Symbol] method
     # @return [void]
     def write(chars, attrs = nil, method: :append)
-      chunks = [{text: chars.to_s, attrs:}.compact]
-      self.method(method).call(chunks)
-    end
-
-    ##
-    # Appends Markdown to the transcript.
-    # @param [String] chars
-    # @param [Symbol] method
-    # @return [void]
-    def markdown(chars, method: :append)
-      chunks = LLM::Repl::Markdown.new(chars, WIDTH).ast
+      case chars
+      when Array
+        chunks = chars
+      else
+        chunks = [{text: chars.to_s, attrs:}.compact]
+      end
       self.method(method).call(chunks)
     end
 
@@ -94,6 +90,10 @@ class LLM::Repl
     private
 
     ##
+    # @return [LLM::Repl]
+    attr_reader :repl
+
+    ##
     # Appends a new row
     # @param [Array<{text: String, attrs?: Integer}>] chunks
     #  One or more chunks.
@@ -109,7 +109,7 @@ class LLM::Repl
     # @return [void]
     def replace(chunks)
       @rows = @snapshot.map(&:dup)
-      append(chunks)
+      chunks.each { wrap(_1, @rows) }
     end
 
     ##
@@ -123,7 +123,7 @@ class LLM::Repl
       chunk[:text].to_s.each_char do |char|
         if char == "\n"
           rows << []
-        elsif char == " " and sum(rows.last) >= WIDTH
+        elsif char == " " and sum(rows.last) >= repl.width
           rows << []
         else
           rows.last << {text: char, attrs:}.compact
