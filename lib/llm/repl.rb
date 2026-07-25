@@ -17,7 +17,7 @@ module LLM
   class Repl
     require_relative "repl/window"
     require_relative "repl/status"
-    require_relative "repl/transcript"
+    require_relative "repl/buffer"
     require_relative "repl/input"
     require_relative "repl/bar"
     require_relative "repl/stream"
@@ -26,7 +26,7 @@ module LLM
     require_relative "repl/walker"
 
     attr_reader :agent, :provider, :stream,
-                :status, :transcript, :input,
+                :status, :buffer, :input,
                 :window, :tools, :thread,
                 :name, :path, :width
 
@@ -48,9 +48,9 @@ module LLM
       @agent = configure(agent:, path:)
       @provider = agent.llm.name
       @status = Status.new(@agent)
-      @transcript = Transcript.new(self)
+      @buffer = Buffer.new(self)
       @input = Input.new(self, height: 3)
-      @window = Window.new(@status, @transcript, @input)
+      @window = Window.new(@status, @buffer, @input)
       @thread = nil
       @queue = Queue.new
       @stream = Stream.new(self, @queue)
@@ -92,7 +92,7 @@ module LLM
     # @param [Symbol] method (:append, :replace)
     # @return [void]
     def write(chars, attrs = nil, method: :append)
-      transcript.write(chars, attrs, method:)
+      buffer.write(chars, attrs, method:)
       window.redraw
     end
 
@@ -216,7 +216,7 @@ module LLM
         type, value = @queue.pop(true)
         case type
         when :start
-          transcript.start
+          buffer.open
           stream.empty!
         when :stream
           write markdown(value), method: :replace
@@ -225,20 +225,20 @@ module LLM
         when :done
           status.text = "idle"
           write("\n\n")
-          transcript.finish
+          buffer.close
           @thread = nil
         when :cancel
           status.text = "Idle"
           write("\n\n#{name}: ", Curses::A_BOLD)
           write("request cancelled!")
           write("\n\n")
-          transcript.finish
+          buffer.close
           @thread = nil
         when :error
           # Do this better
           status.text = "error"
           write("\nerror: #{value.message}\n", Curses::A_BOLD)
-          transcript.finish
+          buffer.close
           @thread = nil
         end
       end

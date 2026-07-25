@@ -176,7 +176,7 @@ class LLM::Repl
     end
 
     ##
-    # Write a string to the transcript
+    # Write a string to the buffer
     # @param [String] str
     # @return [void]
     def write(str, who: "command(#{self.class.name}): ")

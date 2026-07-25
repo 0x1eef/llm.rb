@@ -11,8 +11,8 @@ class LLM::Repl
     attr_reader :status
 
     ##
-    # @return [LLM::Repl::Transcript]
-    attr_reader :transcript
+    # @return [LLM::Repl::Buffer]
+    attr_reader :buffer
 
     ##
     # @return [LLM::Repl::Input]
@@ -20,12 +20,12 @@ class LLM::Repl
 
     ##
     # @param [LLM::Repl::Status] status
-    # @param [LLM::Repl::Transcript] transcript
+    # @param [LLM::Repl::Buffer] buffer
     # @param [LLM::Repl::Input] input
     # @return [LLM::Repl::Window]
-    def initialize(status, transcript, input)
+    def initialize(status, buffer, input)
       @status = status
-      @transcript = transcript
+      @buffer = buffer
       @input = input
     end
 
@@ -48,7 +48,7 @@ class LLM::Repl
     def redraw
       draw_status(offset: input.height + 1)
       draw_divider(offset: 5)
-      draw_transcript(offset: 0)
+      draw_buffer(offset: 0)
       draw_input
       Curses.refresh
     end
@@ -86,22 +86,41 @@ class LLM::Repl
     ##
     # @return [void]
     def scroll_up
-      transcript.scroll_up(rows)
+      buffer.scroll_up(rows)
     end
 
     ##
     # @return [void]
     def scroll_down
-      transcript.scroll_down
+      buffer.scroll_down
     end
 
     ##
     # @return [void]
     def scroll_to_bottom
-      transcript.scroll_to_bottom
+      buffer.scroll_to_bottom
     end
 
     private
+
+    def draw_buffer(offset:)
+      rows = buffer.visible(self.rows)
+      rows.each.with_index(offset) do |row, index|
+        Curses.setpos(index, 0)
+        Curses.clrtoeol
+        row.each do |chunk|
+          text, attrs = chunk.values_at(:text, :attrs)
+          Curses.attron(attrs) if attrs
+          Curses.addstr(text)
+          Curses.attroff(attrs) if attrs
+        end
+      end
+      last_drawn = offset + rows.size
+      (last_drawn...self.rows).each do |line|
+        Curses.setpos(line, 0)
+        Curses.clrtoeol
+      end
+    end
 
     def draw_status(offset:)
       Curses.setpos(Curses.lines - offset, 0)
@@ -130,25 +149,6 @@ class LLM::Repl
       end
       line, col = input.cursor_pos
       Curses.setpos((Curses.lines - input.height) + line, col)
-    end
-
-    def draw_transcript(offset:)
-      rows = transcript.visible(self.rows)
-      rows.each.with_index(offset) do |row, index|
-        Curses.setpos(index, 0)
-        Curses.clrtoeol
-        row.each do |chunk|
-          text, attrs = chunk.values_at(:text, :attrs)
-          Curses.attron(attrs) if attrs
-          Curses.addstr(text)
-          Curses.attroff(attrs) if attrs
-        end
-      end
-      last_drawn = offset + rows.size
-      (last_drawn...self.rows).each do |line|
-        Curses.setpos(line, 0)
-        Curses.clrtoeol
-      end
     end
 
     ##

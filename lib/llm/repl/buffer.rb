@@ -14,11 +14,11 @@ class LLM::Repl
   # It also maintains a cursor that tracks the active row
   # by its index number. The streaming path reuses a single
   # row by overwriting its contents repeatedly.
-  class Transcript
+  class Buffer
     ##
     # @param [LLM::Repl] repl
     #  An instance of {LLM::Repl LLM::Repl}.
-    # @return [LLM::Repl::Transcript]
+    # @return [LLM::Repl::Buffer]
     def initialize(repl)
       @repl = repl
       @rows = [[]]
@@ -43,17 +43,17 @@ class LLM::Repl
     end
 
     ##
-    # Start the transcript.
+    # Open the buffer.
     # @return [void]
-    def start
+    def open
       @cursor = @rows.size - 1
       @snapshot = @rows.map(&:dup)
     end
 
     ##
-    # Finish the transcript.
+    # Close the buffer.
     # @return [void]
-    def finish
+    def close
       @cursor = nil
       @snapshot = nil
     end
