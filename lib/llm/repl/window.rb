@@ -19,14 +19,13 @@ class LLM::Repl
     attr_reader :input
 
     ##
-    # @param [LLM::Repl::Status] status
-    # @param [LLM::Repl::Buffer] buffer
-    # @param [LLM::Repl::Input] input
+    # @param [LLM::Repl] repl
+    #  A read-eval-print loop.
     # @return [LLM::Repl::Window]
-    def initialize(status, buffer, input)
-      @status = status
-      @buffer = buffer
-      @input = input
+    def initialize(repl)
+      @status = repl.status
+      @buffer = repl.buffer
+      @input  = repl.input
     end
 
     ##

@@ -50,7 +50,7 @@ module LLM
       @status = Status.new(self)
       @buffer = Buffer.new(self)
       @input = Input.new(self, height: 3)
-      @window = Window.new(@status, @buffer, @input)
+      @window = Window.new(self)
       @thread = nil
       @queue = Queue.new
       @stream = Stream.new(self, @queue)
