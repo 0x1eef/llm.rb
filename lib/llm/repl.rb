@@ -97,6 +97,15 @@ module LLM
     end
 
     ##
+    # @param [String] user
+    # @param [String] content
+    # @return [void]
+    def write_message(user, content, method: :append)
+      buffer.write_message(user, content, method:)
+      window.redraw
+    end
+
+    ##
     # Returns an AST
     # @param [String] chars
     # @return [Array<{text: String, attrs?: Integer}>]
@@ -153,15 +162,12 @@ module LLM
       case on_text(text)
       in [:command, Command => command, Hash => parameters]
         command.call(**parameters)
-      in [:error, String => who, String => text]
-        write(who, Curses::A_BOLD)
-        write(text)
+      in [:error, String => user, String => text]
+        write_message(user, text)
       in [:input, String => text]
         window.scroll_to_bottom
         status.text = thinking_text
-        write("user: ", Curses::A_BOLD)
-        write markdown(text)
-        write("\n#{name}: ", Curses::A_BOLD)
+        write_message("user", markdown(text))
         @thread = Thread.new do
           @queue << [:start]
           agent.talk(text, tools:, stream:)
@@ -219,25 +225,22 @@ module LLM
           buffer.open
           stream.empty!
         when :stream
-          write markdown(value), method: :replace
+          write_message name, markdown(value), method: :replace
         when :status
           self.status = value
         when :done
+          write("\n")
           status.text = "idle"
-          write("\n\n")
           buffer.close
           @thread = nil
         when :cancel
-          status.text = "Idle"
-          write("\n\n#{name}: ", Curses::A_BOLD)
-          write("request cancelled!")
-          write("\n\n")
           buffer.close
+          status.text = "Idle"
+          write_message(name, "Request cancelled")
           @thread = nil
         when :error
-          # Do this better
           status.text = "error"
-          write("\nerror: #{value.message}\n", Curses::A_BOLD)
+          write_message(name, "(#{value.class}): #{value.message}")
           buffer.close
           @thread = nil
         end

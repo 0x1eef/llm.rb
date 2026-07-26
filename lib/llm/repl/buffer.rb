@@ -34,12 +34,25 @@ class LLM::Repl
     # @return [void]
     def write(chars, attrs = nil, method: :append)
       case chars
-      when Array
-        chunks = chars
-      else
-        chunks = [{text: chars.to_s, attrs:}.compact]
+      when Array then chunks = chars
+      else chunks = [{text: chars.to_s, attrs:}.compact]
       end
       self.method(method).call(chunks)
+    end
+
+    ##
+    # @param [String] user
+    # @param [String, Array] content
+    # @param [Symbol] method
+    # @return [void]
+    def write_message(user, content, method: :append)
+      chunks = [{text: "#{user}: ", attrs: Curses::A_BOLD}]
+      case content
+      when Array then chunks.concat(content)
+      else chunks.push({text: content})
+      end
+      chunks.push({text: "\n"})
+      write(chunks, method:)
     end
 
     ##
