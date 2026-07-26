@@ -71,6 +71,7 @@ module LLM
     def start
       window.open do
         catch(:exit) do
+          write tree(agent.messages)
           loop do
             now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
             case input.on_char(window, input.paste? ? window.read_paste : window.getch, now)
@@ -128,6 +129,22 @@ module LLM
     end
 
     private
+
+    ##
+    # @param [LLM::Buffer] messages
+    #  A message buffer
+    # @return [Array<Hash>]
+    def tree(messages)
+      messages.flat_map do |message|
+        next if message.tool_call? || message.tool_return?
+        user = message.assistant? ? name : "user"
+        [
+          {text: "#{user}: ", attrs: Curses::A_BOLD},
+          {text: message.content},
+          {text: user == name ? "\n\n" : "\n"}
+        ]
+      end.compact
+    end
 
     ##
     # @param [LLM::Agent] agent
