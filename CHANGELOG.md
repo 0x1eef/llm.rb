@@ -70,6 +70,25 @@
   It writes to `$stderr` by default and accepts an `io:` option for file
   output.
 
+### Repl
+
+* **rename `LLM::Repl::Transcript` to `LLM::Repl::Buffer`** <br>
+  `LLM::Repl::Transcript` has been renamed to
+  [`LLM::Repl::Buffer`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Buffer.html)
+  to better reflect its role as a conversation state manager. The old
+  `start` and `finish` methods have been renamed to `open` and `close`
+  respectively. The public accessor on
+  [`LLM::Repl`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html) has been
+  renamed from `transcript` to `buffer`.
+
+* **add `write_message` for formatted message writing** <br>
+  [`LLM::Repl::Buffer#write_message`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Buffer.html#write_message-instance_method)
+  and
+  [`LLM::Repl#write_message`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#write_message-instance_method)
+  provide a convenience method that takes a username and content string,
+  formatting the output with a bold `user:` label and a trailing newline.
+  This is simpler than the equivalent sequence of `write` calls.
+
 ### Fix
 
 * **tools: rescue `LLM::Interrupt` in shell-based tools** <br>
