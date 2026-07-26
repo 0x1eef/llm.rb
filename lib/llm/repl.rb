@@ -162,8 +162,10 @@ module LLM
       case on_text(text)
       in [:command, Command => command, Hash => parameters]
         command.call(**parameters)
+        write("\n")
       in [:error, String => user, String => text]
         write_message(user, text)
+        write("\n")
       in [:input, String => text]
         window.scroll_to_bottom
         status.text = thinking_text
@@ -237,6 +239,7 @@ module LLM
           buffer.close
           status.text = "Idle"
           write_message(name, "Request cancelled")
+          write("\n")
           @thread = nil
         when :error
           status.text = "error"

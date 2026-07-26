@@ -177,11 +177,18 @@ class LLM::Repl
 
     ##
     # Write a string to the buffer
-    # @param [String] str
+    # @param [String] content
     # @return [void]
-    def write(str, who: "command(#{self.class.name}): ")
-      @repl.write(who, Curses::A_BOLD)
-      @repl.write(str)
+    def write(content)
+      write_message "command(#{self.class.name})", content
+    end
+
+    ##
+    # @param [String] user
+    # @param [String] content
+    # @return [void]
+    def write_message(user, content)
+      @repl.write_message(user, content)
     end
 
     ##

@@ -11,13 +11,11 @@ class LLM::Repl
     # @return [void]
     def call(name: nil)
       if name.nil?
-        write("\n#{self.class.help}\n\n")
+        write(self.class.help)
       elsif command = LLM::Command.find_by(name:)
-        write("\n#{command.help}\n\n")
+        write(command.help)
       else
-        write "\nNo help for #{name} was found" \
-              "\nThat command doesn't exist." \
-              "\n\n"
+        write "no help for #{name} was found"
       end
     end
   end
