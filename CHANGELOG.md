@@ -89,6 +89,24 @@
   formatting the output with a bold `user:` label and a trailing newline.
   This is simpler than the equivalent sequence of `write` calls.
 
+* **add `Command#write_message` and refactor `Command#write`** <br>
+  [`LLM::Command#write_message`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html#write_message-instance_method)
+  provides a convenience method that takes a username and content string,
+  matching the same interface on `LLM::Repl` and `LLM::Buffer`. The
+  `Command#write` method is now implemented on top of `write_message`,
+  always prefixing output with `command(<name>): `. The `who:` keyword
+  argument previously accepted by `write` has been removed; use
+  `write_message` instead.
+
+* **display pre-existing agent messages when the repl starts** <br>
+  When
+  [`LLM::Agent#repl`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
+  starts, any messages already in the agent's buffer are now rendered
+  in the REPL window. Previously the REPL started with an empty
+  transcript even when the agent carried prior conversation history,
+  making it harder to resume a session. Tool-call and tool-return
+  messages are skipped to avoid visual noise.
+
 ### Fix
 
 * **tools: rescue `LLM::Interrupt` in shell-based tools** <br>
