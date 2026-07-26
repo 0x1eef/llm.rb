@@ -7,11 +7,11 @@ class LLM::Repl
   # @api private
   class Status
     ##
-    # @param [LLM::Agent] agent
+    # @param [LLM::Repl] repl
     # @return [LLM::Repl::Status]
-    def initialize(agent)
-      @agent = agent
-      @provider = agent.llm.name
+    def initialize(repl)
+      @agent = repl.agent
+      @provider = @agent.llm.name
       @text = "idle"
     end
 

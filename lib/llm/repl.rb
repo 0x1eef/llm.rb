@@ -47,7 +47,7 @@ module LLM
       @name = name || "agent"
       @agent = configure(agent:, path:)
       @provider = agent.llm.name
-      @status = Status.new(@agent)
+      @status = Status.new(self)
       @buffer = Buffer.new(self)
       @input = Input.new(self, height: 3)
       @window = Window.new(@status, @buffer, @input)
