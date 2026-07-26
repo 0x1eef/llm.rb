@@ -22,7 +22,7 @@ class LLM::Repl
     end
 
     ##
-    # @return [Array<Hash>]
+    # @return [Array<Node>]
     def ast
       @ast.tap do
         ##
@@ -109,7 +109,7 @@ class LLM::Repl
     end
 
     def emit(text, attrs)
-      @ast.push({text: text.to_s, attrs:}.compact)
+      @ast.push(Node.new(text.to_s, attrs))
     end
   end
 end

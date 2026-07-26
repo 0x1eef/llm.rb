@@ -21,6 +21,7 @@ module LLM
     require_relative "repl/input"
     require_relative "repl/bar"
     require_relative "repl/stream"
+    require_relative "repl/node"
     require_relative "repl/markdown"
     require_relative "repl/command"
     require_relative "repl/walker"
@@ -109,7 +110,7 @@ module LLM
     ##
     # Returns an AST
     # @param [String] chars
-    # @return [Array<{text: String, attrs?: Integer}>]
+    # @return [Array<Node>]
     def markdown(chars)
       LLM::Repl::Markdown.new(chars, width).ast
     end
@@ -133,15 +134,15 @@ module LLM
     ##
     # @param [LLM::Buffer] messages
     #  A message buffer
-    # @return [Array<Hash>]
+    # @return [Array<Node>]
     def tree(messages)
       messages.flat_map do |message|
         next if message.tool_call? || message.tool_return?
         user = message.assistant? ? name : "user"
         [
-          {text: "#{user}: ", attrs: Curses::A_BOLD},
-          {text: message.content},
-          {text: user == name ? "\n\n" : "\n"}
+          Node.new("#{user}: ", Curses::A_BOLD),
+          Node.new(message.content),
+          Node.new(user == name ? "\n\n" : "\n")
         ]
       end.compact
     end

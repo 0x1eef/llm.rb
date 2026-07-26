@@ -35,7 +35,7 @@ class LLM::Repl
     def write(chars, attrs = nil, method: :append)
       case chars
       when Array then chunks = chars
-      else chunks = [{text: chars.to_s, attrs:}.compact]
+      else chunks = [Node.new(chars.to_s, attrs)]
       end
       self.method(method).call(chunks)
     end
@@ -46,12 +46,12 @@ class LLM::Repl
     # @param [Symbol] method
     # @return [void]
     def write_message(user, content, method: :append)
-      chunks = [{text: "#{user}: ", attrs: Curses::A_BOLD}]
+      chunks = [Node.new("#{user}: ", Curses::A_BOLD)]
       case content
       when Array then chunks.concat(content)
-      else chunks.push({text: content})
+      else chunks.push(Node.new(content))
       end
-      chunks.push({text: "\n"})
+      chunks.push(Node.new("\n"))
       write(chunks, method:)
     end
 
@@ -108,7 +108,7 @@ class LLM::Repl
 
     ##
     # Appends a new row
-    # @param [Array<{text: String, attrs?: Integer}>] chunks
+    # @param [Array<Node>] chunks
     #  One or more chunks.
     # @return [void]
     def append(chunks)
@@ -117,7 +117,7 @@ class LLM::Repl
 
     ##
     # Replaces the content of the active row
-    # @param [Array<{text: String, attrs?: Integer}>] chunks
+    # @param [Array<Node>] chunks
     #  One or more chunks.
     # @return [void]
     def replace(chunks)
@@ -139,7 +139,7 @@ class LLM::Repl
         elsif char == " " and sum(rows.last) >= repl.width
           rows << []
         else
-          rows.last << {text: char, attrs:}.compact
+          rows.last << Node.new(char, attrs)
         end
       end
     end

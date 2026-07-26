@@ -5,6 +5,11 @@ class LLM::Repl::Markdown
   # Renders Kramdown `:table` nodes as aligned columns.
   module Table
     ##
+    # @api private
+    Node = LLM::Repl::Node
+    private_constant :Node
+
+    ##
     # Renders a table node by collecting all cells first to
     # compute column widths, then emitting each row with
     # padded text.
@@ -15,7 +20,6 @@ class LLM::Repl::Markdown
       rows.each do |row|
         emit("| ", attrs)
         row.each_with_index do |chunks, i|
-          text = chunks.map { _1[:text] }.join
           width = widths[i]
           chunks.each { |c| emit(c[:text].ljust(width), c[:attrs]) }
           emit(" | ", attrs) unless i == row.size - 1
@@ -51,13 +55,13 @@ class LLM::Repl::Markdown
     def walk_collect(node, attrs, chunks)
       case node.type
       when :text
-        chunks << {text: node.value.to_s, attrs:}
+        chunks << Node.new(node.value.to_s, attrs)
       when :strong
         node.children.each { walk_collect(_1, Curses::A_BOLD, chunks) }
       when :em
         node.children.each { walk_collect(_1, Curses::A_UNDERLINE, chunks) }
       when :codespan
-        chunks << {text: node.value, attrs: Curses::A_REVERSE}
+        chunks << Node.new(node.value, Curses::A_REVERSE)
       when :a
         node.children.each { walk_collect(_1, Curses::A_UNDERLINE, chunks) }
       else

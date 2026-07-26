@@ -108,7 +108,7 @@ class LLM::Repl
         Curses.setpos(index, 0)
         Curses.clrtoeol
         row.each do |chunk|
-          text, attrs = chunk.values_at(:text, :attrs)
+          text, attrs = chunk.text, chunk.attrs
           Curses.attron(attrs) if attrs
           Curses.addstr(text)
           Curses.attroff(attrs) if attrs
