@@ -42,9 +42,9 @@ class LLM::Repl
     end
 
     ##
-    # Empty the accumulated buffer
+    # Clear the accumulated buffer
     # @return [void]
-    def empty!
+    def clear
       @buffer.clear
     end
 

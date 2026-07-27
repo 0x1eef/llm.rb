@@ -243,7 +243,7 @@ module LLM
         case type
         when :start
           buffer.open
-          stream.empty!
+          stream.clear
         when :stream
           write_message name, markdown(value), method: :replace
         when :status
