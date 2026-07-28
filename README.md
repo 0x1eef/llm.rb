@@ -65,15 +65,27 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"
 ```
 
+#### Persistence
+
 Set `path:` on an agent for automatic filesystem persistence;
 the agent restores conversation history from the file on startup
 and saves it back after every turn, with no manual serialization
-code:
+code. For database-backed persistence, ActiveRecord and Sequel
+integrations are also available (see the
+[database deepdive](https://r.uby.dev/llm/deepdive/advanced/database)
+for details). All persistence options use the same underlying
+serialization.
 
 ```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, path: "session.json")
 agent.talk "remember my name is robert"
-# restored automatically next time
+
+# Next time, the conversation is restored automatically:
+agent = LLM::Agent.new(llm, path: "session.json")
+agent.talk "what's my name?"
 ```
 
 #### LLM::Context
