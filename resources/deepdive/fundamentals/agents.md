@@ -44,7 +44,7 @@ configured with `concurrency: :sequential`, `:thread`, `:async`,
 `:fiber`, `:fork`, or `:ractor`.
 
 
-### Reusable agents
+### Class-based
 
 #### Overview
 
@@ -100,7 +100,7 @@ manual
 calls. See the
 [database deepdive](../advanced/database.md) for details.
 
-### Throwaway agents
+### Object-based
 
 #### Overview
 
