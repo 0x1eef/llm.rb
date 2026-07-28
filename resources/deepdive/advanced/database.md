@@ -7,8 +7,11 @@
 Persistence lets an agent outlive a single session. The conversation
 history, model name, and compaction status are serialized as JSON
 that can be stored in a file, a database column, or transmitted
-over a network. Three storage backends are available:
+over a network. Four storage options are available:
 
+- **Automatic filesystem persistence**: set `path:` on an agent
+  for transparent auto-save after every turn (recommended for
+  most file-based use-cases)
 - **Filesystem**: save and restore from a JSON file on disk
 - **ActiveRecord**: persist state in a database column using `acts_as_agent`
 - **Sequel**: persist state in a database column using `plugin :agent`
@@ -37,6 +40,81 @@ data.
 The saved JSON can be stored in a file, a database column, or
 transmitted over the network. The ORM integrations use the same
 underlying serialization as filesystem persistence.
+
+
+### Automatic filesystem persistence
+
+#### Overview
+
+The [`LLM::Agent#path`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#path)
+attribute provides transparent auto-persistence. Set a file path once
+and the agent restores conversation history from that file on startup
+and saves it back after every `talk` or `ask` turn. No manual
+`save`/`restore` calls needed.
+
+The feature is available on subclasses via the class DSL and on
+direct instances via the `path:` keyword argument.
+
+#### How it works
+
+When a `path` is set, the agent loads existing state from the file
+during initialization. After each turn (`talk` or `ask`), the updated
+state is written back automatically. If the file does not exist yet,
+the agent starts with a blank conversation and creates the file on
+the first save.
+
+You can set the path at the class level:
+
+```ruby
+class PersistentAgent < LLM::Agent
+  set model: "deepseek-v4-pro",
+      path: "session.json"
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = PersistentAgent.new(llm)
+agent.talk "remember my name is robert"
+# state saved automatically to session.json
+
+agent2 = PersistentAgent.new(llm)
+agent2.talk "what's my name?"
+# restored from session.json — prints "robert"
+```
+
+Or on a direct instance:
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, path: "session.json", stream: $stdout)
+agent.talk "remember my name is robert"
+# state saved automatically
+```
+
+The `path` can also be a block or Symbol for lazy resolution:
+
+```ruby
+class DynamicAgent < LLM::Agent
+  set path: -> { "sessions/#{name}.json" }
+end
+```
+
+#### Why would I use it?
+
+Auto-persistence eliminates boilerplate. You set the path once and
+forget about serialization entirely. The agent picks up where it
+left off across process restarts, REPL sessions, or debugging runs
+without a single `save` or `restore` call in your code.
+
+#### Notes
+
+The auto-path feature is a strict superset of manual filesystem
+persistence. If you need fine-grained control over when state is
+saved (e.g. batch several turns before persisting), use the manual
+[`save`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save)
+and
+[`restore`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore)
+methods described in the Filesystem section below. The `path`
+attribute delegates to the same underlying serialization.
 
 
 ### Filesystem

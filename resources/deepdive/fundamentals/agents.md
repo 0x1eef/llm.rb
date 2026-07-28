@@ -91,6 +91,12 @@ subclass, so `tracer: :set_tracer` calls `set_tracer` on the
 instance. A block like `stream: -> { $stdout }` is evaluated
 when the attribute is first accessed.
 
+Set `path:` on a subclass or instance for automatic filesystem
+persistence — the agent restores conversation history from the
+file on startup and saves it back after every turn with no
+manual `save`/`restore` calls. See the
+[database deepdive](../advanced/database.md) for details.
+
 ### Throwaway agents
 
 #### Overview

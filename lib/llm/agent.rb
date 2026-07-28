@@ -293,6 +293,20 @@ module LLM
     end
 
     ##
+    # Set the file path where an agent's memory
+    # can be restored from, and written to.
+    # @param [String] path
+    #  The path to a file
+    # @return [String, nil]
+    def self.path(path = UNDEFINED, &block)
+      if path.equal?(UNDEFINED)
+        @path
+      else
+        @path = path || block
+      end
+    end
+
+    ##
     # @param [LLM::Provider] llm
     #  A provider
     # @param [Hash] params
@@ -308,8 +322,8 @@ module LLM
     # @option params [Symbol, Array<Symbol>, nil] :concurrency Defaults to the agent class concurrency
     def initialize(llm, params = {})
       @llm = llm
-      fields = %i[name description model skills schema tracer stream tools concurrency instructions confirm]
-      fields_ivar = %i[name description tracer concurrency instructions confirm]
+      fields = %i[name description path model skills schema tracer stream tools concurrency instructions confirm]
+      fields_ivar = %i[name description path tracer concurrency instructions confirm]
       fields.each do |field|
         resolvable = params.key?(field) ? params.delete(field) : self.class.public_send(field)
         resolve_symbol = !%i[concurrency].include?(field)
@@ -324,6 +338,7 @@ module LLM
         end
       end
       @ctx = LLM::Context.new(llm, {guard: true}.merge(params))
+      @path ? @ctx.restore(path:) : nil
     end
 
     ##
@@ -331,6 +346,14 @@ module LLM
     # @return [String]
     def name
       @name
+    end
+
+    ##
+    # Returns a file path where an agent's memory is
+    # restored from, and written to after each turn.
+    # @return [String, nil]
+    def path
+      @path
     end
 
     ##
@@ -357,13 +380,17 @@ module LLM
     #   response = agent.talk("Hello, what is your name?")
     #   puts response.choices[0].content
     def talk(prompt, params = {})
-      run_loop(prompt, params, :talk)
+      res = run_loop(prompt, params, :talk)
+      path ? @ctx.save(path:) : nil
+      res
     end
 
     ##
     # @see LLM::Context#ask
     def ask(prompt, params = {})
-      run_loop(prompt, params, :ask)
+      res = run_loop(prompt, params, :ask)
+      path ? @ctx.save(path:) : nil
+      res
     end
 
     ##

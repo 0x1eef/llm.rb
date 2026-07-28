@@ -25,6 +25,14 @@
   agent's purpose. It can be set via the class DSL,
   `LLM::Agent.set(description: ...)`, or `LLM::Agent.new(description: ...)`.
 
+* **add `path` class DSL and instance method** <br>
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) now
+  has a `path` class DSL (`path "contexts/admin.json"`) and a
+  corresponding `#path` instance method. When a path is set, the agent
+  automatically restores its conversation history from that file on
+  initialization and saves it back after each `talk` or `ask` turn,
+  making session persistence across process restarts transparent.
+
 ### Skills
 
 * **accept a path to a markdown file** <br>

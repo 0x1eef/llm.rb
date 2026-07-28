@@ -55,16 +55,6 @@ task :console do
   binding.irb
 end
 
-desc "start a repl"
-task :repl, [:model] do |_, args|
-  require "llm"
-  require "llm/tools"
-  model = args[:model] || "deepseek-v4-flash"
-  llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
-  agent = LLM::Agent.new(llm, name: "dev", concurrency: :thread, model:)
-  agent.repl(path: "contexts/dev.json", tools: LLM::Tool.subclasses)
-end
-
 namespace :'models.dev' do
   desc "Download models.dev metadata"
   task :download do
@@ -86,6 +76,16 @@ namespace :'models.dev' do
       exit 1
     end
   end
+end
+
+desc "start a repl"
+task :repl, [:model] do |_, args|
+  require "llm"
+  require "llm/tools"
+  model = args[:model] || "deepseek-v4-flash"
+  llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+  agent = LLM::Agent.new(llm, name: "dev", path: "contexts/dev.json", concurrency: :thread, model:)
+  agent.repl(tools: LLM::Tool.subclasses)
 end
 
 namespace :agents do

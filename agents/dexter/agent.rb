@@ -10,6 +10,7 @@ class Agent < LLM::Agent
       :instructions => File.read(File.join(__dir__, "prompt.md")),
       :skills       => %w[changelog.md release.md].map { File.join(__dir__, _1) },
       :tools        => [LLM::Tool::Git, LLM::Tool::ReadFile, LLM::Tool::Rg, LLM::Tool::EditFile],
+      :path         => File.join(__dir__, "..", "..", "contexts", "dexter.json"),
       :tracer       => :set_tracer
 
   def changelog!
@@ -32,13 +33,13 @@ def main(argv)
   agent = Agent.new(llm)
   case argv[0]
   when "repl"
-    agent.repl(path: "contexts/dexter.json")
+    agent.repl
   when "changelog"
     agent.changelog!
-    agent.repl(path: "contexts/dexter.json")
+    agent.repl
   when "release"
     agent.release!(version: ARGV[1])
-    agent.repl(path: "contexts/dexter.json")
+    agent.repl
   else
     warn "agent: expected changelog, release but got #{argv[0]}"
     exit 1

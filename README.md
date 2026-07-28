@@ -62,6 +62,17 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"
 ```
 
+Set `path:` on an agent for automatic filesystem persistence —
+the agent restores conversation history from the file on startup
+and saves it back after every turn, with no manual serialization
+code:
+
+```ruby
+agent = LLM::Agent.new(llm, path: "session.json")
+agent.talk "remember my name is robert"
+# restored automatically next time
+```
+
 #### LLM::Context
 
 The [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) class is at the heart of the runtime
@@ -252,6 +263,8 @@ llm  = LLM.openai(key: ENV["KEY"])
 body = "llm.rb is Ruby's capable AI runtime."
 embedding = llm.embed([body]).embeddings.first
 
+# Document is your ActiveRecord or Sequel model
+# with a vector column (e.g. sqlite-vec or pgvector)
 Document.create!(
   title: "llm.rb",
   body:,

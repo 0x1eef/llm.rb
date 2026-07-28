@@ -11,6 +11,7 @@ class Agent < LLM::Agent
       :instructions => File.read(File.join(__dir__, "prompt.md")),
       :skills       => %w[regressions.md coverage.md style.md].map { File.join(__dir__, _1) },
       :tools        => LLM::Tool.subclasses,
+      :path         => File.join(__dir__, "..", "..", "contexts", "scribe.json"),
       :tracer       => :set_tracer
 
   def yardoc
@@ -52,10 +53,10 @@ def main(argv)
   llm   = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
   agent = Agent.new(llm)
   if argv[0] == "repl"
-    agent.repl(path: "contexts/scribe.json")
+    agent.repl
   elsif agent.respond_to?(argv[0])
     agent.method(argv[0]).call(*argv[1..])
-    agent.repl(path: "contexts/scribe.json")
+    agent.repl
   else
     warn "agent: expected audit, improvements, review, or repl but got #{argv[0]}"
     exit 1
