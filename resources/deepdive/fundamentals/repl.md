@@ -42,6 +42,8 @@ The input area supports several keyboard shortcuts:
 | `Up` / `Down` | Scroll the transcript one line |
 | `PgUp` / `PgDn` | Scroll the transcript by one page |
 
+Start a session with:
+
 ```ruby
 require "llm"
 require "llm/tools"
