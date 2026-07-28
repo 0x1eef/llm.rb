@@ -249,16 +249,16 @@ module LLM
         when :status
           self.status = value
         when :done
-          write("\n")
           status.text = "idle"
           buffer.close
           @thread = nil
+          write("\n")
         when :cancel
           buffer.close
           status.text = "Idle"
           write_message(name, "Request cancelled")
-          write("\n")
           @thread = nil
+          write("\n")
         when :error
           status.text = "error"
           write_message(name, "(#{value.class}): #{value.message}")
