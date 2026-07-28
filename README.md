@@ -36,7 +36,8 @@ also possible to make a tool call while the model is still streaming.
 
 The runtime builds on top of three core concepts: providers, contexts, and agents,
 so once you learn the fundamentals, everything else falls into place naturally. And once
-you learn llm.rb, you will also be able to use <a href="https://r.uby.dev/mruby-llm">mruby-llm</a> and
+you learn llm.rb, you will also be able to use
+<a href="https://r.uby.dev/mruby-llm">mruby-llm</a> and
 <a href="https://r.uby.dev/wasm-llm">wasm-llm</a> because the API is pretty much identical.
 
 ## Install
@@ -49,7 +50,9 @@ gem install llm.rb
 
 #### LLM::Agent
 
-The [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) class is the default high-level interface,
+The
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+class is the default high-level interface,
 and it is recommended for most use-cases. It manages tool execution
 automatically, guards against infinite loops, manages conversation
 state, and much more.
@@ -62,7 +65,7 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"
 ```
 
-Set `path:` on an agent for automatic filesystem persistence —
+Set `path:` on an agent for automatic filesystem persistence;
 the agent restores conversation history from the file on startup
 and saves it back after every turn, with no manual serialization
 code:
@@ -75,11 +78,16 @@ agent.talk "remember my name is robert"
 
 #### LLM::Context
 
-The [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) class is at the heart of the runtime
-and it is what [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) uses under the hood.
+The
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+class is at the heart of the runtime
+and it is what
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+uses under the hood.
 It requires that the tool call loop be managed manually -
 sometimes that can be useful, but usually for advanced use-cases.
-If you're new to llm.rb, try [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) first.
+If you're new to llm.rb, try
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) first.
 
 ```ruby
 require "llm"
@@ -91,7 +99,9 @@ ctx.talk "Hello world"
 
 #### LLM::Tool
 
-Subclasses of [`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) are plain Ruby classes with
+Subclasses of
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
+are plain Ruby classes with
 an optional set of typed parameters. <br> The model can choose to
 call them on your behalf, and they're one of the most powerful features
 for extending the feature set or abilities of a model.
@@ -112,7 +122,8 @@ end
 #### LLM::Stream
 
 Streams can be simple IO objects or subclasses of
-[`LLM::Stream`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html) with structured callbacks for content,
+[`LLM::Stream`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html)
+with structured callbacks for content,
 reasoning, tool calls, tool returns, and compaction.
 
 ```ruby
@@ -133,13 +144,16 @@ agent.talk "Explain Ruby fibers."
 
 #### LLM::Schema
 
-[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html) subclasses produce typed, structured
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
+subclasses produce typed, structured
 output from any model call. Pass a schema to `LLM::Context#talk`,
 `LLM::Agent#talk`, or `LLM::Provider#complete` to receive validated
 JSON instead of free text. Schemas work alongside tools and streams.
 
-[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html) can define objects, arrays, enums, nested schemas,
-and more. It is also used internally by [`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) for parameter
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
+can define objects, arrays, enums, nested schemas,
+and more. It is also used internally by
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) for parameter
 definitions, so you already benefit from it when you declare tool
 parameters.
 
@@ -182,8 +196,10 @@ agent.repl(path: "agent.json", tools: LLM::Tool.subclasses)
 The Model Context Protocol (MCP) has first-class support
 in llm.rb. The stdio and http transports work out of the
 box. MCP tools are translated into subclasses of
-[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be used with [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
-or [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
+used with
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
 
 ```ruby
 require "llm"
@@ -199,8 +215,10 @@ agent.talk "Run the tool"
 The Agent 2 Agent (A2A) protocol has first-class support
 in llm.rb. The http and jsonrpc transports work out of the
 box. A2A skills are translated into subclasses of
-[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be used with [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
-or [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
+used with
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
 
 ```ruby
 require "llm"
@@ -299,7 +317,9 @@ agent.talk "Run the tools in parallel"
 
 #### ORM
 
-Because both [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html), and [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+Because both
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) and
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
 can be serialized to JSON and stored in a simple string, both ActiveRecord
 and Sequel support can be implemented within a single column on a single row.
 
@@ -413,7 +433,7 @@ If you're on a budget, DeepSeek is hard to beat.
 <details>
 <summary>Can I download llm.rb via a decentralized network?</summary>
 <br>
-You can!
+Yes.
 <br>
 We are on the <a href="https://radicle.network">radicle.network</a>
 <br>
@@ -421,7 +441,9 @@ Every commit that lands on GitHub also lands on Radicle.
 <br>
 Our repository ID is z2PtfQ6dYwyYaW2aGrztG1sMyDmCE.
 <br>
-Browse on <a href="https://radicle.network/nodes/iris.radicle.network/z2PtfQ6dYwyYaW2aGrztG1sMyDmCE">the web</a>.
+Browse on <a
+href="https://radicle.network/nodes/iris.radicle.network/z2PtfQ6dYwyYaW2aGrztG1sMyDmCE">the
+web</a>.
 </details>
 
 ## Resources

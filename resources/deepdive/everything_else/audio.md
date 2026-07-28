@@ -52,8 +52,11 @@ downstream pipeline.
 #### How it works
 
 When you want to transcribe audio into text, call
-[`LLM::Audio#create_transcription`](https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription).
-The provider processes the audio and returns the transcribed text. The file
+[`LLM::Audio#create_transcription`](
+  https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription
+).
+The provider processes the audio and returns the
+transcribed text. The file
 can be a local path or a URL depending on provider support:
 
 ```ruby
@@ -89,7 +92,9 @@ pipeline.
 #### How it works
 
 When you want to translate spoken audio into English, call
-[`LLM::Audio#create_translation`](https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_translation).
+[`LLM::Audio#create_translation`](
+  https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_translation
+).
 The provider transcribes the spoken language and translates the
 result into English in a single operation. The returned text is the English translation:
 

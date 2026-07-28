@@ -99,3 +99,15 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
   [`LLM::Context#pending_functions?`](link)) rather than a bare
   `object.method` or `method` reference. This makes the owning
   class clear and the link target unambiguous.
+
+### Code examples
+
+- Keep each code example focused on **one** concept. Avoid
+  consolidating multiple distinct usage patterns into a single
+  code block with comments separating them. Use separate
+  `#####` sub-subsections with their own code block instead.
+
+- Sub-section titles for code examples should be **short and
+  scannable**. Omit articles and gerunds: prefer **Class DSL**
+  over "Using the class DSL", **Keyword argument** over
+  "Using a keyword argument".

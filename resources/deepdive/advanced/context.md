@@ -28,10 +28,14 @@ to send input to the model, check
 [`LLM::Context#pending_functions?`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions?)
 to see if tools were requested, and use
 [`LLM::Context#wait`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait)
-to execute them. Each call to `#talk` appends
+to execute them. Each call to
+[`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk)
+appends
 to the conversation and returns the model's response. The context
 serializes its state with `to_h` and `to_json`, and restores it
-with `restore`. This is how the ORM integrations and filesystem
+with
+[`LLM::Context#restore`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore).
+This is how the ORM integrations and filesystem
 persistence work under the hood:
 
 ```ruby
@@ -142,7 +146,7 @@ After
 [`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk)
 returns, the context may have pending function
 calls if the model requested tools. These are available through
-[`LLM::Context#pending_functions`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions),
+[`LLM::Context#pending_functions`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions)
 which returns an array of
 [`LLM::Function`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html)
 objects. Each function has a name, arguments, and methods for

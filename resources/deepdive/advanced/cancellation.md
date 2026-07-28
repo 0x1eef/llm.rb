@@ -20,7 +20,11 @@ from any thread. Two things
 happen at once:
 
 [`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html)
-is raised on the thread where `talk` is running, so the caller
+is raised on the thread where
+[`LLM::Agent#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk)
+or
+[`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk)
+is running, so the caller
 can rescue it and know the request was cancelled.
 
 At the same time,

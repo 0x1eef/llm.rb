@@ -78,15 +78,14 @@ The frontmatter is parsed from the YAML block at the top of the
 file. The markdown body that follows becomes the subagent's system
 prompt. The `tools` field resolves at load time: named tools are
 looked up in the registry, `inherit` copies from the parent context,
-and `all` grabs everything available.
+and `all` grabs everything available. The `tools` field accepts four
+forms:
 
 | Field | Purpose |
 |---|---|
 | `name` | A short identifier for the skill. Used as the tool name. |
 | `description` | Explains to the model what the skill does. Used as the tool description. |
 | `tools` | Controls what the subagent can call. See below. |
-
-The `tools` field accepts four forms:
 
 | Value | Behavior |
 |---|---|

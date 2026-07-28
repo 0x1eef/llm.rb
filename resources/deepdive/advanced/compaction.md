@@ -8,13 +8,16 @@
 Long-running conversations consume tokens. Without intervention,
 every turn pushes toward the model's context window limit. Compaction
 drops old messages to keep the conversation alive. The runtime runs
-a compactor automatically before each `talk` call, trimming the
-oldest messages when the conversation exceeds a configured size.
+a compactor automatically before each
+[`LLM::Agent#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk)
+call, trimming the oldest messages when the conversation exceeds a configured size.
 This keeps the context window healthy without manual intervention.
 
 #### How it works
 
-Compactors run automatically before each `talk` call.
+Compactors run automatically before each
+[`LLM::Agent#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk)
+call.
 [`LLM::Compactor::Truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html)
 strategy drops the oldest messages, keeping only the N most recent.
 It preserves tool call/return pairs so the conversation never
