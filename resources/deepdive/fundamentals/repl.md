@@ -37,8 +37,8 @@ require "llm"
 require "llm/tools"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
+agent = LLM::Agent.new(llm, name: "my-agent", path: "session.json")
+agent.repl(tools: LLM::Tool.subclasses)
 ```
 
 | Key | Action |

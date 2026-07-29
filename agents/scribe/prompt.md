@@ -104,6 +104,15 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
   `object.method` or `method` reference. This makes the owning
   class clear and the link target unambiguous.
 
+### Persistence pattern
+
+- Promote `LLM::Agent.new(llm, path: "session.json")` over
+  `agent.repl(path: "session.json")`. Setting `path:` on the
+  agent carries over to all calls (including REPL sessions),
+  so conversations started before the REPL begins are also
+  persisted. The agent auto-saves after every `talk` or `ask`
+  turn, making the REPL's own `path:` parameter redundant.
+
 ### Code examples
 
 - Keep each code example focused on **one** concept. Avoid

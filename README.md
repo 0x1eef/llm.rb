@@ -187,8 +187,8 @@ res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}
 
 The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
 method drops you into a curses-based TUI for talking to an
-agent interactively. The `path:` option saves and restores
-runtime state across sessions. The `tools:` option attaches
+agent interactively. Set `path:` on the agent for automatic
+persistence across REPL sessions. The `tools:` option attaches
 extra tools for the duration of the session. It is like
 `binding.pry` but for agents. For the full reference see the
 [REPL section](https://r.uby.dev/llm/deepdive/fundamentals/repl) in the
@@ -199,8 +199,8 @@ require "llm"
 require "llm/tools"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl(path: "agent.json", tools: LLM::Tool.subclasses)
+agent = LLM::Agent.new(llm, name: "my-agent", path: "agent.json")
+agent.repl(tools: LLM::Tool.subclasses)
 ```
 
 #### LLM::MCP
