@@ -122,7 +122,24 @@
   making it harder to resume a session. Tool-call and tool-return
   messages are skipped to avoid visual noise.
 
+### CLI
+
+* **add `bin/llm.rb` for launching the REPL from the command line** <br>
+  A new executable script (`bin/llm.rb`) provides a convenient way to start
+  an interactive REPL session directly from the terminal. It auto-detects
+  the provider from environment variables like `OPENAI_API_KEY`, supports
+  a `-p PROVIDER` flag for explicit provider selection, a `-t` flag for
+  temporary (non-persistent) sessions, and `-h` for help. Sessions are
+  automatically saved to `~/.llm.rb/` by default.
+
 ### Fix
+
+* **agent: fix `path` restore on first run** <br>
+  Fix a bug where [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+  called `@ctx.restore(path:)` even when the path's file did not exist.
+  The fix checks `File.readable?(@path)` before attempting to restore,
+  so the agent starts with a blank conversation on first use instead of
+  failing with a file-not-found error.
 
 * **tools: re-raise `LLM::Interrupt` to abort the turn** <br>
   [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html),
