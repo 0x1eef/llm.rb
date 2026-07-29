@@ -33,6 +33,11 @@ DESCRIPTION
     "llm.gemspec"
   ]
   spec.require_paths = ["lib"]
+  spec.post_install_message = "\n" \
+                              "Learn more about llm.rb by reading the deepdive:" \
+                              "\n" \
+                              "https://r.uby.dev/llm/deepdive" \
+                              "\n\n"
 
   spec.add_development_dependency "webmock", "~> 3.24.0"
   spec.add_development_dependency "yard", "~> 0.9.37"

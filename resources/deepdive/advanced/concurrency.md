@@ -46,8 +46,13 @@ the cancel request ends the turn. Otherwise the tool call is
 intercepted but the turn continues.
 
 ```ruby
+##
+# At a high-level
 agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
+agent.talk "Run the tools"
 
+##
+# At a low-level
 fn = FetchStocks.function
 fn.task(:thread).wait
 ```
