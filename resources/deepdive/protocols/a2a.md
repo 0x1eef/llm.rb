@@ -37,10 +37,9 @@ the network.
 
 #### Notes
 
-An agent's capabilities are advertised through a card. Use
+An agent's capabilities are advertised through a card. The
 [`LLM::A2A::Card#interfaces`](https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces)
-to discover which transports a remote agent
-supports.
+method lists which transports a remote agent supports.
 
 ### JSON-RPC
 
@@ -49,10 +48,9 @@ supports.
 JSON-RPC is an alternative transport for A2A agents. It uses a
 more structured protocol than REST, with request and response
 objects that follow the JSON-RPC 2.0 spec. Some agents advertise
-only JSON-RPC, others advertise both. Check
+only JSON-RPC, others advertise both. The
 [`LLM::A2A::Card#interfaces`](https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces)
-to
-see what a remote agent supports before choosing a transport.
+method lists which transports a remote agent supports.
 
 #### How it works
 
@@ -74,15 +72,15 @@ agent.talk "What's happening, fellow agent?"
 
 JSON-RPC provides typed request and response objects that follow
 the 2.0 spec, offering a more structured protocol than REST. Some
-agents advertise only JSON-RPC, while others advertise both. Check
+agents advertise only JSON-RPC, while others advertise both. The
 [`LLM::A2A::Card#interfaces`](https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces)
-to see what a remote agent supports before
-choosing a transport.
+method lists which transports a remote agent supports.
 
 #### Notes
 
-Both transports expose the remote agent's skills as local
-[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
-subclasses, so the calling agent calls them the same way it
-calls any other tool.
+JSON-RPC request and response objects are typed and follow the 2.0
+spec. The
+[`LLM::A2A.jsonrpc`](https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html#jsonrpc-class_method)
+transport provides structured message envelopes rather than plain
+HTTP.
 

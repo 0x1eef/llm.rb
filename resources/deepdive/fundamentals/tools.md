@@ -11,10 +11,12 @@ command, query a database, or fetch a web page. The model decides
 when a tool fits the request; the runtime calls it and sends the
 result back.
 
-A tool is a Ruby class with a name, a description, and a `call`
+A tool is a Ruby class with a name, a description, and a
+[`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
 method. The name tells the model what the tool is called. The
-description tells the model when to use it. The `call` method
-receives the arguments and returns the result. That is the entire
+description tells the model when to use it. The
+[`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
+method receives the arguments and returns the result. That is the entire
 contract: name, description, parameters, and a method that runs.
 
 #### How it works
@@ -23,12 +25,16 @@ A tool is a subclass of
 [`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
 with a name, description, and optional typed parameters. The model sees the name and
 description and decides whether to call it. When it does, the
-runtime serialises the arguments and passes them to `call`.
+runtime serialises the arguments and passes them to
+[`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call).
 
-If `call` raises, the runtime rescues it and returns a structured
+If
+[`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
+raises, the runtime rescues it and returns a structured
 error to the model instead. The conversation stays valid. You can
-also handle errors yourself inside `call` by rescuing and returning
-a domain-specific error hash.
+also handle errors yourself inside
+[`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
+by rescuing and returning a domain-specific error hash.
 
 ```ruby
 class Shell < LLM::Tool
@@ -61,21 +67,18 @@ not derail the conversation.
 #### Notes
 
 Confirmation gates tools behind explicit approval. List tool names
-in `LLM::Agent.confirm` to block execution until you override
-`on_tool_confirmation`. Confirmation also accepts a Symbol for
+in
+[`LLM::Agent#confirm`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm)
+to block execution until you override
+[`LLM::Agent#on_tool_confirmation`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#on_tool_confirmation).
+Confirmation also accepts a Symbol for
 lazy resolution. A Symbol lets the confirmed set change
-per-instance based on runtime conditions:
+per-instance based on runtime conditions.
+
+For dynamic confirmation lists, pass a Symbol that resolves to an
+instance method:
 
 ```ruby
-class AdminAgent < LLM::Agent
-  set confirm: %w[delete destroy shutdown]
-
-  def on_tool_confirmation(fn, strategy)
-    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
-    $stdin.gets&.match?(/\Ay\z/i) ? fn.task(strategy).wait : fn.cancel
-  end
-end
-
 class AdaptiveAgent < LLM::Agent
   set confirm: :tools_that_need_confirmation
 
@@ -85,23 +88,28 @@ class AdaptiveAgent < LLM::Agent
 end
 ```
 
-
-
 ### Confirmation
 
 #### Overview
 
 Tools that perform destructive actions can be gated behind explicit
-approval. List their names in `LLM::Agent.confirm` to block execution
-until you override `on_tool_confirmation`. The default handler cancels
+approval. List their names in
+[`LLM::Agent#confirm`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm)
+to block execution
+until you override
+[`LLM::Agent#on_tool_confirmation`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#on_tool_confirmation).
+The default handler cancels
 the tool. Override it per-agent to prompt the user, log the decision,
 or auto-approve certain tools.
 
 #### How it works
 
 When you want to gate destructive tools behind explicit approval,
-list their names in `LLM::Agent.confirm`.
-Override `on_tool_confirmation` on the subclass to define your
+list their names in
+[`LLM::Agent#confirm`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm).
+Override
+[`LLM::Agent#on_tool_confirmation`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#on_tool_confirmation)
+on the subclass to define your
 own approval flow. The default handler cancels the call.
 
 ```ruby
@@ -140,9 +148,12 @@ matter what.
 
 #### How it works
 
-If `call` raises, the runtime returns `{error: true, type: "RuntimeError",
-message: "boom"}` to the model. You can also rescue inside `call` and
-return your own error shape that gives the model more context.
+If
+[`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
+raises, the runtime returns `{error: true, type: "RuntimeError",
+message: "boom"}` to the model. You can also rescue inside
+[`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
+and return your own error shape that gives the model more context.
 
 ```ruby
 class Shell < LLM::Tool

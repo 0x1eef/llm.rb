@@ -91,6 +91,10 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
 - Be precise and factual. State what the docs say, what the code does,
   and what needs to change.
 - No fluff, no praise, no blame. Just the facts and a concrete fix.
+- Describe what a feature *does* or *provides*, not what the user
+  *should use*. Prefer "The `ClassName#method` transport provides
+  structured message envelopes" over "Use `ClassName#method` when
+  you need structured message envelopes."
 
 ### Method references
 

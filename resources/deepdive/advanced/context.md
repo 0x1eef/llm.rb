@@ -32,7 +32,11 @@ to execute them. Each call to
 [`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk)
 appends
 to the conversation and returns the model's response. The context
-serializes its state with `to_h` and `to_json`, and restores it
+serializes its state with
+[`LLM::Context#to_h`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_h)
+and
+[`LLM::Context#to_json`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_json),
+and restores it
 with
 [`LLM::Context#restore`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore).
 This is how the ORM integrations and filesystem
@@ -62,7 +66,6 @@ The agent uses `LLM::Context` internally. Anything you can do with
 a context, you can also do through an agent. The trade-off is
 convenience versus control. Contexts support the same concurrency
 strategies, compaction, cancellation, and serialization as agents.
-
 
 ### Manual loop
 
@@ -142,7 +145,7 @@ preserve them.
 
 #### Overview
 
-After
+Pending function calls represent the model's tool requests. After
 [`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk)
 returns, the context may have pending function
 calls if the model requested tools. These are available through
@@ -202,12 +205,11 @@ executing. Functions that are cancelled still count as completed
 from the model's perspective; the model sees a cancellation
 result, not a tool error.
 
-
 ### Tool responses
 
 #### Overview
 
-When a tool receives
+A tool interrupt gives you two choices. When a tool receives
 [`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html),
 it can either cancel the turn or return a result. The choice
 depends on the situation.

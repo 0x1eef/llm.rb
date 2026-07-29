@@ -16,7 +16,9 @@ requires no code changes.
 The
 [`LLM::Images#create`](https://r.uby.dev/api-docs/llm.rb/LLM/Images.html#create)
 method sends a prompt to the provider and
-returns the result as a `URIData` object. The same API works
+returns the result as a
+[`LLM::URIData`](https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html)
+object. The same API works
 across providers: swap `LLM.openai` for `LLM.xai` and the rest
 of the code is identical.
 
@@ -59,7 +61,9 @@ text-to-image prompts, giving you iterative vector editing.
 The
 [`LLM::Images#edit`](https://r.uby.dev/api-docs/llm.rb/LLM/Images.html#edit)
 method takes a prompt and an image path. It
-returns a modified image as a `URIData` object. Copy the result
+returns a modified image as a
+[`LLM::URIData`](https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html)
+object. Copy the result
 to a file the same way you would with generated images.
 
 ```ruby

@@ -29,7 +29,17 @@ When characters arrive faster than a threshold, the REPL detects
 paste mode. In paste mode, pressing Enter inserts a newline instead
 of submitting.
 
-The input area supports several keyboard shortcuts:
+The input area supports several keyboard shortcuts.
+Start a session with:
+
+```ruby
+require "llm"
+require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
+```
 
 | Key | Action |
 |---|---|
@@ -41,17 +51,6 @@ The input area supports several keyboard shortcuts:
 | `Esc` | Cancel the current request |
 | `Up` / `Down` | Scroll the transcript one line |
 | `PgUp` / `PgDn` | Scroll the transcript by one page |
-
-Start a session with:
-
-```ruby
-require "llm"
-require "llm/tools"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
-```
 
 #### Why would I use it?
 

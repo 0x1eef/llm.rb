@@ -13,7 +13,8 @@ document URLs.
 #### How it works
 
 Mistral is the only provider with a dedicated OCR endpoint. The
-`ocr` method accepts an `image_url:` or `document_url:` parameter.
+[`LLM::Provider#ocr`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#ocr)
+method accepts an `image_url:` or `document_url:` parameter.
 Document URLs can point to PDFs.
 
 ```ruby

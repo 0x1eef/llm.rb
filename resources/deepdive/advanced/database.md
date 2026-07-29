@@ -50,7 +50,6 @@ The saved JSON can be stored in a file, a database column, or
 transmitted over the network. The ORM integrations use the same
 underlying serialization as filesystem persistence.
 
-
 ### Automatic filesystem persistence
 
 #### Overview
@@ -82,7 +81,7 @@ state is written back automatically. If the file does not exist yet,
 the agent starts with a blank conversation and creates the file on
 the first save.
 
-You can set the path using any of these approaches:
+The path can be set using any of these approaches:
 
 ##### Class DSL
 
@@ -140,7 +139,6 @@ and
 [`LLM::Agent#restore`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore)
 methods described in the Filesystem section below. The `path`
 attribute delegates to the same underlying serialization.
-
 
 ### Filesystem
 
@@ -205,8 +203,10 @@ transmitted over the network.
 
 #### Overview
 
-ActiveRecord models use `acts_as_agent` to install the agent
-wrapper. The method accepts a block for configuring agent defaults
+ActiveRecord models use
+[`LLM::ActiveRecord#acts_as_agent`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method)
+to install the agent wrapper. The method accepts a block for
+configuring agent defaults
 and an options hash for storage format. Most defaults such as
 `model`, `tools`, `instructions`, `schema`, and `concurrency` can
 be set through the block. Tracer and stream can also be set here
@@ -215,7 +215,9 @@ rather than through legacy convention methods.
 #### How it works
 
 When you want to add agent persistence to an ActiveRecord model,
-call `acts_as_agent` in the model class. The `data` column stores
+call
+[`LLM::ActiveRecord#acts_as_agent`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method)
+in the model class. The `data` column stores
 the full agent state (conversation history, model name, compaction
 status) as JSON. On first call, a fresh agent is created and the
 conversation starts from scratch.
@@ -236,8 +238,10 @@ ActiveRecord handles JSON typecasting automatically.
 
 The block yields an
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
-instance. Set agent defaults in the block using the `set` method
-or individual accessors. Anything you can set on an agent can be
+instance. Set agent defaults in the block using the
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
+method or individual accessors. Anything you can set on an agent
+can be
 configured here -- model, tools, instructions, schema, concurrency,
 tracer, stream, and confirm:
 
@@ -246,8 +250,9 @@ rather than through legacy `set_tracer` / `set_context` convention
 methods. The block style is the recommended approach for all agent
 configuration. Only `set_provider` is required as a private method.
 
+##### Migration with TEXT column
+
 ```ruby
-# Migration for the data column
 class CreateAgents < ActiveRecord::Migration[7.1]
   def change
     create_table :agents do |t|
@@ -257,8 +262,11 @@ class CreateAgents < ActiveRecord::Migration[7.1]
     end
   end
 end
+```
 
-# Or with PostgreSQL JSONB
+##### Migration with JSONB column
+
+```ruby
 class CreateAgents < ActiveRecord::Migration[7.1]
   def change
     create_table :agents do |t|
@@ -268,8 +276,11 @@ class CreateAgents < ActiveRecord::Migration[7.1]
     end
   end
 end
+```
 
-# Model setup
+##### Model setup
+
+```ruby
 require "active_record"
 require "llm"
 require "llm/active_record"
@@ -351,12 +362,9 @@ As with ActiveRecord, `tracer` and `stream` are configured in the
 block rather than through legacy convention methods. The block
 style is the recommended approach.
 
-```ruby
-require "sequel"
-require "llm"
-require "llm/sequel/plugin"
+##### Migration with TEXT column
 
-# Migration for the data column
+```ruby
 DB.create_table :agents do
   primary_key :id
   String :name
@@ -364,8 +372,11 @@ DB.create_table :agents do
   DateTime :created_at
   DateTime :updated_at
 end
+```
 
-# Or with PostgreSQL JSONB
+##### Migration with JSONB column
+
+```ruby
 DB.create_table :agents do
   primary_key :id
   String :name
@@ -373,8 +384,15 @@ DB.create_table :agents do
   DateTime :created_at
   DateTime :updated_at
 end
+```
 
-# Model setup
+##### Model setup
+
+```ruby
+require "sequel"
+require "llm"
+require "llm/sequel/plugin"
+
 class Agent < Sequel::Model
   plugin(:agent, format: :jsonb) do |agent|
     agent.model "deepseek-v4-pro"

@@ -33,8 +33,9 @@ is raised on every active tool.
 A tool running in a thread gets it on that thread. A tool in a
 fiber gets it on that fiber. A tool in a forked process gets it
 via a message over the control channel. Pending tools (not yet
-started) are cancelled through `Function#cancel` without ever
-being executed.
+started) are cancelled through
+[`LLM::Function#cancel`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel)
+without ever being executed.
 
 The transport layer also cancels the in-flight HTTP request.
 

@@ -43,7 +43,6 @@ organized, not in what it can do. Tool loop execution can be
 configured with `concurrency: :sequential`, `:thread`, `:async`,
 `:fiber`, `:fork`, or `:ractor`.
 
-
 ### Class-based
 
 #### Overview
@@ -59,7 +58,9 @@ and talk to from anywhere.
 
 #### How it works
 
-A subclass declares its defaults with `set`. Each key is a
+A subclass declares its defaults with
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method).
+Each key is a
 class-level accessor: `model`, `tools`, `instructions`, `stream`,
 `tracer`, `concurrency`, `schema`, `confirm`. When you create a
 new instance, any keyword arguments override the class-level
@@ -85,7 +86,9 @@ becomes a self-contained worker.
 
 #### Notes
 
-Attributes passed to `set` can be plain values, blocks, or
+Attributes passed to
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
+can be plain values, blocks, or
 Symbols. A Symbol is evaluated as an instance method on the
 subclass, so `tracer: :set_tracer` calls `set_tracer` on the
 instance. A block like `stream: -> { $stdout }` is evaluated
@@ -131,7 +134,7 @@ agent.talk "Hello world"
 A direct instance is the right choice for quick experiments, one-shot
 tasks, or when defining a class would be overkill. It is also
 the right choice when the agent's configuration is determined at
-runtime and building a class hierarchy would be overkill.
+runtime and a class hierarchy adds unnecessary complexity.
 
 #### Notes
 

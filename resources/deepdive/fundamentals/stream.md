@@ -36,9 +36,11 @@ single blocking response.
 
 #### Notes
 
-The IO-like form is equivalent to `LLM::Stream#on_content` and does
-not include the other hooks. It covers content output (piping to
-stdout or a log file) without the overhead of a full subclass. A
+The IO-like form is equivalent to
+[`LLM::Stream#on_content`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_content)
+and does not include the other hooks. It covers content output
+(piping to stdout or a log file) without the overhead of a full
+subclass. A
 [`LLM::Stream`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html)
 subclass gives you visibility into tool calls, compaction events,
 and reasoning content.
@@ -58,9 +60,13 @@ happens, from the first token to the final tool return.
 When you want to react to specific runtime events, override the
 hooks on a
 [`LLM::Stream`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html)
-subclass. `on_content` receives tokens as they arrive.
-`on_tool_call` fires when the model requests a tool.
-`on_tool_return` fires when the tool completes. Compaction hooks
+subclass.
+[`LLM::Stream#on_content`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_content)
+receives tokens as they arrive.
+[`LLM::Stream#on_tool_call`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_tool_call)
+fires when the model requests a tool.
+[`LLM::Stream#on_tool_return`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_tool_return)
+fires when the tool completes. Compaction hooks
 let you show progress or log what was trimmed.
 
 ```ruby
@@ -99,5 +105,6 @@ an existing observability stack.
 
 #### Notes
 
-The IO-like form is equivalent to `LLM::Stream#on_content` and does
-not include the other hooks.
+The IO-like form is equivalent to
+[`LLM::Stream#on_content`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_content)
+and does not include the other hooks.
