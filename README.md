@@ -330,7 +330,8 @@ or PostgreSQL's [pg-vector](https://github.com/pgvector/pgvector).
 
 llm.rb also includes support for OpenAI's vector store API. It
 provides a vector database as a HTTP service but we won't cover
-that here.
+that here. For a deeper explanation see the
+[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/embeddings).
 
 ```ruby
 require "llm"
