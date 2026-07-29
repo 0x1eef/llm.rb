@@ -71,22 +71,9 @@ in
 [`LLM::Agent#confirm`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm)
 to block execution until you override
 [`LLM::Agent#on_tool_confirmation`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#on_tool_confirmation).
-Confirmation also accepts a Symbol for
-lazy resolution. A Symbol lets the confirmed set change
-per-instance based on runtime conditions.
-
-For dynamic confirmation lists, pass a Symbol that resolves to an
-instance method:
-
-```ruby
-class AdaptiveAgent < LLM::Agent
-  set confirm: :tools_that_need_confirmation
-
-  def tools_that_need_confirmation
-    some_condition ? %w[delete destroy] : %w[delete]
-  end
-end
-```
+Confirmation also accepts a Symbol that resolves to an instance
+method, letting the confirmed set change per-instance based on
+runtime conditions.
 
 ### Confirmation
 

@@ -59,6 +59,7 @@ place to start if you are new to llm.rb.
 - [Database](deepdive/fundamentals/database.md)
 - [Concurrency](deepdive/fundamentals/concurrency.md)
 - [REPL](deepdive/fundamentals/repl.md)
+- [Embeddings](deepdive/fundamentals/embeddings.md)
 
 ## Advanced
 

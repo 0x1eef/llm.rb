@@ -16,7 +16,16 @@ requests made by that agent.
 
 When you want to observe runtime events, subclass
 [`LLM::Tracer`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html)
-and implement the hooks you need.
+and implement the hooks you need, or use one of the built-in
+tracers. Attach a tracer to a provider or an agent:
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::PrettyLogger.new(llm)
+agent = LLM::Agent.new(llm)
+agent.talk "Hello"
+```
+
 The built-in tracers include [`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html) (writes
 structured JSON to stdout or a file), [`LLM::Tracer::PrettyLogger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html)
 (writes human-readable single-line logs to stderr), and
@@ -29,9 +38,11 @@ Tracers give you visibility into what the runtime is doing. Debug
 a misbehaving agent by tracing every request it makes. Monitor
 request latency and token usage across providers. Export spans to
 OpenTelemetry for integration with existing observability pipelines.
-Use [`LLM::Tracer::PrettyLogger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html) during development for compact,
-human-readable output, [`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html) for structured JSON,
-and [`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html) for production observability.
+[`LLM::Tracer::PrettyLogger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html)
+is the best choice during development for compact, human-readable
+output. [`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html) provides structured JSON, and
+[`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html) exports spans to OpenTelemetry for
+production observability.
 
 #### Notes
 
