@@ -313,7 +313,7 @@ RSpec.describe LLM::Function do
 
       context "when wrapping a Fiber" do
         it "does not raise on a dead fiber" do
-          fiber = Fiber.new { :done }.tap(&:resume)
+          Fiber.new { :done }.tap(&:resume)
           expect { LLM::Function::Fiber::Task.new(fn).interrupt! }.not_to raise_error
         end
       end

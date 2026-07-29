@@ -227,7 +227,6 @@ class LLM::Function
     @called = true
   end
 
-
   ##
   # Returns a function as a {LLM::Function::Task LLM::Function::Task}.
   #

@@ -112,8 +112,8 @@ module LLM
     def self.name(name = UNDEFINED, &block)
       if name.equal?(UNDEFINED)
         if @name.nil?
-          name  = self.to_s.split("::").last
-          @name = name.gsub(CASE_PATTERN, '-').downcase
+          name  = to_s.split("::").last
+          @name = name.gsub(CASE_PATTERN, "-").downcase
         else
           @name
         end

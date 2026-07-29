@@ -102,7 +102,7 @@ class LLM::Repl
       when :a
         node.children.each { walk(_1, Curses::A_UNDERLINE) }
       when :img
-        emit("[image: #{node.attr['alt']}]", attrs)
+        emit("[image: #{node.attr["alt"]}]", attrs)
       else
         node.children.each { walk(_1, attrs) }
       end

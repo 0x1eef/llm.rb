@@ -95,3 +95,9 @@ Lint/UnderscorePrefixedVariableName:
   Enabled: false
 Style/YodaCondition:
   Enabled: false
+Layout/MultilineBlockLayout:
+  Enabled: false
+Style/Semicolon:
+  Enabled: false
+Style/EmptyStringInsideInterpolation:
+  Enabled: false
