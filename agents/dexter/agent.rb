@@ -38,7 +38,7 @@ def main(argv)
     agent.changelog!
     agent.repl
   when "release"
-    agent.release!(version: ARGV[1])
+    agent.release(version: ARGV[1])
     agent.repl
   else
     warn "agent: expected changelog, release but got #{argv[0]}"

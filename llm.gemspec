@@ -30,8 +30,9 @@ DESCRIPTION
     "lib/*.rb", "lib/**/*.rb",
     "data/*.json", "CHANGELOG.md",
     "resources/deepdive.md",
-    "llm.gemspec"
+    "llm.gemspec", "bin/llm.rb"
   ]
+  spec.executables = ["llm.rb"]
   spec.require_paths = ["lib"]
   spec.post_install_message = "\n" \
                               "Learn more about llm.rb by reading the deepdive:" \

@@ -15,6 +15,19 @@
 
 ## What's next
 
+*No unreleased changes yet. Check back after the next release.*
+
+## v13.1.0
+
+Changes since `v13.0.0`.
+
+This release adds `LLM::Agent` class DSL attributes (`path`, `description`),
+extends skills with file-path loading and the `tools: all` directive, adds new
+built-in tools (`LLM::Tool::Ruby`, `LLM::Tool::EditFile`), introduces the
+`LLM::Tracer::PrettyLogger` for human-readable tracing, renames `Transcript`
+to `Buffer` across the REPL, ships a `bin/llm.rb` CLI entry point, and fixes
+several agent and tool bugs around persistence, interruption, and naming.
+
 ### Core
 
 * **add post install message with deepdive link** <br>
