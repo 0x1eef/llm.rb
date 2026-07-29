@@ -169,6 +169,14 @@ and more. It is also used internally by
 definitions, so you already benefit from it when you declare tool
 parameters.
 
+The
+[`LLM::DeepSeek`](https://r.uby.dev/api-docs/llm.rb/LLM/DeepSeek.html)
+provider includes runtime-level optimisations such as structured
+output support (despite no official structured outputs API) and
+SVG image generation. This example uses
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html) with
+DeepSeek:
+
 ```ruby
 class Weather < LLM::Schema
   property :city, String, "The city name"
@@ -177,7 +185,7 @@ class Weather < LLM::Schema
   required %i[city temperature conditions]
 end
 
-llm = LLM.openai(key: ENV["KEY"])
+llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, schema: Weather)
 res = agent.talk "Weather in Paris?"
 res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}
