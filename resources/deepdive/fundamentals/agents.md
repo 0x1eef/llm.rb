@@ -61,14 +61,15 @@ and talk to from anywhere.
 A subclass declares its defaults with
 [`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method).
 Each key is a
-class-level accessor: `model`, `tools`, `instructions`, `stream`,
-`tracer`, `concurrency`, `schema`, `confirm`. When you create a
-new instance, any keyword arguments override the class-level
-defaults.
+class-level accessor: `name`, `description`, `model`, `tools`,
+`instructions`, `stream`, `tracer`, `concurrency`, `schema`,
+`confirm`, `path`.
+Keyword arguments in the constructor override these defaults.
 
 ```ruby
 class Agent < LLM::Agent
   set model: "deepseek-v4-pro",
+      description: "system administration agent",
       tools: [Shell]
 end
 
@@ -118,7 +119,9 @@ configuration is determined at runtime.
 #### How it works
 
 A direct instance takes the same attributes as keyword arguments
-to `LLM::Agent.new`. The first argument is always the provider.
+to
+[`LLM::Agent.new`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#initialize-instance_method).
+The first argument is always the provider.
 Everything else is optional. The agent runs the tool loop
 and manages state under the hood through a
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html).

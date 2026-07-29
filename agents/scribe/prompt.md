@@ -98,11 +98,12 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
 
 ### Method references
 
-- When referring to a method in prose, use the full
-  `ClassName#method` format (e.g.
-  [`LLM::Context#pending_functions?`](link)) rather than a bare
-  `object.method` or `method` reference. This makes the owning
-  class clear and the link target unambiguous.
+- Every backtick-wrapped reference to an llm.rb class or method
+  in prose must use the full `ClassName#method` or `ClassName`
+  format with an API doc link (e.g.
+  [`LLM::Context#pending_functions?`](link),
+  [`LLM::Tracer::Logger`](link)). No bare backtick references
+  to llm.rb types outside code blocks.
 
 ### Persistence pattern
 
@@ -112,6 +113,13 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
   so conversations started before the REPL begins are also
   persisted. The agent auto-saves after every `talk` or `ask`
   turn, making the REPL's own `path:` parameter redundant.
+
+### Notes sections
+
+- Keyboard shortcut tables belong in `#### Notes` and should be
+  the **last element** in that section (after all prose and code
+  examples) so no text follows the table. Never move a keyboard
+  table out of Notes.
 
 ### Code examples
 

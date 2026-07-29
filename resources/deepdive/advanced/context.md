@@ -62,7 +62,9 @@ with a bare context.
 
 #### Notes
 
-The agent uses `LLM::Context` internally. Anything you can do with
+The agent uses
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+internally. Anything you can do with
 a context, you can also do through an agent. The trade-off is
 convenience versus control. Contexts support the same concurrency
 strategies, compaction, cancellation, and serialization as agents.

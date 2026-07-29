@@ -65,6 +65,28 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"
 ```
 
+#### LLM::Agent.set
+
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
+is a class-level DSL that accepts a Hash of properties. Each key resolves to a
+corresponding class accessor: `name`, `description`, `model`, `tools`,
+`instructions`, `schema`, `stream`, `tracer`, `concurrency`, `confirm`,
+`path`, and `skills`. All options are optional; zero or more can be set.
+An error is raised for unknown keys so that typos are caught early.
+
+```ruby
+class SystemAdmin < LLM::Agent
+  set name: "sysadmin",
+      description: "system administration agent",
+      model: "deepseek-v4-pro",
+      tools: [Shell]
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = SystemAdmin.new(llm)
+agent.talk "Run 'date'"
+```
+
 #### Persistence
 
 Set `path:` on an agent for automatic filesystem persistence;
@@ -340,7 +362,7 @@ The `:fork` strategy also provides a separate process that offers
 isolation from its parent.
 
 You can learn more about the llm.rb concurrency model in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/concurrency/).
+[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/concurrency).
 
 ```ruby
 require "llm"

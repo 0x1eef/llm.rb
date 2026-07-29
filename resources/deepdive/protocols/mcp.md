@@ -52,7 +52,8 @@ carries little benefit.
 
 The HTTP transport connects to a remote MCP server over HTTP.
 It is the right choice for cloud-hosted servers like GitHub's
-MCP endpoint. Tools exposed by the server become `LLM::Tool`
+MCP endpoint. Tools exposed by the server become
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
 subclasses the model can call. The server does not need to run
 locally or even on the same machine. Configure headers for
 authentication and pick a transport backend for connection

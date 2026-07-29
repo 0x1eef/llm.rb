@@ -66,9 +66,22 @@ that shows it in action. No stacking examples back to back. If a
 subsection needs more than one example, it needs its own child
 subsection.
 
-A code block must contain a single cohesive example. If the block
-has multiple distinct examples separated by comments or blank
-lines, consolidate them into one flow.
+Keep each code example focused on **one** concept. Avoid
+consolidating multiple distinct usage patterns into a single
+code block with comments separating them. Use separate
+`#####` sub-subsections with their own code block instead.
+
+Exceptions:
+
+- Showing the same concept at **two levels of abstraction**
+  (high-level vs low-level) in one code block is fine, since they
+  illustrate different views of the same idea rather than unrelated
+  patterns.
+
+- Showing **two alternative approaches** to the same problem in
+  separate code blocks, each preceded by a transitional sentence
+  that labels the approach, is fine. The prose between the blocks
+  makes each example self-contained and the distinction clear.
 
 ## Step 2: Check the openings
 
@@ -131,7 +144,9 @@ restructure.
 **No text after code blocks.** Prose comes before the code.
 Nothing after the closing triple backticks except the next heading.
 
-**No text after the last table.** Move it above.
+**No text after the last table.** Move orphaned text above the table.
+Do not move text that belongs to the surrounding Notes section; tables
+inside Notes (such as keyboard shortcut references) stay where they are.
 
 **No exclamation marks.** The author does not use them.
 
@@ -145,20 +160,22 @@ r.uby.dev/api-docs.
 
 ## Step 5: Check method references
 
-In prose (outside code blocks), method calls must use the
-`ClassName#method` format with an API doc link, not a bare
-`object.method` or bare `` `method` `` reference. The reader needs
-to know which class owns the method.
+Every backtick-wrapped reference to an llm.rb class or method
+in prose must use the full `ClassName#method` or `ClassName`
+format with an API doc link. No bare backtick references to
+llm.rb types outside code blocks.
 
 Right: "Call [`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk) to send input to the model."
+
+Right: "The built-in tracers include [`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html)."
 
 Wrong: "Call `ctx.talk` to send input to the model."
 
 Wrong: "You send input with `talk`."
 
-Every prose reference to a method should be a linked
-`ClassName#method` reference. Code blocks are exempt — inside
-code, `ctx.talk` is fine.
+Wrong: "The built-in tracers include `LLM::Tracer::Logger`."
+
+Code blocks are exempt — inside code, `ctx.talk` is fine.
 
 ## Step 6: Check paragraph rhythm
 

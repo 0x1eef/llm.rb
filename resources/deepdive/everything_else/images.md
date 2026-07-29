@@ -19,7 +19,9 @@ method sends a prompt to the provider and
 returns the result as a
 [`LLM::URIData`](https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html)
 object. The same API works
-across providers: swap `LLM.openai` for `LLM.xai` and the rest
+across providers: swap
+[`LLM.openai`](https://r.uby.dev/api-docs/llm.rb/LLM.html#openai-class_method) for
+[`LLM.xai`](https://r.uby.dev/api-docs/llm.rb/LLM.html#xai-class_method) and the rest
 of the code is identical.
 
 ```ruby
