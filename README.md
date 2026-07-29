@@ -65,7 +65,7 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"
 ```
 
-#### LLM::Agent.set
+##### set
 
 [`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
 is a class-level DSL that accepts a Hash of properties. Each key resolves to a
@@ -87,7 +87,7 @@ agent = SystemAdmin.new(llm)
 agent.talk "Run 'date'"
 ```
 
-#### Persistence
+##### Persistence
 
 Set `path:` on an agent for automatic filesystem persistence;
 the agent restores conversation history from the file on startup
