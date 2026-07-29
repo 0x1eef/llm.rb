@@ -55,19 +55,6 @@ The REPL requires the `curses` and `kramdown` gems. By default the
 tracer is disabled during the session. Set `tracer: true` to keep
 it active.
 
-The input area supports several keyboard shortcuts:
-
-| Key | Action |
-|---|---|
-| `Enter` | Submit the current prompt |
-| `Ctrl+A` | Jump to the start of the line |
-| `Ctrl+E` | Jump to the end of the line |
-| `Ctrl+P` / `Ctrl+N` | Recall previous / next user message |
-| `Tab` | Complete `/command` names |
-| `Esc` | Cancel the current request |
-| `Up` / `Down` | Scroll the transcript one line |
-| `PgUp` / `PgDn` | Scroll the transcript by one page |
-
 Commands use the same vocabulary as tools: declare a name,
 description, and parameters with `parameter` and `required`.
 Subclassing an existing command inherits its name, description,
@@ -85,3 +72,16 @@ class Greeter < LLM::Command
   end
 end
 ```
+
+The input area supports several keyboard shortcuts:
+
+| Key | Action |
+|---|---|
+| `Enter` | Submit the current prompt |
+| `Ctrl+A` | Jump to the start of the line |
+| `Ctrl+E` | Jump to the end of the line |
+| `Ctrl+P` / `Ctrl+N` | Recall previous / next user message |
+| `Tab` | Complete `/command` names |
+| `Esc` | Cancel the current request |
+| `Up` / `Down` | Scroll the transcript one line |
+| `PgUp` / `PgDn` | Scroll the transcript by one page |
