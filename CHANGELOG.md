@@ -15,6 +15,13 @@
 
 ## What's next
 
+### Core
+
+* **add post install message with deepdive link** <br>
+  The gemspec now includes a `post_install_message` that points users to
+  the deepdive guide at `https://r.uby.dev/llm/deepdive` after installation,
+  making it easier for new users to discover the project documentation.
+
 ### Agent
 
 * **add `description` class DSL and instance method** <br>
@@ -116,6 +123,18 @@
   messages are skipped to avoid visual noise.
 
 ### Fix
+
+* **tools: re-raise `LLM::Interrupt` to abort the turn** <br>
+  [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html),
+  [`LLM::Tool::Mkdir`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Mkdir.html),
+  [`LLM::Tool::Rg`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html),
+  [`LLM::Tool::Ruby`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html),
+  and
+  [`LLM::Tool::Shell`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html)
+  now re-raise `LLM::Interrupt` after killing their running command. The
+  previous behavior rescued the interrupt and killed the child process but
+  let the turn continue, which meant a cancelled tool call did not abort
+  the conversation turn. Re-raising ensures the entire turn is interrupted.
 
 * **tools: rescue `LLM::Interrupt` in shell-based tools** <br>
   [`LLM::Tool::Shell`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html),
