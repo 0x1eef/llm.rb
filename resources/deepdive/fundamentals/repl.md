@@ -29,7 +29,6 @@ When characters arrive faster than a threshold, the REPL detects
 paste mode. In paste mode, pressing Enter inserts a newline instead
 of submitting.
 
-The input area supports several keyboard shortcuts.
 Start a session with:
 
 ```ruby
@@ -40,17 +39,6 @@ llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, name: "my-agent", path: "session.json")
 agent.repl(tools: LLM::Tool.subclasses)
 ```
-
-| Key | Action |
-|---|---|
-| `Enter` | Submit the current prompt |
-| `Ctrl+A` | Jump to the start of the line |
-| `Ctrl+E` | Jump to the end of the line |
-| `Ctrl+P` / `Ctrl+N` | Recall previous / next user message |
-| `Tab` | Complete `/command` names |
-| `Esc` | Cancel the current request |
-| `Up` / `Down` | Scroll the transcript one line |
-| `PgUp` / `PgDn` | Scroll the transcript by one page |
 
 #### Why would I use it?
 
@@ -66,6 +54,19 @@ to the same agent while its state is still intact. It is
 The REPL requires the `curses` and `kramdown` gems. By default the
 tracer is disabled during the session. Set `tracer: true` to keep
 it active.
+
+The input area supports several keyboard shortcuts:
+
+| Key | Action |
+|---|---|
+| `Enter` | Submit the current prompt |
+| `Ctrl+A` | Jump to the start of the line |
+| `Ctrl+E` | Jump to the end of the line |
+| `Ctrl+P` / `Ctrl+N` | Recall previous / next user message |
+| `Tab` | Complete `/command` names |
+| `Esc` | Cancel the current request |
+| `Up` / `Down` | Scroll the transcript one line |
+| `PgUp` / `PgDn` | Scroll the transcript by one page |
 
 Commands use the same vocabulary as tools: declare a name,
 description, and parameters with `parameter` and `required`.

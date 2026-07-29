@@ -13,7 +13,8 @@ over a network. Four storage options are available:
   for transparent auto-save after every turn (recommended for
   most file-based use-cases)
 - **Filesystem**: save and restore from a JSON file on disk
-- **ActiveRecord**: persist state in a database column using `acts_as_agent`
+- **ActiveRecord**: persist state in a database column using
+  [`acts_as_agent`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method)
 - **Sequel**: persist state in a database column using `plugin :agent`
 
 All three use the same serialization mechanism under the hood.
@@ -166,22 +167,33 @@ restore work with file paths or in-memory strings. You can also
 serialize to a JSON string for database storage or network
 transmission:
 
+##### Save to a file
+
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.talk "remember my name is robert"
+agent.save(path: "agent.json")
+```
 
-# Save to file
-agent1 = LLM::Agent.new(llm)
-agent1.talk "remember my name is robert"
-agent1.save(path: "agent.json")
+##### Restore from a file
 
-# Restore from file
-agent2 = LLM::Agent.new(llm, stream: $stdout)
-agent2.restore(path: "agent.json")
-agent2.talk "what's my name?"
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.restore(path: "agent.json")
+agent.talk "what's my name?"
+```
 
-# Or serialize to a JSON string
-json = agent1.save
-agent3.restore(string: json)
+##### Serialize to a JSON string
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.talk "remember my name is robert"
+json = agent.save
+agent2 = LLM::Agent.new(llm)
+agent2.restore(string: json)
 ```
 
 #### Why would I use it?

@@ -104,13 +104,15 @@ or auto-approve certain tools.
 
 #### How it works
 
-When you want to gate destructive tools behind explicit approval,
-list their names in
-[`LLM::Agent#confirm`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm).
-Override
+When you want to override the default approval flow for a gated
+tool, override
 [`LLM::Agent#on_tool_confirmation`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#on_tool_confirmation)
-on the subclass to define your
-own approval flow. The default handler cancels the call.
+on the subclass. The method receives the pending function and the
+execution strategy. Call
+[`LLM::Function#task`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#task)
+to execute the tool or
+[`LLM::Function#cancel`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel)
+to block it. The default handler cancels the call.
 
 ```ruby
 class AdminAgent < LLM::Agent
@@ -131,10 +133,9 @@ prompt, a web socket, a background job queue.
 
 #### Notes
 
-Confirmation also accepts a Symbol for lazy resolution:
-`set confirm: :tools_that_need_confirmation` with a method that
-returns the list of tool names. This lets the confirmed set change
-per-instance based on runtime conditions.
+Confirmation names can be a static array of tool names or a Symbol
+that resolves to an instance method. The Symbol form lets the
+confirmed set change per-instance based on runtime conditions.
 
 ### Errors
 

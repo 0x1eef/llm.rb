@@ -125,6 +125,12 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
   is fine, since they illustrate different views of the same
   idea rather than unrelated patterns.
 
+- Another exception: showing **two alternative approaches**
+  to the same problem in separate code blocks, each preceded
+  by a transitional sentence that labels the approach, is
+  fine. The prose between the blocks makes each example
+  self-contained and the distinction clear.
+
 - Sub-section titles for code examples should be **short and
   scannable**. Omit articles and gerunds: prefer **Class DSL**
   over "Using the class DSL", **Keyword argument** over

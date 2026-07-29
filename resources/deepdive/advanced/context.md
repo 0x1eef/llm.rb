@@ -225,19 +225,29 @@ When a tool receives
 re-raise to abort the turn or return a value to continue the loop.
 The model receives the result and decides what to do next.
 
-```ruby
-def call
-  # do work
-rescue LLM::Interrupt
-  cleanup
-  raise
-end
+Re-raise to abort the turn entirely:
 
-def call
-  # do work
-rescue LLM::Interrupt
-  cleanup
-  {ok: false, reason: "interrupted"}
+```ruby
+class MyTool < LLM::Tool
+  def call
+    # do work
+  rescue LLM::Interrupt
+    cleanup
+    raise
+  end
+end
+```
+
+Return a value to continue the loop:
+
+```ruby
+class MyTool < LLM::Tool
+  def call
+    # do work
+  rescue LLM::Interrupt
+    cleanup
+    {ok: false, reason: "interrupted"}
+  end
 end
 ```
 
