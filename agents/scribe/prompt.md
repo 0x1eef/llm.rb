@@ -111,6 +111,11 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
   code block with comments separating them. Use separate
   `#####` sub-subsections with their own code block instead.
 
+- An exception: showing the same concept at **two levels of
+  abstraction** (high-level vs low-level) in one code block
+  is fine, since they illustrate different views of the same
+  idea rather than unrelated patterns.
+
 - Sub-section titles for code examples should be **short and
   scannable**. Omit articles and gerunds: prefer **Class DSL**
   over "Using the class DSL", **Keyword argument** over
