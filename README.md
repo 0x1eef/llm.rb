@@ -46,6 +46,22 @@ you learn llm.rb, you will also be able to use
 gem install llm.rb
 ```
 
+## CLI
+
+After installation, the `llm.rb` executable is available on your PATH.
+It starts an interactive REPL session from any directory:
+
+```bash
+llm.rb                     # auto-detect provider from $DEEPSEEK_API_KEY
+llm.rb -p openai           # use OpenAI explicitly
+llm.rb -t                  # temporary session, no disk persistence
+```
+
+The CLI auto-detects your provider from standard environment variables
+(`DEEPSEEK_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.).
+Persistent sessions are stored under `~/.llm.rb/` and restored
+automatically on your next visit.
+
 ## Quick start
 
 #### LLM::Agent
