@@ -56,17 +56,17 @@ place to start if you are new to llm.rb.
 - [Skills](deepdive/fundamentals/skills.md)
 - [Schema](deepdive/fundamentals/schema.md)
 - [Stream](deepdive/fundamentals/stream.md)
+- [Database](deepdive/fundamentals/database.md)
+- [Concurrency](deepdive/fundamentals/concurrency.md)
 - [REPL](deepdive/fundamentals/repl.md)
 
 ## Advanced
 
 - [Context](deepdive/advanced/context.md)
-- [Concurrency](deepdive/advanced/concurrency.md)
 - [Compaction](deepdive/advanced/compaction.md)
 - [Cancellation](deepdive/advanced/cancellation.md)
 - [Transports](deepdive/advanced/transports.md)
 - [Tracer](deepdive/advanced/tracer.md)
-- [Database](deepdive/advanced/database.md)
 
 ## Protocols
 
