@@ -17,6 +17,7 @@ class LLM::Tool
       {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
     rescue LLM::Interrupt
       command.kill! if command&.running?
+      raise
     end
 
     private
