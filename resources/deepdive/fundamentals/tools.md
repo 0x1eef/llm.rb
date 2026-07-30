@@ -150,8 +150,14 @@ and return your own error shape that gives the model more context.
 
 ```ruby
 class Shell < LLM::Tool
-  name "shell"
-  description "execute a shell command"
+  set name: "shell",
+      description: "run a shell command",
+      parameters: {
+        ["name", String, "the command name"],
+        ["arguments", Array[String], "one or more arguments"]
+      },
+      required: %i[name],
+      defaults: {arguments: []}
 
   def call(name:, arguments: [])
     out = `#{name} #{arguments.join(" ")}`
