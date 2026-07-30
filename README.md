@@ -537,6 +537,37 @@ wasn't possible to cover every feature without the README becoming a small book.
 The [r.uby.dev](https://r.uby.dev) homepage also includes more learning material
 and resources.
 
+## Developers
+
+The llm.rb project is quite large and maintained primarily by one
+person. It would be near impossible for me to maintain both the codebase
+and its documentation, especially the [deepdive.md](https://r.uby.dev/llm/deepdive/)
+so I have written agents that maintain the documentation assets and that
+allows me to put more focus on the code.
+
+The following agents are available for those tasks, and all of them
+use the most cost effective option: DeepSeek. Feel free to use them
+in your own fork.
+
+```sh
+##
+# Maintains the deepdive and API docs
+rake agents:scribe:yardoc
+rake agents:scribe:coverage
+rake agents:scribe:regressions
+rake agents:scribe:style
+
+##
+# Maintains the release
+rake agents:dexter:changelog
+rake agents:dexter:release
+
+##
+# Maintains mruby-llm backports
+rake agents:mruby:research
+rake agents:mruby:implement
+```
+
 ## License
 
 This software is released under the terms of the MIT license. <br>
