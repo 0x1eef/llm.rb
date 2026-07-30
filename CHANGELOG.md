@@ -15,7 +15,15 @@
 
 ## What's next
 
-*No unreleased changes yet. Check back after the next release.*
+### Tool
+
+* **add `LLM::Tool.set` for bulk-assigning tool properties** <br>
+  [`LLM::Tool.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method)
+  accepts a hash of `name`, `description`, `parameters`, `required`, and
+  `defaults` to configure a tool subclass in a single call. Parameters are
+  defined as tuples of `[name, type, description, options]`, matching the
+  same interface as the existing `parameter` DSL. Unknown keys raise
+  `KeyError`.
 
 ## v13.1.0
 
