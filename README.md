@@ -167,11 +167,9 @@ class MathTool < LLM::Tool
   set name: "math",
       description: "Performs arithmetic",
       parameters: [
-        [:x, Integer, "first number"],
-        [:y, Integer, "second number"]
-      ],
-      required: %i[x],
-      defaults: {y: 0}
+        [:x, Integer, "first number" , {required: true}],
+        [:y, Integer, "second number", {default: 0}]
+      ]
 
   def call(x:, y: 0)
     {result: x + y}
