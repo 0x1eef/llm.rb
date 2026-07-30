@@ -75,6 +75,11 @@ Confirmation also accepts a Symbol that resolves to an instance
 method, letting the confirmed set change per-instance based on
 runtime conditions.
 
+Tool properties can be defined with individual method calls (as shown
+in the How it works section) or with
+[`LLM::Tool.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method)
+(see the Set subsection). Both approaches work the same way.
+
 ### Confirmation
 
 #### Overview
@@ -170,3 +175,51 @@ The principle is the same either way: return something. A tool call
 must complete with a tool response. If you do not return a value and
 you do not raise, the runtime has nothing to send back and the
 conversation is stuck.
+
+### Set
+
+#### Overview
+
+[`LLM::Tool.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method)
+is an alternative way to define tool properties using a Hash. It
+works the same way as individual method calls and accepts the same
+keys: `name`, `description`, `parameters`, `required`, and
+`defaults`.
+
+#### How it works
+
+When you want to define tool properties at once, call
+[`LLM::Tool.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method)
+with a Hash. The keys match the individual method names. The
+`parameters` key accepts the same Array of tuples that the
+individual `parameter` method does.
+
+```ruby
+class Shell < LLM::Tool
+  set name: "shell",
+      description: "execute a shell command",
+      parameters: [
+        [:name, String, "the command's name"],
+        [:arguments, Array[String], "One or more arguments"]
+      ],
+      required: %i[name],
+      defaults: {arguments: []}
+
+  def call(name:, arguments: [])
+    out = `#{name.shellescape} #{arguments.map(&:shellescape).join(" ")}`
+    {ok: $?.success?, out:}
+  end
+end
+```
+
+#### Why would I use it?
+
+`set` is useful when you want to keep related properties together.
+Instead of spreading `name`, `description`, `parameters`, and
+`required` across multiple lines, you can group them in a single
+Hash that reads like a configuration block.
+
+#### Notes
+
+Unknown keys raise `KeyError`, so typos are caught at class load
+time rather than at runtime.

@@ -153,6 +153,32 @@ class ReadFile < LLM::Tool
 end
 ```
 
+##### set
+
+[`LLM::Tool.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method)
+is an alternative way to define tool properties using a Hash. It works
+the same way as
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
+and accepts the same keys that the individual methods do: `name`,
+`description`, `parameters`, `required`, and `defaults`:
+
+```ruby
+class MathTool < LLM::Tool
+  set name: "math",
+      description: "Performs arithmetic",
+      parameters: [
+        [:x, Integer, "first number"],
+        [:y, Integer, "second number"]
+      ],
+      required: %i[x],
+      defaults: {y: 0}
+
+  def call(x:, y: 0)
+    {result: x + y}
+  end
+end
+```
+
 #### LLM::Stream
 
 Streams can be simple IO objects or subclasses of
