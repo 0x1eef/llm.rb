@@ -292,6 +292,22 @@ agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
 agent.talk "Run the tool"
 ```
 
+##### Persistent connections
+
+Set `persistent: true` on HTTP transports to reuse connections
+across requests. This uses
+[`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
+under the hood and avoids opening a new TCP connection for every
+request:
+
+```ruby
+mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch('GITHUB_PAT')}"},
+  persistent: true
+)
+```
+
 #### LLM::A2A
 
 The Agent 2 Agent (A2A) protocol has first-class support
@@ -309,6 +325,19 @@ llm   = LLM.deepseek(key: ENV["KEY"])
 a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
 agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
 agent.talk "Run the skill"
+```
+
+##### Persistent connections
+
+Set `persistent: true` on HTTP transports to reuse connections
+across requests. This uses
+[`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
+under the hood and avoids opening a new TCP connection for every
+request:
+
+```ruby
+a2a = LLM::A2A.rest(url: "https://agent.example.com", persistent: true)
+a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", persistent: true)
 ```
 
 #### LLM::Skill
