@@ -442,6 +442,44 @@ agent = Agent.create!
 agent.talk "perform research"
 ```
 
+#### Images
+
+A handful of providers can generate images from a text prompt.
+OpenAI, Google, xAI, and DeepInfra all support it. The API is
+the same across providers:
+
+```ruby
+require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+res = llm.images.create(prompt: "a dog on a rocket to the moon")
+IO.copy_stream res.images[0], "rocket.png"
+```
+
+##### DeepSeek
+
+DeepSeek does not have a dedicated image model, but the runtime
+generates SVG vector graphics through its text model. Each
+generation produces a valid SVG document that can be converted
+to PNG with tools like `rsvg-convert`. Pass an existing agent
+to maintain a session across generations:
+
+```ruby
+require "llm"
+llm = LLM.deepseek(key: ENV["KEY"])
+
+##
+# First generation
+res = llm.images.create(prompt: "a rocket on the moon")
+IO.copy_stream res.images[0], "rocket.svg"
+
+##
+# Refine with follow-up prompts (shares context)
+res = llm.images.create(prompt: "add a dog next to the rocket",
+                        agent: res.agent)
+IO.copy_stream res.images[0], "rocket-with-dog.svg"
+```
+
 ## FAQ
 
 <details>
