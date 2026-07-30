@@ -223,4 +223,97 @@ RSpec.describe LLM::Tool do
       expect(shell).to_not be_a2a
     end
   end
+
+  describe ".set" do
+    context "with name and description" do
+      let(:tool) do
+        Class.new(described_class) do
+          set name: "hello",
+              description: "Says hello"
+        end
+      end
+
+      it "sets the tool name" do
+        expect(tool.name).to eq("hello")
+      end
+
+      it "sets the tool description" do
+        expect(tool.description).to eq("Says hello")
+      end
+    end
+
+    context "with parameters from tuples" do
+      let(:tool) do
+        Class.new(described_class) do
+          set name: "math",
+              parameters: [
+                [:x, Integer, "first number"],
+                [:y, Integer, "second number"]
+              ]
+        end
+      end
+
+      it "creates parameters with the correct types" do
+        props = tool.function.params.properties
+        expect(props[:x]).to be_a(LLM::Schema::Integer)
+        expect(props[:y]).to be_a(LLM::Schema::Integer)
+      end
+
+      it "sets parameter descriptions" do
+        props = tool.function.params.properties
+        expect(props[:x].description).to eq("first number")
+        expect(props[:y].description).to eq("second number")
+      end
+    end
+
+    context "with parameter options" do
+      let(:tool) do
+        Class.new(described_class) do
+          set name: "greeter",
+              parameters: [
+                [:name, String, "the name", {required: true}],
+                [:greeting, String, "the greeting", {default: "Hello"}]
+              ]
+        end
+      end
+
+      it "marks a parameter as required" do
+        expect(tool.function.params.properties[:name]).to be_required
+      end
+
+      it "sets a default value on a parameter" do
+        expect(tool.function.params.properties[:greeting].default).to eq("Hello")
+      end
+    end
+
+    context "with an unknown key" do
+      it "raises KeyError" do
+        expect {
+          Class.new(described_class) do
+            set name: "oops",
+                bogus: "value"
+          end
+        }.to raise_error(KeyError)
+      end
+    end
+
+    context "with required and defaults alongside class-level DSL" do
+      let(:tool) do
+        Class.new(described_class) do
+          parameter :x, Integer, "first"
+          parameter :y, Integer, "second"
+          set required: [:x],
+              defaults: {y: 42}
+        end
+      end
+
+      it "marks parameters as required" do
+        expect(tool.function.params.properties[:x]).to be_required
+      end
+
+      it "sets default values" do
+        expect(tool.function.params.properties[:y].default).to eq(42)
+      end
+    end
+  end
 end
