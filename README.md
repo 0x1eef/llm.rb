@@ -349,7 +349,7 @@ one turn and returns the result, then is discarded. Each call
 is fresh and stateless. For a deeper explanation see the
 [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/skills).
 
-**SKILL.md**
+##### SKILL.md
 
 ```markdown
 ---
@@ -362,7 +362,7 @@ Collect the recent git log, analyze each commit,
 and write a summary to summary.txt.
 ```
 
-**agent.rb**
+##### agent.rb
 
 ```ruby
 require "llm"
