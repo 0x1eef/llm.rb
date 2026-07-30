@@ -92,23 +92,23 @@ class PersistentAgent < LLM::Agent
       path: "session.json"
 end
 
+# state saved automatically to session.json
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = PersistentAgent.new(llm)
 agent.talk "remember my name is robert"
-# state saved automatically to session.json
 
-agent2 = PersistentAgent.new(llm)
-agent2.talk "what's my name?"
 # restored from session.json; prints "robert"
+agent = PersistentAgent.new(llm)
+agent.talk "what's my name?"
 ```
 
 ##### Keyword argument
 
 ```ruby
+# state saved automatically
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, path: "session.json", stream: $stdout)
 agent.talk "remember my name is robert"
-# state saved automatically
 ```
 
 ##### Lazy resolution
@@ -191,9 +191,9 @@ agent.talk "what's my name?"
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.talk "remember my name is robert"
-json = agent.save
-agent2 = LLM::Agent.new(llm)
-agent2.restore(string: json)
+json = agent.to_json
+agent = LLM::Agent.new(llm)
+agent.restore(string: json)
 ```
 
 #### Why would I use it?
