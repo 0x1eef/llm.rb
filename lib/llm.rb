@@ -7,7 +7,7 @@
 #
 # @example The three-step workflow
 #   require "llm"
-#   llm = LLM.deepseek(key: ENV["KEY"])           # 1. pick a provider
+#   llm = LLM.deepseek(key: ENV["KEY"])            # 1. pick a provider
 #   agent = LLM::Agent.new(llm, stream: $stdout)   # 2. create an agent
 #   agent.talk "Hello world"                       # 3. talk to it
 #
