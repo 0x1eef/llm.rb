@@ -45,6 +45,7 @@ module LLM
     def initialize(agent:, name: nil, tools: [], skills: [], path: nil)
       @path = path
       @name = name || "agent"
+      @sender = "You"
       @agent = configure(agent:, path:)
       @provider = agent.llm.name
       @input = Input.new(self, height: 3)
@@ -128,6 +129,13 @@ module LLM
       "thinking • Esc to cancel"
     end
 
+    ##
+    # Returns a label for the person who sent a message.
+    # @return [String]
+    def sender
+      @sender
+    end
+
     private
 
     ##
@@ -137,11 +145,11 @@ module LLM
     def tree(messages)
       messages.flat_map do |message|
         next if message.tool_call? || message.tool_return?
-        user = message.assistant? ? name : "user"
+        user = message.assistant? ? name : sender
         [
-          Node.new("#{user}: ", Curses::A_BOLD),
+          Node.new("#{user}:\n", Curses::A_BOLD),
           *markdown(message.content),
-          Node.new(user == name ? "\n\n" : "\n")
+          Node.new("\n\n")
         ]
       end.compact
     end
@@ -186,7 +194,7 @@ module LLM
       in [:input, String => text]
         window.scroll_to_bottom
         status.text = thinking_text
-        write_message("user", markdown(text))
+        write_message(sender, markdown(text))
         @thread = Thread.new do
           @queue << [:start]
           agent.talk(text, tools:, stream:)

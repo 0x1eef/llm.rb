@@ -47,12 +47,12 @@ class LLM::Repl
     # @param [Symbol] method
     # @return [void]
     def write_message(user, content, method: :append)
-      chunks = [Node.new("#{user}: ", Curses::A_BOLD)]
+      chunks = [Node.new("#{user}:\n", Curses::A_BOLD)]
       case content
       when Array then chunks.concat(content)
       else chunks.push(Node.new(content))
       end
-      chunks.push(Node.new("\n"))
+      chunks.push(Node.new("\n\n"))
       write(chunks, method:)
     end
 
