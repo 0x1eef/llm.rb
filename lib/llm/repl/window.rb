@@ -34,6 +34,7 @@ class LLM::Repl
     # @return [void]
     def open
       Curses.init_screen
+      Color.enable
       Curses.cbreak
       Curses.noecho
       Curses.stdscr.keypad(true)

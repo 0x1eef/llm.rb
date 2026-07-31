@@ -25,6 +25,7 @@ module LLM
     require_relative "repl/markdown"
     require_relative "repl/command"
     require_relative "repl/walker"
+    require_relative "repl/color"
 
     attr_reader :agent, :provider, :stream,
                 :status, :buffer, :input,
@@ -147,7 +148,7 @@ module LLM
         next if message.tool_call? || message.tool_return?
         user = message.assistant? ? name : sender
         [
-          Node.new("#{user}:\n", Curses::A_BOLD),
+          Node.new("#{user}:\n", Curses::A_BOLD | Color.blue),
           *markdown(message.content),
           Node.new("\n\n")
         ]
