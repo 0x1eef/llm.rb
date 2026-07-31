@@ -25,6 +25,39 @@
   same interface as the existing `parameter` DSL. Unknown keys raise
   `KeyError`.
 
+### Change
+
+* **openai: default to `gpt-5.6-luna`** <br>
+  The default OpenAI chat model has changed from `gpt-5.4-mini` to
+  `gpt-5.6-luna`. The new model is OpenAI's fastest and most affordable
+  option, matching the kind of default llm.rb aims for.
+
+### Repl
+
+* **center the buffer with 20% gutters** <br>
+  The curses-based REPL now centers
+  [`LLM::Repl::Buffer`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Buffer.html)
+  in a content area that is 60% of the terminal width, with an unused 20%
+  gutter on each side. The drawing area is based on the available rows and
+  columns instead of a fixed 80-column width, and `Buffer#wrap` now
+  hard-breaks words that overflow the width onto the next row, fixing a
+  bug where a word could be cut off between rows.
+
+### CLI
+
+* **scope session persistence per provider and directory** <br>
+  `bin/llm.rb` no longer shares a single session file between providers.
+  Each provider now has a `~/.llm.rb/<provider>.json` file that maps the
+  current working directory to a UUID-scoped session file under
+  `~/.llm.rb/<provider>/<uuid>.json`, so sessions are scoped to both the
+  provider and the directory they were started in.
+
+### Registry
+
+* **refresh model metadata across providers** <br>
+  Update `data/*.json` files with current provider model listings and
+  pricing.
+
 ## v13.1.0
 
 Changes since `v13.0.0`.
