@@ -44,7 +44,7 @@ class LLM::OpenAI
         adapt_tools(tools)
       ].inject({}, &:merge!).compact
       req = LLM::Transport::Request.post(path("/responses"), headers)
-      messages = build_complete_messages(prompt, params, role)
+      messages = @provider.build_messages(prompt, params, role, key: :input)
       @provider.tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))
       body = LLM.json.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
       transport.set_body_stream(req, StringIO.new(body))
@@ -102,13 +102,6 @@ class LLM::OpenAI
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
 
-    def build_complete_messages(prompt, params, role)
-      if LLM::Prompt === prompt
-        [*(params.delete(:input) || []), *prompt]
-      else
-        [*(params.delete(:input) || []), LLM::Message.new(role, prompt)]
-      end
-    end
 
     def adapt_schema(params)
       return {} unless params && params[:schema]

@@ -210,7 +210,7 @@ module LLM
     end
 
     def build_complete_request(prompt, params, role, stream: nil)
-      messages = build_complete_messages(prompt, params, role)
+      messages = build_messages(prompt, params, role)
       model_id = params.delete(:model) || default_model
       payload = build_converse_payload(messages, params)
       body = LLM.json.dump(payload)
@@ -221,13 +221,6 @@ module LLM
       [req, messages, body]
     end
 
-    def build_complete_messages(prompt, params, role)
-      if LLM::Prompt === prompt
-        [*(params.delete(:messages) || []), *prompt]
-      else
-        [*(params.delete(:messages) || []), Message.new(role, prompt)]
-      end
-    end
 
     def build_converse_payload(messages, params)
       adapted = adapt(messages)
