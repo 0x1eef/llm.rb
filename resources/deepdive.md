@@ -67,6 +67,7 @@ place to start if you are new to llm.rb.
 - [Compaction](deepdive/advanced/compaction.md)
 - [Cancellation](deepdive/advanced/cancellation.md)
 - [Transports](deepdive/advanced/transports.md)
+- [Transformer](deepdive/advanced/transformer.md)
 - [Tracer](deepdive/advanced/tracer.md)
 
 ## Protocols
