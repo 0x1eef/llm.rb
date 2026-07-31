@@ -6,7 +6,7 @@ RSpec.describe LLM::Stream do
   let(:stream) { described_class.new }
   let(:ctx) { LLM::Context.new(LLM.openai(key: "test"), model: "gpt-5.4") }
   let(:compactor) { LLM::Compactor.new(ctx) }
-  let(:transformer) { Object.new }
+  let(:transformer) { LLM::Transformer::Null.new(ctx) }
 
   let(:tool_class) do
     Class.new(LLM::Tool) do
@@ -63,13 +63,13 @@ RSpec.describe LLM::Stream do
 
   describe "#on_transform" do
     it "returns nil" do
-      expect(stream.on_transform(ctx, transformer)).to be_nil
+      expect(stream.on_transform(transformer)).to be_nil
     end
   end
 
   describe "#on_transform_finish" do
     it "returns nil" do
-      expect(stream.on_transform_finish(ctx, transformer)).to be_nil
+      expect(stream.on_transform_finish(transformer)).to be_nil
     end
   end
 
@@ -155,12 +155,12 @@ RSpec.describe LLM::Stream do
           @returns << [fn, result]
         end
 
-        def on_transform(ctx, transformer)
-          @transform_events << [:start, ctx, transformer]
+        def on_transform(transformer)
+          @transform_events << [:start, transformer]
         end
 
-        def on_transform_finish(ctx, transformer)
-          @transform_events << [:finish, ctx, transformer]
+        def on_transform_finish(transformer)
+          @transform_events << [:finish, transformer]
         end
 
         def on_compaction(ctx, compactor)
@@ -195,13 +195,13 @@ RSpec.describe LLM::Stream do
     end
 
     it "handles transform start" do
-      stream.on_transform(ctx, transformer)
-      expect(stream.transform_events).to eq([[:start, ctx, transformer]])
+      stream.on_transform(transformer)
+      expect(stream.transform_events).to eq([[:start, transformer]])
     end
 
     it "handles transform finish" do
-      stream.on_transform_finish(ctx, transformer)
-      expect(stream.transform_events).to eq([[:finish, ctx, transformer]])
+      stream.on_transform_finish(transformer)
+      expect(stream.transform_events).to eq([[:finish, transformer]])
     end
 
     it "handles compaction start" do

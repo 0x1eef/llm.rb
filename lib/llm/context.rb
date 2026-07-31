@@ -83,13 +83,17 @@ module LLM
     #   {LLM::Compactor::Null}.
     # @option params [Hash] :compactor_options
     #   Options passed to the compactor's `call` method. Defaults to `{}`.
+    # @option params [Class<LLM::Transformer>, nil] :transformer
+    #   A transformer class to use for message transformation. Defaults to
+    #   {LLM::Transformer::Null}.
+    # @option params [Hash] :transformer_options
+    #   Options passed to the transformer's `call` method. Defaults to `{}`.
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [Array<String>, nil] :skills Defaults to nil
     def initialize(llm, params = {})
       @llm = llm
       @mode = params.delete(:mode) || (llm.name == :openai ? :responses : :completions)
       @guard = params.delete(:guard)
-      @transformer = params.delete(:transformer)
       tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @params[:tools] = tools unless tools.empty?
@@ -100,6 +104,10 @@ module LLM
       @compactor = {
         klass: params.delete(:compactor) || LLM::Compactor::Null,
         options: params.delete(:compactor_options) || {}
+      }
+      @transformer = {
+        klass: params.delete(:transformer) || LLM::Transformer::Null,
+        options: params.delete(:transformer_options) || {}
       }
     end
 
@@ -158,26 +166,14 @@ module LLM
     end
 
     ##
-    # Returns a transformer, if configured.
+    # Returns the configured transformer class.
     #
-    # Transformers can rewrite outgoing prompts and params before a request is
-    # sent to the provider.
+    # Transformers rewrite the most recent message before it is sent to the
+    # provider.
     #
-    # @return [#call, nil]
+    # @return [Class<LLM::Transformer>]
     def transformer
-      @transformer
-    end
-
-    ##
-    # Sets a transformer.
-    #
-    # Transformers must implement `call(ctx, prompt, params)` and return a
-    # two-element array of `[prompt, params]`.
-    #
-    # @param [#call, nil] transformer
-    # @return [#call, nil]
-    def transformer=(transformer)
-      @transformer = transformer
+      @transformer[:klass]
     end
 
     # Interact with the context via the chat completions API.
@@ -197,10 +193,12 @@ module LLM
       repair!(@messages, prompt)
       prompt, params, res = mode == :responses ? respond(prompt, params) : complete(prompt, params)
       self.compacted = false
-      role = params[:role] || @llm.user_role
-      role = @llm.tool_role if params[:role].nil? && [*prompt].grep(LLM::Function::Return).any?
-      @messages.concat LLM::Prompt === prompt ? prompt.to_a : [LLM::Message.new(role, prompt)]
-      @messages.concat [res.choices[-1]].compact
+      if prompt.all?(&:tool_return?)
+        @messages.concat prompt.map { LLM::Message.new(@llm.tool_role, _1.content, _1.extra) }
+      else
+        @messages.concat(prompt)
+      end
+      @messages.concat([res.choices[-1]].compact)
       res
     ensure
       @owner = nil
@@ -255,6 +253,7 @@ module LLM
           end
         end.extend(LLM::Function::Array)
     end
+
     ##
     # Returns whether there is pending tool work in this context.
     # This prefers queued streamed tool work when present, and otherwise
@@ -525,42 +524,49 @@ module LLM
     ##
     # Rewrites a prompt and params through the configured transformer.
     # @api private
-    def transform(prompt, params)
-      transformer = self.transformer
-      return [prompt, params] unless transformer
+    def transform(prompt, params, key: :messages)
+      transformer = @transformer[:klass].new(self)
       stream = params[:stream]
-      stream.on_transform(self, transformer)
-      transformer.call(self, prompt, params)
+      stream.on_transform(transformer)
+      role = params[:role] || @llm.user_role
+      messages = @llm.build_messages(prompt, params, role, key:)
+      messages[-1] = transformer.call(message: messages[-1], **@transformer[:options])
+      messages
     ensure
-      stream.on_transform_finish(self, transformer) if transformer
+      stream.on_transform_finish(transformer)
     end
 
     ##
     # Executes a turn through the Responses API.
     # @api private
     def respond(prompt, params)
+      history = @messages.to_a
       params = @params.merge(params)
       extra = params.slice(:model, :tools).merge!(ctx: self, tracer:)
       params[:stream] = LLM::Stream.try(params[:stream], extra:)
-      prompt, params = transform(prompt, params)
-      @stream = params[:stream]
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
-      input = res_id ? [] : @messages.to_a
+      input = res_id ? [] : history
+      params[:input] = input
+      messages = transform(prompt, params, key: :input)
+      @stream = params[:stream]
+      new_messages = messages[input.size..]
       params = params.merge(previous_response_id: res_id, input:).compact
-      [prompt, params, @llm.responses.create(prompt, params)]
+      [new_messages, params, @llm.responses.create(messages, params)]
     end
 
     ##
     # Executes a turn through the chat completions API.
     # @api private
     def complete(prompt, params)
-      params = params.merge(messages: @messages.to_a)
+      history = @messages.to_a
+      params = params.merge(messages: history)
       params = @params.merge(params)
       extra = params.slice(:model, :tools).merge!(ctx: self, tracer:)
       params[:stream] = LLM::Stream.try(params[:stream], extra:)
-      prompt, params = transform(prompt, params)
+      messages = transform(prompt, params)
       @stream = params[:stream]
-      [prompt, params, @llm.complete(prompt, params)]
+      new_messages = messages[history.size..]
+      [new_messages, params, @llm.complete(messages, params)]
     end
 
     ##

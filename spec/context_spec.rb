@@ -166,7 +166,7 @@ RSpec.describe LLM::Context do
 
     it "routes talk through the responses API" do
       allow(provider).to receive(:responses).and_return(responses)
-      expect(responses).to receive(:create).with("What is the capital of France?", hash_including(model:))
+      expect(responses).to receive(:create).with(array_including(have_attributes(content: "What is the capital of France?")), hash_including(model:))
         .and_return(response)
       expect(ctx.talk("What is the capital of France?")).to eq(response)
     end
@@ -492,14 +492,14 @@ RSpec.describe LLM::Context do
   context "when configured with a transformer" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
-    let(:transformer) do
-      Class.new do
-        def call(_ctx, prompt, params)
-          ["#{prompt} [scrubbed]", params.merge(store: false)]
+    let(:transformer_class) do
+      Class.new(LLM::Transformer) do
+        def call(message:, suffix:)
+          LLM::Message.new(message.role, "#{message.content} #{suffix}", message.extra)
         end
-      end.new
+      end
     end
-    let(:ctx) { LLM::Context.new(provider, model:, transformer:) }
+    let(:ctx) { LLM::Context.new(provider, model:, transformer: transformer_class, transformer_options: {suffix: "[scrubbed]"}) }
     let(:responses) { provider.responses }
     let(:response) { double(choices: [LLM::Message.new("assistant", "hello")]) }
     let(:stream_class) do
@@ -510,20 +510,20 @@ RSpec.describe LLM::Context do
           @events = []
         end
 
-        def on_transform(ctx, transformer)
-          @events << [:start, ctx, transformer]
+        def on_transform(transformer)
+          @events << [:start, transformer]
         end
 
-        def on_transform_finish(ctx, transformer)
-          @events << [:finish, ctx, transformer]
+        def on_transform_finish(transformer)
+          @events << [:finish, transformer]
         end
       end
     end
     let(:stream) { stream_class.new }
 
-    it "rewrites the prompt before talk" do
+    it "rewrites the most recent message before talk" do
       allow(provider).to receive(:responses).and_return(responses)
-      expect(responses).to receive(:create).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
+      expect(responses).to receive(:create).with(array_including(have_attributes(content: "hello [scrubbed]")), anything).and_return(response)
       ctx.talk("hello")
     end
 
@@ -534,26 +534,20 @@ RSpec.describe LLM::Context do
       expect(ctx.messages.first.content).to eq("hello [scrubbed]")
     end
 
-    it "rewrites the prompt before talk in responses mode" do
-      responses = double
-      ctx = LLM::Context.new(provider, model:, transformer:, mode: :responses)
-      allow(provider).to receive(:responses).and_return(responses)
-      expect(responses).to receive(:create).with("hello [scrubbed]", hash_including(store: false)).and_return(response)
-      ctx.talk("hello")
-    end
-
     it "notifies the stream when transform starts" do
       allow(provider).to receive(:responses).and_return(responses)
       allow(responses).to receive(:create).and_return(response)
       ctx.talk("hello", stream:)
-      expect(stream.events.first).to eq([:start, ctx, transformer])
+      expect(stream.events.first.first).to eq(:start)
+      expect(stream.events.first.last).to be_an_instance_of(transformer_class)
     end
 
     it "notifies the stream when transform finishes" do
       allow(provider).to receive(:responses).and_return(responses)
       allow(responses).to receive(:create).and_return(response)
       ctx.talk("hello", stream:)
-      expect(stream.events.last).to eq([:finish, ctx, transformer])
+      expect(stream.events.last.first).to eq(:finish)
+      expect(stream.events.last.last).to be_an_instance_of(transformer_class)
     end
   end
 

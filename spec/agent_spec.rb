@@ -318,11 +318,11 @@ RSpec.describe LLM::Agent do
         if provider.name == :openai
           allow(agent.llm).to receive(:responses).and_return(responses)
           expect(responses).to receive(:create)
-            .with(prompt, instance_of(Hash))
+            .with(array_including(have_attributes(content: "hello")), instance_of(Hash))
             .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
         else
           expect(agent.llm).to receive(:complete)
-            .with(prompt, instance_of(Hash))
+            .with(array_including(have_attributes(content: "hello")), instance_of(Hash))
             .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
         end
         agent.talk(prompt)
@@ -345,11 +345,11 @@ RSpec.describe LLM::Agent do
           if provider.name == :openai
             allow(agent.llm).to receive(:responses).and_return(responses)
             expect(responses).to receive(:create)
-              .with(expected_prompt, hash_including(input: existing_messages))
+              .with(array_including(have_attributes(content: "hello"), have_attributes(content: "Earlier task context")), instance_of(Hash))
               .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
           else
             expect(agent.llm).to receive(:complete)
-              .with(expected_prompt, hash_including(messages: existing_messages))
+              .with(array_including(have_attributes(content: "hello"), have_attributes(content: "Earlier task context")), instance_of(Hash))
               .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
           end
           agent.talk("hello")
