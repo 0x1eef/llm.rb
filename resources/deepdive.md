@@ -53,6 +53,7 @@ place to start if you are new to llm.rb.
 
 - [Agents](deepdive/fundamentals/agents.md)
 - [Tools](deepdive/fundamentals/tools.md)
+- [Built-in tools](deepdive/fundamentals/builtin_tools.md)
 - [Skills](deepdive/fundamentals/skills.md)
 - [Schema](deepdive/fundamentals/schema.md)
 - [Stream](deepdive/fundamentals/stream.md)

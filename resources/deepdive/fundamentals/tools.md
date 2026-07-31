@@ -229,3 +229,37 @@ Hash that reads like a configuration block.
 
 Unknown keys raise `KeyError`, so typos are caught at class load
 time rather than at runtime.
+
+### Built-in tools
+
+#### Overview
+
+llm.rb ships with twelve ready-made tools that cover filesystem,
+search, and shell operations. Load them all with
+`require "llm/tools"`. Each tool is documented in the
+[built-in tools catalog](builtin_tools.md).
+
+#### How it works
+
+When you want to attach the built-in tools to an agent, require
+the catalog and pass the full set of subclasses as the `tools:`
+option.
+
+```ruby
+require "llm"
+require "llm/tools"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tools: LLM::Tool.subclasses)
+```
+
+#### Why would I use it?
+
+The built-in tools cover the operations a coding or system agent
+needs most. See the
+[built-in tools catalog](builtin_tools.md) for the full reference.
+
+#### Notes
+
+The tools that spawn subprocesses use the optional `test-cmd.rb`
+gem for process management and interrupt handling.
