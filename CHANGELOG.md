@@ -43,6 +43,13 @@
   hard-breaks words that overflow the width onto the next row, fixing a
   bug where a word could be cut off between rows.
 
+* **apply markdown to previous messages** <br>
+  The curses-based REPL now renders every message in the buffer with
+  markdown styling, including messages that were already present when
+  the session started or restored from disk. Previously only newly
+  streamed responses were styled; older messages fell back to plain
+  text.
+
 ### CLI
 
 * **scope session persistence per provider and directory** <br>

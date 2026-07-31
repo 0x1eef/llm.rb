@@ -140,7 +140,7 @@ module LLM
         user = message.assistant? ? name : "user"
         [
           Node.new("#{user}: ", Curses::A_BOLD),
-          Node.new(message.content),
+          *markdown(message.content),
           Node.new(user == name ? "\n\n" : "\n")
         ]
       end.compact
