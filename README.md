@@ -633,6 +633,10 @@ rake agents:dexter:release
 # Maintains mruby-llm backports
 rake agents:mruby:research
 rake agents:mruby:implement
+
+##
+# Refresh the data/ registry
+rake models.dev:download
 ```
 
 ## License
