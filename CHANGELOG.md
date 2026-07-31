@@ -15,6 +15,42 @@
 
 ## What's next
 
+### Core
+
+* **add `LLM::Provider#build_messages` for assembling outgoing messages** <br>
+  [`LLM::Provider#build_messages`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#build_messages-instance_method)
+  normalizes a prompt into `LLM::Message` objects and prepends the existing
+  history, replacing the per-provider `build_complete_messages`
+  implementation. The method is idempotent: prompts that are already
+  [`LLM::Message`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html)
+  instances or arrays of messages are returned as-is.
+
+### Transformer
+
+* **add `LLM::Transformer` for rewriting messages before they reach the provider** <br>
+  [`LLM::Transformer`](https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html)
+  is a new superclass for message transformers. A transformer is bound to a
+  context and rewrites a single message before it is sent to the provider,
+  which makes it possible to redact personal information or rewrite any
+  message before it goes out over the wire. Each subclass implements
+  `call(message:, **opts)` and returns the message to send, either by
+  mutating it in place or returning a new one.
+  [`LLM::Transformer::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Transformer/Null.html)
+  is a no-op transformer used as the default.
+
+* **hook the transformer API into `LLM::Context`** <br>
+  [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) now
+  accepts `transformer:` (a transformer class defaulting to
+  `LLM::Transformer::Null`) and `transformer_options:` (a hash forwarded to
+  the transformer's `call` method). The transformer runs on the most recent
+  message in both chat and responses turns. The previous `transformer=`
+  setter and 3-argument `call(ctx, prompt, params)` interface have been
+  replaced by the new `LLM::Transformer` interface, and
+  [`LLM::Stream#on_transform`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_transform-instance_method)
+  and
+  [`LLM::Stream#on_transform_finish`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_transform_finish-instance_method)
+  now receive the transformer instance as their single argument.
+
 ### Tool
 
 * **add `LLM::Tool.set` for bulk-assigning tool properties** <br>
@@ -49,6 +85,13 @@
   the session started or restored from disk. Previously only newly
   streamed responses were styled; older messages fell back to plain
   text.
+
+* **add `LLM::Repl#sender` for the user label** <br>
+  [`LLM::Repl#sender`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#sender-instance_method)
+  returns the label used for user messages in the curses-based REPL. It
+  defaults to `"You"` (previously `"user"`), and the buffer layout now
+  places each label on its own line followed by the message content and a
+  blank line.
 
 ### CLI
 
