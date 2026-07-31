@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 
 require "llm"
+require "json"
 require "fileutils"
+require "securerandom"
 
 ##
 # utils
@@ -82,15 +84,6 @@ def main(argv)
   end
 
   ##
-  # Setup the home directory
-  # But only if the `-t` switch has not been provided
-  if temp.nil?
-    home = File.join(Dir.home, ".llm.rb")
-    FileUtils.mkdir_p(File.join(home, Dir.getwd))
-    session = File.join(home, Dir.getwd, "session.json")
-  end
-
-  ##
   # No provider has been given.
   # Try to infer one.
   if provider.nil?
@@ -102,19 +95,43 @@ def main(argv)
       provider, = key.split("_")
     end
   end
+  provider = provider.downcase
+
+  ##
+  # Setup the filesystem where <provider>.json maps
+  # the current working directory to a session file,
+  # and where the session file is stored in
+  # `~/.llm.rb/<provider>/<uuid>.json`.
+  # This can be skipped with the `-t` option.
+  if temp.nil?
+    home   = File.join(Dir.home, ".llm.rb")
+    file   = File.join(home, "#{provider}.json")
+    parent = File.join(home, provider)
+
+    FileUtils.mkdir_p(parent)
+    FileUtils.touch(file)
+
+    if File.size(file).zero?
+      data = LLM::Object.from({})
+    else
+      data = LLM::Object.from JSON.parse(File.read(file))
+    end
+    data[Dir.getwd] ||= File.join(parent, "#{SecureRandom.uuid}.json")
+    File.binwrite file, JSON.pretty_generate(data)
+  end
 
   ##
   # We're ready to start the REPL
   # This should always succeed unless -p gave garbage
-  provider = provider.downcase
   if LLM.respond_to?(provider)
     key ||= "#{provider.upcase}_API_KEY"
     if ENV[key].nil? || ENV[key].to_s.empty?
       warn "llm.rb: set #{key} to use #{provider}"
       exit 1
     end
-    llm = LLM.method(provider).call(key: ENV[key])
-    agent = LLM::Agent.new(llm, path: temp ? nil : session, tools: LLM::Tool.subclasses)
+    llm   = LLM.method(provider).call(key: ENV[key])
+    path  = temp ? nil : data[Dir.getwd]
+    agent = LLM::Agent.new(llm, path:, tools: LLM::Tool.subclasses)
     agent.repl
   else
     warn "llm.rb: #{provider} was not recognized"
