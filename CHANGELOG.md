@@ -15,6 +15,23 @@
 
 ## What's next
 
+### Breaking
+
+* **replace the transformer setter with `LLM::Transformer`** <br>
+  The previous `transformer=` setter and 3-argument
+  `call(ctx, prompt, params)` interface on `LLM::Context` have been
+  replaced by the new
+  [`LLM::Transformer`](https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html)
+  class interface. Configure a transformer class through `transformer:`
+  and options through `transformer_options:` instead.
+
+* **cli: scope session persistence per provider and directory** <br>
+  `bin/llm.rb` no longer shares a single session file between providers.
+  Each provider now has a `~/.llm.rb/<provider>.json` file that maps the
+  current working directory to a UUID-scoped session file under
+  `~/.llm.rb/<provider>/<uuid>.json`, so sessions are scoped to both the
+  provider and the directory they were started in.
+
 ### Core
 
 * **add `LLM::Provider#build_messages` for assembling outgoing messages** <br>
@@ -43,9 +60,7 @@
   accepts `transformer:` (a transformer class defaulting to
   `LLM::Transformer::Null`) and `transformer_options:` (a hash forwarded to
   the transformer's `call` method). The transformer runs on the most recent
-  message in both chat and responses turns. The previous `transformer=`
-  setter and 3-argument `call(ctx, prompt, params)` interface have been
-  replaced by the new `LLM::Transformer` interface, and
+  message in both chat and responses turns.
   [`LLM::Stream#on_transform`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_transform-instance_method)
   and
   [`LLM::Stream#on_transform_finish`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_transform_finish-instance_method)
@@ -92,15 +107,6 @@
   defaults to `"You"` (previously `"user"`), and the buffer layout now
   places each label on its own line followed by the message content and a
   blank line.
-
-### CLI
-
-* **scope session persistence per provider and directory** <br>
-  `bin/llm.rb` no longer shares a single session file between providers.
-  Each provider now has a `~/.llm.rb/<provider>.json` file that maps the
-  current working directory to a UUID-scoped session file under
-  `~/.llm.rb/<provider>/<uuid>.json`, so sessions are scoped to both the
-  provider and the directory they were started in.
 
 ### Registry
 
