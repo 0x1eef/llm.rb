@@ -91,6 +91,7 @@ module LLM
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [Array<String>, nil] :skills Defaults to nil
     def initialize(llm, params = {})
+      params = {}.merge!(params)
       @llm = llm
       @mode = params.delete(:mode) || (llm.name == :openai ? :responses : :completions)
       @guard = params.delete(:guard)
