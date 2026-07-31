@@ -23,6 +23,7 @@ class LLM::Repl
     #  A read-eval-print loop.
     # @return [LLM::Repl::Window]
     def initialize(repl)
+      @repl   = repl
       @status = repl.status
       @buffer = repl.buffer
       @input  = repl.input
@@ -56,6 +57,12 @@ class LLM::Repl
     # @return [Integer]
     def rows
       [Curses.lines - (input.height + 4), 1].max
+    end
+
+    ##
+    # @return [Integer]
+    def columns
+      Curses.cols
     end
 
     ##
@@ -107,11 +114,17 @@ class LLM::Repl
       rows.each.with_index(offset) do |row, index|
         Curses.setpos(index, 0)
         Curses.clrtoeol
+        Curses.setpos(index, gutter)
+        width = 0
         row.each do |chunk|
-          text, attrs = chunk.text, chunk.attrs
+          remaining = buffer.width - width
+          break if remaining <= 0
+          text, attrs = chunk.text.to_s, chunk.attrs
+          clipped = text[0, remaining]
           Curses.attron(attrs) if attrs
-          Curses.addstr(text)
+          Curses.addstr(clipped)
           Curses.attroff(attrs) if attrs
+          width += clipped.length
         end
       end
       last_drawn = offset + rows.size
@@ -151,9 +164,11 @@ class LLM::Repl
     end
 
     ##
+    # 20% offset that occupies the left margin and
+    # helps center {LLM::Repl::Buffer LLM::Repl::Buffer}.
     # @return [Integer]
-    def columns
-      Curses.cols
+    def gutter
+      (columns * 0.2).floor
     end
   end
 end

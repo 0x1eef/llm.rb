@@ -29,7 +29,7 @@ module LLM
     attr_reader :agent, :provider, :stream,
                 :status, :buffer, :input,
                 :window, :tools, :thread,
-                :name, :path, :width
+                :name, :path
 
     ##
     # @param [LLM::Agent] agent
@@ -43,14 +43,13 @@ module LLM
     #  Zero or more skills
     # @return [LLM::Repl]
     def initialize(agent:, name: nil, tools: [], skills: [], path: nil)
-      @width = 80
       @path = path
       @name = name || "agent"
       @agent = configure(agent:, path:)
       @provider = agent.llm.name
-      @status = Status.new(self)
-      @buffer = Buffer.new(self)
       @input = Input.new(self, height: 3)
+      @buffer = Buffer.new(self)
+      @status = Status.new(self)
       @window = Window.new(self)
       @thread = nil
       @queue = Queue.new
@@ -112,7 +111,7 @@ module LLM
     # @param [String] chars
     # @return [Array<Node>]
     def markdown(chars)
-      LLM::Repl::Markdown.new(chars, width).ast
+      LLM::Repl::Markdown.new(chars, buffer.width).ast
     end
 
     ##

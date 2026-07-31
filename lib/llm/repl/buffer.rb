@@ -20,7 +20,8 @@ class LLM::Repl
     #  An instance of {LLM::Repl LLM::Repl}.
     # @return [LLM::Repl::Buffer]
     def initialize(repl)
-      @repl = repl
+      @repl   = repl
+      @window = repl.window
       @rows = [[]]
       @cursor = nil
       @snapshot = nil
@@ -91,6 +92,15 @@ class LLM::Repl
     end
 
     ##
+    # The width of the centered content area -
+    # with 20% on each side. The rest makes up
+    # the width of the buffer.
+    # @return [Integer]
+    def width
+      (Curses.cols * 0.6).floor
+    end
+
+    ##
     # @param [Integer] height
     # @return [Array<String>]
     def visible(height)
@@ -103,8 +113,8 @@ class LLM::Repl
     private
 
     ##
-    # @return [LLM::Repl]
-    attr_reader :repl
+    # @api private
+    attr_reader :repl, :window
 
     ##
     # Appends a new row
@@ -126,18 +136,26 @@ class LLM::Repl
     end
 
     ##
-    # Given a chunk this method wraps text at
-    # around 80 columns: a new row starts when
-    # the current character is " " and the sum
-    # of all characters in that row is greater
-    # than 80 columns.
+    # Given a chunk this method wraps text to the buffer's
+    # width, one character at a time. Once a row is full,
+    # a space ends the row (the space itself is dropped) and
+    # the next word begins a new row. A word that would still
+    # overflow the width is hard-broken onto the next row, so
+    # no text is ever clipped by the window.
     def wrap(chunk, rows)
       attrs = chunk[:attrs]
       chunk[:text].to_s.each_char do |char|
         if char == "\n"
           rows << []
-        elsif char == " " and sum(rows.last) >= repl.width
+        elsif char == " "
+          if sum(rows.last) >= width
+            rows << []
+          else
+            rows.last << Node.new(char, attrs)
+          end
+        elsif sum(rows.last) >= width
           rows << []
+          rows.last << Node.new(char, attrs)
         else
           rows.last << Node.new(char, attrs)
         end
