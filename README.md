@@ -140,6 +140,11 @@ an optional set of typed parameters. <br> The model can choose to
 call them on your behalf, and they're one of the most powerful features
 for extending the feature set or abilities of a model.
 
+The runtime also ships with a catalog of built-in tools for
+filesystem, search, and shell operations. See the
+[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/builtin_tools)
+for details.
+
 ```ruby
 class ReadFile < LLM::Tool
   name "read-file"
