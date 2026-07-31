@@ -78,8 +78,15 @@ def main(argv)
       temp = true
     when '-p'
       provider = argv.shift
+      if provider.nil?
+        warn "llm.rb: -p switch requires an argument"
+        help
+        exit 1
+      end
     else
       warn "llm.rb: unknown option #{option}"
+      help
+      exit 1
     end
   end
 
@@ -113,11 +120,11 @@ def main(argv)
 
     if File.size(file).zero?
       data = LLM::Object.from({})
+      File.binwrite file, JSON.pretty_generate(data)
     else
       data = LLM::Object.from JSON.parse(File.read(file))
     end
     data[Dir.getwd] ||= File.join(parent, "#{SecureRandom.uuid}.json")
-    File.binwrite file, JSON.pretty_generate(data)
   end
 
   ##
