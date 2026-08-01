@@ -66,6 +66,8 @@ class LLM::Repl::Markdown
         chunks << Node.new(node.value, Color.green)
       when :a
         node.children.each { walk_collect(_1, Curses::A_UNDERLINE, chunks) }
+      when :typographic_sym, :smart_quote
+        chunks << Node.new(symbol(node), attrs)
       else
         node.children.each { walk_collect(_1, attrs, chunks) }
       end
