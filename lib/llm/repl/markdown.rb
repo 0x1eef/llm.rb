@@ -12,6 +12,26 @@ class LLM::Repl
     include Table
 
     ##
+    # Kramdown goes a bit beyond a standard markdown
+    # parser by representing certain characters or
+    # character sequences as distinct node types that are
+    # represented by `:typographic_sym`, and `:smart_quote`.
+    #
+    # The node's value maps back to one of the keys in
+    # this Hash, and the values are unicode characters
+    # that provide a visual representation of the node.
+    #
+    # @api private
+    SYMBOLS = {
+      hellip: "…",
+      ndash:  "–", mdash:  "—",
+      laquo:  "«", raquo:  "»",
+      laquo_space: "« ", raquo_space: "» ",
+      lsquo:  "‘", rsquo:  "’",
+      ldquo:  "“", rdquo:  "”"
+    }
+
+    ##
     # @param [String] text
     # @param [Integer] width
     # @return [LLM::Repl::Markdown]
@@ -76,6 +96,8 @@ class LLM::Repl
       when :codeblock
         emit(node.value, Color.green)
         emit("\n\n", attrs)
+      when :typographic_sym, :smart_quote
+        emit(symbol(node), attrs)
       when :br
         emit("\n", attrs)
       when :ul, :ol
@@ -110,6 +132,10 @@ class LLM::Repl
 
     def emit(text, attrs)
       @ast.push(Node.new(text.to_s, attrs))
+    end
+
+    def symbol(node)
+      SYMBOLS[node.value]
     end
   end
 end
