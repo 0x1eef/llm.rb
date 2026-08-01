@@ -137,27 +137,36 @@ class LLM::Repl
 
     ##
     # Given a chunk this method wraps text to the buffer's
-    # width, one character at a time. Once a row is full,
-    # a space ends the row (the space itself is dropped) and
-    # the next word begins a new row. A word that would still
-    # overflow the width is hard-broken onto the next row, so
-    # no text is ever clipped by the window.
+    # width. The text is split into words; a word that does
+    # not fit on the current row moves to the next. Only a
+    # single word longer than the whole width is hard-broken,
+    # so text is never clipped by the window.
     def wrap(chunk, rows)
       attrs = chunk[:attrs]
-      chunk[:text].to_s.each_char do |char|
-        if char == "\n"
+      chunk[:text].to_s.scan(/\n|[^\s]+|\s+/) do |token|
+        if token == "\n"
           rows << []
-        elsif char == " "
-          if sum(rows.last) >= width
-            rows << []
-          else
-            rows.last << Node.new(char, attrs)
+        elsif token.match?(/\s/)
+          if sum(rows.last) + token.length <= width
+            rows.last << Node.new(token, attrs)
           end
-        elsif sum(rows.last) >= width
-          rows << []
-          rows.last << Node.new(char, attrs)
+        elsif sum(rows.last) + token.length > width
+          if sum(rows.last) == 0
+            ##
+            # A single word wider than the row: break it
+            # every width characters.
+            token.scan(/.{1,#{width}}/).each do |piece|
+              rows.last << Node.new(piece, attrs)
+              if sum(rows.last) >= width
+                rows << []
+              end
+            end
+          else
+            rows << []
+            rows.last << Node.new(token, attrs)
+          end
         else
-          rows.last << Node.new(char, attrs)
+          rows.last << Node.new(token, attrs)
         end
       end
     end
