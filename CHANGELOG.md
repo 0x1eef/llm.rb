@@ -32,6 +32,13 @@
   `~/.llm.rb/<provider>/<uuid>.json`, so sessions are scoped to both the
   provider and the directory they were started in.
 
+* **cli: harden the executable against bad inputs** <br>
+  `bin/llm.rb` now prints an error message followed by the help menu and
+  exits with status 1 when the `-p` switch is given without an argument or
+  when an unknown option is passed. Previously unknown options produced a
+  warning but the run continued. The session-file lookup also no longer
+  rewrites `~/.llm.rb/<provider>.json` when it already exists.
+
 ### Core
 
 * **add `LLM::Provider#build_messages` for assembling outgoing messages** <br>
@@ -41,6 +48,13 @@
   implementation. The method is idempotent: prompts that are already
   [`LLM::Message`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html)
   instances or arrays of messages are returned as-is.
+
+* **copy the `params` hash in `LLM::Context` and `LLM::Agent`** <br>
+  [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) and
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) now copy
+  the `params` hash in their constructors before mutating it, leaving the
+  caller's hash untouched. Previously the constructors deleted keys from
+  the caller's hash in place.
 
 ### Transformer
 
@@ -107,6 +121,15 @@
   defaults to `"You"` (previously `"user"`), and the buffer layout now
   places each label on its own line followed by the message content and a
   blank line.
+
+* **add `LLM::Repl::Color` for coloring the curses UI** <br>
+  Add
+  [`LLM::Repl::Color`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Color.html)
+  as a new module that returns Curses color bitmasks. `Color.enable`
+  initializes 8 color pairs, and methods like `Color.blue` return the
+  corresponding `Curses.color_pair(X)` bitmask, which can be bitwise
+  OR'ed with other attributes such as `Curses::A_BOLD`. User labels in
+  the REPL are now rendered in blue instead of plain bold text.
 
 ### Registry
 
