@@ -30,6 +30,7 @@ DESCRIPTION
     "lib/*.rb", "lib/**/*.rb",
     "data/*.json", "CHANGELOG.md",
     "resources/deepdive.md",
+    "resources/deepdive/*/*.md",
     "llm.gemspec", "bin/llm.rb"
   ]
   spec.executables = ["llm.rb"]
