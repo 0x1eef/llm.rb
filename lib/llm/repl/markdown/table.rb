@@ -6,8 +6,10 @@ class LLM::Repl::Markdown
   module Table
     ##
     # @api private
-    Node = LLM::Repl::Node
+    Node  = LLM::Repl::Node
+    Color = LLM::Repl::Color
     private_constant :Node
+    private_constant :Color
 
     ##
     # Renders a table node by collecting all cells first to
@@ -61,7 +63,7 @@ class LLM::Repl::Markdown
       when :em
         node.children.each { walk_collect(_1, Curses::A_UNDERLINE, chunks) }
       when :codespan
-        chunks << Node.new(node.value, Curses::A_REVERSE)
+        chunks << Node.new(node.value, Color.green)
       when :a
         node.children.each { walk_collect(_1, Curses::A_UNDERLINE, chunks) }
       else
