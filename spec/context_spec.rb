@@ -166,19 +166,36 @@ RSpec.describe LLM::Context do
 
     it "routes talk through the responses API" do
       allow(provider).to receive(:responses).and_return(responses)
-      expect(responses).to receive(:create).with(array_including(have_attributes(content: "What is the capital of France?")), hash_including(model:))
-        .and_return(response)
+      expect(responses).to receive(:create).with(
+        array_including(have_attributes(content: "What is the capital of France?")),
+        hash_including(model:)
+      ).and_return(response)
       expect(ctx.talk("What is the capital of France?")).to eq(response)
     end
 
     it "calls the compactor before sending a request" do
-      compactor_class = Class.new(LLM::Compactor) do
-        def call(**opts) = nil
-      end
-      ctx = described_class.new(provider, model:, compactor: compactor_class)
+      compactor = Class.new(LLM::Compactor) { def call(**opts) = nil }
+      ctx = described_class.new(provider, model:, compactor:)
       allow(provider).to receive(:responses).and_return(responses)
       expect(responses).to receive(:create).ordered.and_return(response)
       ctx.talk("What is the capital of France?")
+    end
+
+    describe "input" do
+      let(:existing_message) { LLM::Message.new(:user, "Earlier task context") }
+
+      before do
+        ctx.messages << existing_message
+        allow(provider).to receive(:responses).and_return(responses)
+      end
+
+      it "holds the history, not the full messages" do
+        expect(responses).to receive(:create).with(
+          array_including(have_attributes(content: "What is the capital of France?")),
+          hash_including(input: [existing_message])
+        ).and_return(response)
+        ctx.talk("What is the capital of France?")
+      end
     end
   end
 
