@@ -15,6 +15,7 @@ module LLM
   # task correctly, or for it to correct course after a
   # mistake was made.
   class Repl
+    require_relative "repl/color"
     require_relative "repl/window"
     require_relative "repl/status"
     require_relative "repl/buffer"
@@ -25,7 +26,6 @@ module LLM
     require_relative "repl/markdown"
     require_relative "repl/command"
     require_relative "repl/walker"
-    require_relative "repl/color"
 
     attr_reader :agent, :provider, :stream,
                 :status, :buffer, :input,

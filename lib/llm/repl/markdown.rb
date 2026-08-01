@@ -65,16 +65,16 @@ class LLM::Repl
         emit("\n\n", attrs)
       when :header
         emit("\n", attrs)
-        node.children.each { walk(_1, Curses::A_BOLD) }
+        node.children.each { walk(_1, Curses::A_BOLD | Color.white) }
         emit("\n", attrs)
       when :strong
-        node.children.each { walk(_1, Curses::A_BOLD) }
+        node.children.each { walk(_1, Curses::A_BOLD | Color.white) }
       when :em
         node.children.each { walk(_1, Curses::A_UNDERLINE) }
       when :codespan
-        emit(node.value, Curses::A_REVERSE)
+        emit(node.value, Color.green)
       when :codeblock
-        emit(node.value, Curses::A_REVERSE)
+        emit(node.value, Color.green)
         emit("\n\n", attrs)
       when :br
         emit("\n", attrs)
@@ -100,7 +100,7 @@ class LLM::Repl
         emit("─" * @width, attrs)
         emit("\n\n", attrs)
       when :a
-        node.children.each { walk(_1, Curses::A_UNDERLINE) }
+        node.children.each { walk(_1, Curses::A_UNDERLINE | Color.green) }
       when :img
         emit("[image: #{node.attr["alt"]}]", attrs)
       else
