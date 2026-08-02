@@ -165,6 +165,25 @@
   single word longer than the whole width is hard-broken, so typed text
   is never clipped by the window.
 
+* **distinguish the connecting and thinking status bar phases** <br>
+  The curses-based REPL status bar now shows `Connecting • Esc to
+  cancel` while the model is establishing a connection, then switches
+  to `Thinking • Esc to cancel` once a tool call or text fragment
+  arrives on the stream. Active tool calls appear in the status bar
+  with a lambda indicator.
+
+* **add emoji to the status bar phases** <br>
+  The curses-based REPL status bar now uses emoji to identify each
+  phase at a glance: a globe (`🌐`) while the model is connecting, and
+  a brain (`🧠`) while it is thinking. The text after the emoji still
+  reads `Connecting • Esc to cancel` and `Thinking • Esc to cancel`
+  respectively.
+
+* **render the status bar with color and attributes** <br>
+  The curses-based REPL status bar now supports colored and attributed
+  status text, so the lambda indicator for active tool calls is drawn
+  in bold red.
+
 ### Registry
 
 * **refresh model metadata across providers** <br>
