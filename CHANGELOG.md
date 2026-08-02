@@ -56,6 +56,12 @@
   caller's hash untouched. Previously the constructors deleted keys from
   the caller's hash in place.
 
+* **gemspec: ship the deepdive sub-files in the gem** <br>
+  The gemspec now includes `resources/deepdive/*/*.md` in the gem
+  package, so the full deepdive guide (fundamentals, advanced,
+  protocols, and everything-else chapters) is available after
+  installation.
+
 ### Transformer
 
 * **add `LLM::Transformer` for rewriting messages before they reach the provider** <br>
@@ -130,6 +136,27 @@
   corresponding `Curses.color_pair(X)` bitmask, which can be bitwise
   OR'ed with other attributes such as `Curses::A_BOLD`. User labels in
   the REPL are now rendered in blue instead of plain bold text.
+
+* **split on words rather than characters** <br>
+  `LLM::Repl::Buffer#wrap` now breaks text on word boundaries instead of
+  wrapping one character at a time. A word that does not fit on the
+  current row moves to the next, and only a single word longer than the
+  whole width is hard-broken, so text is never clipped by the window.
+
+* **render kramdown typographic symbols and smart quotes** <br>
+  Fix a bug where certain character sequences such as `...` were not
+  rendered at all in the curses-based REPL. Kramdown parses them into
+  `:typographic_sym` and `:smart_quote` nodes, which previously fell
+  through to the children clause and were dropped. The markdown renderer
+  now maps them to their unicode equivalents: ellipsis, en and em
+  dashes, guillemets, and single and double quotation marks.
+
+* **apply colors to the markdown renderer** <br>
+  The curses-based REPL now renders markdown with the `LLM::Repl::Color`
+  palette: headers and strong text in white, code spans and code blocks
+  in green, and links in underlined green, on the black background.
+  Previously markdown styling used bold, underline, and reverse video
+  attributes only.
 
 ### Registry
 
