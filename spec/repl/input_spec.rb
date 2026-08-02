@@ -15,9 +15,9 @@ RSpec.describe LLM::Repl::Input do
     let(:cursor) { 0 }
 
     before do
-      input.instance_variable_set(:@buffer, buffer)
+      set_buffer(buffer)
       input.instance_variable_set(:@copy, copy)
-      input.instance_variable_set(:@cursor, cursor)
+      input.instance_variable_set(:@cursor, [0, cursor])
     end
 
     context "when we're at the end of the string" do
@@ -41,5 +41,46 @@ RSpec.describe LLM::Repl::Input do
         expect(input.buffer).to eq("hel worldlo")
       end
     end
+  end
+
+  describe "#insert auto-wrap" do
+    before { allow(Curses).to receive(:cols).and_return(149) }
+
+    it "wraps at word boundaries instead of cutting words" do
+      message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " \
+                "sed do eiusmod tempor incididunt ut labore et dolore magna " \
+                "aliqua."
+      message.each_char { |char| input.on_char(nil, char, 0) }
+      text = input.take
+      ##
+      # The input may only replace spaces with newlines to wrap.
+      # Restoring those newlines back to spaces must reproduce the
+      # original message, which fails if a word was cut in half.
+      expect(text.gsub("\n", " ")).to eq(message)
+    end
+
+    it "preserves newlines from pasted text" do
+      message = "line one\nline two\nline three"
+      message.each_char { |char| input.on_char(nil, char, 0) }
+      expect(input.take).to eq(message)
+    end
+
+    it "keeps auto-wraps out of the taken message" do
+      long = "some words to wrap " * 20
+      long.each_char { |char| input.on_char(nil, char, 0) }
+      text = input.take
+      expect(text).to_not include("\r")
+      expect(text).to_not match(/\S\n\S/)
+    end
+  end
+
+  ##
+  # Sets the input rows to a single row containing the given text.
+  # @param [String] string
+  # @return [void]
+  def set_buffer(string)
+    row = LLM::Repl::Input::Row.new
+    string.each_char { |char| row.chars << LLM::Repl::Input::Char.new(char) }
+    input.instance_variable_set(:@rows, [row])
   end
 end
