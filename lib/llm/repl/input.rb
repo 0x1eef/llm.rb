@@ -145,7 +145,16 @@ class LLM::Repl
         window.scroll_down
         :down
       elsif String === char
-        insert(char)
+        ##
+        # A paste arrives as a burst of fast characters. Flag it so the
+        # next loop iteration drains the rest through read_paste in a
+        # single shot, instead of inserting one character at a time and
+        # redrawing after each. A string that is already the product of
+        # read_paste (multi-character) is inserted as-is, one char at a
+        # time, so every newline creates a row and every Char stays a
+        # single character.
+        @paste = true if char.length == 1 && is_paste.()
+        char.each_char { |c| insert(c) }
         :char
       else
         nil
