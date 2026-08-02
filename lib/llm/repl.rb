@@ -126,8 +126,14 @@ module LLM
 
     ##
     # @return [String]
-    def thinking_text
-      "thinking • Esc to cancel"
+    def think_text
+      "🧠 • Thinking • Esc to cancel"
+    end
+
+    ##
+    # @return [String]
+    def connect_text
+      "🌐 • Connecting • Esc to cancel"
     end
 
     ##
@@ -194,7 +200,7 @@ module LLM
         write("\n")
       in [:input, String => text]
         window.scroll_to_bottom
-        status.text = thinking_text
+        status.text = connect_text
         write_message(sender, markdown(text))
         @thread = Thread.new do
           @queue << [:start]
@@ -253,6 +259,7 @@ module LLM
           buffer.open
           stream.clear
         when :stream
+          status.text = think_text if stream.tools.empty?
           write_message name, markdown(value), method: :replace
         when :status
           self.status = value
@@ -262,6 +269,7 @@ module LLM
           @thread = nil
           write("\n")
         when :cancel
+          stream.tools.clear
           buffer.close
           status.text = "Idle"
           write_message(name, "Request cancelled")

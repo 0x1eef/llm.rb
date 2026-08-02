@@ -9,12 +9,17 @@ class LLM::Repl
   # @api private
   class Stream < LLM::Stream
     ##
+    # @return [Hash<Symbol, LLM::Tool>]
+    attr_reader :tools
+
+    ##
     # @param [LLM::Repl] repl
     # @return [LLM::Repl::Stream]
     def initialize(repl, queue)
       @repl = repl
       @_queue = queue
       @buffer = +""
+      @tools = {}
     end
 
     ##
@@ -30,15 +35,16 @@ class LLM::Repl
     # @param [LLM::Function] tool
     # @return [void]
     def on_tool_call(tool)
-      @_queue.push [:status, "#{tool.name}(#{format_args(tool)})"]
+      @tools[tool.name] = tool
+      @_queue.push [:status, "λ • #{tool.name}(#{format_args(tool)})"]
     end
 
     ##
-    # @param [LLM::Function] _tool
+    # @param [LLM::Function] tool
     # @param [LLM::Function::Return] result
     # @return [void]
-    def on_tool_return(_tool, result)
-      @_queue.push [:status, @repl.thinking_text]
+    def on_tool_return(tool, result)
+      @tools.delete(tool.name)
     end
 
     ##
