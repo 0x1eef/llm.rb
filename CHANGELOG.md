@@ -158,6 +158,13 @@
   Previously markdown styling used bold, underline, and reverse video
   attributes only.
 
+* **wrap the input line at word boundaries** <br>
+  The curses-based REPL input line now wraps words whole onto the next
+  row at the terminal width instead of cutting them in half. A word that
+  does not fit on the current row moves to the next row, and only a
+  single word longer than the whole width is hard-broken, so typed text
+  is never clipped by the window.
+
 ### Registry
 
 * **refresh model metadata across providers** <br>
