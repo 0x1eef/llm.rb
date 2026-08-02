@@ -138,7 +138,11 @@ class LLM::Repl
     def draw_status(offset:)
       Curses.setpos(Curses.lines - offset, 0)
       Curses.clrtoeol
-      Curses.addstr(status.to_s)
+      status.nodes.each do |node|
+        Curses.attron(node.attrs) if node.attrs
+        Curses.addstr(node.text)
+        Curses.attroff(node.attrs) if node.attrs
+      end
       context = status.context_bar
       Curses.setpos(Curses.lines - offset, [(columns - context.length) / 2, 0].max)
       Curses.addstr(context)

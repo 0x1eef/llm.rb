@@ -36,7 +36,7 @@ class LLM::Repl
     # @return [void]
     def on_tool_call(tool)
       @tools[tool.name] = tool
-      @_queue.push [:status, "λ • #{tool.name}(#{format_args(tool)})"]
+      @_queue.push [:status, [" ", lambda, " • #{tool.name}(#{format_args(tool)})"]]
     end
 
     ##
@@ -55,6 +55,12 @@ class LLM::Repl
     end
 
     private
+
+    ##
+    # @return [LLM::Repl::Node]
+    def lambda
+      Node.new("λ", Curses::A_BOLD | Color.red)
+    end
 
     ##
     # Formats tool arguments as compact key: value pairs
