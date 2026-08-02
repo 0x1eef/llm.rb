@@ -37,8 +37,8 @@ also possible to make a tool call while the model is still streaming.
 The runtime builds on top of three core concepts: providers, contexts, and agents,
 so once you learn the fundamentals, everything else falls into place naturally. And once
 you learn llm.rb, you will also be able to use
-<a href="https://r.uby.dev/mruby-llm">mruby-llm</a> and
-<a href="https://r.uby.dev/wasm-llm">wasm-llm</a> because the API is pretty much identical.
+<a href="https://r.uby.dev/mruby-llm">mruby-llm</a>
+because the API is pretty much identical.
 
 ## Install
 
