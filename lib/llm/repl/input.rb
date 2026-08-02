@@ -6,6 +6,9 @@ class LLM::Repl
   # the editable input line shown at the bottom of the REPL.
   # @api private
   class Input
+    require_relative "input/row"
+    require_relative "input/char"
+
     CTRL = {
       A: Curses::KEY_CTRL_A,
       E: Curses::KEY_CTRL_E,
@@ -45,10 +48,6 @@ class LLM::Repl
     PASTE_THRESHOLD = 0.05
 
     ##
-    # @return [String]
-    attr_reader :buffer
-
-    ##
     # @param [Boolean] value
     # @return [void]
     attr_writer :paste
@@ -60,14 +59,21 @@ class LLM::Repl
       @name = repl.name
       @agent = repl.agent
       @provider = @agent.llm.name
-      @buffer = +""
-      @cursor = 0
+      @rows = [Row.new]
+      @cursor = [0, 0]
       @scroll = 0
       @height = options.fetch(:height, 3)
       @last_char_at = nil
       @memory = @agent.messages.select(&:user?).map(&:content)
       @walker = Walker.new(@memory)
       @paste = false
+    end
+
+    ##
+    # @return [String]
+    #  The input buffer as an ordinary string.
+    def buffer
+      text
     end
 
     ##
@@ -91,12 +97,10 @@ class LLM::Repl
       elsif ESC == char
         @agent.cancel!
       elsif CTRL[:P] == char
-        @buffer = @walker.prev.dup
-        @cursor = @buffer.size
+        set_text(@walker.prev.dup)
         :ctrl_p
       elsif CTRL[:N] == char
-        @buffer = @walker.next.dup
-        @cursor = @buffer.size
+        set_text(@walker.next.dup)
         :ctrl_n
       elsif CTRL[:D] == char
         delete
@@ -130,7 +134,7 @@ class LLM::Repl
           insert("\n")
           :char
         else
-          @memory.push(@buffer.dup)
+          @memory.push(text)
           @walker.cursor = @memory.size
           :submit
         end
@@ -157,13 +161,10 @@ class LLM::Repl
     ##
     # @return [String]
     def to_s
-      "#{prompt}#{@buffer}"
-    end
-
-    ##
-    # @return [Integer]
-    def cursor
-      prompt.size + @cursor
+      @rows
+        .each_with_index
+        .map { |row, i| (i.zero? ? prompt : "") + row.to_s }
+        .join("\n")
     end
 
     ##
@@ -173,14 +174,15 @@ class LLM::Repl
     end
 
     ##
-    # Returns the visible lines of the input buffer,
-    # split by newlines. The viewport follows the cursor
-    # so the cursor line is always visible.
+    # Returns the visible lines of the input buffer. The viewport
+    # follows the cursor so the cursor line is always visible.
     # @return [Array<String>]
     def lines
       scroll!
-      chunks = to_s.split("\n", -1)
-      chunks[@scroll, height] || []
+      visible = @rows[@scroll, height] || []
+      visible.each_with_index.map do |row, i|
+        (i.zero? && @scroll.zero? ? prompt : "") + row.to_s
+      end
     end
 
     ##
@@ -189,46 +191,55 @@ class LLM::Repl
     # @return [Array(Integer, Integer)]
     def cursor_pos
       scroll!
-      before = to_s[0...cursor]
-      line  = before.count("\n")
-      col   = cursor - (before.rindex("\n") || -1) - 1
-      [line - @scroll, col]
+      row, col = @cursor
+      col += prompt.size if row.zero?
+      [row - @scroll, col]
     end
 
     ##
     # @return [void]
     def move_start
-      @cursor = 0
+      @cursor = [0, 0]
     end
 
     ##
     # @return [void]
     def move_end
-      @cursor = [0, @buffer.size].max
+      @cursor = [@rows.size - 1, @rows.last.chars.size]
     end
 
     ##
     # @return [void]
     def move_left
-      @cursor = [@cursor - 1, 0].max
+      row, col = @cursor
+      @cursor =
+        if col > 0 then [row, col - 1]
+        elsif row > 0 then [row - 1, @rows[row - 1].chars.size]
+        else [0, 0]
+        end
     end
 
     ##
     # @return [void]
     def move_right
-      @cursor = [@cursor + 1, @buffer.size].min
+      row, col = @cursor
+      @cursor =
+        if col < @rows[row].chars.size then [row, col + 1]
+        elsif row < @rows.size - 1 then [row + 1, 0]
+        else [row, col]
+        end
     end
 
     ##
     # @return [void]
     def move_forward
-      @cursor = [0, @cursor + 1].max
+      move_right
     end
 
     ##
     # @return [void]
     def autocomplete
-      return unless @buffer[0] == "/"
+      return unless text[0] == "/"
       ##
       # This method implements a simple autocomplete
       # that supports cycling through all known
@@ -237,45 +248,59 @@ class LLM::Repl
       # full match. However, it's not based on similarity,
       # it's just the next element in the array.
       keys = LLM::Command.registry.keys
-      candidates = LLM::Command.complete(@buffer)
-      if REPEATS[TAB] >= 1
-        candidate = keys[keys.index(candidates[0]) + 1] || keys[0]
-      else
-        candidate = candidates[0]
-      end
-      @buffer = "/#{candidate}"
-      @cursor = @buffer.size
+      candidates = LLM::Command.complete(text)
+      candidate =
+        if REPEATS[TAB] >= 1
+          keys[keys.index(candidates[0]) + 1] || keys[0]
+        else
+          candidates[0]
+        end
+      set_text("/#{candidate}")
     end
 
     ##
     # @return [void]
     def kill
-      @copy = @buffer.slice(@cursor, @buffer.size)
-      @buffer[@cursor, @buffer.size] = ""
-      @cursor = @buffer.size
+      row, col = @cursor
+      tail = @rows[row].chars[col..].map(&:to_s).join
+      tail += @rows[(row + 1)..].map(&:to_s).join("\n")
+      @copy = tail
+      @rows[row].chars.slice!(col..)
+      @rows = @rows[0..row]
+      @cursor = [row, col]
     end
 
     ##
     # @return [void]
     def delete
-      @buffer[@cursor] = ""
-      @cursor = [0, @cursor].max
+      row, col = @cursor
+      @rows[row].chars.delete_at(col) if col < @rows[row].chars.size
     end
 
     ##
     # @return [void]
     def restore
       return unless @copy
-      @buffer.insert(@cursor, @copy)
-      @cursor += @copy.size
+      row, col = @cursor
+      @copy.each_char do |char|
+        if char == "\n"
+          @rows.insert(row + 1, Row.new(:newline))
+          row += 1
+          col = 0
+        else
+          @rows[row].chars.insert(col, Char.new(char))
+          col += 1
+        end
+      end
+      @cursor = [row, col]
     end
 
     ##
     # @return [String]
     def take
-      @buffer.dup.tap do
-        @buffer.clear
-        @cursor = 0
+      text.tap do
+        @rows = [Row.new]
+        @cursor = [0, 0]
         @scroll = 0
       end
     end
@@ -292,12 +317,12 @@ class LLM::Repl
     # Adjusts @scroll so the cursor line is visible within
     # the viewport.
     def scroll!(total_lines = nil)
-      total_lines ||= to_s.split("\n", -1).size
-      cursor_line = to_s[0...cursor].count("\n")
-      if cursor_line < @scroll
-        @scroll = cursor_line
-      elsif cursor_line >= (@scroll + height)
-        @scroll = (cursor_line - height) + 1
+      total_lines ||= @rows.size
+      cursor_row = @cursor[0]
+      if cursor_row < @scroll
+        @scroll = cursor_row
+      elsif cursor_row >= (@scroll + height)
+        @scroll = (cursor_row - height) + 1
       end
       @scroll = [[@scroll, (total_lines - height)].min, 0].max
     end
@@ -306,20 +331,99 @@ class LLM::Repl
       "#{@provider}(#{@name})> "
     end
 
+    ##
+    # Returns the line the cursor is on, including the prompt.
+    # @return [String]
+    def current_line
+      row = @cursor[0]
+      (row.zero? ? prompt : "") + @rows[row].to_s
+    end
+
+    ##
+    # Inserts a character at the cursor, wrapping the current row at
+    # the terminal width by starting a new row. A word that would be
+    # cut in half is moved whole onto the new row.
+    # @param [String] char
+    # @return [void]
     def insert(char)
-      if lines[-1].size >= Curses.cols
-        @buffer.insert(@cursor, "\n")
-        @cursor += 1
+      row, col = @cursor
+      if char == "\n"
+        @rows.insert(row + 1, Row.new(:newline))
+        @cursor = [row + 1, 0]
+      elsif current_line.size >= Curses.cols
+        if char == " "
+          @rows.insert(row + 1, Row.new(:space))
+          @cursor = [row + 1, 0]
+        elsif (index = current_line.rindex(" "))
+          offset = row.zero? ? prompt.size : 0
+          split = index - offset
+          tail = @rows[row].chars.slice!((split + 1)..) || []
+          @rows[row].chars.delete_at(split)
+          @rows.insert(row + 1, Row.new(:space))
+          @rows[row + 1].chars.concat(tail)
+          @rows[row + 1].chars << Char.new(char)
+          @cursor = [row + 1, @rows[row + 1].chars.size]
+        else
+          @rows.insert(row + 1, Row.new(:space))
+          @rows[row + 1].chars << Char.new(char)
+          @cursor = [row + 1, 1]
+        end
+      else
+        @rows[row].chars.insert(col, Char.new(char))
+        @cursor = [row, col + char.length]
       end
-      @buffer.insert(@cursor, char)
-      @cursor += char.length
       scroll!
     end
 
+    ##
+    # @return [void]
     def backspace
-      return if @cursor <= 0
-      @buffer.slice!(@cursor - 1)
-      @cursor -= 1
+      row, col = @cursor
+      if col > 0
+        @rows[row].chars.delete_at(col - 1)
+        @cursor = [row, col - 1]
+      elsif row > 0
+        prev = @rows[row - 1]
+        prev.chars.concat(@rows[row].chars)
+        @rows.delete_at(row)
+        @cursor = [row - 1, prev.chars.size]
+      end
+    end
+
+    ##
+    # Flattens the rows into a single string. Each row joins the one
+    # before it using its own `break_type`: a row started by an
+    # auto-wrap joins with a space, a row started by a real newline
+    # joins with a newline.
+    # @return [String]
+    def text
+      out = +""
+      @rows.each_with_index do |row, i|
+        out << row.to_s
+        nxt = @rows[i + 1]
+        if nxt
+          out << (nxt.break_type == :newline ? "\n" : " ")
+        end
+      end
+      out
+    end
+
+    ##
+    # Replaces the input with the given string, splitting it into rows.
+    # @param [String] string
+    # @return [void]
+    def set_text(string)
+      @rows = []
+      first = true
+      string.each_line do |line|
+        row = Row.new(first ? nil : :newline)
+        line.chomp!
+        line.each_char { |c| row.chars << Char.new(c) }
+        @rows << row
+        first = false
+      end
+      @rows = [Row.new] if @rows.empty?
+      @cursor = [@rows.size - 1, @rows.last.chars.size]
     end
   end
 end
