@@ -682,7 +682,7 @@ module LLM
     def run_loop(prompt, params, target)
       run = proc do
         talk = @ctx.method(target)
-        max = params.key?(:tool_attempts) ? params.delete(:tool_attempts) : 25
+        max = params.key?(:tool_attempts) ? params.delete(:tool_attempts) : nil
         max = Integer(max) if max
         stream = params[:stream] || @ctx.params[:stream]
         params[:stream] = LLM::Stream.try(stream, extra: {concurrency:})
