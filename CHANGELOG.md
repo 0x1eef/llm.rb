@@ -17,6 +17,14 @@
 
 ### Breaking
 
+#### Migration
+
+| Old | New |
+|-----|-----|
+| `ctx.transformer = MyTransformer` | `LLM::Context.new(transformer: MyTransformer)` |
+| `transformer.call(ctx, prompt, params)` | `transformer.call(message:, **opts)` |
+| `~/.llm.rb/session.json` (shared across providers) | `~/.llm.rb/<provider>/<uuid>.json` (scoped per provider and directory) |
+
 * **replace the transformer setter with `LLM::Transformer`** <br>
   The previous `transformer=` setter and 3-argument
   `call(ctx, prompt, params)` interface on `LLM::Context` have been
