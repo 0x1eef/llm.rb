@@ -62,6 +62,13 @@
   protocols, and everything-else chapters) is available after
   installation.
 
+* **add short aliases to `LLM::Cost`** <br>
+  [`LLM::Cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html) now
+  offers short aliases for its cost accessors: `input`, `output`,
+  `input_audio`, `output_audio`, `input_image`, `cache_read`,
+  `cache_write`, and `reasoning`. Each alias matches the key used by
+  `#to_h`, so `cost.input` reads the same value as `cost.input_costs`.
+
 ### Transformer
 
 * **add `LLM::Transformer` for rewriting messages before they reach the provider** <br>
