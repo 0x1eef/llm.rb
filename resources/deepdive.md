@@ -81,3 +81,4 @@ place to start if you are new to llm.rb.
 - [Images](deepdive/everything_else/images.md)
 - [Audio](deepdive/everything_else/audio.md)
 - [OCR](deepdive/everything_else/ocr.md)
+- [LLM::Object](deepdive/everything_else/object.md)
