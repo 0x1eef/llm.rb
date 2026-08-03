@@ -537,81 +537,56 @@ RSpec.describe LLM::Agent do
   end
 
   describe "tool loop concurrency" do
-    let(:tool_return) { double("return") }
-    let(:pending_functions) { [double("function")].extend(LLM::Function::Array) }
-    let(:ctx) do
-      instance_double(
-        LLM::Context,
-        messages: [],
-        pending_functions:,
-        returns: [],
-        usage: LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0),
-        mode: :responses,
-        cost: double("cost"),
-        context_window: 0,
-        model: "gpt-4.1",
-        params: {},
-        pending_functions?: false,
-        to_h: {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []},
-        prompt: nil,
-        image_url: nil,
-        local_file: nil,
-        remote_file: nil,
-        tracer: nil
-      )
-    end
+    let(:agent) { described_class.new(provider, mode: :responses, tools: [tool], concurrency:) }
+    let(:ctx) { agent.instance_variable_get(:@ctx) }
 
     before do
-      allow(LLM::Context).to receive(:new).and_return(ctx)
-      allow(ctx).to receive(:talk).and_return(double("first_response"), double("second_response"))
-      allow(ctx).to receive(:wait)
-      allow(ctx).to receive(:pending_functions?).and_return(true, true, false, false)
-      allow(ctx).to receive(:pending_functions).and_return(pending_functions, pending_functions, empty_functions, empty_functions)
+      ctx.messages << LLM::Message.new("assistant", nil, {
+        tools: [tool],
+        tool_calls: [
+          {id: "call_1", name: "echo", arguments: {"value" => "hello"}}
+        ]
+      })
     end
 
-    describe "#talk" do
-      it "uses sequential calls by default" do
-        agent = described_class.new(provider, mode: :responses)
-        allow(ctx).to receive(:wait).with(:sequential).and_return([tool_return])
-        agent.talk("hello")
-        expect(ctx).to have_received(:wait).with(:sequential)
-        expect(ctx).to have_received(:talk).with("hello", hash_including(:stream))
-        expect(ctx).to have_received(:talk).with([tool_return], hash_including(:stream))
-      end
+    context "when concurrency is a single mode" do
+      context "when configured with sequential" do
+        let(:concurrency) { :sequential }
 
-      shared_examples "single-mode concurrency" do
-        it "uses the configured concurrency for tool loops" do
-          allow(ctx).to receive(:wait).with(concurrency).and_return([tool_return])
-          agent.talk("hello")
-          expect(ctx).to have_received(:wait).with(concurrency)
-          expect(ctx).to have_received(:talk).with("hello", hash_including(:stream))
-          expect(ctx).to have_received(:talk).with([tool_return], hash_including(:stream))
+        it "executes the pending tool" do
+          expect(call_functions.map(&:to_h)).to eq([
+            {id: "call_1", name: "echo", value: {value: "hello"}}
+          ])
         end
       end
 
-      let(:agent) { described_class.new(provider, mode: :responses, concurrency:) }
+      context "when configured with thread" do
+        let(:concurrency) { :thread }
 
-      context "when concurrency is a single mode" do
-        context "when configured with thread" do
-          let(:concurrency) { :thread }
-          include_examples "single-mode concurrency"
-        end
-
-        context "when configured with fork" do
-          let(:concurrency) { :fork }
-          include_examples "single-mode concurrency"
+        it "executes the pending tool" do
+          expect(call_functions.map(&:to_h)).to eq([
+            {id: "call_1", name: "echo", value: {value: "hello"}}
+          ])
         end
       end
 
-      context "when concurrency is a list of queued task types" do
-        let(:concurrency) { [:thread, :ractor] }
+      context "when configured with fork" do
+        let(:concurrency) { :fork }
 
-        it "waits for the configured task types" do
-          allow(ctx).to receive(:wait).with([:thread, :ractor]).and_return([tool_return])
-          agent.talk("hello")
-          expect(ctx).to have_received(:wait).with([:thread, :ractor])
-          expect(ctx).to have_received(:talk).with("hello", hash_including(:stream))
-          expect(ctx).to have_received(:talk).with([tool_return], hash_including(:stream))
+        it "executes the pending tool" do
+          expect(call_functions.map(&:to_h)).to eq([
+            {id: "call_1", name: "echo", value: {value: "hello"}}
+          ])
+        end
+      end
+
+      context "when configured with ractor" do
+        let(:concurrency) { :ractor }
+
+        it "executes the pending tool" do
+          expect(call_functions.map(&:to_h)).to eq([
+            {id: "call_1", name: "echo", value: {value: "hello"}}
+          ])
         end
       end
     end
@@ -685,17 +660,17 @@ RSpec.describe LLM::Agent do
         end
 
         it "does not execute the confirmed tool twice" do
-          agent.send(:call_functions)
+          call_functions
           expect(confirmed_calls.size).to eq(1)
         end
 
         it "still executes the unconfirmed tool once" do
-          agent.send(:call_functions)
+          call_functions
           expect(plain_calls.size).to eq(1)
         end
 
         it "emits tool return callbacks once" do
-          agent.send(:call_functions)
+          call_functions
           expect(events).to eq([
             ["confirmed", "confirmed", {ok: true}],
             ["plain", "plain", {ok: true}]
@@ -706,12 +681,12 @@ RSpec.describe LLM::Agent do
           let(:concurrency) { :thread }
 
           it "does not execute the confirmed tool twice" do
-            agent.send(:call_functions)
+            call_functions
             expect(confirmed_calls.size).to eq(1)
           end
 
           it "still executes the unconfirmed tool once" do
-            agent.send(:call_functions)
+            call_functions
             expect(plain_calls.size).to eq(1)
           end
         end
@@ -723,17 +698,17 @@ RSpec.describe LLM::Agent do
         end
 
         it "does not execute the confirmed tool" do
-          agent.send(:call_functions)
+          call_functions
           expect(confirmed_calls).to be_empty
         end
 
         it "still executes the unconfirmed tool once" do
-          agent.send(:call_functions)
+          call_functions
           expect(plain_calls.size).to eq(1)
         end
 
         it "emits cancelled and unconfirmed tool return callbacks" do
-          agent.send(:call_functions)
+          call_functions
           expect(events).to eq([
             ["confirmed", "confirmed", {cancelled: true, reason: "approval required"}],
             ["plain", "plain", {ok: true}]
@@ -758,7 +733,7 @@ RSpec.describe LLM::Agent do
         let(:agent) { agent_class.new(provider, mode: :responses, concurrency:) }
 
         it "still invokes the callback" do
-          agent.send(:call_functions)
+          call_functions
           expect(confirmed_calls.size).to eq(1)
         end
       end
@@ -823,78 +798,43 @@ RSpec.describe LLM::Agent do
     end
   end
 
-  describe "tool attempt limit" do
-    let(:tool) do
-      Class.new(LLM::Tool) do
-        name "echo"
-        description "Echo a value"
-      end
+  describe "tool budget" do
+    let(:responses) { provider.responses }
+    let(:agent) { described_class.new(provider, mode: :responses, tools: [tool]) }
+    let(:ctx) { agent.instance_variable_get(:@ctx) }
+    let(:final_response) do
+      Struct.new(:choices).new([LLM::Message.new("assistant", "done")])
     end
-    let(:pending_function) do
-      fn = tool.function
-      fn.id = "call_1"
-      fn.arguments = {value: "hello"}
-      fn
-    end
-    let(:pending_functions) { [pending_function].extend(LLM::Function::Array) }
-    let(:ctx) do
-      instance_double(
-        LLM::Context,
-        messages: [],
-        pending_functions:,
-        returns: [],
-        usage: LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0),
-        mode: :completions,
-        cost: double("cost"),
-        context_window: 0,
-        model: "gpt-4.1",
-        to_h: {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []},
-        prompt: nil,
-        image_url: nil,
-        local_file: nil,
-        remote_file: nil,
-        params: {},
-        pending_functions?: false,
-        tracer: nil
-      )
-    end
-    let(:agent) { described_class.new(provider) }
-    let(:advisory_res) { double("advisory_response") }
-    let(:res) { double("final_response") }
 
     before do
-      allow(LLM::Context).to receive(:new).and_return(ctx)
-      allow(ctx).to receive(:talk).and_return(double("first_response"), *Array.new(25) { double("response") }, advisory_res, res)
-      allow(ctx).to receive(:wait).with(:sequential).and_return([double("return")])
-      allow(ctx).to receive(:pending_functions?).and_return(*Array.new(29, true), false, false, false)
-      allow(ctx).to receive(:pending_functions).and_return(*Array.new(30, pending_functions), empty_functions, empty_functions, empty_functions)
+      allow(provider).to receive(:responses).and_return(responses)
     end
 
-    it "defaults to 25 tool loop attempts" do
-      expect(agent.talk("hello")).to eq(res)
-      expect(ctx).to have_received(:wait).with(:sequential).exactly(26).times
-      expect(ctx).to have_received(:talk).with([
-        LLM::Function::Return.new("call_1", "echo", {
-          error: true,
-          type: LLM::ToolLoopError.name,
-          message: "tool loop rate limit reached"
-        })
-      ], hash_including(:stream))
+    it "sends an advisory message when the tool budget is spent" do
+      expect(responses).to receive(:create).and_return(
+        tool_call_response("call_1"),
+        tool_call_response("call_2"),
+        tool_call_response("call_3"),
+        final_response
+      )
+      agent.talk("hello", tool_budget: 2)
+      expect(ctx.messages.map(&:content).flatten).to include(
+        an_object_having_attributes(
+          value: hash_including(type: "LLM::BudgetSpentError")
+        )
+      )
     end
 
-    it "disables advisory tool-limit returns when tool_attempts is nil" do
-      allow(ctx).to receive(:talk).and_return(double("first_response"), res)
-      allow(ctx).to receive(:pending_functions?).and_return(true, false, false)
-      allow(ctx).to receive(:pending_functions).and_return(pending_functions, empty_functions, empty_functions)
-      expect(agent.talk("hello", tool_attempts: nil)).to eq(res)
-      expect(ctx).to have_received(:wait).with(:sequential).once
-      expect(ctx).not_to have_received(:talk).with([
-        LLM::Function::Return.new("call_1", "echo", {
-          error: true,
-          type: LLM::ToolLoopError.name,
-          message: "tool loop rate limit reached"
-        })
-      ], {tool_attempts: nil})
+    it "does not send an advisory when no tool budget is set" do
+      expect(responses).to receive(:create).and_return(
+        tool_call_response("call_1"), final_response
+      )
+      agent.talk("hello", tool_budget: nil)
+      expect(ctx.messages.map(&:content).flatten).not_to include(
+        an_object_having_attributes(
+          value: hash_including(type: "LLM::BudgetSpentError")
+        )
+      )
     end
   end
 
@@ -926,5 +866,27 @@ RSpec.describe LLM::Agent do
   context "when given deepseek" do
     let(:provider) { LLM.deepseek(key: "test") }
     include_examples "agent behavior"
+  end
+
+  ##
+  # Runs the agent's tool loop for the seeded pending function.
+  # @return [Array<LLM::Function::Return>]
+  def call_functions
+    agent.send(:call_functions)
+  end
+
+  ##
+  # A provider response that asks the model to call the echo tool.
+  # Each response uses a distinct call id so the loop keeps seeing
+  # unresolved tool work.
+  # @param [String] id
+  # @return [Object]
+  def tool_call_response(id)
+    Struct.new(:choices).new([
+      LLM::Message.new("assistant", nil, {
+        tools: [tool],
+        tool_calls: [{id:, name: "echo", arguments: {"value" => "hello"}}]
+      })
+    ])
   end
 end
