@@ -127,13 +127,13 @@ module LLM
     ##
     # @return [String]
     def think_text
-      "🧠 • Thinking • Esc to cancel"
+      " 🧠 • Thinking • Esc to cancel"
     end
 
     ##
     # @return [String]
     def connect_text
-      "🌐 • Connecting • Esc to cancel"
+      " 🌐 • Connecting • Esc to cancel"
     end
 
     ##
