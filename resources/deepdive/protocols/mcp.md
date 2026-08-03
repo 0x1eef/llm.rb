@@ -93,7 +93,7 @@ For HTTP,
 [`LLM::MCP#session`](https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session)
 carries little benefit.
 
-#### Persistent connections
+##### Persistent connections
 
 Set `persistent: true` to reuse HTTP connections across requests
 to the same MCP server. This uses

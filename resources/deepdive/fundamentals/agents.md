@@ -20,10 +20,10 @@ An agent holds a conversation with a model. You send input with
 the model responds, and if it requests tools the agent
 executes them automatically and feeds the results back. It enables
 a loop guard by default that detects repeated tool-call patterns
-and blocks stuck execution. The default tool attempt budget is 25.
-After that, the agent sends advisory errors back through the model
-and keeps the loop in-band. Instructions are injected once unless
-a system message is already present.
+and blocks stuck execution. The tool loop can also be bounded with
+[`LLM::Agent.tool_budget`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method)
+(see the Tool budget section). Instructions are injected once
+unless a system message is already present.
 
 #### Why would I use it?
 
@@ -62,8 +62,8 @@ A subclass declares its defaults with
 [`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method).
 Each key is a
 class-level accessor: `name`, `description`, `model`, `tools`,
-`instructions`, `stream`, `tracer`, `concurrency`, `schema`,
-`confirm`, `path`.
+`skills`, `instructions`, `stream`, `tracer`, `concurrency`,
+`schema`, `confirm`, `path`, `tool_budget`.
 Keyword arguments in the constructor override these defaults.
 
 ```ruby
@@ -148,3 +148,54 @@ can do. Under the hood,
 creates a
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 that manages the message history.
+
+### Tool budget
+
+#### Overview
+
+[`LLM::Agent.tool_budget`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method)
+caps the number of tool calls allowed in a single turn. Once the
+budget is spent, the agent sends an in-band advisory message back
+through the model instead of running more tools. By default no
+budget is set, so the feature is disabled.
+
+#### How it works
+
+When you want to bound how many tools an agent can call in one
+turn, set the budget with
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method).
+The budget can be a plain number or a block evaluated against the
+agent instance. Once the agent has made the budgeted number of tool
+calls, it stops and returns an in-band advisory message describing
+the spent budget. A model will usually change course afterwards:
+
+```ruby
+class Researcher < LLM::Agent
+  set model: "deepseek-v4-pro",
+      tools: [FetchNews, FetchStocks],
+      tool_budget: 5
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = Researcher.new(llm)
+agent.talk "Research the market"
+```
+
+#### Why would I use it?
+
+A tool budget prevents runaway tool loops. A misbehaving model can
+otherwise keep calling tools, spending tokens on every round trip.
+Capping the budget turns that into a bounded conversation: after
+the cap, the model is told it has run out of tool calls and must
+respond from what it has.
+
+#### Notes
+
+The budget is disabled by default (`nil`). Set it on a subclass
+with the `tool_budget` DSL, through
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
+with `tool_budget:`, or per-instance with the `tool_budget:` keyword
+argument to
+[`LLM::Agent.new`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#initialize-instance_method).
+This replaces the previous `tool_attempts` parameter, which is no
+longer used.

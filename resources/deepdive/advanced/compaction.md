@@ -26,9 +26,7 @@ contains an orphaned result.
 The `keep:` parameter accepts an integer count or a percentage
 string like `"80%"`. The default compactor is
 [`LLM::Compactor::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html),
-which does nothing. A compactor can also be used standalone.
-The REPL provides a `/compact` command that accepts a count
-or percentage.
+which does nothing. A compactor can also be used standalone:
 
 ```ruby
 ctx = LLM::Context.new(
@@ -45,7 +43,14 @@ agent = LLM::Agent.new(
 
 compactor = LLM::Compactor::Truncate.new(agent)
 compactor.call(keep: 200)
+```
 
+##### The `/compact` command
+
+The REPL provides a `/compact` command that accepts a count or
+percentage:
+
+```ruby
 # /compact        # keep last 128 messages
 # /compact 50     # keep last 50 messages
 # /compact 75%    # keep approximately 75% of messages

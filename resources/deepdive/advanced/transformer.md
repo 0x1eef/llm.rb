@@ -18,14 +18,17 @@ A transformer is a subclass of
 [`LLM::Transformer`](https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html)
 that implements
 [`LLM::Transformer#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html#call-instance_method).
-The method receives the message to transform and returns a message.
+The method receives the message to transform and returns a
+message.
 You can mutate the message in place or return a new one; either way,
 the returned message is what gets sent.
 
 Configure the transformer on a context with the `transformer:` option,
 passing a class rather than an instance. The runtime instantiates it
 once per turn. Options passed through `transformer_options:` are
-forwarded to `call` as keyword arguments:
+forwarded to `call` as keyword arguments. The transformer runs on
+the most recent message in both chat completions and Responses API
+turns, before the request reaches the provider:
 
 ```ruby
 class RedactEmails < LLM::Transformer
@@ -42,10 +45,6 @@ ctx = LLM::Context.new(
 )
 ctx.talk "Contact support@example.com for help"
 ```
-
-The transformer runs on the most recent message in both chat
-completions and Responses API turns, before the request reaches the
-provider.
 
 #### Why would I use it?
 
