@@ -121,6 +121,12 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
   examples) so no text follows the table. Never move a keyboard
   table out of Notes.
 
+- A short lead-in sentence directly above a keyboard table (e.g.
+  "The input area supports several keyboard shortcuts:") is fine
+  even when the table follows a code block. The lead-in belongs
+  to the table and reads naturally there; do not flag it as
+  "text after code block".
+
 ### Code examples
 
 - Keep each code example focused on **one** concept. Avoid
