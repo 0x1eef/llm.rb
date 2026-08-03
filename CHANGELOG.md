@@ -24,6 +24,7 @@
 | `ctx.transformer = MyTransformer` | `LLM::Context.new(transformer: MyTransformer)` |
 | `transformer.call(ctx, prompt, params)` | `transformer.call(message:, **opts)` |
 | `~/.llm.rb/session.json` (shared across providers) | `~/.llm.rb/<provider>/<uuid>.json` (scoped per provider and directory) |
+| `agent.talk(tool_attempts: 25)` | `set :tool_budget => 50` (disabled by default) |
 
 * **replace the transformer setter with `LLM::Transformer`** <br>
   The previous `transformer=` setter and 3-argument
@@ -46,6 +47,18 @@
   when an unknown option is passed. Previously unknown options produced a
   warning but the run continued. The session-file lookup also no longer
   rewrites `~/.llm.rb/<provider>.json` when it already exists.
+
+* **agent: replace `tool_attempts` with the `tool_budget` class DSL** <br>
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method)
+  replaces the `tool_attempts` parameter with a `tool_budget` class DSL
+  (`tool_budget { 50 }`) that caps the number of tool calls allowed in a
+  single turn. Once the budget is spent, the agent sends an in-band
+  advisory message back through the model telling it to solve the problem
+  with fewer tool calls.
+  <br><br>
+  The feature is now disabled by default; the old `tool_attempts`
+  parameter defaulted to 25, which long-horizon agents could easily
+  exhaust in a single turn.
 
 ### Core
 
