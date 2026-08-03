@@ -159,6 +159,7 @@
         "input": [
           "text",
           "image",
+          "audio",
           "pdf"
         ],
         "output": [
@@ -304,7 +305,7 @@
           {
             "input": 4,
             "output": 12,
-            "cache_read": 1,
+            "cache_read": 0.6,
             "tier": {
               "type": "context",
               "size": 200000
@@ -314,7 +315,7 @@
         "context_over_200k": {
           "input": 4,
           "output": 12,
-          "cache_read": 1
+          "cache_read": 0.6
         }
       }
     },
