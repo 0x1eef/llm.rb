@@ -33,7 +33,7 @@ arguments:
 
 ```ruby
 class RateLimitGuard < LLM::Guard
-  def call(function:, limit: 10, **opts)
+  def call(function:, limit: 10)
     if messages.count(&:tool_return?) >= limit
       function.return(error: true, type: "guard_error",
                       message: "too many tool calls")
@@ -79,7 +79,7 @@ variables between calls. Anything a guard needs to remember, like
 how many calls already ran, must come from the conversation
 (`messages`) or from class-level state.
 
-### Inspecting pending calls
+### Inspect
 
 #### Overview
 
@@ -108,7 +108,7 @@ pure observer:
 
 ```ruby
 class AuditGuard < LLM::Guard
-  def call(function:, **opts)
+  def call(function:)
     warn "pending: #{function.name}(#{function.arguments.inspect})"
     nil  # let it run
   end
@@ -129,7 +129,7 @@ The guard sees the parsed arguments exactly as the model requested
 them. Reading them costs nothing and never executes the tool.
 Returning `nil` means the call proceeds normally.
 
-### Cancelling a call
+### Cancel
 
 #### Overview
 
@@ -150,7 +150,7 @@ still executes:
 
 ```ruby
 class ApprovalGuard < LLM::Guard
-  def call(function:, **opts)
+  def call(function:)
     if function.name == "delete-file"
       function.cancel(reason: "delete requires human approval")
     end
@@ -177,7 +177,7 @@ as resolved, like any tool return, so the model keeps moving. The
 reason string is what the model sees, so write it as guidance
 ("ask the user first") rather than a raw error dump.
 
-### Blocking calls
+### Block
 
 #### Overview
 
@@ -196,7 +196,7 @@ call through:
 
 ```ruby
 class PolicyGuard < LLM::Guard
-  def call(function:, **opts)
+  def call(function:)
     if function.name == "shell"
       function.return(error: true, type: "policy_error",
                       message: "shell is disabled")
@@ -217,7 +217,7 @@ A blocked call never executes. The return it produces is sent back
 through the model like any tool result, so the model sees why the
 call was blocked and can change course.
 
-### Standing in for a tool
+### Answer
 
 #### Overview
 
@@ -238,7 +238,7 @@ must look like a plausible answer:
 class CacheGuard < LLM::Guard
   CACHE = {"get-weather:tokyo" => {forecast: "sunny"}}
 
-  def call(function:, **opts)
+  def call(function:)
     key = "#{function.name}:#{function.arguments[:city]}"
     function.return(CACHE[key]) if CACHE.key?(key)
   end
@@ -262,7 +262,7 @@ so they flow back to the model like any tool result. A guard that
 synthesizes a result runs instead of the tool, so side effects the
 tool would have performed, like a database write, are skipped.
 
-### Enforcing budgets
+### Budget
 
 #### Overview
 
@@ -283,7 +283,7 @@ cancellation or an error closes the call before it runs:
 
 ```ruby
 class BudgetGuard < LLM::Guard
-  def call(function:, limit: 0.05, **opts)
+  def call(function:, limit: 0.05)
     if ctx.cost.total >= limit
       function.cancel(reason: "cost ceiling reached, ask before continuing")
     end
@@ -320,7 +320,7 @@ guard is not a replacement for
 which caps the number of tool calls in a single turn. The two
 compose: the budget caps call count, and a guard enforces cost.
 
-### Loop guard
+### Loop
 
 #### Overview
 

@@ -32,7 +32,7 @@ turns, before the request reaches the provider:
 
 ```ruby
 class RedactEmails < LLM::Transformer
-  def call(message:, **opts)
+  def call(message:)
     content = message.content.to_s.gsub(/[\w.+-]+@[\w-]+\.[\w.]+/, "[EMAIL]")
     LLM::Message.new(message.role, content, message.extra)
   end
