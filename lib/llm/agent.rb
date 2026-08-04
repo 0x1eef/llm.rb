@@ -18,8 +18,9 @@ module LLM
   # * Instructions are injected once unless a system message is already present.
   # * An agent automatically executes tool loops (unlike {LLM::Context LLM::Context}).
   # * The automatic tool loop enables the wrapped context's `guard` by default.
-  #   The built-in {LLM::LoopGuard LLM::LoopGuard} detects repeated tool-call
-  #   patterns and blocks stuck execution before more tool work is queued.
+  #   The built-in {LLM::Guard::Loop LLM::Guard::Loop} detects repeated
+  #   tool-call patterns and blocks stuck execution before more tool work is
+  #   queued.
   # * The tool loop can be bounded with `tool_budget`. Once the budget is
   #   spent, the agent sends an in-band advisory message back through the
   #   model and keeps the loop in-band. By default no budget is set
@@ -366,7 +367,7 @@ module LLM
           instance_variable_set(:"@#{field}", resolved)
         end
       end
-      @ctx = LLM::Context.new(llm, {guard: true}.merge(params))
+      @ctx = LLM::Context.new(llm, {guard: LLM::Guard::Loop}.merge(params))
       @path and File.readable?(@path) ? @ctx.restore(path:) : nil
     end
 

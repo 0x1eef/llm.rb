@@ -88,13 +88,17 @@ module LLM
     #   {LLM::Transformer::Null}.
     # @option params [Hash] :transformer_options
     #   Options passed to the transformer's `call` method. Defaults to `{}`.
+    # @option params [Class<LLM::Guard>, nil] :guard
+    #   A guard class to supervise agentic tool execution. Defaults to
+    #   {LLM::Guard::Null}.
+    # @option params [Hash] :guard_options
+    #   Options passed to the guard's `call` method. Defaults to `{}`.
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [Array<String>, nil] :skills Defaults to nil
     def initialize(llm, params = {})
       params = {}.merge!(params)
       @llm = llm
       @mode = params.delete(:mode) || (llm.name == :openai ? :responses : :completions)
-      @guard = params.delete(:guard)
       tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @params[:tools] = tools unless tools.empty?
@@ -109,6 +113,10 @@ module LLM
       @transformer = {
         klass: params.delete(:transformer) || LLM::Transformer::Null,
         options: params.delete(:transformer_options) || {}
+      }
+      @guard = {
+        klass: params.delete(:guard) || LLM::Guard::Null,
+        options: params.delete(:guard_options) || {}
       }
     end
 
@@ -135,35 +143,19 @@ module LLM
     alias_method :compacted?, :compacted
 
     ##
-    # Returns a guard, if configured.
+    # Returns the configured guard class.
     #
     # Guards are context-level supervisors for agentic execution. A guard can
     # inspect the runtime state and decide whether pending tool work should be
     # blocked before the context keeps looping.
     #
-    # The built-in implementation is {LLM::LoopGuard LLM::LoopGuard}, which
+    # The built-in implementation is {LLM::Guard::Loop LLM::Guard::Loop}, which
     # detects repeated tool-call patterns and turns them into in-band
     # {LLM::GuardError LLM::GuardError} tool returns.
     #
-    # @return [#call, nil]
+    # @return [Class<LLM::Guard>]
     def guard
-      return if @guard.nil? || @guard == false
-      @guard = LLM::LoopGuard.new if @guard == true
-      @guard = LLM::LoopGuard.new(@guard) if Hash === @guard
-      @guard
-    end
-
-    ##
-    # Sets a guard or guard config.
-    #
-    # Guards must implement `call(ctx)` and return either `nil` or a warning
-    # string. Returning a warning tells the context to block pending tool work
-    # with guarded tool errors instead of continuing the loop.
-    #
-    # @param [#call, Hash, Boolean, nil] guard
-    # @return [#call, Hash, Boolean, nil]
-    def guard=(guard)
-      @guard = guard
+      @guard[:klass]
     end
 
     ##
@@ -275,7 +267,7 @@ module LLM
     # @param [Symbol] strategy
     # @return [LLM::Function::Return, LLM::Function::Task]
     def spawn(function, strategy)
-      warning = guard&.call(self)
+      warning = @guard[:klass].new(self).call(**@guard[:options])
       return guarded_return_for(function, warning) if warning
       function.task(strategy)
     end
@@ -517,7 +509,7 @@ module LLM
     # Builds in-band guarded returns when the guard blocks tool work.
     # @api private
     def guarded_returns(tools:)
-      warning = guard&.call(self)
+      warning = @guard[:klass].new(self).call(**@guard[:options])
       return unless warning
       tools.map { guarded_return_for(_1, warning) }
     end

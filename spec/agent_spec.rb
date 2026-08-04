@@ -103,7 +103,7 @@ RSpec.describe LLM::Agent do
       it "passes DSL defaults to the context" do
         expect(LLM::Context).to receive(:new).with(
           provider,
-          {model: "gpt-4.1", tools: [tool], schema:, guard: true}
+          {model: "gpt-4.1", tools: [tool], schema:, guard: LLM::Guard::Loop}
         ).and_call_original
         agent_class.new(provider)
       end
@@ -115,7 +115,7 @@ RSpec.describe LLM::Agent do
         end
         expect(LLM::Context).to receive(:new).with(
           provider,
-          {model: "gpt-4.1", tools: [], guard: true}
+          {model: "gpt-4.1", tools: [], guard: LLM::Guard::Loop}
         ).and_call_original
         expect(klass.new(provider).concurrency).to eq(:thread)
       end
@@ -130,7 +130,7 @@ RSpec.describe LLM::Agent do
         expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
         expect(LLM::Context).to receive(:new).with(
           provider,
-          {model: "gpt-4.1", tools: [], skills: [skill_path], guard: true}
+          {model: "gpt-4.1", tools: [], skills: [skill_path], guard: LLM::Guard::Loop}
         ).and_call_original
         klass.new(provider)
       end
@@ -145,7 +145,7 @@ RSpec.describe LLM::Agent do
         it "resolves the block against the agent instance" do
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {model: "gpt-4.1", tools: [], guard: true}
+            {model: "gpt-4.1", tools: [], guard: LLM::Guard::Loop}
           ).and_call_original
           klass.new(provider)
         end
@@ -155,7 +155,7 @@ RSpec.describe LLM::Agent do
         it "keeps the provider default model" do
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {tools: [], guard: true}
+            {tools: [], guard: LLM::Guard::Loop}
           ).and_call_original
           described_class.new(provider)
         end
@@ -178,7 +178,7 @@ RSpec.describe LLM::Agent do
         it "resolves the block against the agent instance" do
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {tools: [tool], guard: true}
+            {tools: [tool], guard: LLM::Guard::Loop}
           ).and_call_original
           klass.new(provider)
         end
@@ -198,7 +198,7 @@ RSpec.describe LLM::Agent do
           expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {tools: [], skills: [skill_path], guard: true}
+            {tools: [], skills: [skill_path], guard: LLM::Guard::Loop}
           ).and_call_original
           klass.new(provider)
         end
@@ -220,7 +220,7 @@ RSpec.describe LLM::Agent do
         it "resolves the block against the agent instance" do
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {tools: [], guard: true, schema: schema}
+            {tools: [], guard: LLM::Guard::Loop, schema: schema}
           ).and_call_original
           klass.new(provider)
         end
@@ -255,7 +255,7 @@ RSpec.describe LLM::Agent do
         it "resolves the stream before building the context" do
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {model: "gpt-4.1", tools: [], guard: true, stream:}
+            {model: "gpt-4.1", tools: [], guard: LLM::Guard::Loop, stream:}
           ).and_call_original
           klass.new(provider)
         end
@@ -297,7 +297,7 @@ RSpec.describe LLM::Agent do
         it "passes the stream to the context" do
           expect(LLM::Context).to receive(:new).with(
             provider,
-            {model: "gpt-4.1", tools: [], guard: true, stream:}
+            {model: "gpt-4.1", tools: [], guard: LLM::Guard::Loop, stream:}
           ).and_call_original
           klass.new(provider)
         end
