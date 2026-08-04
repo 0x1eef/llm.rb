@@ -89,6 +89,20 @@ RSpec.describe LLM::Repl::Input do
     end
   end
 
+  describe "#delete" do
+    before { allow(Curses).to receive(:cols).and_return(149) }
+
+    context "when deleting everything" do
+      before { input.send(:set, text: "line one\nline two") }
+
+      it "consumes the break and empties the input" do
+        input.instance_variable_set(:@cursor, [0, 0])
+        17.times { input.send(:delete) }
+        expect(input.take).to eq("")
+      end
+    end
+  end
+
   describe "#insert auto-wrap" do
     before { allow(Curses).to receive(:cols).and_return(149) }
 

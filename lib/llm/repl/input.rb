@@ -280,10 +280,23 @@ class LLM::Repl
     end
 
     ##
+    # Deletes the character at the cursor, or consumes
+    # the break and pulls up the next row at the end of
+    # a row.
     # @return [void]
     def delete
       row, col = @cursor
-      @rows[row].chars.delete_at(col) if col < @rows[row].chars.size
+      if col < @rows[row].chars.size
+        @rows[row].chars.delete_at(col)
+      elsif row < @rows.size - 1
+        nxt = @rows[row + 1]
+        ##
+        # A wrapped row was split at a space; restore it so
+        # the merged words don't run together.
+        @rows[row].chars << Char.new(" ") if nxt.break_type == :space
+        @rows[row].chars.concat(nxt.chars)
+        @rows.delete_at(row + 1)
+      end
     end
 
     ##
