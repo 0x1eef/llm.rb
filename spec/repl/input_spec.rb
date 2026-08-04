@@ -43,6 +43,52 @@ RSpec.describe LLM::Repl::Input do
     end
   end
 
+  describe "#set" do
+    before { allow(Curses).to receive(:cols).and_return(30) }
+
+    let(:text) { "" }
+    let(:rows) { input.instance_variable_get(:@rows) }
+
+    before { input.send(:set, text:) }
+
+    context "when given a long line" do
+      let(:text) { "this is a rather long sentence that wraps onto several lines" }
+
+      it "wraps the line into display rows" do
+        expect(rows.size).to be > 1
+        expect(rows.map(&:to_s).join(" ")).to eq(text)
+      end
+
+      it "flattens back to the original text" do
+        expect(input.take).to eq(text)
+      end
+    end
+
+    context "when given real newlines" do
+      let(:text) { "line one\nline two\nline three" }
+
+      it "keeps each line as a row" do
+        expect(rows.map(&:to_s)).to eq(["line one", "line two", "line three"])
+      end
+    end
+
+    context "when given a literal backslash-n" do
+      let(:text) { 'a\nb' }
+
+      it "treats it as text rather than a break" do
+        expect(rows.map(&:to_s)).to eq(['a\nb'])
+      end
+    end
+
+    context "when given multiple lines" do
+      let(:text) { "line one\nline two" }
+
+      it "places the cursor at the end of the last row" do
+        expect(input.instance_variable_get(:@cursor)).to eq([1, 8])
+      end
+    end
+  end
+
   describe "#insert auto-wrap" do
     before { allow(Curses).to receive(:cols).and_return(149) }
 
