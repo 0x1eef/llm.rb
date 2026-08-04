@@ -25,6 +25,10 @@
 | `transformer.call(ctx, prompt, params)` | `transformer.call(message:, **opts)` |
 | `~/.llm.rb/session.json` (shared across providers) | `~/.llm.rb/<provider>/<uuid>.json` (scoped per provider and directory) |
 | `agent.talk(tool_attempts: 25)` | `set :tool_budget => 50` (disabled by default) |
+| `LLM::LoopGuard` | `LLM::Guard::Loop` |
+| `guard: true` / `ctx.guard = MyGuard` | `guard: MyGuard, guard_options: {}` |
+| `guard.call(ctx)` (warning string) | `guard.call(function:)` (`LLM::Function::Return` or nil) |
+| `LLM::GuardError` | `"guard_error"` |
 
 * **replace the transformer setter with `LLM::Transformer`** <br>
   The previous `transformer=` setter and 3-argument
@@ -59,6 +63,36 @@
   The feature is now disabled by default; the old `tool_attempts`
   parameter defaulted to 25, which long-horizon agents could easily
   exhaust in a single turn.
+
+* **guard: replace `LLM::LoopGuard` with the `LLM::Guard` class hierarchy** <br>
+  [`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
+  is a new superclass for context-level supervisors, with
+  [`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
+  (replacing `LLM::LoopGuard`) and
+  [`LLM::Guard::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Null.html)
+  as the built-in implementations.
+  [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+  now accepts `guard:` (a guard class defaulting to `LLM::Guard::Null`)
+  and `guard_options:` (a hash forwarded to the guard's `call` method),
+  matching the transformer and compactor interfaces. The old boolean and
+  hash forms of `guard` and the `guard=` setter are removed. `LLM::Agent`
+  enables `LLM::Guard::Loop` by default.
+
+* **guard: block individual tool calls instead of the whole batch** <br>
+  [`LLM::Guard#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method)
+  now receives the pending `function:` and returns an
+  [`LLM::Function::Return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html)
+  (or nil) instead of a warning string for the entire batch, so a guard
+  can block a single tool call while the rest of the batch still
+  executes. Custom guards that implemented the old `call(ctx)`
+  warning-string interface must be updated to return a
+  `LLM::Function::Return` instead.
+
+* **errors: drop `LLM::GuardError`** <br>
+  Remove `LLM::GuardError`. The constant was never raised as an
+  exception; it only named the in-band error type for guarded tool
+  returns. Guarded tool returns now use the string `"guard_error"` as
+  their error type.
 
 ### Core
 
@@ -123,6 +157,18 @@
   defined as tuples of `[name, type, description, options]`, matching the
   same interface as the existing `parameter` DSL. Unknown keys raise
   `KeyError`.
+
+### Function
+
+* **add `LLM::Function#return` for building tool returns** <br>
+  [`LLM::Function#return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#return-instance_method)
+  returns an
+  [`LLM::Function::Return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html)
+  built from the function's own id and name, using the given hash as its
+  value. It is a shorthand mainly useful inside a
+  [`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
+  subclass and is defined via `define_method` because `return` is a Ruby
+  keyword.
 
 ### Change
 
