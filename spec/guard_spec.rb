@@ -44,7 +44,7 @@ RSpec.describe LLM::Guard do
       expect(result.name).to eq(function.name)
       expect(result.value).to include(
         error: true,
-        type: LLM::GuardError.name,
+        type: "guard_error",
         message: a_string_including("Repeated tool-call pattern")
       )
     end

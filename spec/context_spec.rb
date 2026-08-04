@@ -597,7 +597,7 @@ RSpec.describe LLM::Context do
       guard = Class.new(LLM::Guard) do
         def call(function:, **)
           LLM::Function::Return.new(function.id, function.name, {
-            error: true, type: LLM::GuardError.name, message: "stop"
+            error: true, type: "guard_error", message: "stop"
           })
         end
       end
@@ -645,7 +645,7 @@ RSpec.describe LLM::Context do
       Class.new(LLM::Guard) do
         def call(function:, **)
           LLM::Function::Return.new(function.id, function.name, {
-            error: true, type: LLM::GuardError.name, message: "stop"
+            error: true, type: "guard_error", message: "stop"
           })
         end
       end
@@ -721,7 +721,7 @@ RSpec.describe LLM::Context do
         Class.new(LLM::Guard) do
           def call(function:, **)
             LLM::Function::Return.new(function.id, function.name, {
-              error: true, type: LLM::GuardError.name, message: "stop"
+              error: true, type: "guard_error", message: "stop"
             })
           end
         end
@@ -738,7 +738,7 @@ RSpec.describe LLM::Context do
         pending = ctx.pending_functions
         expect(pending).not_to receive(:spawn)
         allow(ctx).to receive(:functions).and_return(pending)
-        expect(ctx.wait(:thread).map(&:value)).to eq([{error: true, type: LLM::GuardError.name, message: "stop"}])
+        expect(ctx.wait(:thread).map(&:value)).to eq([{error: true, type: "guard_error", message: "stop"}])
       end
     end
   end

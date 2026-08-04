@@ -22,14 +22,14 @@ RSpec.describe LLM::Function do
 
   describe "#return" do
     subject(:result) do
-      tool.return(error: true, type: "LLM::GuardError", message: "stop")
+      tool.return(error: true, type: "guard_error", message: "stop")
     end
 
     it "builds a return using the function's id and name" do
       expect(result.to_h).to eq(
         id: "call_1",
         name: "system",
-        value: {error: true, type: "LLM::GuardError", message: "stop"}
+        value: {error: true, type: "guard_error", message: "stop"}
       )
     end
   end

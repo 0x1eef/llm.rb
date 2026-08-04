@@ -151,7 +151,7 @@ module LLM
     #
     # The built-in implementation is {LLM::Guard::Loop LLM::Guard::Loop}, which
     # detects repeated tool-call patterns and turns them into in-band
-    # {LLM::GuardError LLM::GuardError} tool returns.
+    # `guard_error` tool returns.
     #
     # @return [Class<LLM::Guard>]
     def guard

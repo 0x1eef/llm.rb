@@ -56,10 +56,6 @@ module LLM
   ContextWindowError = Class.new(InvalidRequestError)
 
   ##
-  # When a guard blocks pending tool execution
-  GuardError = Class.new(Error)
-
-  ##
   # When a request is interrupted
   Interrupt = Class.new(Error)
 

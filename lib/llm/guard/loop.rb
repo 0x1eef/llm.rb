@@ -35,7 +35,7 @@ class LLM::Guard
     def call(function:, threshold: DEFAULT_THRESHOLD, **opts)
       repetitions = detect(messages.to_a, threshold)
       return unless repetitions
-      function.return(error: true, type: LLM::GuardError.name, message: warning(repetitions))
+      function.return(error: true, type: "guard_error", message: warning(repetitions))
     end
 
     private
