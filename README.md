@@ -25,7 +25,8 @@ the [deepdive.md](https://r.uby.dev/llm/deepdive/).
 ## Features
 
 The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
-Gemini, Mistral, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
+Gemini, Mistral, DeepSeek, DeepInfra, Moonshot AI (Kimi), xAI, Z.ai, AWS Bedrock,
+Ollama, and llama.cpp.
 It has first-class support for streaming, tool calls,  MCP
 and A2A, embeddings, vector stores, OCR, context compaction,
 and the RAG pattern.
@@ -537,6 +538,7 @@ In no particular order:
 🇺🇸 Anthropic <br>
 🇨🇳 DeepSeek <br>
 🇨🇳 zAI <br>
+🇨🇳 Moonshot AI (Kimi) <br>
 🇪🇺 Mistral <br>
 
 **Weights**
@@ -548,6 +550,7 @@ In no particular order:
 🇺🇸 AWS bedrock <br>
 🇨🇳 DeepSeek <br>
 🇨🇳 zAI <br>
+🇨🇳 Moonshot AI (Kimi) <br>
 🇪🇺 Mistral <br>
 
 **Local**

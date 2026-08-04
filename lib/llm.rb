@@ -220,6 +220,15 @@ module LLM
   end
 
   ##
+  # @param key (see LLM::Moonshot#initialize)
+  # @param host (see LLM::Moonshot#initialize)
+  # @return (see LLM::Moonshot#initialize)
+  def moonshot(**)
+    lock(:require) { require_relative "llm/providers/moonshot" unless defined?(LLM::Moonshot) }
+    LLM::Moonshot.new(**)
+  end
+
+  ##
   # @param [Hash] opts
   #  MCP client options
   # @option opts [Hash, nil] :stdio
