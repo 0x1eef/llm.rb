@@ -353,6 +353,20 @@ class LLM::Function
   end
 
   ##
+  # Builds an {LLM::Function::Return LLM::Function::Return} for this
+  # function, using its own id and name. The given keywords become the
+  # return's value.
+  # @note
+  #   `return` is a Ruby keyword, so this is defined via
+  #   {Kernel#define_method Kernel#define_method}.
+  # @param [Hash] value
+  #  The return content, eg `{error: true, type: ..., message: ...}`.
+  # @return [LLM::Function::Return]
+  define_method(:return) do |value|
+    Return.new(id, name, value)
+  end
+
+  ##
   # @return [Hash]
   def adapt(provider)
     provider.adapt_function(self)

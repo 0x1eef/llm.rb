@@ -20,6 +20,20 @@ RSpec.describe LLM::Function do
     end
   end
 
+  describe "#return" do
+    subject(:result) do
+      tool.return(error: true, type: "LLM::GuardError", message: "stop")
+    end
+
+    it "builds a return using the function's id and name" do
+      expect(result.to_h).to eq(
+        id: "call_1",
+        name: "system",
+        value: {error: true, type: "LLM::GuardError", message: "stop"}
+      )
+    end
+  end
+
   describe "#task" do
     subject(:task) { tool.task(strategy) }
 
