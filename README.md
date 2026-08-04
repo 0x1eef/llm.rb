@@ -54,8 +54,9 @@ The
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
 class is the default high-level interface,
 and it is recommended for most use-cases. It manages tool execution
-automatically, guards against infinite loops, manages conversation
-state, and much more.
+automatically and
+[guards against infinite loops](https://r.uby.dev/llm/deepdive/advanced/guard),
+manages conversation state, and much more.
 
 ```ruby
 require "llm"

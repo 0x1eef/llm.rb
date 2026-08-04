@@ -19,7 +19,8 @@ An agent holds a conversation with a model. You send input with
 [`LLM::Agent#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk),
 the model responds, and if it requests tools the agent
 executes them automatically and feeds the results back. It enables
-a loop guard by default that detects repeated tool-call patterns
+[a loop guard by default](https://r.uby.dev/llm/deepdive/advanced/guard)
+that detects repeated tool-call patterns
 and blocks stuck execution. The tool loop can also be bounded with
 [`LLM::Agent.tool_budget`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method)
 (see the Tool budget section). Instructions are injected once
