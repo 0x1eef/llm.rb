@@ -170,6 +170,15 @@
   subclass and is defined via `define_method` because `return` is a Ruby
   keyword.
 
+### Agent
+
+* **add `LLM::Agent#compacted?`** <br>
+  [`LLM::Agent#compacted?`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#compacted%3F-instance_method)
+  delegates to the wrapped
+  [`LLM::Context#compacted?`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#compacted%3F-instance_method)
+  and reports whether the conversation has been compacted, so callers
+  can detect when history was trimmed.
+
 ### Change
 
 * **openai: default to `gpt-5.6-luna`** <br>
@@ -178,6 +187,18 @@
   option, matching the kind of default llm.rb aims for.
 
 ### Repl
+
+* **restore history wrap for Ctrl+P and Ctrl+N** <br>
+  Fix a regression where Ctrl+P and Ctrl+N recalled history text without
+  reflowing it into rows, so recalled lines wider than the terminal were
+  clipped. Recalled text now flows through the same word-wrap path as
+  typed input and wraps at the terminal width.
+
+* **restore Ctrl+D deletion across rows** <br>
+  Fix a bug where Ctrl+D at the end of an input row was a no-op, so
+  multiline input could not be joined by deleting a row break. Deleting
+  at the end of a row now consumes the break and pulls the next row up,
+  restoring the split space so merged words do not run together.
 
 * **center the buffer with 20% gutters** <br>
   The curses-based REPL now centers
