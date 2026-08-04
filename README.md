@@ -71,7 +71,8 @@ agent.talk "Hello world"
 is a class-level DSL that accepts a Hash of properties. Each key resolves to a
 corresponding class accessor: `name`, `description`, `model`, `tools`,
 `instructions`, `schema`, `stream`, `tracer`, `concurrency`, `confirm`,
-`path`, and `skills`. All options are optional; zero or more can be set.
+`path`, `skills`, and `tool_budget`. All options are optional; zero or
+more can be set.
 An error is raised for unknown keys so that typos are caught early.
 
 ```ruby
