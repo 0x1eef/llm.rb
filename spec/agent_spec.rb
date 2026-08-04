@@ -376,6 +376,7 @@ RSpec.describe LLM::Agent do
         mode: :completions,
         cost:,
         context_window: 128_000,
+        compacted?: false,
         model: "gpt-4.1",
         to_h: payload,
         params:,
@@ -533,6 +534,17 @@ RSpec.describe LLM::Agent do
         expect(result).to be(agent)
         expect(ctx).to have_received(:deserialize).with(path: "state.json")
       end
+    end
+  end
+
+  describe "#compacted?" do
+    let(:agent) { described_class.new(provider) }
+    let(:ctx) { agent.instance_variable_get(:@ctx) }
+
+    it "reflects the wrapped context's compaction state" do
+      expect(agent).not_to be_compacted
+      ctx.compacted = true
+      expect(agent).to be_compacted
     end
   end
 

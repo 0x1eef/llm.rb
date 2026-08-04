@@ -558,6 +558,13 @@ module LLM
     end
 
     ##
+    # @see LLM::Context#compacted?
+    # @return [Boolean]
+    def compacted?
+      @ctx.compacted?
+    end
+
+    ##
     # Start a minimalist repl that can interact
     # with the agent and its current state. This
     # method requires the 'curses' gem to be installed
