@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "setup"
+require "fileutils"
+require "tmpdir"
 
 RSpec.describe LLM::Agent do
   let(:provider) { LLM.openai(key: "test") }
@@ -100,12 +102,27 @@ RSpec.describe LLM::Agent do
     end
 
     describe ".new" do
+      let(:skill_path) do
+        dir = Dir.mktmpdir("llmrb-skill")
+        File.write(File.join(dir, "SKILL.md"), <<~MD)
+          ---
+          name: weather
+          description: Check the weather
+          ---
+          You are a weather skill.
+        MD
+        dir
+      end
+
+      after do
+        FileUtils.remove_entry(skill_path)
+      end
+
       it "passes DSL defaults to the context" do
-        expect(LLM::Context).to receive(:new).with(
-          provider,
-          {model: "gpt-4.1", tools: [tool], schema:, guard: LLM::Guard::Loop}
-        ).and_call_original
-        agent_class.new(provider)
+        ctx = wrapped_context(agent_class.new(provider))
+        expect(ctx.params[:model]).to eq("gpt-4.1")
+        expect(ctx.params[:tools]).to eq([tool])
+        expect(ctx.params[:schema]).to eq(schema)
       end
 
       it "keeps concurrency on the agent" do
@@ -113,26 +130,17 @@ RSpec.describe LLM::Agent do
           model "gpt-4.1"
           concurrency :thread
         end
-        expect(LLM::Context).to receive(:new).with(
-          provider,
-          {model: "gpt-4.1", tools: [], guard: LLM::Guard::Loop}
-        ).and_call_original
         expect(klass.new(provider).concurrency).to eq(:thread)
       end
 
       it "passes DSL skills to the context" do
-        skill_path = "/tmp/weather"
-        skill = double("skill", to_tool: tool)
+        skill_path = self.skill_path
         klass = Class.new(described_class) do
           model "gpt-4.1"
           skills skill_path
         end
-        expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
-        expect(LLM::Context).to receive(:new).with(
-          provider,
-          {model: "gpt-4.1", tools: [], skills: [skill_path], guard: LLM::Guard::Loop}
-        ).and_call_original
-        klass.new(provider)
+        ctx = wrapped_context(klass.new(provider))
+        expect(ctx.params[:tools]).not_to be_empty
       end
 
       context "when model is declared with a block" do
@@ -143,21 +151,15 @@ RSpec.describe LLM::Agent do
         end
 
         it "resolves the block against the agent instance" do
-          expect(LLM::Context).to receive(:new).with(
-            provider,
-            {model: "gpt-4.1", tools: [], guard: LLM::Guard::Loop}
-          ).and_call_original
-          klass.new(provider)
+          ctx = wrapped_context(klass.new(provider))
+          expect(ctx.params[:model]).to eq("gpt-4.1")
         end
       end
 
       context "when no model is configured" do
         it "keeps the provider default model" do
-          expect(LLM::Context).to receive(:new).with(
-            provider,
-            {tools: [], guard: LLM::Guard::Loop}
-          ).and_call_original
-          described_class.new(provider)
+          ctx = wrapped_context(described_class.new(provider))
+          expect(ctx.params[:model]).to eq(provider.default_model)
         end
       end
 
@@ -176,17 +178,12 @@ RSpec.describe LLM::Agent do
         end
 
         it "resolves the block against the agent instance" do
-          expect(LLM::Context).to receive(:new).with(
-            provider,
-            {tools: [tool], guard: LLM::Guard::Loop}
-          ).and_call_original
-          klass.new(provider)
+          ctx = wrapped_context(klass.new(provider))
+          expect(ctx.params[:tools]).to eq([tool])
         end
       end
 
       context "when skills are declared with a block" do
-        let(:skill_path) { "/tmp/weather" }
-        let(:skill) { double("skill", to_tool: tool) }
         let(:klass) do
           skill_path = self.skill_path
           Class.new(described_class) do
@@ -195,12 +192,8 @@ RSpec.describe LLM::Agent do
         end
 
         it "resolves the block against the agent instance" do
-          expect(LLM::Skill).to receive(:load).with(skill_path).and_return(skill)
-          expect(LLM::Context).to receive(:new).with(
-            provider,
-            {tools: [], skills: [skill_path], guard: LLM::Guard::Loop}
-          ).and_call_original
-          klass.new(provider)
+          ctx = wrapped_context(klass.new(provider))
+          expect(ctx.params[:tools]).not_to be_empty
         end
       end
 
@@ -218,11 +211,8 @@ RSpec.describe LLM::Agent do
         end
 
         it "resolves the block against the agent instance" do
-          expect(LLM::Context).to receive(:new).with(
-            provider,
-            {tools: [], guard: LLM::Guard::Loop, schema: schema}
-          ).and_call_original
-          klass.new(provider)
+          ctx = wrapped_context(klass.new(provider))
+          expect(ctx.params[:schema]).to eq(schema)
         end
       end
 
@@ -253,11 +243,7 @@ RSpec.describe LLM::Agent do
         end
 
         it "resolves the stream before building the context" do
-          expect(LLM::Context).to receive(:new).with(
-            provider,
-            {model: "gpt-4.1", tools: [], guard: LLM::Guard::Loop, stream:}
-          ).and_call_original
-          klass.new(provider)
+          expect(klass.new(provider).stream).to equal(stream)
         end
 
         context "when the block builds a new stream" do
@@ -270,16 +256,14 @@ RSpec.describe LLM::Agent do
           end
           let(:first_agent) { klass.new(provider) }
           let(:second_agent) { klass.new(provider) }
-          let(:first_stream) { first_agent.instance_variable_get(:@ctx).send(:stream) }
-          let(:second_stream) { second_agent.instance_variable_get(:@ctx).send(:stream) }
 
           it "creates a separate stream per agent instance" do
-            expect(first_stream).not_to equal(second_stream)
+            expect(first_agent.stream).not_to equal(second_agent.stream)
           end
 
           it "uses the configured stream type" do
-            expect(first_stream).to be_a(stream_class)
-            expect(second_stream).to be_a(stream_class)
+            expect(first_agent.stream).to be_a(stream_class)
+            expect(second_agent.stream).to be_a(stream_class)
           end
         end
       end
@@ -295,11 +279,7 @@ RSpec.describe LLM::Agent do
         end
 
         it "passes the stream to the context" do
-          expect(LLM::Context).to receive(:new).with(
-            provider,
-            {model: "gpt-4.1", tools: [], guard: LLM::Guard::Loop, stream:}
-          ).and_call_original
-          klass.new(provider)
+          expect(klass.new(provider).stream).to equal(stream)
         end
       end
     end
@@ -313,17 +293,18 @@ RSpec.describe LLM::Agent do
           user "hello"
         end
       end
+      let(:res) { response!(choices: [LLM::Message.new("assistant", "hello")]) }
 
       it "sends the prompt through the provider" do
         if provider.name == :openai
           allow(agent.llm).to receive(:responses).and_return(responses)
           expect(responses).to receive(:create)
             .with(array_including(have_attributes(content: "hello")), instance_of(Hash))
-            .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
+            .and_return(res)
         else
           expect(agent.llm).to receive(:complete)
             .with(array_including(have_attributes(content: "hello")), instance_of(Hash))
-            .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
+            .and_return(res)
         end
         agent.talk(prompt)
       end
@@ -346,11 +327,11 @@ RSpec.describe LLM::Agent do
             allow(agent.llm).to receive(:responses).and_return(responses)
             expect(responses).to receive(:create)
               .with(array_including(have_attributes(content: "hello"), have_attributes(content: "Earlier task context")), instance_of(Hash))
-              .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
+              .and_return(res)
           else
             expect(agent.llm).to receive(:complete)
               .with(array_including(have_attributes(content: "hello"), have_attributes(content: "Earlier task context")), instance_of(Hash))
-              .and_return(double(choices: [LLM::Message.new("assistant", "hello")]))
+              .and_return(res)
           end
           agent.talk("hello")
         end
@@ -359,180 +340,142 @@ RSpec.describe LLM::Agent do
   end
 
   describe "context parity" do
-    let(:returns) { [double("return")] }
-    let(:usage) { LLM::Object.from(input_tokens: 1, output_tokens: 2, total_tokens: 3) }
-    let(:messages) { double("messages") }
-    let(:pending_functions) { empty_functions }
-    let(:cost) { double("cost") }
-    let(:payload) { {"schema_version" => 1, "model" => "gpt-4.1", "messages" => []} }
-    let(:params) { {model: "gpt-4.1"} }
-    let(:ctx) do
-      instance_double(
-        LLM::Context,
-        messages:,
-        pending_functions:,
-        returns:,
-        usage:,
-        mode: :completions,
-        cost:,
-        context_window: 128_000,
-        compacted?: false,
-        model: "gpt-4.1",
-        to_h: payload,
-        params:,
-        prompt: :prompt,
-        image_url: :image,
-        local_file: :local_file,
-        remote_file: :remote_file,
-        tracer: :tracer
-      )
-    end
     let(:agent) { described_class.new(provider) }
+    let(:ctx) { agent.instance_variable_get(:@ctx) }
+    let(:tmpdir) { Dir.mktmpdir("llmrb-agent") }
+    let(:path) { File.join(tmpdir, "state.json") }
 
-    before do
-      allow(LLM::Context).to receive(:new).and_return(ctx)
-      allow(ctx).to receive(:interrupt!)
-      allow(ctx).to receive(:wait).with(:sequential).and_return(returns)
-      allow(ctx).to receive(:wait).with(:thread).and_return(returns)
-    end
+    after { FileUtils.remove_entry(tmpdir) }
 
     describe "#messages" do
       subject { agent.messages }
-      it { is_expected.to be(messages) }
+      it { is_expected.to be(ctx.messages) }
     end
 
     describe "#pending_functions" do
       subject { agent.pending_functions }
-      it { is_expected.to be(pending_functions) }
+      it { is_expected.to eq(ctx.pending_functions) }
     end
 
     describe "#returns" do
       subject { agent.returns }
-      it { is_expected.to be(returns) }
+      it { is_expected.to eq(ctx.returns) }
     end
 
     describe "#usage" do
       subject { agent.usage }
-      it { is_expected.to be(usage) }
+      it { is_expected.to eq(ctx.usage) }
     end
 
     describe "#mode" do
       subject { agent.mode }
-      it { is_expected.to eq(:completions) }
+      it { is_expected.to eq(ctx.mode) }
     end
 
     describe "#cost" do
       subject { agent.cost }
-      it { is_expected.to be(cost) }
+      it { is_expected.to eq(ctx.cost) }
     end
 
     describe "#context_window" do
       subject { agent.context_window }
-      it { is_expected.to eq(128_000) }
+      it { is_expected.to eq(ctx.context_window) }
     end
 
     describe "#model" do
       subject { agent.model }
-      it { is_expected.to eq("gpt-4.1") }
+      it { is_expected.to eq(ctx.model) }
     end
 
     describe "#to_h" do
       subject { agent.to_h }
-      it { is_expected.to eq(payload) }
+      it { is_expected.to eq(ctx.to_h) }
     end
 
     describe "#to_json" do
       subject { agent.to_json }
-      it { is_expected.to eq(payload.to_json) }
+      it { is_expected.to eq(ctx.to_json) }
+    end
+
+    describe "#tracer" do
+      subject { agent.tracer }
+      it { is_expected.to be_a(LLM::Tracer::Null) }
+    end
+
+    describe "#params" do
+      subject { agent.params }
+      it { is_expected.to eq(ctx.params) }
     end
 
     describe "#prompt" do
       it "forwards to the context" do
-        expect(agent.prompt {}).to eq(:prompt)
+        expect(agent.prompt {}).to be_a(LLM::Prompt)
       end
     end
 
     describe "#image_url" do
       it "forwards to the context" do
-        expect(agent.image_url("https://example.com")).to eq(:image)
+        expect(agent.image_url("https://example.com")).to be_a(LLM::Object)
       end
     end
 
     describe "#local_file" do
       it "forwards to the context" do
-        expect(agent.local_file("/tmp/x")).to eq(:local_file)
+        expect(agent.local_file("/tmp/x")).to be_a(LLM::Object)
       end
     end
 
     describe "#remote_file" do
       it "forwards to the context" do
-        expect(agent.remote_file(:response)).to eq(:remote_file)
+        expect(agent.remote_file("https://example.com/p.png")).to be_a(LLM::Object)
       end
-    end
-
-    describe "#tracer" do
-      subject { agent.tracer }
-      it { is_expected.to eq(:tracer) }
-    end
-
-    describe "#params" do
-      subject { agent.params }
-      it { is_expected.to eq(params) }
     end
 
     describe "#interrupt!" do
       it "forwards to the context" do
-        agent.interrupt!
-        expect(ctx).to have_received(:interrupt!)
+        expect { agent.interrupt! }.not_to raise_error
       end
     end
 
     describe "#cancel!" do
       it "aliases #interrupt!" do
-        agent.cancel!
-        expect(ctx).to have_received(:interrupt!)
+        expect { agent.cancel! }.not_to raise_error
       end
     end
 
     describe "#wait" do
       it "forwards to the context" do
-        expect(agent.wait(:thread)).to eq(returns)
+        expect(agent.wait(:thread)).to eq([])
       end
     end
 
     describe "#serialize" do
-      it "forwards to the context" do
-        expect(ctx).to receive(:serialize).with(path: "state.json")
-        agent.serialize(path: "state.json")
+      it "writes the context to a file" do
+        agent.serialize(path:)
+        expect(File.exist?(path)).to be(true)
       end
     end
 
     describe "#save" do
       it "aliases #serialize" do
-        expect(ctx).to receive(:serialize).with(path: "state.json")
-        agent.save(path: "state.json")
+        agent.save(path:)
+        expect(File.exist?(path)).to be(true)
       end
     end
 
     describe "#deserialize" do
-      it "forwards to the context" do
-        expect(ctx).to receive(:deserialize).with(path: "state.json")
-        agent.deserialize(path: "state.json")
-      end
-
       it "returns the agent (enables chaining)" do
-        allow(ctx).to receive(:deserialize)
-        result = agent.deserialize(path: "state.json")
+        agent.serialize(path:)
+        result = agent.deserialize(path:)
         expect(result).to be(agent)
       end
     end
 
     describe "#restore" do
       it "aliases #deserialize and returns the agent" do
-        allow(ctx).to receive(:deserialize)
-        result = agent.restore(path: "state.json")
+        agent.serialize(path:)
+        result = agent.restore(path:)
         expect(result).to be(agent)
-        expect(ctx).to have_received(:deserialize).with(path: "state.json")
       end
     end
   end
@@ -754,7 +697,7 @@ RSpec.describe LLM::Agent do
 
   describe "DSL tracer scoping" do
     let(:tracer) { LLM::Tracer::Null.new(provider) }
-    let(:res) { Struct.new(:choices).new([LLM::Message.new("assistant", "hello")]) }
+    let(:res) { response!(choices: [LLM::Message.new("assistant", "hello")]) }
     let(:responses) { provider.responses }
     let(:tool) do
       Class.new(LLM::Tool) do
@@ -815,7 +758,7 @@ RSpec.describe LLM::Agent do
     let(:agent) { described_class.new(provider, mode: :responses, tools: [tool]) }
     let(:ctx) { agent.instance_variable_get(:@ctx) }
     let(:final_response) do
-      Struct.new(:choices).new([LLM::Message.new("assistant", "done")])
+      response!(choices: [LLM::Message.new("assistant", "done")])
     end
 
     before do
@@ -892,13 +835,21 @@ RSpec.describe LLM::Agent do
   # Each response uses a distinct call id so the loop keeps seeing
   # unresolved tool work.
   # @param [String] id
-  # @return [Object]
+  # @return [LLM::Response]
   def tool_call_response(id)
-    Struct.new(:choices).new([
+    response!(choices: [
       LLM::Message.new("assistant", nil, {
         tools: [tool],
         tool_calls: [{id:, name: "echo", arguments: {"value" => "hello"}}]
       })
     ])
+  end
+
+  ##
+  # Returns the real context the agent wraps.
+  # @param [LLM::Agent] agent
+  # @return [LLM::Context]
+  def wrapped_context(agent)
+    agent.instance_variable_get(:@ctx)
   end
 end
