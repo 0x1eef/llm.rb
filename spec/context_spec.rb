@@ -584,7 +584,7 @@ RSpec.describe LLM::Context do
       end
     end
 
-    it "spawns the function when no guard blocks it" do
+    it "spawns a task for the function" do
       task = ctx.spawn(tool, :thread)
       expect(task.wait.to_h).to eq(
         id: "call_1",
@@ -593,17 +593,20 @@ RSpec.describe LLM::Context do
       )
     end
 
-    it "returns a guarded tool error when the guard blocks it" do
+    it "spawns a task even when a guard is configured" do
       guard = Class.new(LLM::Guard) do
-        def call(**)
-          "stop"
+        def call(function:, **)
+          LLM::Function::Return.new(function.id, function.name, {
+            error: true, type: LLM::GuardError.name, message: "stop"
+          })
         end
       end
       ctx = LLM::Context.new(provider, model:, guard:)
-      expect(ctx.spawn(tool, :thread).to_h).to eq(
+      task = ctx.spawn(tool, :thread)
+      expect(task.wait.to_h).to eq(
         id: "call_1",
         name: "system",
-        value: {error: true, type: LLM::GuardError.name, message: "stop"}
+        value: {"ok" => true}
       )
     end
   end
@@ -640,8 +643,10 @@ RSpec.describe LLM::Context do
     let(:response) { double(choices: [LLM::Message.new("assistant", "hello", model:)]) }
     let(:guard) do
       Class.new(LLM::Guard) do
-        def call(**)
-          "stop"
+        def call(function:, **)
+          LLM::Function::Return.new(function.id, function.name, {
+            error: true, type: LLM::GuardError.name, message: "stop"
+          })
         end
       end
     end
@@ -714,8 +719,10 @@ RSpec.describe LLM::Context do
     context "with a guard that wants to stop execution" do
       let(:guard) do
         Class.new(LLM::Guard) do
-          def call(**)
-            "stop"
+          def call(function:, **)
+            LLM::Function::Return.new(function.id, function.name, {
+              error: true, type: LLM::GuardError.name, message: "stop"
+            })
           end
         end
       end

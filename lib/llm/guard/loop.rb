@@ -4,9 +4,9 @@ class LLM::Guard
   ##
   # {LLM::Guard::Loop LLM::Guard::Loop} is the built-in loop-detection
   # guard. It detects when a context is repeating the same tool-call
-  # pattern instead of making progress, and returns a warning so
-  # {LLM::Context LLM::Context} can block the pending tool work with
-  # in-band {LLM::GuardError LLM::GuardError} tool errors.
+  # pattern instead of making progress, and returns an in-band
+  # {LLM::Function::Return LLM::Function::Return} so {LLM::Context
+  # LLM::Context} can block the pending tool work.
   class Loop < self
     ##
     # The default number of repeated tool-call patterns required before
@@ -21,17 +21,25 @@ class LLM::Guard
     # to a `[tool_name, arguments]` signature and checks whether the tail
     # of the sequence is repeating.
     #
+    # @param [LLM::Function] function
+    #  The pending function being decided about. Only its id and name are
+    #  used to build the return.
     # @param [Integer] threshold
     #  How many repeated tool-call patterns must appear at the tail of the
     #  sequence before the guard returns a warning.
     # @param [Hash] opts
     #  Additional per-call options (ignored).
-    # @return [String, nil]
-    #  Returns a warning string when pending tool execution should be
-    #  blocked, or nil when execution should continue.
-    def call(threshold: DEFAULT_THRESHOLD, **opts)
+    # @return [LLM::Function::Return, nil]
+    #  Returns a tool return that blocks this function's pending call, or
+    #  nil when execution should continue.
+    def call(function:, threshold: DEFAULT_THRESHOLD, **opts)
       repetitions = detect(messages.to_a, threshold)
-      repetitions ? warning(repetitions) : nil
+      return unless repetitions
+      LLM::Function::Return.new(function.id, function.name, {
+        error: true,
+        type: LLM::GuardError.name,
+        message: warning(repetitions)
+      })
     end
 
     private

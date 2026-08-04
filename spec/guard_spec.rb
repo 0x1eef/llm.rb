@@ -13,10 +13,11 @@ RSpec.describe LLM::Guard do
       def call(value:) = {value:}
     end
   end
+  let(:function) { tool.function.tap { |fn| fn.id = "call_1" } }
 
   describe LLM::Guard::Null do
     it "never blocks" do
-      expect(described_class.new(ctx).call).to be_nil
+      expect(described_class.new(ctx).call(function:)).to be_nil
     end
 
     it "is the default guard" do
@@ -36,12 +37,20 @@ RSpec.describe LLM::Guard do
       end
     end
 
-    it "warns on a repeated tool-call pattern" do
-      expect(described_class.new(ctx).call).to include("Repeated tool-call pattern")
+    it "returns a guarded return on a repeated tool-call pattern" do
+      result = described_class.new(ctx).call(function:)
+      expect(result).to be_a(LLM::Function::Return)
+      expect(result.id).to eq(function.id)
+      expect(result.name).to eq(function.name)
+      expect(result.value).to include(
+        error: true,
+        type: LLM::GuardError.name,
+        message: a_string_including("Repeated tool-call pattern")
+      )
     end
 
     it "respects a custom threshold" do
-      expect(described_class.new(ctx).call(threshold: 4)).to be_nil
+      expect(described_class.new(ctx).call(function:, threshold: 4)).to be_nil
     end
   end
 
@@ -52,7 +61,7 @@ RSpec.describe LLM::Guard do
 
     it "keeps a custom guard class" do
       guard = Class.new(LLM::Guard) do
-        def call(**)
+        def call(function:, **)
           "stop"
         end
       end
@@ -62,13 +71,13 @@ RSpec.describe LLM::Guard do
     it "passes guard_options to the guard" do
       threshold = nil
       guard = Class.new(LLM::Guard) do
-        define_method(:call) do |**opts|
+        define_method(:call) do |function:, **opts|
           threshold = opts[:threshold]
           nil
         end
       end
       ctx = LLM::Context.new(provider, guard:, guard_options: {threshold: 5})
-      ctx.guard.new(ctx).call(**ctx.instance_variable_get(:@guard)[:options])
+      ctx.guard.new(ctx).call(function:, **ctx.instance_variable_get(:@guard)[:options])
       expect(threshold).to eq(5)
     end
   end

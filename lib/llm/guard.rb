@@ -7,14 +7,13 @@ module LLM
   #
   # A guard is bound to a context and decides whether pending tool work
   # should be blocked before the agent keeps looping. Each subclass
-  # implements {#call} and returns a warning string when execution should
-  # be blocked, or `nil` when it should continue. The built-in
-  # implementation is {LLM::Guard::Loop LLM::Guard::Loop}, which detects
-  # repeated tool-call patterns. {LLM::Guard::Null LLM::Guard::Null} is a
-  # no-op and the default.
+  # implements {#call} and returns an {LLM::Function::Return
+  # LLM::Function::Return} that closes the pending tool call, or `nil`
+  # when execution should continue. The built-in implementation is
+  # {LLM::Guard::Loop LLM::Guard::Loop}, which detects repeated tool-call
+  # patterns. {LLM::Guard::Null LLM::Guard::Null} is a no-op and the
+  # default.
   #
-  # {LLM::Context LLM::Context} uses a guard's warning to return in-band
-  # {LLM::GuardError LLM::GuardError} tool errors, and
   # {LLM::Agent LLM::Agent} enables {LLM::Guard::Loop LLM::Guard::Loop}
   # by default through its wrapped context.
   class Guard
@@ -34,11 +33,13 @@ module LLM
 
     ##
     # @abstract
+    # @param [LLM::Function] function
+    #  The pending function the guard is deciding about.
     # @param opts [Hash] Per-call options
-    # @return [String, nil]
-    #  A warning string when pending tool work should be blocked,
-    #  or nil when execution should continue.
-    def call(**opts)
+    # @return [LLM::Function::Return, nil]
+    #  A tool return that closes this function's pending call when it
+    #  should be blocked, or nil when execution should continue.
+    def call(function:, **opts)
       raise NotImplementedError
     end
 

@@ -260,15 +260,10 @@ module LLM
     ##
     # Spawns a function through the context.
     #
-    # When a guard is configured, this method can return an in-band guarded
-    # tool error instead of spawning work.
-    #
     # @param [LLM::Function] function
     # @param [Symbol] strategy
-    # @return [LLM::Function::Return, LLM::Function::Task]
+    # @return [LLM::Function::Task]
     def spawn(function, strategy)
-      warning = @guard[:klass].new(self).call(**@guard[:options])
-      return guarded_return_for(function, warning) if warning
       function.task(strategy)
     end
 
@@ -302,13 +297,19 @@ module LLM
     # @return [Array<LLM::Function::Return>]
     def wait(strategy, except: [])
       if stream.queue.empty?
-        tools  = except.empty? ? pending_functions : pending_functions - except
-        guards = guarded_returns(tools:)
-        return guards if guards
-        @queue = tools.task(strategy)
-        returns = @queue.wait
-        emit_tool_returns(tools, returns)
-        returns
+        tools   = except.empty? ? pending_functions : pending_functions - except
+        guarded = guarded_returns(tools:)
+        blocked = guarded.select { _2 }.keys
+        pending = blocked.empty? ? tools : tools - blocked
+        if blocked.any? and pending.empty?
+          guarded.values.compact
+        else
+          @queue = pending.task(strategy)
+          returns = @queue.wait
+          emit_tool_returns(pending, returns)
+          results = guarded.merge(pending.zip(returns).to_h)
+          tools.map { results.fetch(_1) }
+        end
       else
         @queue = stream.queue
         @queue.wait
@@ -506,15 +507,6 @@ module LLM
     end
 
     ##
-    # Builds in-band guarded returns when the guard blocks tool work.
-    # @api private
-    def guarded_returns(tools:)
-      warning = @guard[:klass].new(self).call(**@guard[:options])
-      return unless warning
-      tools.map { guarded_return_for(_1, warning) }
-    end
-
-    ##
     # Rewrites a prompt and params through the configured transformer.
     # @api private
     def transform(prompt, params, key: :messages)
@@ -563,14 +555,15 @@ module LLM
     end
 
     ##
-    # Builds one guarded tool return for a blocked function call.
+    # Asks the guard about each pending function. Functions the guard
+    # wants to block map to their return; the rest map to nil.
     # @api private
-    def guarded_return_for(function, warning)
-      LLM::Function::Return.new(function.id, function.name, {
-        error: true,
-        type: LLM::GuardError.name,
-        message: warning
-      })
+    # @param [Array<LLM::Function>] tools
+    # @return [Hash{LLM::Function => LLM::Function::Return, nil}]
+    def guarded_returns(tools:)
+      tools.to_h do |fn|
+        [fn, @guard[:klass].new(self).call(function: fn, **@guard[:options])]
+      end
     end
 
     ##
