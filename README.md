@@ -34,40 +34,50 @@ because the API is pretty much identical.
 
 What the runtime adds on top:
 
-* **Agentic development**
-  <br>Designed for building agents: attach an agent to a terminal REPL,
+**Agent platform**
+
+* **Agentic development** <br>
+  Designed for building agents: attach an agent to a terminal REPL,
   persist it to disk or a database, and run its tools concurrently. The
   whole agent lifecycle is first-class.
-* **Streaming**
-  <br>
-  First-class, with structured callbacks for content,
-  reasoning, tool calls, and tool returns. Tools can run while the model
-  is still streaming.
-* **Concurrency**
-  <br>Six tool execution strategies (sequential, threads,
-  async, fibers, forks, ractors) plus three HTTP backends to choose from.
-* **Interruption**
-  <br>Cancel an in-flight request or a running tool at any point, across
-  transports and concurrency strategies, with `{ctx, agent}.interrupt!`.
-* **A unified plugin family**
-  <br>Compactors, transformers, and guards all
-  share one interface, covering context management, message rewriting,
-  and tool supervision (policy, quotas, cost control, loop detection).
-* **Agent-to-agent**
-  <br>MCP and A2A as first-class protocols.
-* **Skills**
-  <br>Turn a markdown file into a callable tool: the runtime spawns a
-  subagent with the skill's instructions and tool set for a single
-  turn, then discards it. Fresh and stateless on every call.
-* **RAG, out of the box**
-  <br> Embeddings, vector stores, OCR, and the RAG pattern.
 * **A terminal REPL** <br>
   A curses-based TUI for talking to an agent interactively, with markdown
   rendering and a live status line.
 * **Persistence** <br>
   Automatic filesystem persistence, plus first-class ActiveRecord and Sequel support.
+* **Skills** <br>
+  Turn a markdown file into a callable tool: the runtime spawns a
+  subagent with the skill's instructions and tool set for a single
+  turn, then discards it. Fresh and stateless on every call.
+* **Agent-to-agent** <br>
+  MCP and A2A as first-class protocols.
+
+**Model interaction**
+
+* **Streaming** <br>
+  First-class, with structured callbacks for content,
+  reasoning, tool calls, and tool returns. Tools can run while the model
+  is still streaming.
+* **Concurrency** <br>
+  Six tool execution strategies (sequential, threads,
+  async, fibers, forks, ractors) plus three HTTP backends to choose from.
+* **Interruption** <br>
+  Cancel an in-flight request or a running tool at any point, across
+  transports and concurrency strategies, with `{ctx, agent}.interrupt!`.
+* **RAG, out of the box** <br>
+  Embeddings, vector stores, OCR, and the RAG pattern.
+
+**Runtime supervision**
+
+* **A unified plugin family** <br>
+  Compactors, transformers, and guards all
+  share one interface, covering context management, message rewriting,
+  and tool supervision (policy, quotas, cost control, loop detection).
 * **Cost and usage tracking** <br>
   Per-turn cost and token usage on every context.
+
+**Provider optimizations**
+
 * **DeepSeek-optimized** <br>
   DeepSeek is the most cost-effective option for API users, and the
   runtime closes its gaps:
