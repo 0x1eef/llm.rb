@@ -18,10 +18,11 @@ llm.rb is an advanced runtime for building capable AI applications
 on CRuby. It has zero runtime dependencies by default, and a single
 coherent API that spans 11+ providers. Streaming, tools, guards,
 compaction, the REPL, and the database integrations all build on the
-same three concepts: providers, contexts, and agents. Once you learn
-the fundamentals, everything else falls into place naturally.
-(Some features, such as ActiveRecord support, require optional
-dependencies that are opt-in.)
+same three concepts: providers, contexts, and agents.
+
+Once you learn the fundamentals, everything else falls into place
+naturally. Some features, such as ActiveRecord support, require
+optional dependencies that are opt-in.
 
 ## Features
 
