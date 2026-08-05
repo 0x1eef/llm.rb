@@ -68,6 +68,7 @@ namespace :'models.dev' do
       models = JSON.parse(res.body)
       providers = %w[openai google anthropic xai zai deepseek deepinfra mistral].to_h { [_1, _1] }
       providers["bedrock"] = "amazon-bedrock"
+      providers["moonshot"] = "moonshotai"
       providers.each do |target, source|
         File.binwrite "data/#{target}.json", JSON.pretty_generate(models[source])
       end

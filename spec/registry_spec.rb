@@ -73,6 +73,13 @@ RSpec.describe LLM::Registry do
     include_examples "model exists", "glm-4.5-air"
   end
 
+  context "when given moonshot" do
+    let(:provider) { :moonshot }
+
+    include_examples "model exists", "kimi-k3"
+    include_examples "model exists", "kimi-k2.5"
+  end
+
   context "when given bedrock" do
     let(:provider) { :bedrock }
 
