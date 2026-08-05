@@ -24,7 +24,11 @@ class LLM::Repl
     # @return [String]
     def context_bar
       LLM::Repl::Bar.new(
-        used: @agent.usage.total_tokens,
+        ##
+        # After compaction the used context is unknown until the next
+        # response, so the bar renders an unknown state instead of a
+        # stale percentage.
+        used: @agent.compacted? ? nil : @agent.usage.total_tokens,
         total: @agent.context_window
       ).to_s
     end
@@ -62,7 +66,11 @@ class LLM::Repl
     # The nodes making up the status line.
     # @return [Array<LLM::Repl::Node>]
     def nodes
-      @nodes
+      if @agent.compacted?
+        [Node.new("Context compacted")]
+      else
+        @nodes
+      end
     end
   end
 end

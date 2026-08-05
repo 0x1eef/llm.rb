@@ -17,7 +17,8 @@ class LLM::Repl
     FREE = " "
 
     ##
-    # @param [Integer] used
+    # @param [Integer, nil] used
+    #  The used context, or nil when it is unknown (eg after compaction).
     # @param [Integer] total
     # @param [Integer] width
     # @return [LLM::Repl::Bar]
@@ -36,11 +37,11 @@ class LLM::Repl
     private
 
     ##
-    # @param [Integer] used
+    # @param [Integer, nil] used
     # @param [Integer] total
     # @return [[String, Integer]]
     def remainder(used, total)
-      return ["???", width] if total <= 0
+      return ["???", width] if used.nil? || total <= 0
       diff = total - used
       return ["0%", 0] if diff <= 0
       remaining = (diff.fdiv(total) * 100).round(2)
