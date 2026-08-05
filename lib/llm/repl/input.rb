@@ -97,10 +97,12 @@ class LLM::Repl
       elsif ESC == char
         @agent.cancel!
       elsif CTRL[:P] == char
-        set(text: @walker.prev.dup)
+        text = @walker.prev
+        set(text: text.dup) if text
         :ctrl_p
       elsif CTRL[:N] == char
-        set(text: @walker.next.dup)
+        text = @walker.next
+        set(text: text.dup) if text
         :ctrl_n
       elsif CTRL[:D] == char
         delete

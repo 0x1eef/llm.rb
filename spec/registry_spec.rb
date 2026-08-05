@@ -48,7 +48,7 @@ RSpec.describe LLM::Registry do
   context "when given anthropic" do
     let(:provider) { :anthropic }
 
-    include_examples "model exists", "claude-opus-4-1"
+    include_examples "model exists", "claude-opus-5"
     include_examples "model exists", "claude-haiku-4-5-20251001"
   end
 

@@ -18,12 +18,13 @@ class LLM::Repl
     end
 
     ##
-    # @return [Object, nil]
+    # @return [Object, String, nil]
     def next
       if @items.empty?
         nil
       elsif @cursor >= @items.size - 1
-        @items[@cursor]
+        @cursor = @items.size
+        ""
       else
         @cursor += 1
         @items[@cursor]

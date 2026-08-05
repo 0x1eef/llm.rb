@@ -4,89 +4,53 @@ require "setup"
 require "llm/repl"
 
 RSpec.describe LLM::Repl::Walker do
-  let(:messages) do
-    [
-      LLM::Message.new("user", "first"),
-      LLM::Message.new("assistant", "response one"),
-      LLM::Message.new("user", "second"),
-      LLM::Message.new("assistant", "response two"),
-      LLM::Message.new("user", "third")
-    ]
-  end
-
-  subject(:walker) { described_class.new(messages.select(&:user?).map(&:content)) }
-
-  describe "#next" do
-    context "when at the end" do
-      it "returns nil" do
-        expect(walker.next).to be_nil
-      end
-    end
-
-    context "when not at the last message" do
-      before { 2.times { walker.prev } }
-
-      it "advances forward" do
-        expect(walker.next).to eq("third")
-      end
-    end
-  end
+  let(:items) { %w[one two three] }
+  let(:walker) { described_class.new(items) }
 
   describe "#prev" do
-    context "when at the first message" do
-      before { 3.times { walker.prev } }
-
-      it "stays at the first message" do
-        expect(walker.prev).to eq("first")
-      end
+    it "walks backward from the last item" do
+      expect(walker.prev).to eq("three")
+      expect(walker.prev).to eq("two")
+      expect(walker.prev).to eq("one")
     end
 
-    context "when not at the first message" do
-      before { walker.prev }
-
-      it "moves backward" do
-        expect(walker.prev).to eq("second")
-      end
+    it "clamps at the first item" do
+      3.times { walker.prev }
+      expect(walker.prev).to eq("one")
     end
   end
 
-  describe "iteration order" do
-    before { 3.times { walker.prev } }
-
-    it "cycles through messages in reverse order" do
-      expect(walker.next).to eq("second")
-      expect(walker.next).to eq("third")
-      expect(walker.next).to eq("third")
+  describe "#next" do
+    it "walks forward through the items" do
+      3.times { walker.prev }
+      expect(walker.next).to eq("two")
+      expect(walker.next).to eq("three")
     end
 
-    it "cycles through messages in forward order after going back" do
-      expect(walker.next).to eq("second")
-      expect(walker.prev).to eq("first")
-      expect(walker.next).to eq("second")
+    it "returns an empty string at the end of the items" do
+      walker.prev
+      expect(walker.next).to eq("")
+    end
+
+    it "stays empty once at the end" do
+      walker.prev
+      walker.next
+      expect(walker.next).to eq("")
+    end
+
+    it "allows prev to return from the empty slot" do
+      walker.prev
+      walker.next
+      expect(walker.prev).to eq("three")
     end
   end
 
-  describe "empty walker" do
-    let(:messages) { [] }
+  context "when empty" do
+    let(:items) { [] }
 
-    it "returns nil on next" do
-      expect(walker.next).to be_nil
-    end
-
-    it "returns nil on prev" do
+    it "returns nil for prev and next" do
       expect(walker.prev).to be_nil
-    end
-  end
-
-  describe "single message" do
-    let(:messages) { [LLM::Message.new("user", "only")] }
-
-    it "returns nil on next" do
       expect(walker.next).to be_nil
-    end
-
-    it "returns the message on prev" do
-      expect(walker.prev).to eq("only")
     end
   end
 end

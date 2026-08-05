@@ -103,6 +103,78 @@ RSpec.describe LLM::Repl::Input do
     end
   end
 
+  describe "history recall" do
+    before { allow(Curses).to receive(:cols).and_return(149) }
+
+    let(:history) { %w[hello world] }
+
+    before { history.each { agent.messages << LLM::Message.new("user", _1) } }
+
+    describe "ctrl+p" do
+      it "recalls the most recent turn first" do
+        ctrl_p
+        expect(input.buffer).to eq("world")
+      end
+
+      it "recalls older turns as it repeats" do
+        2.times { ctrl_p }
+        expect(input.buffer).to eq("hello")
+      end
+    end
+
+    describe "ctrl+n" do
+      context "walking forward through the history" do
+        it "returns to the next turn" do
+          ctrl_p
+          ctrl_p
+          ctrl_n
+          expect(input.buffer).to eq("world")
+        end
+      end
+
+      context "at the end of the history" do
+        before { ctrl_p }
+
+        it "returns to an empty input" do
+          ctrl_n
+          expect(input.buffer).to eq("")
+        end
+
+        it "stays empty when repeated" do
+          ctrl_n
+          ctrl_n
+          expect(input.buffer).to eq("")
+        end
+      end
+    end
+
+    context "with no history" do
+      let(:history) { [] }
+
+      it "does not raise on ctrl+p" do
+        expect { ctrl_p }.not_to raise_error
+      end
+
+      it "does not raise on ctrl+n" do
+        expect { ctrl_n }.not_to raise_error
+      end
+    end
+
+    ##
+    # Simulates ctrl+p
+    # @return [void]
+    def ctrl_p
+      input.on_char(nil, Curses::KEY_CTRL_P, 0)
+    end
+
+    ##
+    # Simulates ctrl+n
+    # @return [void]
+    def ctrl_n
+      input.on_char(nil, Curses::KEY_CTRL_N, 0)
+    end
+  end
+
   describe "#insert auto-wrap" do
     before { allow(Curses).to receive(:cols).and_return(149) }
 
