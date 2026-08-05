@@ -124,6 +124,21 @@
   `cache_write`, and `reasoning`. Each alias matches the key used by
   `#to_h`, so `cost.input` reads the same value as `cost.input_costs`.
 
+### Provider
+
+* **add `LLM::Moonshot` for the Moonshot AI provider** <br>
+  [`LLM::Moonshot`](https://r.uby.dev/api-docs/llm.rb/LLM/Moonshot.html)
+  is a new provider that talks to
+  [Moonshot AI](https://platform.moonshot.ai) through its
+  OpenAI-compatible Kimi API. Create an instance with
+  [`LLM.moonshot`](https://r.uby.dev/api-docs/llm.rb/LLM.html#moonshot-class_method),
+  which accepts the same `key:`, `host:`, and `base_path:` options as the
+  OpenAI provider. The provider defaults to the `kimi-k3` model and
+  supports chat completions, streaming, tool calls, and structured output
+  through the shared OpenAI-compatible path; image, audio, moderation,
+  responses, and vector store endpoints raise `NotImplementedError`.
+  Model metadata ships in `data/moonshot.json` for the registry.
+
 ### Transformer
 
 * **add `LLM::Transformer` for rewriting messages before they reach the provider** <br>
@@ -170,6 +185,15 @@
   subclass and is defined via `define_method` because `return` is a Ruby
   keyword.
 
+### Guard
+
+* **run the guard for streamed tool calls** <br>
+  Fix a gap where the guard was not consulted when a tool call was queued
+  while a response was still streaming. The guard is now stamped onto the
+  functions a context binds, so it runs wherever a task is spawned,
+  including tool calls queued from a stream. A blocked call yields its
+  `guard_error` return without executing.
+
 ### Agent
 
 * **add `LLM::Agent#compacted?`** <br>
@@ -187,6 +211,11 @@
   option, matching the kind of default llm.rb aims for.
 
 ### Repl
+
+* **show an unknown context state after `/compact`** <br>
+  After running `/compact`, the REPL status line now renders `Context
+  compacted` and the context-usage bar shows `???` instead of a percentage,
+  because the used context is unknown until the next response.
 
 * **restore history wrap for Ctrl+P and Ctrl+N** <br>
   Fix a regression where Ctrl+P and Ctrl+N recalled history text without
