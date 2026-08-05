@@ -19,9 +19,10 @@ A guard is a subclass of
 [`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
 that implements
 [`LLM::Guard#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method).
-Before a batch of pending tools runs, the runtime asks the guard
-about each pending function. `call` receives the pending `function:`
-and returns an
+The guard is stamped onto the functions the context binds, and when a
+function's task runs the guard is checked on the calling thread before
+the tool is handed to the strategy. `call` receives the pending
+`function:` and returns an
 [`LLM::Function::Return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html)
 to close that single call, or `nil` to let it run. The guard inspects
 the current conversation through the `messages` helper and reads the
@@ -68,13 +69,13 @@ it never blocks tool work.
 returns the configured guard class. Because `call` returns an
 [`LLM::Function::Return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html)
 rather than a warning string, a guard can block an individual tool
-call while the rest of the batch still executes. Guards run when
-pending tool work is resolved from message history. Tool work a
-stream queues itself during a streaming turn is drained directly
-from the stream queue, so it bypasses the guard.
+call while the rest of the batch still executes. The guard is stamped
+onto every function the context binds, so it runs whenever a task is
+spawned — including tool calls a stream queues itself during a
+streaming turn. A blocked call yields its return without executing.
 
-The runtime builds a fresh guard instance for every function on
-every resolution, so a guard cannot carry state in instance
+The runtime binds a guard instance to the context and stamps it onto
+the functions it resolves, so a guard cannot carry state in instance
 variables between calls. Anything a guard needs to remember, like
 how many calls already ran, must come from the conversation
 (`messages`) or from class-level state.
