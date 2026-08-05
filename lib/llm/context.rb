@@ -149,6 +149,11 @@ module LLM
     # inspect the runtime state and decide whether pending tool work should be
     # blocked before the context keeps looping.
     #
+    # The guard is stamped onto the functions the context binds, so it runs
+    # whenever a task is spawned — including tool calls queued from a stream
+    # via {LLM::Stream#on_tool_call}. A blocked call yields its in-band
+    # `guard_error` return without executing.
+    #
     # The built-in implementation is {LLM::Guard::Loop LLM::Guard::Loop}, which
     # detects repeated tool-call patterns and turns them into in-band
     # `guard_error` tool returns.
@@ -236,6 +241,7 @@ module LLM
     # @return [Array<LLM::Function>]
     def pending_functions
       return_ids = returns.map(&:id)
+      guard = @guard[:klass].new(self)
       @messages
         .select(&:assistant?)
         .flat_map do |msg|
@@ -243,6 +249,7 @@ module LLM
           fns.each do |fn|
             fn.tracer = tracer
             fn.model  = msg.model
+            fn.guard  = guard
           end
         end.extend(LLM::Function::Array)
     end
@@ -297,19 +304,15 @@ module LLM
     # @return [Array<LLM::Function::Return>]
     def wait(strategy, except: [])
       if stream.queue.empty?
-        tools   = except.empty? ? pending_functions : pending_functions - except
-        guarded = guarded_returns(tools:)
-        blocked = guarded.select { _2 }.keys
-        pending = blocked.empty? ? tools : tools - blocked
-        if blocked.any? and pending.empty?
-          guarded.values.compact
-        else
-          @queue = pending.task(strategy)
-          returns = @queue.wait
-          emit_tool_returns(pending, returns)
-          results = guarded.merge(pending.zip(returns).to_h)
-          tools.map { results.fetch(_1) }
-        end
+        ##
+        # Every pending function is spawned as a task that checks its own
+        # guard (stamped on the function) before running. Blocked tasks
+        # yield their guard's return, so all pending calls still close.
+        tools = except.empty? ? pending_functions : pending_functions - except
+        @queue = tools.task(strategy)
+        returns = @queue.wait
+        emit_tool_returns(tools, returns)
+        returns
       else
         @queue = stream.queue
         @queue.wait
@@ -527,7 +530,7 @@ module LLM
     def respond(prompt, params)
       history = @messages.to_a
       params = @params.merge(params)
-      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:)
+      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
       params[:stream] = LLM::Stream.try(params[:stream], extra:)
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
       input = res_id ? [] : history
@@ -546,24 +549,12 @@ module LLM
       history = @messages.to_a
       params = params.merge(messages: history)
       params = @params.merge(params)
-      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:)
+      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
       params[:stream] = LLM::Stream.try(params[:stream], extra:)
       messages = transform(prompt, params)
       @stream = params[:stream]
       new_messages = messages[history.size..]
       [new_messages, params, @llm.complete(messages, params)]
-    end
-
-    ##
-    # Asks the guard about each pending function. Functions the guard
-    # wants to block map to their return; the rest map to nil.
-    # @api private
-    # @param [Array<LLM::Function>] tools
-    # @return [Hash{LLM::Function => LLM::Function::Return, nil}]
-    def guarded_returns(tools:)
-      tools.to_h do |fn|
-        [fn, @guard[:klass].new(self).call(function: fn, **@guard[:options])]
-      end
     end
 
     ##

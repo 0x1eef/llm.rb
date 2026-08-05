@@ -16,8 +16,12 @@ class LLM::Function
     # @param [Hash] options
     #  An optional set of options that are specific
     #  to a given concurrency strategy.
+    # @option options [LLM::Function::Return, nil] :guarded
+    #  A blocked return produced by the function's guard. When set, the
+    #  task yields it without running the tool.
     def initialize(fn, options = {})
       @function = fn
+      @guarded = options[:guarded]
     end
 
     ##

@@ -156,6 +156,13 @@ class LLM::Function
   attr_accessor :model
 
   ##
+  # Returns the guard class that protects this function, or nil.
+  # The context stamps the guard onto the functions it binds, so any task
+  # built from this function checks it before the tool runs.
+  # @return [Class<LLM::Guard>, nil]
+  attr_accessor :guard
+
+  ##
   # @param [String] name The function name
   # @yieldparam [LLM::Function] self The function object
   def initialize(name, &b)
@@ -250,6 +257,11 @@ class LLM::Function
   # @return [LLM::Function::Task]
   #   Returns a task whose `#value` is an {LLM::Function::Return}.
   def task(strategy, options = {})
+    ##
+    # Check the function's guard on the calling thread before handing
+    # the tool to the strategy. The task carries the blocked result and
+    # returns it without running if the guard intervenes.
+    options = options.merge(guarded: @guard&.call(function: self))
     case strategy
     when :sequential
       Sequential::Task.new(self, options)

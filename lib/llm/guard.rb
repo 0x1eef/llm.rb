@@ -5,14 +5,15 @@ module LLM
   # {LLM::Guard LLM::Guard} is the superclass for context-level
   # supervisors in llm.rb.
   #
-  # A guard is bound to a context and decides whether pending tool work
-  # should be blocked before the agent keeps looping. Each subclass
-  # implements {#call} and returns an {LLM::Function::Return
-  # LLM::Function::Return} that closes the pending tool call, or `nil`
-  # when execution should continue. The built-in implementation is
-  # {LLM::Guard::Loop LLM::Guard::Loop}, which detects repeated tool-call
-  # patterns. {LLM::Guard::Null LLM::Guard::Null} is a no-op and the
-  # default.
+  # A guard is bound to a context and decides whether a tool call should
+  # be blocked before it runs. Each subclass implements {#call} and returns
+  # an {LLM::Function::Return LLM::Function::Return} that closes the
+  # pending tool call, or `nil` when execution should continue. The guard
+  # is stamped onto the functions the context binds, so it runs whenever a
+  # task is spawned — including tool calls queued from a stream. The
+  # built-in implementation is {LLM::Guard::Loop LLM::Guard::Loop}, which
+  # detects repeated tool-call patterns. {LLM::Guard::Null LLM::Guard::Null}
+  # is a no-op and the default.
   #
   # {LLM::Agent LLM::Agent} enables {LLM::Guard::Loop LLM::Guard::Loop}
   # by default through its wrapped context.

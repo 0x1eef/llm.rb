@@ -23,6 +23,7 @@ module LLM::Function::Thread
     ##
     # @return [nil]
     def spawn
+      return if @guarded
       @thread = ::Thread.new { function.call }
       @thread.report_on_exception = false
       nil
@@ -46,6 +47,7 @@ module LLM::Function::Thread
     ##
     # @return [LLM::Function::Return]
     def wait
+      return @guarded if @guarded
       spawn unless @thread
       @thread.value
     end

@@ -102,6 +102,7 @@ class LLM::Anthropic
         fn.arguments = LLM::Anthropic.parse_tool_input(tool["input"])
         fn.tracer = @stream.extra[:tracer]
         fn.model = @stream.extra[:model]
+        fn.guard = @stream.extra[:guard]
       end
       [fn, (registered ? nil : fn.unavailable)]
     end

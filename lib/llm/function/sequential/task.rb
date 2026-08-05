@@ -36,7 +36,7 @@ module LLM::Function::Sequential
     ##
     # @return [LLM::Function::Return]
     def wait
-      @result ||= function.call
+      @result ||= @guarded || function.call
     end
     alias_method :value, :wait
 
