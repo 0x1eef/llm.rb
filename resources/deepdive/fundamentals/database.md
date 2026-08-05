@@ -344,8 +344,10 @@ agent-level configuration.
 #### Overview
 
 Sequel models use `plugin :agent` to install the agent wrapper.
-The plugin accepts the same options as `acts_as_agent` and follows
-the same conventions for provider resolution and state persistence.
+The plugin accepts the same options as
+[`acts_as_agent`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method)
+and follows the same conventions for provider resolution and state
+persistence.
 On first call, a fresh agent is created and the conversation starts
 from scratch. On subsequent calls, the stored state is restored and
 the conversation continues automatically.

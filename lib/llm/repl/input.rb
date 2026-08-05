@@ -97,10 +97,10 @@ class LLM::Repl
       elsif ESC == char
         @agent.cancel!
       elsif CTRL[:P] == char
-        set_text(@walker.prev.dup)
+        set(text: @walker.prev.dup)
         :ctrl_p
       elsif CTRL[:N] == char
-        set_text(@walker.next.dup)
+        set(text: @walker.next.dup)
         :ctrl_n
       elsif CTRL[:D] == char
         delete
@@ -264,7 +264,7 @@ class LLM::Repl
         else
           candidates[0]
         end
-      set_text("/#{candidate}")
+      set(text: "/#{candidate}")
     end
 
     ##
@@ -280,10 +280,23 @@ class LLM::Repl
     end
 
     ##
+    # Deletes the character at the cursor, or consumes
+    # the break and pulls up the next row at the end of
+    # a row.
     # @return [void]
     def delete
       row, col = @cursor
-      @rows[row].chars.delete_at(col) if col < @rows[row].chars.size
+      if col < @rows[row].chars.size
+        @rows[row].chars.delete_at(col)
+      elsif row < @rows.size - 1
+        nxt = @rows[row + 1]
+        ##
+        # A wrapped row was split at a space; restore it so
+        # the merged words don't run together.
+        @rows[row].chars << Char.new(" ") if nxt.break_type == :space
+        @rows[row].chars.concat(nxt.chars)
+        @rows.delete_at(row + 1)
+      end
     end
 
     ##
@@ -418,20 +431,62 @@ class LLM::Repl
     end
 
     ##
-    # Replaces the input with the given string, splitting it into rows.
-    # @param [String] string
+    # Feeds one character into the row model: newlines
+    # start a row, overflowing rows wrap at a word.
+    # @param [String] char
     # @return [void]
-    def set_text(string)
-      @rows = []
-      first = true
-      string.each_line do |line|
-        row = Row.new(first ? nil : :newline)
-        line.chomp!
-        line.each_char { |c| row.chars << Char.new(c) }
-        @rows << row
-        first = false
+    def feed(char)
+      if char == "\n"
+        ##
+        # A real newline is a row boundary in the model,
+        # not a character, so it becomes a new row.
+        @rows << Row.new(:newline)
+        return
       end
-      @rows = [Row.new] if @rows.empty?
+      row = @rows.last
+      ##
+      # Only the first row shares its columns with the prompt,
+      # so it has fewer columns left for text.
+      width = Curses.cols - (row.equal?(@rows.first) ? prompt.size : 0)
+      if row.chars.any? and row.to_s.length + 1 > width
+        wrap(row)
+      end
+      @rows.last.chars << Char.new(char)
+    end
+
+    ##
+    # Moves the word tail of a full row onto a new
+    # continuation row, keeping the overflow word whole.
+    # @param [LLM::Repl::Input::Row] row
+    # @return [void]
+    def wrap(row)
+      index = row.to_s.rindex(" ")
+      if index
+        ##
+        # Move everything after the last space down and
+        # drop the space; break_type restores it on flatten.
+        tail = row.chars.slice!((index + 1)..) || []
+        row.chars.pop
+        @rows << Row.new(:space).tap { |r| r.chars.concat(tail) }
+      else
+        ##
+        # A single unbroken word longer than the width hard-breaks.
+        @rows << Row.new(:space)
+      end
+    end
+
+    ##
+    # Replaces the input with the given text, reflowing it into rows
+    # at the terminal width. The cursor ends at the last row.
+    # @param [String] text
+    # @return [void]
+    def set(text:)
+      @rows = [Row.new]
+      text.each_char { |char| feed(char) }
+      ##
+      # A trailing newline leaves an empty last row; drop it
+      # so the cursor rests at the end of the content row.
+      @rows.pop while @rows.size > 1 and @rows.last.empty?
       @cursor = [@rows.size - 1, @rows.last.chars.size]
     end
   end

@@ -58,7 +58,8 @@ is enumerable and supports the usual Hash operations: `keys`,
 `to_hash` for one with symbol keys. A missing key returns `nil`
 rather than raising. Because it subclasses `BasicObject`, `to_json`
 is defined explicitly and serializes through the configured JSON
-adapter via `LLM.json.dump`.
+adapter via
+[`LLM.json.dump`](https://r.uby.dev/api-docs/llm.rb/LLM.html#json-class_method).
 
 ### Reading and writing
 

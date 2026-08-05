@@ -39,7 +39,10 @@ module LLM::Function::Sequential
     # @return [Array<LLM::Function::Return>]
     def wait
       @owner = Thread.current
-      @functions.map(&:call)
+      ##
+      # Sequential groups call functions directly (no tasks), so each
+      # function's guard is checked here instead.
+      @functions.map { |function| function.guard&.call(function:) || function.call }
     ensure
       @owner = nil
     end

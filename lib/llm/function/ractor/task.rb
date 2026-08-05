@@ -33,6 +33,7 @@ class LLM::Function
     ##
     # @return [LLM::Function::Ractor::Task]
     def spawn
+      return if @guarded
       @span = @tracer&.on_tool_start(
         id: @id, name: @name,
         arguments: @arguments, model: @model
@@ -58,6 +59,7 @@ class LLM::Function
     ##
     # @return [LLM::Function::Return]
     def wait
+      return @guarded if @guarded
       spawn unless @mailbox
       id, name, value = mailbox.wait
       result = Return.new(id, name, value)

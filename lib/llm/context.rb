@@ -88,13 +88,17 @@ module LLM
     #   {LLM::Transformer::Null}.
     # @option params [Hash] :transformer_options
     #   Options passed to the transformer's `call` method. Defaults to `{}`.
+    # @option params [Class<LLM::Guard>, nil] :guard
+    #   A guard class to supervise agentic tool execution. Defaults to
+    #   {LLM::Guard::Null}.
+    # @option params [Hash] :guard_options
+    #   Options passed to the guard's `call` method. Defaults to `{}`.
     # @option params [Array<LLM::Function>, nil] :tools Defaults to nil
     # @option params [Array<String>, nil] :skills Defaults to nil
     def initialize(llm, params = {})
       params = {}.merge!(params)
       @llm = llm
       @mode = params.delete(:mode) || (llm.name == :openai ? :responses : :completions)
-      @guard = params.delete(:guard)
       tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)
       @params[:tools] = tools unless tools.empty?
@@ -109,6 +113,10 @@ module LLM
       @transformer = {
         klass: params.delete(:transformer) || LLM::Transformer::Null,
         options: params.delete(:transformer_options) || {}
+      }
+      @guard = {
+        klass: params.delete(:guard) || LLM::Guard::Null,
+        options: params.delete(:guard_options) || {}
       }
     end
 
@@ -135,35 +143,24 @@ module LLM
     alias_method :compacted?, :compacted
 
     ##
-    # Returns a guard, if configured.
+    # Returns the configured guard class.
     #
     # Guards are context-level supervisors for agentic execution. A guard can
     # inspect the runtime state and decide whether pending tool work should be
     # blocked before the context keeps looping.
     #
-    # The built-in implementation is {LLM::LoopGuard LLM::LoopGuard}, which
+    # The guard is stamped onto the functions the context binds, so it runs
+    # whenever a task is spawned — including tool calls queued from a stream
+    # via {LLM::Stream#on_tool_call}. A blocked call yields its in-band
+    # `guard_error` return without executing.
+    #
+    # The built-in implementation is {LLM::Guard::Loop LLM::Guard::Loop}, which
     # detects repeated tool-call patterns and turns them into in-band
-    # {LLM::GuardError LLM::GuardError} tool returns.
+    # `guard_error` tool returns.
     #
-    # @return [#call, nil]
+    # @return [Class<LLM::Guard>]
     def guard
-      return if @guard.nil? || @guard == false
-      @guard = LLM::LoopGuard.new if @guard == true
-      @guard = LLM::LoopGuard.new(@guard) if Hash === @guard
-      @guard
-    end
-
-    ##
-    # Sets a guard or guard config.
-    #
-    # Guards must implement `call(ctx)` and return either `nil` or a warning
-    # string. Returning a warning tells the context to block pending tool work
-    # with guarded tool errors instead of continuing the loop.
-    #
-    # @param [#call, Hash, Boolean, nil] guard
-    # @return [#call, Hash, Boolean, nil]
-    def guard=(guard)
-      @guard = guard
+      @guard[:klass]
     end
 
     ##
@@ -244,6 +241,7 @@ module LLM
     # @return [Array<LLM::Function>]
     def pending_functions
       return_ids = returns.map(&:id)
+      guard = @guard[:klass].new(self)
       @messages
         .select(&:assistant?)
         .flat_map do |msg|
@@ -251,6 +249,7 @@ module LLM
           fns.each do |fn|
             fn.tracer = tracer
             fn.model  = msg.model
+            fn.guard  = guard
           end
         end.extend(LLM::Function::Array)
     end
@@ -268,15 +267,10 @@ module LLM
     ##
     # Spawns a function through the context.
     #
-    # When a guard is configured, this method can return an in-band guarded
-    # tool error instead of spawning work.
-    #
     # @param [LLM::Function] function
     # @param [Symbol] strategy
-    # @return [LLM::Function::Return, LLM::Function::Task]
+    # @return [LLM::Function::Task]
     def spawn(function, strategy)
-      warning = guard&.call(self)
-      return guarded_return_for(function, warning) if warning
       function.task(strategy)
     end
 
@@ -310,9 +304,11 @@ module LLM
     # @return [Array<LLM::Function::Return>]
     def wait(strategy, except: [])
       if stream.queue.empty?
-        tools  = except.empty? ? pending_functions : pending_functions - except
-        guards = guarded_returns(tools:)
-        return guards if guards
+        ##
+        # Every pending function is spawned as a task that checks its own
+        # guard (stamped on the function) before running. Blocked tasks
+        # yield their guard's return, so all pending calls still close.
+        tools = except.empty? ? pending_functions : pending_functions - except
         @queue = tools.task(strategy)
         returns = @queue.wait
         emit_tool_returns(tools, returns)
@@ -514,15 +510,6 @@ module LLM
     end
 
     ##
-    # Builds in-band guarded returns when the guard blocks tool work.
-    # @api private
-    def guarded_returns(tools:)
-      warning = guard&.call(self)
-      return unless warning
-      tools.map { guarded_return_for(_1, warning) }
-    end
-
-    ##
     # Rewrites a prompt and params through the configured transformer.
     # @api private
     def transform(prompt, params, key: :messages)
@@ -543,7 +530,7 @@ module LLM
     def respond(prompt, params)
       history = @messages.to_a
       params = @params.merge(params)
-      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:)
+      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
       params[:stream] = LLM::Stream.try(params[:stream], extra:)
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
       input = res_id ? [] : history
@@ -562,23 +549,12 @@ module LLM
       history = @messages.to_a
       params = params.merge(messages: history)
       params = @params.merge(params)
-      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:)
+      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
       params[:stream] = LLM::Stream.try(params[:stream], extra:)
       messages = transform(prompt, params)
       @stream = params[:stream]
       new_messages = messages[history.size..]
       [new_messages, params, @llm.complete(messages, params)]
-    end
-
-    ##
-    # Builds one guarded tool return for a blocked function call.
-    # @api private
-    def guarded_return_for(function, warning)
-      LLM::Function::Return.new(function.id, function.name, {
-        error: true,
-        type: LLM::GuardError.name,
-        message: warning
-      })
     end
 
     ##

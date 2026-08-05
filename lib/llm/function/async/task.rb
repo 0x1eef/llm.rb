@@ -32,6 +32,7 @@ module LLM::Function::Async
     # pushed to a queue that {#wait} consumes.
     # @return [nil]
     def spawn
+      return if @guarded
       @queue = Queue.new
       @alive = true
       @reactor.submit do
@@ -66,6 +67,7 @@ module LLM::Function::Async
     # Wait for the result queue to contain a value.
     # @return [LLM::Function::Return]
     def wait
+      return @guarded if @guarded
       spawn unless @queue
       result = @queue.pop
       @alive = false

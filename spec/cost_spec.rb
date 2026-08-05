@@ -106,4 +106,30 @@ RSpec.describe LLM::Cost do
       end
     end
   end
+
+  describe "short aliases" do
+    subject(:cost) do
+      described_class.new(
+        input_costs: 0.0015,
+        output_costs: 0.012,
+        input_audio_costs: 0.0009,
+        output_audio_costs: 0.0048,
+        input_image_costs: 0.00075,
+        cache_read_costs: 0.0015,
+        cache_write_costs: 0.000625,
+        reasoning_costs: 0.024
+      )
+    end
+
+    it "creates aliases" do
+      expect(cost.input).to eq(cost.input_costs)
+      expect(cost.output).to eq(cost.output_costs)
+      expect(cost.input_audio).to eq(cost.input_audio_costs)
+      expect(cost.output_audio).to eq(cost.output_audio_costs)
+      expect(cost.input_image).to eq(cost.input_image_costs)
+      expect(cost.cache_read).to eq(cost.cache_read_costs)
+      expect(cost.cache_write).to eq(cost.cache_write_costs)
+      expect(cost.reasoning).to eq(cost.reasoning_costs)
+    end
+  end
 end

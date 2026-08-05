@@ -584,7 +584,7 @@ RSpec.describe LLM::Context do
       end
     end
 
-    it "spawns the function when no guard blocks it" do
+    it "spawns a task for the function" do
       task = ctx.spawn(tool, :thread)
       expect(task.wait.to_h).to eq(
         id: "call_1",
@@ -593,16 +593,20 @@ RSpec.describe LLM::Context do
       )
     end
 
-    it "returns a guarded tool error when the guard blocks it" do
-      ctx.guard = Class.new do
-        def call(_ctx)
-          "stop"
+    it "spawns a task even when a guard is configured" do
+      guard = Class.new(LLM::Guard) do
+        def call(function:, **)
+          LLM::Function::Return.new(function.id, function.name, {
+            error: true, type: "guard_error", message: "stop"
+          })
         end
-      end.new
-      expect(ctx.spawn(tool, :thread).to_h).to eq(
+      end
+      ctx = LLM::Context.new(provider, model:, guard:)
+      task = ctx.spawn(tool, :thread)
+      expect(task.wait.to_h).to eq(
         id: "call_1",
         name: "system",
-        value: {error: true, type: LLM::GuardError.name, message: "stop"}
+        value: {"ok" => true}
       )
     end
   end
@@ -638,11 +642,13 @@ RSpec.describe LLM::Context do
     let(:responses) { provider.responses }
     let(:response) { double(choices: [LLM::Message.new("assistant", "hello", model:)]) }
     let(:guard) do
-      Class.new do
-        def call(_ctx)
-          "stop"
+      Class.new(LLM::Guard) do
+        def call(function:, **)
+          LLM::Function::Return.new(function.id, function.name, {
+            error: true, type: "guard_error", message: "stop"
+          })
         end
-      end.new
+      end
     end
     let(:tool) do
       Class.new(LLM::Tool) do
@@ -665,7 +671,7 @@ RSpec.describe LLM::Context do
     end
 
     it "waits queued stream work even when a guard is configured" do
-      ctx.guard = guard
+      ctx = LLM::Context.new(provider, model:, stream:, guard:)
       stream.queue << LLM::Function::Return.new("call_1", "system", {"ok" => true})
       expect(ctx.wait(:thread)).to eq([LLM::Function::Return.new("call_1", "system", {"ok" => true})])
     end
@@ -712,15 +718,17 @@ RSpec.describe LLM::Context do
 
     context "with a guard that wants to stop execution" do
       let(:guard) do
-        Class.new do
-          def call(_ctx)
-            "stop"
+        Class.new(LLM::Guard) do
+          def call(function:, **)
+            LLM::Function::Return.new(function.id, function.name, {
+              error: true, type: "guard_error", message: "stop"
+            })
           end
-        end.new
+        end
       end
 
       it "returns guarded results before spawning pending functions" do
-        ctx.guard = guard
+        ctx = LLM::Context.new(provider, model:, stream:, guard:)
         ctx.messages << LLM::Message.new("assistant", nil, {
           tools: [tool],
           tool_calls: [
@@ -730,7 +738,7 @@ RSpec.describe LLM::Context do
         pending = ctx.pending_functions
         expect(pending).not_to receive(:spawn)
         allow(ctx).to receive(:functions).and_return(pending)
-        expect(ctx.wait(:thread).map(&:value)).to eq([{error: true, type: LLM::GuardError.name, message: "stop"}])
+        expect(ctx.wait(:thread).map(&:value)).to eq([{error: true, type: "guard_error", message: "stop"}])
       end
     end
   end

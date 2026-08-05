@@ -20,6 +20,7 @@ class LLM::Function
     ##
     # @return [LLM::Function::Fork::Task]
     def spawn
+      return if @guarded
       @span = @tracer&.on_tool_start(
         id: @function.id, name: @function.name,
         arguments: @function.arguments, model: @function.model
@@ -59,6 +60,7 @@ class LLM::Function
     ##
     # @return [LLM::Function::Return]
     def wait
+      return @guarded if @guarded
       spawn unless @spawned
       kind, data = @ch.result.recv
       raise LLM::Interrupt if kind == :interrupt

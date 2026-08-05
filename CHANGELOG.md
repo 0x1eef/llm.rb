@@ -17,6 +17,19 @@
 
 ### Breaking
 
+#### Migration
+
+| Old | New |
+|-----|-----|
+| `ctx.transformer = MyTransformer` | `LLM::Context.new(transformer: MyTransformer)` |
+| `transformer.call(ctx, prompt, params)` | `transformer.call(message:, **opts)` |
+| `~/.llm.rb/session.json` (shared across providers) | `~/.llm.rb/<provider>/<uuid>.json` (scoped per provider and directory) |
+| `agent.talk(tool_attempts: 25)` | `set :tool_budget => 50` (disabled by default) |
+| `LLM::LoopGuard` | `LLM::Guard::Loop` |
+| `guard: true` / `ctx.guard = MyGuard` | `guard: MyGuard, guard_options: {}` |
+| `guard.call(ctx)` (warning string) | `guard.call(function:)` (`LLM::Function::Return` or nil) |
+| `LLM::GuardError` | `"guard_error"` |
+
 * **replace the transformer setter with `LLM::Transformer`** <br>
   The previous `transformer=` setter and 3-argument
   `call(ctx, prompt, params)` interface on `LLM::Context` have been
@@ -38,6 +51,48 @@
   when an unknown option is passed. Previously unknown options produced a
   warning but the run continued. The session-file lookup also no longer
   rewrites `~/.llm.rb/<provider>.json` when it already exists.
+
+* **agent: replace `tool_attempts` with the `tool_budget` class DSL** <br>
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method)
+  replaces the `tool_attempts` parameter with a `tool_budget` class DSL
+  (`tool_budget { 50 }`) that caps the number of tool calls allowed in a
+  single turn. Once the budget is spent, the agent sends an in-band
+  advisory message back through the model telling it to solve the problem
+  with fewer tool calls.
+  <br><br>
+  The feature is now disabled by default; the old `tool_attempts`
+  parameter defaulted to 25, which long-horizon agents could easily
+  exhaust in a single turn.
+
+* **guard: replace `LLM::LoopGuard` with the `LLM::Guard` class hierarchy** <br>
+  [`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
+  is a new superclass for context-level supervisors, with
+  [`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
+  (replacing `LLM::LoopGuard`) and
+  [`LLM::Guard::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Null.html)
+  as the built-in implementations.
+  [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+  now accepts `guard:` (a guard class defaulting to `LLM::Guard::Null`)
+  and `guard_options:` (a hash forwarded to the guard's `call` method),
+  matching the transformer and compactor interfaces. The old boolean and
+  hash forms of `guard` and the `guard=` setter are removed. `LLM::Agent`
+  enables `LLM::Guard::Loop` by default.
+
+* **guard: block individual tool calls instead of the whole batch** <br>
+  [`LLM::Guard#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method)
+  now receives the pending `function:` and returns an
+  [`LLM::Function::Return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html)
+  (or nil) instead of a warning string for the entire batch, so a guard
+  can block a single tool call while the rest of the batch still
+  executes. Custom guards that implemented the old `call(ctx)`
+  warning-string interface must be updated to return a
+  `LLM::Function::Return` instead.
+
+* **errors: drop `LLM::GuardError`** <br>
+  Remove `LLM::GuardError`. The constant was never raised as an
+  exception; it only named the in-band error type for guarded tool
+  returns. Guarded tool returns now use the string `"guard_error"` as
+  their error type.
 
 ### Core
 
@@ -61,6 +116,13 @@
   package, so the full deepdive guide (fundamentals, advanced,
   protocols, and everything-else chapters) is available after
   installation.
+
+* **add short aliases to `LLM::Cost`** <br>
+  [`LLM::Cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html) now
+  offers short aliases for its cost accessors: `input`, `output`,
+  `input_audio`, `output_audio`, `input_image`, `cache_read`,
+  `cache_write`, and `reasoning`. Each alias matches the key used by
+  `#to_h`, so `cost.input` reads the same value as `cost.input_costs`.
 
 ### Transformer
 
@@ -96,6 +158,27 @@
   same interface as the existing `parameter` DSL. Unknown keys raise
   `KeyError`.
 
+### Function
+
+* **add `LLM::Function#return` for building tool returns** <br>
+  [`LLM::Function#return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#return-instance_method)
+  returns an
+  [`LLM::Function::Return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html)
+  built from the function's own id and name, using the given hash as its
+  value. It is a shorthand mainly useful inside a
+  [`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
+  subclass and is defined via `define_method` because `return` is a Ruby
+  keyword.
+
+### Agent
+
+* **add `LLM::Agent#compacted?`** <br>
+  [`LLM::Agent#compacted?`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#compacted%3F-instance_method)
+  delegates to the wrapped
+  [`LLM::Context#compacted?`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#compacted%3F-instance_method)
+  and reports whether the conversation has been compacted, so callers
+  can detect when history was trimmed.
+
 ### Change
 
 * **openai: default to `gpt-5.6-luna`** <br>
@@ -104,6 +187,18 @@
   option, matching the kind of default llm.rb aims for.
 
 ### Repl
+
+* **restore history wrap for Ctrl+P and Ctrl+N** <br>
+  Fix a regression where Ctrl+P and Ctrl+N recalled history text without
+  reflowing it into rows, so recalled lines wider than the terminal were
+  clipped. Recalled text now flows through the same word-wrap path as
+  typed input and wraps at the terminal width.
+
+* **restore Ctrl+D deletion across rows** <br>
+  Fix a bug where Ctrl+D at the end of an input row was a no-op, so
+  multiline input could not be joined by deleting a row break. Deleting
+  at the end of a row now consumes the break and pulls the next row up,
+  restoring the split space so merged words do not run together.
 
 * **center the buffer with 20% gutters** <br>
   The curses-based REPL now centers

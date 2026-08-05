@@ -156,6 +156,13 @@ class LLM::Function
   attr_accessor :model
 
   ##
+  # Returns the guard class that protects this function, or nil.
+  # The context stamps the guard onto the functions it binds, so any task
+  # built from this function checks it before the tool runs.
+  # @return [Class<LLM::Guard>, nil]
+  attr_accessor :guard
+
+  ##
   # @param [String] name The function name
   # @yieldparam [LLM::Function] self The function object
   def initialize(name, &b)
@@ -250,6 +257,11 @@ class LLM::Function
   # @return [LLM::Function::Task]
   #   Returns a task whose `#value` is an {LLM::Function::Return}.
   def task(strategy, options = {})
+    ##
+    # Check the function's guard on the calling thread before handing
+    # the tool to the strategy. The task carries the blocked result and
+    # returns it without running if the guard intervenes.
+    options = options.merge(guarded: @guard&.call(function: self))
     case strategy
     when :sequential
       Sequential::Task.new(self, options)
@@ -340,14 +352,30 @@ class LLM::Function
   end
 
   ##
-  # Returns an in-band error for a tool loop rate limit.
+  # Returns an in-band error that indicates the tool
+  # call budget has been spent.
   # @return [LLM::Function::Return]
-  def rate_limit
+  def budget_spent
     LLM::Function::Return.new(id, name, {
       error: true,
-      type: LLM::ToolLoopError.name,
-      message: "tool loop rate limit reached"
+      type: "LLM::BudgetSpentError",
+      message: "the tool call budget for this turn has been spent. " \
+               "try to solve the problem with less tool calls."
     })
+  end
+
+  ##
+  # Builds an {LLM::Function::Return LLM::Function::Return} for this
+  # function, using its own id and name. The given keywords become the
+  # return's value.
+  # @note
+  #   `return` is a Ruby keyword, so this is defined via
+  #   {Kernel#define_method Kernel#define_method}.
+  # @param [Hash] value
+  #  The return content, eg `{error: true, type: ..., message: ...}`.
+  # @return [LLM::Function::Return]
+  define_method(:return) do |value|
+    Return.new(id, name, value)
   end
 
   ##

@@ -22,7 +22,8 @@ call
 [`LLM::Provider#embed`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed)
 on any provider that supports it. The method accepts an input string
 or array of strings and returns a response with the resulting
-embeddings:
+embeddings, which can be stored in a vector database and used for
+similarity search at query time:
 
 ```ruby
 require "llm"
@@ -31,9 +32,6 @@ llm = LLM.openai(key: ENV["KEY"])
 body = "llm.rb is Ruby's capable AI runtime."
 embedding = llm.embed([body]).embeddings.first
 ```
-
-The returned embeddings can be stored in a vector database and used
-for similarity search at query time.
 
 #### Why would I use it?
 
@@ -115,7 +113,7 @@ with sqlite-vec or pgvector.
 
 #### Overview
 
-For a fully self-hosted RAG pipeline, combine
+Local vector search combines
 [`LLM::Provider#embed`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed)
 with a local vector database such as
 [sqlite-vec](https://github.com/asg017/sqlite-vec) or

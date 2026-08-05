@@ -22,6 +22,7 @@ module LLM::Function::Fiber
     ##
     # @return [nil]
     def spawn
+      return if @guarded
       if Fiber.scheduler.nil?
         raise ArgumentError, "Fiber concurrency requires Fiber.scheduler"
       else
@@ -48,6 +49,7 @@ module LLM::Function::Fiber
     ##
     # @return [LLM::Function::Return]
     def wait
+      return @guarded if @guarded
       spawn unless @fiber
       @result ||= @fiber.value
     end
