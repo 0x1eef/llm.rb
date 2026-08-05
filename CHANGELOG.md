@@ -217,6 +217,13 @@
   compacted` and the context-usage bar shows `???` instead of a percentage,
   because the used context is unknown until the next response.
 
+* **land on a blank line after Ctrl+N at the end of history** <br>
+  When recalling history with Ctrl+P and Ctrl+N, Ctrl+N at the last item
+  now advances to a blank line so you can start typing new input, instead
+  of staying stuck on the last item in history (the previous behavior).
+  Recalling with Ctrl+P or Ctrl+N also no longer overwrites the input when
+  there is no history to show.
+
 * **restore history wrap for Ctrl+P and Ctrl+N** <br>
   Fix a regression where Ctrl+P and Ctrl+N recalled history text without
   reflowing it into rows, so recalled lines wider than the terminal were
@@ -312,7 +319,9 @@
 
 * **refresh model metadata across providers** <br>
   Update `data/*.json` files with current provider model listings and
-  pricing.
+  pricing. Remove the deprecated Claude Opus 4.1 entries from the
+  Anthropic registry, add `Qwen/Qwen3.8-Max` to DeepInfra, and add a
+  `low` reasoning-effort option to DeepSeek.
 
 ## v13.1.0
 
