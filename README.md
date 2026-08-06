@@ -235,39 +235,6 @@ agent = LLM::Agent.new(llm, path: "session.json")
 agent.talk "what's my name?"
 ```
 
-#### LLM::Guard
-
-[`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
-is the hook that sees every tool call before it runs. A guard
-can let a call through, cancel it, block it with an error, or
-even answer for it. Because it runs before the tool, anything
-it intercepts never executes. Policy, validation, quotas, and
-cost ceilings all live here.
-
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
-enables
-[`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
-by default, so agents get loop protection out of the box. To
-write your own guard, subclass
-[`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
-and implement
-[`LLM::Guard#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method).
-The pending call arrives as `function:`. Return a value to close
-the call, or `nil` to let it run:
-
-```ruby
-class PolicyGuard < LLM::Guard
-  def call(function:)
-    if function.name == "shell"
-      function.return(error: true, type: "policy_error",
-                      message: "shell is disabled")
-    end
-  end
-end
-
-agent = LLM::Agent.new(llm, guard: PolicyGuard)
-```
-
 #### LLM::Context
 
 The
@@ -518,6 +485,39 @@ request:
 ```ruby
 a2a = LLM::A2A.rest(url: "https://agent.example.com", persistent: true)
 a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", persistent: true)
+```
+
+#### LLM::Guard
+
+[`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
+is the hook that sees every tool call before it runs. A guard
+can let a call through, cancel it, block it with an error, or
+even answer for it. Because it runs before the tool, anything
+it intercepts never executes. Policy, validation, quotas, and
+cost ceilings all live here.
+
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+enables
+[`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
+by default, so agents get loop protection out of the box. To
+write your own guard, subclass
+[`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
+and implement
+[`LLM::Guard#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method).
+The pending call arrives as `function:`. Return a value to close
+the call, or `nil` to let it run:
+
+```ruby
+class PolicyGuard < LLM::Guard
+  def call(function:)
+    if function.name == "shell"
+      function.return(error: true, type: "policy_error",
+                      message: "shell is disabled")
+    end
+  end
+end
+
+agent = LLM::Agent.new(llm, guard: PolicyGuard)
 ```
 
 #### LLM::Skill
