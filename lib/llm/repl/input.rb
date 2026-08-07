@@ -97,12 +97,10 @@ class LLM::Repl
       elsif ESC == char
         @agent.cancel!
       elsif CTRL[:P] == char
-        text = @walker.prev
-        set(text: text.dup) if text
+        set(text: @walker.prev.dup)
         :ctrl_p
       elsif CTRL[:N] == char
-        text = @walker.next
-        set(text: text.dup) if text
+        set(text: @walker.next.dup)
         :ctrl_n
       elsif CTRL[:D] == char
         delete
@@ -483,6 +481,7 @@ class LLM::Repl
     # @param [String] text
     # @return [void]
     def set(text:)
+      return if noop_set?(text)
       @rows = [Row.new]
       text.each_char { |char| feed(char) }
       ##
@@ -490,6 +489,22 @@ class LLM::Repl
       # so the cursor rests at the end of the content row.
       @rows.pop while @rows.size > 1 and @rows.last.empty?
       @cursor = [@rows.size - 1, @rows.last.chars.size]
+    end
+
+    ##
+    # Returns true when the {#set} method should return early.
+    # @param [String, nil] str
+    #  The new string to set.
+    # @return [Boolean]
+    def noop_set?(str)
+      if str.nil?
+        true
+      elsif @rows.size == 1
+        chars = @rows[0].to_s
+        str.empty? and chars.empty?
+      else
+        false
+      end
     end
   end
 end
