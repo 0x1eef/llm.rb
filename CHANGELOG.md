@@ -15,6 +15,20 @@
 
 ## What's next
 
+*No unreleased changes yet. Check back after the next release.*
+
+## v14.0.0
+
+Changes since `v13.1.0`.
+
+This release replaces the `transformer=` setter with the new
+`LLM::Transformer` class hierarchy, refactors guards into the
+`LLM::Guard` superclass with per-tool-call interception, and replaces
+the agent `tool_attempts` parameter with the `tool_budget` class DSL.
+It also adds the Moonshot (Kimi) provider, the `LLM::Tool.set`
+bulk-assignment DSL, a `LLM::Function#return` shorthand, and a wide
+range of REPL improvements.
+
 ### Breaking
 
 #### Migration
