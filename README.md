@@ -488,11 +488,12 @@ require "llm"
 require "llm/active_record"
 
 class Agent < ApplicationRecord
-  acts_as_agent
-  set name: "my-agent",
-      instructions: "solve the user's query",
-      model: "deepseek-v4-pro",
-      tools: [Research, FinalizeResearch, ActOnResearch]
+  acts_as_agent do |agent|
+    agent.set name: "my-agent",
+              instructions: "solve the user's query",
+              model: "deepseek-v4-pro",
+              tools: [Research, FinalizeResearch, ActOnResearch]
+  end
 
   private
 
@@ -503,7 +504,7 @@ class Agent < ApplicationRecord
   end
 
   # By convention, this method returns the context options given
-  # to LLM::Context or LLM::Agent.
+  # to LLM::Context or LLM::Agent. This method can be left undefined.
   def set_context
     {}
   end
