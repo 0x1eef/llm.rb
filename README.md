@@ -25,144 +25,6 @@ Once you learn the fundamentals, everything else falls into place
 naturally. Some features, such as ActiveRecord support, require
 optional dependencies that are opt-in.
 
-## Features
-
-One runtime, 12+ providers. The same API drives OpenAI, Anthropic,
-Google Gemini, Moonshot (kimi), Mistral, DeepSeek, DeepInfra, xAI, Z.ai,
-AWS Bedrock, Ollama, and llama.cpp, so switching models or providers
-can be done with minimal code change.
-
-<details>
-<summary><b>Agents</b></summary>
-
-* **First-class support** <br>
-  llm.rb is designed to build agents. They can be attached to a
-  terminal-based read-eval-print loop (repl), persisted to disk
-  or a database column, run tools concurrently and be safely
-  interrupted.
-
-* **Builtin REPL** <br>
-  A curses-based TUI for talking to an agent interactively. It
-  renders markdown, shows a live status line with context usage
-  and running cost, and recalls previous turns, so a
-  conversation survives a restart.
-
-* **Persistence** <br>
-  Set `path:` and the agent saves its conversation to disk
-  automatically. ActiveRecord and Sequel support keep the same
-  state in a single database column, so you pick the storage
-  and the API stays identical.
-
-</details>
-
-<details>
-<summary><b>MCP &amp; A2A</b></summary>
-
-* **MCP** <br>
-  The Model Context Protocol is first-class. Point an MCP client
-  at any tool server over stdio or HTTP, and its tools translate
-  into local `LLM::Tool` subclasses, with the same tracing and
-  error handling.
-
-* **A2A** <br>
-  The Agent 2 Agent protocol is first-class. Point an A2A client
-  at another agent over HTTP or JSON-RPC, and call its skills
-  exactly like local tools.
-
-</details>
-
-<details>
-<summary><b>ORM</b></summary>
-
-* **ActiveRecord** <br>
-  Add `acts_as_agent` to a model and the agent state lives in a
-  single database column, saved after every turn and restored
-  on load. Works in Rack and Rails apps, with `jsonb` on
-  PostgreSQL.
-
-* **Sequel** <br>
-  Add `plugin :agent` to a Sequel model for the same single-
-  column persistence, with the `pg_json` extension loaded
-  automatically on PostgreSQL.
-
-</details>
-
-<details>
-<summary><b>RAG</b></summary>
-
-* **RAG, out of the box** <br>
-  Embeddings, OCR, and OpenAI's vector stores API come first-
-  class. Ground answers in your own documents, with vectors in
-  a managed store or in your own database such as sqlite-vec
-  or pgvector.
-
-</details>
-
-<details>
-<summary><b>Runtime</b></summary>
-
-* **Streaming** <br>
-  Streaming is first-class, with structured callbacks for
-  content, reasoning, and tool calls. Tools can start while
-  the model is still talking, so the first result lands
-  before the response finishes.
-
-* **Concurrency** <br>
-  Six ways to run tools: sequential, threads, async, fibers,
-  forks, and ractors. Plus three HTTP backends, so you pick
-  the concurrency model that fits the workload, not the other
-  way around.
-
-* **Interruption** <br>
-  Cancel an in-flight request or a running tool at any moment,
-  on any transport or concurrency strategy. A stuck call never
-  leaves a thread running that you can't stop.
-
-</details>
-
-<details>
-<summary><b>Provider extras</b></summary>
-
-* **DeepSeek-optimized** <br>
-  DeepSeek is the most cost-effective option for API users, and the
-  runtime closes its gaps: [`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
-  makes structured outputs work despite no official API, and
-  `images.create`/`edit` produce SVG vector graphics.
-</details>
-
-<details>
-<summary><b>Portable</b></summary>
-
-* **mruby-llm** <br>
-  The same runtime runs on mruby as
-  [mruby-llm](https://github.com/r-uby-dev/mruby-llm), with an
-  almost identical interface and the same set of capabilities.
-
-</details>
-
-<details>
-<summary><b>Everything else</b></summary>
-
-* **Skills** <br>
-  Write a SKILL.md, get a tool. The runtime spawns a
-  disposable subagent with the skill's instructions and tool
-  set for one turn, then discards it. Fresh and stateless
-  every call.
-
-* **A unified plugin family** <br>
-  Compactors, transformers, and guards all share one
-  interface. Context management, message rewriting, and tool
-  supervision (policy, quotas, loop detection) plug in the
-  same way and compose freely.
-
-* **Cost and usage tracking** <br>
-  Every context tracks its own cost and token usage, per turn.
-  Break the spend down by input, output, cache, and reasoning,
-  so the exact cost of any conversation is visible at a
-  glance.
-
-</details>
-
 ## Install
 
 ```bash
@@ -688,6 +550,144 @@ res = llm.images.create(prompt: "add a dog next to the rocket",
                         agent: res.agent)
 IO.copy_stream res.images[0], "rocket-with-dog.svg"
 ```
+
+## Features
+
+One runtime, 12+ providers. The same API drives OpenAI, Anthropic,
+Google Gemini, Moonshot (kimi), Mistral, DeepSeek, DeepInfra, xAI, Z.ai,
+AWS Bedrock, Ollama, and llama.cpp, so switching models or providers
+can be done with minimal code change.
+
+<details>
+<summary><b>Agents</b></summary>
+
+* **First-class support** <br>
+  llm.rb is designed to build agents. They can be attached to a
+  terminal-based read-eval-print loop (repl), persisted to disk
+  or a database column, run tools concurrently and be safely
+  interrupted.
+
+* **Builtin REPL** <br>
+  A curses-based TUI for talking to an agent interactively. It
+  renders markdown, shows a live status line with context usage
+  and running cost, and recalls previous turns, so a
+  conversation survives a restart.
+
+* **Persistence** <br>
+  Set `path:` and the agent saves its conversation to disk
+  automatically. ActiveRecord and Sequel support keep the same
+  state in a single database column, so you pick the storage
+  and the API stays identical.
+
+</details>
+
+<details>
+<summary><b>MCP &amp; A2A</b></summary>
+
+* **MCP** <br>
+  The Model Context Protocol is first-class. Point an MCP client
+  at any tool server over stdio or HTTP, and its tools translate
+  into local `LLM::Tool` subclasses, with the same tracing and
+  error handling.
+
+* **A2A** <br>
+  The Agent 2 Agent protocol is first-class. Point an A2A client
+  at another agent over HTTP or JSON-RPC, and call its skills
+  exactly like local tools.
+
+</details>
+
+<details>
+<summary><b>ORM</b></summary>
+
+* **ActiveRecord** <br>
+  Add `acts_as_agent` to a model and the agent state lives in a
+  single database column, saved after every turn and restored
+  on load. Works in Rack and Rails apps, with `jsonb` on
+  PostgreSQL.
+
+* **Sequel** <br>
+  Add `plugin :agent` to a Sequel model for the same single-
+  column persistence, with the `pg_json` extension loaded
+  automatically on PostgreSQL.
+
+</details>
+
+<details>
+<summary><b>RAG</b></summary>
+
+* **RAG, out of the box** <br>
+  Embeddings, OCR, and OpenAI's vector stores API come first-
+  class. Ground answers in your own documents, with vectors in
+  a managed store or in your own database such as sqlite-vec
+  or pgvector.
+
+</details>
+
+<details>
+<summary><b>Runtime</b></summary>
+
+* **Streaming** <br>
+  Streaming is first-class, with structured callbacks for
+  content, reasoning, and tool calls. Tools can start while
+  the model is still talking, so the first result lands
+  before the response finishes.
+
+* **Concurrency** <br>
+  Six ways to run tools: sequential, threads, async, fibers,
+  forks, and ractors. Plus three HTTP backends, so you pick
+  the concurrency model that fits the workload, not the other
+  way around.
+
+* **Interruption** <br>
+  Cancel an in-flight request or a running tool at any moment,
+  on any transport or concurrency strategy. A stuck call never
+  leaves a thread running that you can't stop.
+
+</details>
+
+<details>
+<summary><b>Provider extras</b></summary>
+
+* **DeepSeek-optimized** <br>
+  DeepSeek is the most cost-effective option for API users, and the
+  runtime closes its gaps: [`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
+  makes structured outputs work despite no official API, and
+  `images.create`/`edit` produce SVG vector graphics.
+</details>
+
+<details>
+<summary><b>Portable</b></summary>
+
+* **mruby-llm** <br>
+  The same runtime runs on mruby as
+  [mruby-llm](https://github.com/r-uby-dev/mruby-llm), with an
+  almost identical interface and the same set of capabilities.
+
+</details>
+
+<details>
+<summary><b>Everything else</b></summary>
+
+* **Skills** <br>
+  Write a SKILL.md, get a tool. The runtime spawns a
+  disposable subagent with the skill's instructions and tool
+  set for one turn, then discards it. Fresh and stateless
+  every call.
+
+* **A unified plugin family** <br>
+  Compactors, transformers, and guards all share one
+  interface. Context management, message rewriting, and tool
+  supervision (policy, quotas, loop detection) plug in the
+  same way and compose freely.
+
+* **Cost and usage tracking** <br>
+  Every context tracks its own cost and token usage, per turn.
+  Break the spend down by input, output, cache, and reasoning,
+  so the exact cost of any conversation is visible at a
+  glance.
+
+</details>
 
 ## FAQ
 
