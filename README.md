@@ -492,17 +492,28 @@ class Agent < ApplicationRecord
     agent.set name: "my-agent",
               instructions: "solve the user's query",
               model: "deepseek-v4-pro",
-              tools: [Research, FinalizeResearch, ActOnResearch]
+              tools: [Research, ActOnResearch],
+              concurrency: :async
+  end
+
+  def research
+    talk("start the research")
+  end
+
+  def act_on_research!
+    talk("act on the research")
   end
 
   private
 
+  ##
   # By convention, this method defines the provider for a model.
   # If necessary, it can be renamed with: provider: :your_method.
   def set_provider
     LLM.deepseek(key: ENV["KEY"])
   end
 
+  ##
   # By convention, this method returns the context options given
   # to LLM::Context or LLM::Agent. This method can be left undefined.
   def set_context
@@ -511,7 +522,8 @@ class Agent < ApplicationRecord
 end
 
 agent = Agent.create!
-agent.talk "perform research"
+agent.research
+agent.act_on_research!
 ```
 
 #### Images
