@@ -51,6 +51,7 @@ place to start if you are new to llm.rb.
 
 ## Fundamentals
 
+- [Providers](deepdive/fundamentals/providers.md)
 - [Agents](deepdive/fundamentals/agents.md)
 - [Tools](deepdive/fundamentals/tools.md)
 - [Built-in tools](deepdive/fundamentals/builtin_tools.md)
