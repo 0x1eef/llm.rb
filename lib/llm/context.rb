@@ -39,19 +39,6 @@ module LLM
     include Serializer
     include Deserializer
 
-    ZERO_USAGE = LLM::Object.from(
-      input_tokens: 0,
-      output_tokens: 0,
-      reasoning_tokens: 0,
-      input_audio_tokens: 0,
-      output_audio_tokens: 0,
-      input_image_tokens: 0,
-      cache_read_tokens: 0,
-      cache_write_tokens: 0,
-      total_tokens: 0
-    )
-    private_constant :ZERO_USAGE
-
     ##
     # Returns the accumulated message history for this context
     # @return [LLM::Buffer<LLM::Message>]
@@ -338,10 +325,10 @@ module LLM
 
     ##
     # Returns token usage accumulated in this context
-    # @return [LLM::Object]
+    # @return [LLM::Usage]
     def usage
       if usage = @messages.find(&:assistant?)&.usage
-        LLM::Object.from(
+        LLM::Usage.new(
           input_tokens: usage.input_tokens || 0,
           output_tokens: usage.output_tokens || 0,
           reasoning_tokens: usage.reasoning_tokens || 0,
@@ -353,7 +340,7 @@ module LLM
           total_tokens: usage.total_tokens || 0
         )
       else
-        ZERO_USAGE
+        LLM::Usage.zero
       end
     end
 

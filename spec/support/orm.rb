@@ -6,7 +6,7 @@ module LLM::Test
 
     def initialize
       @messages = []
-      @usage = LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0)
+      @usage = LLM::Usage.zero
       @talk_result = Object.new
       @ask_result = Object.new
     end

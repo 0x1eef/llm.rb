@@ -242,9 +242,9 @@ module LLM::Sequel
 
     ##
     # Returns usage from the mapped usage columns.
-    # @return [LLM::Object]
+    # @return [LLM::Usage]
     def usage
-      ctx.usage || LLM::Object.from(input_tokens: 0, output_tokens: 0, total_tokens: 0)
+      ctx.usage || LLM::Usage.zero
     end
 
     ##

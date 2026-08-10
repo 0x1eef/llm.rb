@@ -451,7 +451,7 @@ module LLM
     end
 
     ##
-    # @return [LLM::Object]
+    # @return [LLM::Usage]
     def usage
       @ctx.usage
     end
