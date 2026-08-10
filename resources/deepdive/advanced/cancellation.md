@@ -13,9 +13,9 @@ cancellation stops the work and reclaims the tokens.
 #### How it works
 
 When you want to cancel an active request or tool call, call
-[`LLM::Agent#cancel!`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#cancel!)
+[`LLM::Agent#interrupt!`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#interrupt!)
 or
-[`LLM::Context#cancel!`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cancel!)
+[`LLM::Context#interrupt!`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#interrupt!)
 from any thread. Two things
 happen at once:
 

@@ -69,6 +69,11 @@ a context, you can also do through an agent. The trade-off is
 convenience versus control. Contexts support the same concurrency
 strategies, compaction, cancellation, and serialization as agents.
 
+OpenAI contexts default to the Responses API (`mode: :responses`)
+with `store: false`, so no conversation state is kept server-side.
+Pass `mode: :completions` to use the legacy Chat Completions API
+instead. Every other provider defaults to `mode: :completions`.
+
 ### Manual loop
 
 #### Overview

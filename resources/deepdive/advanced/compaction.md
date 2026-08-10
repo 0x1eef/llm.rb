@@ -38,7 +38,7 @@ ctx = LLM::Context.new(
 agent = LLM::Agent.new(
   llm,
   compactor: LLM::Compactor::Truncate,
-  compactor_options: {keep: 128}
+  compactor_options: {keep: 64}
 )
 
 compactor = LLM::Compactor::Truncate.new(agent)
@@ -74,10 +74,12 @@ entirely in memory with a single pass over the message list. The
 trade-off is that dropped messages are gone, so information may be
 lost. Set `keep` to a higher number to retain more context.
 
-Both strategies emit
+Both strategies accept
 [`LLM::Stream#on_compaction`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction)
 and
 [`LLM::Stream#on_compaction_finish`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction_finish)
-stream callbacks so the UI can show progress. The context's
+stream callbacks so the UI can show progress, but only the `Truncate`
+strategy emits them. `Null` performs no compaction and emits nothing.
+The context's
 [`LLM::Context#compacted?`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#compacted?)
 flag is `true` between compaction and the next model response.

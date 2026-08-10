@@ -55,6 +55,15 @@ The REPL requires the `curses` and `kramdown` gems. By default the
 tracer is disabled during the session. Set `tracer: true` to keep
 it active.
 
+The user-message label is exposed through
+[`LLM::Repl#sender`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#sender-instance_method),
+which defaults to `"You"`. The
+[`LLM::Repl#write_message`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#write_message-instance_method)
+and
+[`LLM::Repl::Buffer#write_message`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Buffer.html#write_message-instance_method)
+helpers write a formatted `user:` message with a trailing newline,
+and `LLM::Command#write_message` matches the same interface.
+
 Commands use the same vocabulary as tools: declare a name,
 description, and parameters with `parameter` and `required`.
 Subclassing an existing command inherits its name, description,
@@ -77,10 +86,13 @@ The input area supports several keyboard shortcuts:
 
 | Key | Action |
 |---|---|
-| `Enter` | Submit the current prompt |
 | `Ctrl+A` | Jump to the start of the line |
 | `Ctrl+E` | Jump to the end of the line |
+| `Ctrl+F` | Move cursor forward by one column |
+| `Ctrl+K` | Erase from cursor to end of line |
 | `Ctrl+P` / `Ctrl+N` | Recall previous / next user message |
+| `Ctrl+Y` | Paste previously killed text |
+| `Enter` | Submit the current prompt |
 | `Tab` | Complete `/command` names |
 | `Esc` | Cancel the current request |
 | `Up` / `Down` | Scroll the transcript one line |

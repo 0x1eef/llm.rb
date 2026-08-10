@@ -30,7 +30,7 @@ agent.talk "hello world"
 #### Why would I use it?
 
 Streaming lets users see output sooner and cancel mid-response if
-the model goes off course. It also enables progress indicators and
+the model goes off course. It also lets you add progress indicators and
 partial result processing, things that are not possible with a
 single blocking response.
 

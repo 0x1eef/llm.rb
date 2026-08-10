@@ -28,6 +28,13 @@ description and decides whether to call it. When it does, the
 runtime serialises the arguments and passes them to
 [`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call).
 
+Tools that spawn subprocesses can include
+[`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
+to get shared
+[`wait(command:, timeout:)`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#wait-instance_method)
+and `now` help. The built-in `Shell`, `Git`, `Rg`, and `Mkdir` tools
+use it to kill a command that exceeds its `timeout`.
+
 If
 [`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
 raises, the runtime rescues it and returns a structured
@@ -152,10 +159,10 @@ and return your own error shape that gives the model more context.
 class Shell < LLM::Tool
   set name: "shell",
       description: "run a shell command",
-      parameters: {
-        ["name", String, "the command name"],
-        ["arguments", Array[String], "one or more arguments"]
-      },
+      parameters: [
+        [:name, String, "the command name"],
+        [:arguments, Array[String], "one or more arguments"]
+      ],
       required: %i[name],
       defaults: {arguments: []}
 

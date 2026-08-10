@@ -72,6 +72,11 @@ model reads to decide when to call it), and a tool list (which
 limits what the subagent can do). Leave the tools out and the
 subagent has none. Set them to `all` and it has everything.
 
+Skills can be loaded from a directory containing a `SKILL.md` file
+or from a direct path to a markdown file.
+[`LLM::Skill.load`](https://r.uby.dev/api-docs/llm.rb/LLM/Skill.html#load-class_method)
+accepts either form.
+
 #### How it works
 
 The frontmatter is parsed from the YAML block at the top of the

@@ -59,6 +59,13 @@ request a provider makes. Three built-in tracers are available:
 [`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html)
 (OpenTelemetry).
 
+For a shorter way to build a
+[`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html),
+use the [`LLM.logger`](https://r.uby.dev/api-docs/llm.rb/LLM.html#logger-class_method)
+convenience method. It takes a provider and forwards the options as
+a positional hash, so `LLM.logger(llm, io: $stdout)` is equivalent
+to `LLM::Tracer::Logger.new(llm, io: $stdout)`.
+
 ### Provider
 
 #### Overview
