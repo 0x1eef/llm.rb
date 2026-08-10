@@ -66,7 +66,9 @@ receives tokens as they arrive.
 [`LLM::Stream#on_tool_call`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_tool_call)
 fires when the model requests a tool.
 [`LLM::Stream#on_tool_return`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_tool_return)
-fires when the tool completes. Compaction hooks
+fires when the tool completes.
+[`LLM::Stream#on_rate_limit`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_rate_limit)
+fires each time a rate-limited request is retried. Compaction hooks
 let you show progress or log what was trimmed.
 
 ```ruby
@@ -83,6 +85,10 @@ class MyStream < LLM::Stream
   end
 
   def on_tool_return(tool, result)
+  end
+
+  def on_rate_limit(error)
+    warn "rate limited, retrying: #{error.message}"
   end
 
   def on_compaction(compactor)

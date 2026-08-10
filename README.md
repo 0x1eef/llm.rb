@@ -81,8 +81,8 @@ agent.talk "Hello world"
 is a class-level DSL that accepts a Hash of properties. Each key resolves to a
 corresponding class accessor: `name`, `description`, `model`, `tools`,
 `instructions`, `schema`, `stream`, `tracer`, `concurrency`, `confirm`,
-`path`, `skills`, and `tool_budget`. All options are optional; zero or
-more can be set.
+`path`, `skills`, `tool_budget`, and `retry_budget`. All options are
+optional; zero or more can be set.
 An error is raised for unknown keys so that typos are caught early.
 
 ```ruby
@@ -120,6 +120,14 @@ agent.talk "remember my name is robert"
 agent = LLM::Agent.new(llm, path: "session.json")
 agent.talk "what's my name?"
 ```
+
+##### Automatic retries
+
+Rate-limited requests are retried automatically by default. Agents
+retry a 429 up to three times with a growing backoff before giving
+up, so most request failures resolve on their own. Set `retry_budget`
+to change the number of retries, or `retry_budget: 0` to disable
+them.
 
 #### LLM::Context
 
@@ -680,6 +688,11 @@ models or providers can be done with minimal code change.
   Cancel an in-flight request or a running tool at any moment,
   on any transport or concurrency strategy. A stuck call never
   leaves a thread running that you can't stop.
+
+* **Rate-limit retries** <br>
+  Rate-limited requests are retried automatically. Agents retry
+  up to three times with a growing backoff, and notify your
+  stream through `on_rate_limit` before each retry.
 
 </details>
 
