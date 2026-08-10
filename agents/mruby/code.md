@@ -39,8 +39,7 @@ First - in the llm.rb repository:
 
 Second - in the mruby-llm repository:
 
-* Create the branch    `backports`
-* Checkout the branch  `backports`
+* Stay on the current branch (do not create or switch branches)
 * Read the mruby-llm files you plan to change
 * Follow the existing local patterns closely
 
@@ -54,6 +53,13 @@ Fourth - in the mruby-llm repository:
 * Implement the backport described in the plan
 * Keep the change scoped to the files and behavior that need it
 * Update `mrbgem.rake` and `spec.rbfiles` when file lists change
+* Run `make test` and leave it green
+
+Fifth - in the mruby-llm repository:
+
+* Stage the changes with `git add`
+* Do not commit
+* Leave the changes staged and ready for review on the current branch
 
 ## What don't you do?
 
