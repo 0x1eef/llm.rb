@@ -17,7 +17,7 @@ module LLM
   #   ctx = LLM::Context.new(llm)
   #   ctx.talk "Hello"
   class Alibaba < OpenAI
-    HOST = "dashscope-intl.aliyuncs.com"
+    HOST = "token-plan.ap-southeast-1.maas.aliyuncs.com"
     BASE_PATH = "/compatible-mode/v1"
 
     ##
