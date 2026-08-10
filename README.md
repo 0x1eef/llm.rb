@@ -16,7 +16,7 @@ Welcome to the canonical llm.rb repository.
 
 llm.rb is an advanced runtime for building capable AI applications
 on CRuby. It has zero runtime dependencies by default, and a single
-coherent API that spans 12+ providers. Streaming, tools, guards,
+coherent API that spans 13+ providers. Streaming, tools, guards,
 compaction, the REPL, builtin MCP/A2A support and the database
 integrations all build on the same three concepts: providers,
 contexts, and agents.
@@ -566,7 +566,7 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"
 
 ## Features
 
-One runtime, 12+ providers. The same API drives OpenAI, Anthropic,
+One runtime, 13+ providers. The same API drives OpenAI, Anthropic,
 Google Gemini, Moonshot (kimi), Alibaba (Qwen3), Mistral, DeepSeek,
 DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp, so switching
 models or providers can be done with minimal code change.
