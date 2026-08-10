@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+    uri: https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions
     body:
       encoding: UTF-8
       string: '{"messages":[{"role":"user","content":[{"type":"text","text":"Return
@@ -27,39 +27,36 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Vary:
-      - Origin,Access-Control-Request-Method,Access-Control-Request-Headers, Accept-Encoding
-      X-Request-Id:
-      - ad1ea74f-7176-9194-a66d-1b04613f4376
-      X-Dashscope-Call-Gateway:
-      - 'true'
-      X-Dashscope-Finished:
-      - 'true'
-      X-Dashscope-Timeout:
-      - '3600'
       Content-Type:
-      - application/json
-      Req-Cost-Time:
-      - '1188'
-      Req-Arrive-Time:
-      - '1786357133472'
-      Resp-Start-Time:
-      - '1786357134660'
+      - application/json; charset=utf-8
+      Grpc-Encoding:
+      - identity
+      Grpc-Accept-Encoding:
+      - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1187'
-      Set-Cookie:
-      - acw_tc=ad1ea74f-7176-9194-a66d-1b04613f437627834da1216c173427c2d59e8be1b3cb;path=/;HttpOnly;Max-Age=1800
+      - '1173'
       Date:
-      - Mon, 10 Aug 2026 10:18:54 GMT
+      - Mon, 10 Aug 2026 11:53:54 GMT
       Server:
       - istio-envoy
+      X-Request-Id:
+      - 10f2920c-027e-4657-92ff-8ee473aa6fd0
+      Req-Cost-Time:
+      - '1173'
+      Req-Arrive-Time:
+      - '1786362833993'
+      Resp-Start-Time:
+      - '1786362835167'
+      Vary:
+      - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"choices":[{"message":{"content":"{\"answers\":[10,12]}","reasoning_content":"We
-        need to output a JSON object with an \"answers\" array containing [10, 12].
-        The schema specifies an object with a property \"answers\" which is an array
-        of integers. So we produce that.","role":"assistant"},"finish_reason":"stop","index":0,"logprobs":null}],"object":"chat.completion","usage":{"prompt_tokens":89,"completion_tokens":52,"total_tokens":141,"completion_tokens_details":{"reasoning_tokens":43},"prompt_tokens_details":{"cached_tokens":0}},"created":1786357135,"system_fingerprint":null,"model":"deepseek-v4-flash-0731","id":"chatcmpl-ad1ea74f-7176-9194-a66d-1b04613f4376"}'
-  recorded_at: Mon, 10 Aug 2026 10:18:52 GMT
+      string: '{"id":"chatcmpl-10f2920c-027e-4657-92ff-8ee473aa6fd0","object":"chat.completion","created":1786362834,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"We
+        need to output a JSON matching the schema. The schema has an object with property
+        \"answers\" which is an array of integers. The user asks to return the numbers
+        10 and 12 in the same order. So we output {\"answers\": [10, 12]}. Ensure
+        it''s valid JSON.","content":"{\"answers\": [10, 12]}"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":89,"total_tokens":163,"completion_tokens":74,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":63}}}'
+  recorded_at: Mon, 10 Aug 2026 11:53:53 GMT
 recorded_with: VCR 6.4.0

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+    uri: https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions
     body:
       encoding: UTF-8
       string: '{"messages":[{"role":"user","content":[{"type":"text","text":"Keep
@@ -29,38 +29,34 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Vary:
-      - Origin,Access-Control-Request-Method,Access-Control-Request-Headers, Accept-Encoding
-      X-Request-Id:
-      - ff9b5deb-ea63-994a-9e00-9023868c0846
-      X-Dashscope-Call-Gateway:
-      - 'true'
-      X-Dashscope-Finished:
-      - 'true'
-      X-Dashscope-Timeout:
-      - '3600'
       Content-Type:
-      - application/json
-      Req-Cost-Time:
-      - '1462'
-      Req-Arrive-Time:
-      - '1786357102399'
-      Resp-Start-Time:
-      - '1786357103862'
+      - application/json; charset=utf-8
+      Grpc-Encoding:
+      - identity
+      Grpc-Accept-Encoding:
+      - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1461'
-      Set-Cookie:
-      - acw_tc=ff9b5deb-ea63-994a-9e00-9023868c08461fb17a99e32337e067c4e87aca7481d1;path=/;HttpOnly;Max-Age=1800
+      - '1182'
       Date:
-      - Mon, 10 Aug 2026 10:18:23 GMT
+      - Mon, 10 Aug 2026 11:53:24 GMT
       Server:
       - istio-envoy
+      X-Request-Id:
+      - 28c75b54-b66c-4294-b34e-d264a2ee433f
+      Req-Cost-Time:
+      - '1182'
+      Req-Arrive-Time:
+      - '1786362803790'
+      Resp-Start-Time:
+      - '1786362804973'
+      Vary:
+      - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"choices":[{"message":{"content":"5\n10\n12","reasoning_content":"1.  The
-        user asks for three answers, one per line, each a number.\n2.  3+2 = 5\n3.  5+5
-        = 10\n4.  5+7 = 12\n5.  Output should be exactly three lines with numbers.","role":"assistant"},"finish_reason":"stop","index":0,"logprobs":null}],"object":"chat.completion","usage":{"prompt_tokens":62,"completion_tokens":67,"total_tokens":129,"completion_tokens_details":{"reasoning_tokens":60},"prompt_tokens_details":{"cached_tokens":0}},"created":1786357104,"system_fingerprint":null,"model":"deepseek-v4-flash-0731","id":"chatcmpl-ff9b5deb-ea63-994a-9e00-9023868c0846"}'
-  recorded_at: Mon, 10 Aug 2026 10:18:21 GMT
+      string: '{"id":"chatcmpl-28c75b54-b66c-4294-b34e-d264a2ee433f","object":"chat.completion","created":1786362803,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"1.  The
+        user asks for three answers, one per line, each being a number.\n2.  Questions:
+        3+2=5, 5+5=10, 5+7=12.\n3.  Output format: one answer per line, nothing else.","content":"5\n10\n12"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":62,"total_tokens":128,"completion_tokens":66,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":59}}}'
+  recorded_at: Mon, 10 Aug 2026 11:53:22 GMT
 recorded_with: VCR 6.4.0

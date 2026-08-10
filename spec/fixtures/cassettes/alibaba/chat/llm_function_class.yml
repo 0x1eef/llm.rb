@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+    uri: https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions
     body:
       encoding: UTF-8
       string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
@@ -27,49 +27,45 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Vary:
-      - Origin,Access-Control-Request-Method,Access-Control-Request-Headers, Accept-Encoding
-      X-Request-Id:
-      - c4010abe-8399-949f-871c-577289e1be13
-      X-Dashscope-Call-Gateway:
-      - 'true'
-      X-Dashscope-Finished:
-      - 'true'
-      X-Dashscope-Timeout:
-      - '3600'
       Content-Type:
-      - application/json
-      Req-Cost-Time:
-      - '1205'
-      Req-Arrive-Time:
-      - '1786357119387'
-      Resp-Start-Time:
-      - '1786357120593'
+      - application/json; charset=utf-8
+      Grpc-Encoding:
+      - identity
+      Grpc-Accept-Encoding:
+      - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1205'
-      Set-Cookie:
-      - acw_tc=c4010abe-8399-949f-871c-577289e1be13ac5f6a329b0c859780df224b204bcaad;path=/;HttpOnly;Max-Age=1800
+      - '1020'
       Date:
-      - Mon, 10 Aug 2026 10:18:40 GMT
+      - Mon, 10 Aug 2026 11:53:40 GMT
       Server:
       - istio-envoy
+      X-Request-Id:
+      - bf65f166-dfef-42aa-beb8-7a25e34a778f
+      Req-Cost-Time:
+      - '1020'
+      Req-Arrive-Time:
+      - '1786362820279'
+      Resp-Start-Time:
+      - '1786362821300'
+      Vary:
+      - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"choices":[{"message":{"content":"","reasoning_content":"The user
-        wants to know the date. I''ll run the date command.","role":"assistant","tool_calls":[{"function":{"arguments":"{\"command\":
-        \"date\"}","name":"system"},"id":"call_f2bd5cb5c9d24cfea730fd7f","index":0,"type":"function"}]},"finish_reason":"tool_calls","index":0,"logprobs":null}],"object":"chat.completion","usage":{"prompt_tokens":285,"completion_tokens":59,"total_tokens":344,"completion_tokens_details":{"reasoning_tokens":15},"prompt_tokens_details":{"cached_tokens":256}},"created":1786357121,"system_fingerprint":null,"model":"deepseek-v4-flash-0731","id":"chatcmpl-c4010abe-8399-949f-871c-577289e1be13"}'
-  recorded_at: Mon, 10 Aug 2026 10:18:38 GMT
+      string: '{"id":"chatcmpl-bf65f166-dfef-42aa-beb8-7a25e34a778f","object":"chat.completion","created":1786362820,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"The
+        user wants to know the date. I''ll run the date command.","content":"","tool_calls":[{"id":"call_900f2407912144a9b5a36371","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"date\"}"},"index":0}]},"finish_reason":"tool_calls","logprobs":null}],"usage":{"prompt_tokens":285,"total_tokens":344,"completion_tokens":59,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":15}}}'
+  recorded_at: Mon, 10 Aug 2026 11:53:39 GMT
 - request:
     method: post
-    uri: https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+    uri: https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions
     body:
       encoding: UTF-8
       string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
         a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"text","text":"What
-        is the date?"}]},{"role":"assistant","content":null,"tool_calls":[{"function":{"arguments":"{\"command\":
-        \"date\"}","name":"system"},"id":"call_f2bd5cb5c9d24cfea730fd7f","index":0,"type":"function"}]},{"role":"tool","tool_call_id":"call_f2bd5cb5c9d24cfea730fd7f","content":"{\"success\":\"2025-08-24\"}"}],"model":"deepseek-v4-flash-0731","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Runs
+        is the date?"}]},{"role":"assistant","content":null,"tool_calls":[{"id":"call_900f2407912144a9b5a36371","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"date\"}"},"index":0}]},{"role":"tool","tool_call_id":"call_900f2407912144a9b5a36371","content":"{\"success\":\"2025-08-24\"}"}],"model":"deepseek-v4-flash-0731","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Runs
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}],"stream":false}'
     headers:
       User-Agent:
@@ -89,36 +85,33 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Vary:
-      - Origin,Access-Control-Request-Method,Access-Control-Request-Headers, Accept-Encoding
-      X-Request-Id:
-      - 6fc7dbac-6dc9-91a1-837f-c97aff27263d
-      X-Dashscope-Call-Gateway:
-      - 'true'
-      X-Dashscope-Finished:
-      - 'true'
-      X-Dashscope-Timeout:
-      - '3600'
       Content-Type:
-      - application/json
-      Req-Cost-Time:
-      - '895'
-      Req-Arrive-Time:
-      - '1786357121662'
-      Resp-Start-Time:
-      - '1786357122557'
+      - application/json; charset=utf-8
+      Grpc-Encoding:
+      - identity
+      Grpc-Accept-Encoding:
+      - gzip
       X-Envoy-Upstream-Service-Time:
-      - '895'
-      Set-Cookie:
-      - acw_tc=6fc7dbac-6dc9-91a1-837f-c97aff27263de8f925e03a24b6745c0cd2baaf64be84;path=/;HttpOnly;Max-Age=1800
+      - '815'
       Date:
-      - Mon, 10 Aug 2026 10:18:42 GMT
+      - Mon, 10 Aug 2026 11:53:42 GMT
       Server:
       - istio-envoy
+      X-Request-Id:
+      - cde18ab8-f5dc-40c6-be26-c28de01c3706
+      Req-Cost-Time:
+      - '816'
+      Req-Arrive-Time:
+      - '1786362822365'
+      Resp-Start-Time:
+      - '1786362823181'
+      Vary:
+      - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"choices":[{"message":{"content":"The date is **August 24, 2025**.","reasoning_content":"","role":"assistant"},"finish_reason":"stop","index":0,"logprobs":null}],"object":"chat.completion","usage":{"prompt_tokens":350,"completion_tokens":14,"total_tokens":364,"completion_tokens_details":{"reasoning_tokens":0},"prompt_tokens_details":{"cached_tokens":0}},"created":1786357123,"system_fingerprint":null,"model":"deepseek-v4-flash-0731","id":"chatcmpl-6fc7dbac-6dc9-91a1-837f-c97aff27263d"}'
-  recorded_at: Mon, 10 Aug 2026 10:18:40 GMT
+      string: '{"id":"chatcmpl-cde18ab8-f5dc-40c6-be26-c28de01c3706","object":"chat.completion","created":1786362822,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"","content":"The
+        date is **August 24, 2025**."},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":350,"total_tokens":364,"completion_tokens":14,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":0}}}'
+  recorded_at: Mon, 10 Aug 2026 11:53:41 GMT
 recorded_with: VCR 6.4.0
