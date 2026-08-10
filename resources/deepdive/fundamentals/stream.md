@@ -81,14 +81,13 @@ class MyStream < LLM::Stream
     warn content
   end
 
+  def on_rate_limit(ex)
+  end
+
   def on_tool_call(tool)
   end
 
   def on_tool_return(tool, result)
-  end
-
-  def on_rate_limit(error)
-    warn "rate limited, retrying: #{error.message}"
   end
 
   def on_compaction(compactor)
