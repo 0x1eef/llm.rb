@@ -36,6 +36,13 @@ mruby-llm source code.
 First - in the llm.rb repository:
 
 * Analyze the last 50 commits
+* Read `CHANGELOG.md` and use its version entries as reference
+  points for what changed - including work older than the last
+  50 commits that mruby-llm may still be missing
+* Cross-check the mruby-llm `CHANGELOG.md` and `README.md`
+  against llm.rb's to find features that were never backported
+* Review `research/archive/` for earlier deep-dives on topics
+  that may still be unbackported, and follow up on any gaps
 
 Second - in the mruby-llm repository:
 

@@ -39,7 +39,8 @@ First - in the llm.rb repository:
 
 Second - in the mruby-llm repository:
 
-* Stay on the current branch (do not create or switch branches)
+* Stay on `main` (do not create or switch branches; the concurrency
+  overhaul and guard backports live on `main`)
 * Read the mruby-llm files you plan to change
 * Follow the existing local patterns closely
 

@@ -23,8 +23,8 @@ to it rather than doing the work yourself.
   runtime to the mruby-llm runtime and writes a backport plan to
   `research/mruby/`. Use it for research.
 
-- **code**: implements the backport plan on the `backports` branch in
-  mruby-llm. Use it when it's time to implement the research.
+- **code**: implements the backport plan on the `main` branch in mruby-llm.
+  Use it when it's time to implement the research.
 
 ### Verify and fix
 
