@@ -7,16 +7,9 @@ module LLM::Function::Sequential
   # used by spawned concurrency modes.
   class Task < LLM::Function::Task
     ##
-    # @param [LLM::Function] fn
-    # @param [Hash] options
-    def initialize(fn, options = {})
-      @function = fn
-    end
-
-    ##
     # @return [nil]
     def spawn
-      # no-op — execution happens in wait
+      # no-op (execution happens in wait)
     end
 
     ##

@@ -2,32 +2,42 @@
 
 module LLM::Function::Sequential
   ##
-  # Wraps an array of {LLM::Function} objects for sequential
-  # execution. Provides the same interface as concurrent group
-  # wrappers so callers can flow through `spawn(strategy).wait`
-  # uniformly.
+  # Wraps an array of {LLM::Function::Sequential::Task} objects
+  # for sequential execution. Provides the same interface as
+  # concurrent group wrappers so callers can flow through
+  # `task(strategy).wait` regardless of the strategy being
+  # used.
   class Group < LLM::Function::Group
     ##
-    # @param [Array<LLM::Function>] functions
-    def initialize(functions)
-      @functions = functions
+    # @param [Array<LLM::Function::Sequential::Task>] tasks
+    #  One or more Sequential::Task objects
+    # @return [LLM::Function::Sequential::Group]
+    def initialize(tasks)
+      @tasks = tasks
       @owner = nil
     end
 
     ##
     # @return [nil]
     def spawn
-      # no-op — execution happens in wait
+      # no-op (execution happens in wait)
+      @tasks.each(&:spawn)
       nil
+    ensure
+      @spawned = true
     end
 
     ##
     # @return [Boolean]
     def alive?
-      false
+      @tasks.any?(&:alive?)
     end
 
     ##
+    # Interrupts the thread blocked in {#wait}.
+    # Sequential functions run on the caller's thread,
+    # and this methods raises {LLM::Interrupt} on that
+    # thread.
     # @return [nil]
     def interrupt!
       @owner&.raise(LLM::Interrupt)
@@ -39,10 +49,7 @@ module LLM::Function::Sequential
     # @return [Array<LLM::Function::Return>]
     def wait
       @owner = Thread.current
-      ##
-      # Sequential groups call functions directly (no tasks), so each
-      # function's guard is checked here instead.
-      @functions.map { |function| function.guard&.call(function:) || function.call }
+      @tasks.map(&:wait)
     ensure
       @owner = nil
     end

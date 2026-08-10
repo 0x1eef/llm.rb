@@ -250,7 +250,7 @@ RSpec.describe LLM::Function do
 
   describe LLM::Function::Sequential::Group do
     describe "#interrupt!" do
-      subject(:group) { LLM::Function::Sequential::Group.new([function]) }
+      subject(:group) { LLM::Function::Sequential::Group.new([function.task(:sequential)]) }
 
       let(:fn_class) do
         Class.new(LLM::Tool) do
@@ -297,7 +297,7 @@ RSpec.describe LLM::Function do
           f.id = "call_2"
           f.arguments = {}
         end
-        LLM::Function::Sequential::Group.new([fn]).wait
+        LLM::Function::Sequential::Group.new([fn.task(:sequential)]).wait
         expect(group.interrupt!).to be_nil
       end
     end

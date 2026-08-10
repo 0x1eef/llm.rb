@@ -34,7 +34,7 @@ class LLM::Function
     def task(strategy)
       case strategy
       when :sequential
-        Sequential::Group.new(self)
+        Sequential::Group.new(map { _1.task(:sequential) })
       when :async
         LLM.require "async" unless defined?(::Async)
         Async::Group.new(map { |fn| fn.task(:async) })
