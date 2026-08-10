@@ -223,7 +223,7 @@ module LLM
       tools = resolve_tools(params.delete(:tools))
       params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
       role, stream = params.delete(:role), LLM::Stream.try(params.delete(:stream))
-      if params[:stream]
+      if stream.enabled?
         params[:stream_options] = {include_usage: true}.merge!(params[:stream_options] || {})
       end
       [params.merge!(stream: stream.enabled?), stream, tools, role]
