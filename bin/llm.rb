@@ -125,6 +125,7 @@ def main(argv)
       data = LLM::Object.from JSON.parse(File.read(file))
     end
     data[Dir.getwd] ||= File.join(parent, "#{SecureRandom.uuid}.json")
+    File.binwrite file, JSON.pretty_generate(data)
   end
 
   ##
