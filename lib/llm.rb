@@ -229,6 +229,16 @@ module LLM
   end
 
   ##
+  # @param key (see LLM::Alibaba#initialize)
+  # @param host (see LLM::Alibaba#initialize)
+  # @return (see LLM::Alibaba#initialize)
+  def alibaba(**)
+    lock(:require) { require_relative "llm/providers/alibaba" unless defined?(LLM::Alibaba) }
+    LLM::Alibaba.new(**)
+  end
+  alias_method :aliyun, :alibaba
+
+  ##
   # @param [Hash] opts
   #  MCP client options
   # @option opts [Hash, nil] :stdio

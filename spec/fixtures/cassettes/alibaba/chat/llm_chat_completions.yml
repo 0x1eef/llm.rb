@@ -1,0 +1,66 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"Keep
+        your answers short and concise, and provide three answers to the three questionsThere
+        should be one answer per lineAn answer should be a number, for example: 5Nothing
+        else"}]},{"role":"user","content":[{"type":"text","text":"What is 3+2 ?"}]},{"role":"user","content":[{"type":"text","text":"What
+        is 5+5 ?"}]},{"role":"user","content":[{"type":"text","text":"What is 5+7
+        ?"}]}],"model":"deepseek-v4-flash-0731","stream":false}'
+    headers:
+      User-Agent:
+      - llm.rb v14.0.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer TOKEN
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Vary:
+      - Origin,Access-Control-Request-Method,Access-Control-Request-Headers, Accept-Encoding
+      X-Request-Id:
+      - ff9b5deb-ea63-994a-9e00-9023868c0846
+      X-Dashscope-Call-Gateway:
+      - 'true'
+      X-Dashscope-Finished:
+      - 'true'
+      X-Dashscope-Timeout:
+      - '3600'
+      Content-Type:
+      - application/json
+      Req-Cost-Time:
+      - '1462'
+      Req-Arrive-Time:
+      - '1786357102399'
+      Resp-Start-Time:
+      - '1786357103862'
+      X-Envoy-Upstream-Service-Time:
+      - '1461'
+      Set-Cookie:
+      - acw_tc=ff9b5deb-ea63-994a-9e00-9023868c08461fb17a99e32337e067c4e87aca7481d1;path=/;HttpOnly;Max-Age=1800
+      Date:
+      - Mon, 10 Aug 2026 10:18:23 GMT
+      Server:
+      - istio-envoy
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"choices":[{"message":{"content":"5\n10\n12","reasoning_content":"1.  The
+        user asks for three answers, one per line, each a number.\n2.  3+2 = 5\n3.  5+5
+        = 10\n4.  5+7 = 12\n5.  Output should be exactly three lines with numbers.","role":"assistant"},"finish_reason":"stop","index":0,"logprobs":null}],"object":"chat.completion","usage":{"prompt_tokens":62,"completion_tokens":67,"total_tokens":129,"completion_tokens_details":{"reasoning_tokens":60},"prompt_tokens_details":{"cached_tokens":0}},"created":1786357104,"system_fingerprint":null,"model":"deepseek-v4-flash-0731","id":"chatcmpl-ff9b5deb-ea63-994a-9e00-9023868c0846"}'
+  recorded_at: Mon, 10 Aug 2026 10:18:21 GMT
+recorded_with: VCR 6.4.0

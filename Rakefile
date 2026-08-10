@@ -66,7 +66,7 @@ namespace :'models.dev' do
     case res
     when Net::HTTPOK
       models = JSON.parse(res.body)
-      providers = %w[openai google anthropic xai zai deepseek deepinfra mistral].to_h { [_1, _1] }
+      providers = %w[openai google anthropic xai zai deepseek deepinfra mistral alibaba].to_h { [_1, _1] }
       providers["bedrock"] = "amazon-bedrock"
       providers["moonshot"] = "moonshotai"
       providers.each do |target, source|

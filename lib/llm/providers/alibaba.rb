@@ -1,0 +1,77 @@
+# frozen_string_literal: true
+
+require_relative "openai" unless defined?(LLM::OpenAI)
+
+module LLM
+  ##
+  # The Alibaba class implements a provider for
+  # [Alibaba Cloud Model Studio](https://www.alibabacloud.com/help/en/model-studio/models)
+  # through its OpenAI-compatible API, including the Qwen3
+  # family of models.
+  #
+  # @example
+  #   #!/usr/bin/env ruby
+  #   require "llm"
+  #
+  #   llm = LLM.alibaba(key: ENV["ALIBABA_API_KEY"])
+  #   ctx = LLM::Context.new(llm)
+  #   ctx.talk "Hello"
+  class Alibaba < OpenAI
+    HOST = "dashscope-intl.aliyuncs.com"
+    BASE_PATH = "/compatible-mode/v1"
+
+    ##
+    # @param key (see LLM::Provider#initialize)
+    # @param host (see LLM::Provider#initialize)
+    # @param base_path (see LLM::Provider#initialize)
+    # @return [LLM::Alibaba]
+    def initialize(host: HOST, base_path: BASE_PATH, **)
+      super
+    end
+
+    ##
+    # @return [Symbol]
+    #  Returns the provider's name
+    def name
+      :alibaba
+    end
+
+    ##
+    # @raise [NotImplementedError]
+    def images
+      raise NotImplementedError
+    end
+
+    ##
+    # @raise [NotImplementedError]
+    def audio
+      raise NotImplementedError
+    end
+
+    ##
+    # @raise [NotImplementedError]
+    def moderations
+      raise NotImplementedError
+    end
+
+    ##
+    # @raise [NotImplementedError]
+    def responses
+      raise NotImplementedError
+    end
+
+    ##
+    # @raise [NotImplementedError]
+    def vector_stores
+      raise NotImplementedError
+    end
+
+    ##
+    # Returns the default model for chat completions
+    # @see https://www.alibabacloud.com/help/en/model-studio/models Qwen models
+    # @return [String]
+    def default_model
+      "deepseek-v4-flash-0731"
+    end
+  end
+end

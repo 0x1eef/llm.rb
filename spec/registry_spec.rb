@@ -80,6 +80,13 @@ RSpec.describe LLM::Registry do
     include_examples "model exists", "kimi-k2.5"
   end
 
+  context "when given alibaba" do
+    let(:provider) { :alibaba }
+
+    include_examples "model exists", "qwen3.6-flash"
+    include_examples "model exists", "qwen3-max"
+  end
+
   context "when given bedrock" do
     let(:provider) { :bedrock }
 
