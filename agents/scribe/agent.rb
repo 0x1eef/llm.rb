@@ -12,7 +12,7 @@ class Agent < LLM::Agent
       :skills       => %w[regressions.md coverage.md style.md].map { File.join(__dir__, _1) },
       :tools        => LLM::Tool.subclasses,
       :path         => File.join(__dir__, "..", "..", "contexts", "scribe.json"),
-      :tracer       => :set_tracer
+      :tracer       => proc { LLM::Tracer::PrettyLogger.new(llm, io: $stderr) }
 
   def yardoc
     talk("Run 'bundle exec yardoc' and fix all warnings")
@@ -35,10 +35,6 @@ class Agent < LLM::Agent
 
   private
 
-  def set_tracer
-    LLM::Tracer::PrettyLogger.new(llm, io: $stderr)
-  end
-
   def rm(doc)
     target = File.join(research_dir, "scribe", doc)
     File.exist?(target) ? FileUtils.rm(target) : nil
@@ -50,7 +46,7 @@ class Agent < LLM::Agent
 end
 
 def main(argv)
-  llm   = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+  llm   = LLM.alibaba(key: ENV["ALIBABA_SECRET"])
   agent = Agent.new(llm)
   if argv[0] == "repl"
     agent.repl
