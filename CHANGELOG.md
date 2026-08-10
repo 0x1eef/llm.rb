@@ -15,6 +15,26 @@
 
 ## What's next
 
+### Core
+
+* **add `retry_budget` support for rate-limited requests** <br>
+  [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+  now accepts a `retry_budget:` that automatically sleeps and retries a
+  rate-limited request up to the given number of times before raising
+  `LLM::RateLimitError`. Each retry sleeps a growing interval (2s, 4s,
+  6s, ...) and notifies the stream through
+  [`LLM::Stream#on_rate_limit`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_rate_limit-instance_method).
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+  enables a budget of 3 by default, while a raw context disables it (0)
+  unless configured.
+
+* **add `LLM::Usage.zero`** <br>
+  Add
+  [`LLM::Usage.zero`](https://r.uby.dev/api-docs/llm.rb/LLM/Usage.html#zero-class_method)
+  as a zero-valued usage object. `LLM::Context#usage`, `LLM::Agent#usage`,
+  and the ActiveRecord and Sequel wrappers now return `LLM::Usage` objects
+  instead of `LLM::Object` when no provider usage has been recorded yet.
+
 ### Provider
 
 * **add `LLM::Alibaba` for Alibaba Cloud Model Studio** <br>
@@ -31,6 +51,20 @@
   OpenAI-compatible path; image, audio, moderation, responses, and
   vector store endpoints raise `NotImplementedError`. Model metadata
   ships in `data/alibaba.json` for the registry.
+
+* **alibaba: support structured outputs via `json_object`** <br>
+  [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
+  now supports structured output through a shared `json_object` fallback,
+  since Alibaba models do not support `json_schema` natively. The schema is
+  described in an injected system message that also satisfies the
+  "messages must contain the word json" requirement. The same shared
+  fallback now also backs DeepSeek.
+
+* **alibaba: default to the token plan host** <br>
+  The default
+  [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
+  host has changed from `dashscope-intl.aliyuncs.com` to
+  `token-plan.ap-southeast-1.maas.aliyuncs.com`.
 
 ### Function
 

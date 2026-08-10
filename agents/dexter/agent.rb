@@ -29,7 +29,7 @@ class Agent < LLM::Agent
 end
 
 def main(argv)
-  llm   = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+  llm   = LLM.alibaba(key: ENV["ALIBABA_SECRET"])
   agent = Agent.new(llm)
   case argv[0]
   when "repl"
