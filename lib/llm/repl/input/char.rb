@@ -13,8 +13,8 @@ class LLM::Repl::Input
 
     ##
     # Returns true when both strings returned
-    # by the #{to_s} method are considered equal
-    # by {String#==}.
+    # by the #to_s method are considered equal
+    # by String#==.
     # @param [#to_s] other
     # @return [Boolean]
     def ==(other)
