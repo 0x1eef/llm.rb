@@ -15,7 +15,20 @@
 
 ## What's next
 
-*No unreleased changes yet. Check back after the next release.*
+### Function
+
+* **make `Sequential::Group` abide by the `LLM::Function::Group` contract** <br>
+  [`LLM::Function::Sequential::Group`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Sequential/Group.html)
+  now receives an array of
+  [`LLM::Function::Sequential::Task`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Sequential/Task.html)
+  objects instead of raw `LLM::Function` objects, matching the interface
+  shared by every other concurrency strategy.
+  [`LLM::Function::Array#task`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Array.html#task-instance_method)
+  wraps each function as a `Sequential::Task` before constructing the
+  group, and the group delegates `spawn`, `alive?`, and `wait` to those
+  tasks. This fixes `Sequential::Group#alive?`, which always returned
+  `false`, and restores guard handling for sequential execution by
+  honoring the shared `guarded:` option on `Sequential::Task`.
 
 ## v14.0.0
 
