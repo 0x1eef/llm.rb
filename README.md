@@ -81,7 +81,7 @@ the agent restores conversation history from the file on startup
 and saves it back after every turn, with no manual serialization
 code. For database-backed persistence, ActiveRecord and Sequel
 integrations are also available (see the
-[database deepdive](https://r.uby.dev/llm/deepdive/advanced/database)
+[database deepdive](https://r.uby.dev/llm/deepdive/fundamentals/database)
 for details). All persistence options use the same underlying
 serialization.
 
@@ -229,7 +229,7 @@ DeepSeek:
 ```ruby
 class Weather < LLM::Schema
   property :city, String, "The city name"
-  property :temperature, Float, "Current temperature"
+  property :temperature, Number, "Current temperature"
   property :conditions, String, "Weather conditions"
   required %i[city temperature conditions]
 end

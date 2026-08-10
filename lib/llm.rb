@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 ##
-# llm.rb is a zero-dependency AI runtime for Ruby. Twelve providers, six
+# llm.rb is a zero-dependency AI runtime for Ruby. Thirteen providers, six
 # concurrency strategies, MCP and A2A, streaming tool calls with
 # cancellation, context compaction, and ORM persistence.
 #

@@ -591,7 +591,7 @@ reliable across all six concurrency backends. The `functions` and
 | `Compactor.new(model:, token_threshold:)` | `Compactor::Truncate.new(ctx)` |
 | `on_compaction(ctx, compactor)` | `on_compaction(compactor)` |
 | `ctx.functions` / `ctx.functions?` | `ctx.pending_functions` / `ctx.pending_functions?` |
-| `agent.functions` / `agent.functions?` | `agent.pending_functions` / `agent.pending_functions?` |
+| `agent.functions` / `agent.functions?` | `agent.pending_functions` |
 
 ### Breaking
 

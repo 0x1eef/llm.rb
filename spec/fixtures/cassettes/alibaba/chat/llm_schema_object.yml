@@ -33,30 +33,28 @@ http_interactions:
       Grpc-Accept-Encoding:
       - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1224'
+      - '1022'
       Date:
-      - Mon, 10 Aug 2026 11:53:50 GMT
+      - Mon, 10 Aug 2026 15:33:08 GMT
       Server:
       - istio-envoy
       X-Request-Id:
-      - cad2ebdd-1e85-49b2-9898-7b383af15cd2
+      - 00e9e6fd-4184-4c9e-93b9-c414dbd76537
       Req-Cost-Time:
-      - '1225'
+      - '1023'
       Req-Arrive-Time:
-      - '1786362829188'
+      - '1786375988012'
       Resp-Start-Time:
-      - '1786362830414'
+      - '1786375989035'
       Vary:
       - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"id":"chatcmpl-cad2ebdd-1e85-49b2-9898-7b383af15cd2","object":"chat.completion","created":1786362829,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"We
-        are asked to return probability 1 for true and 0 for false. The statement
-        \"Does the earth orbit the sun?\" is a true statement. So probability should
-        be 1. The output must follow the schema: an object with property \"probability\"
-        as integer. So we output {\"probability\": 1}.","content":"{\"probability\":
-        1}"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":81,"total_tokens":153,"completion_tokens":72,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":64}}}'
-  recorded_at: Mon, 10 Aug 2026 11:53:48 GMT
+      string: '{"id":"chatcmpl-00e9e6fd-4184-4c9e-93b9-c414dbd76537","object":"chat.completion","created":1786375988,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"We
+        need to answer with probability 1 for true, 0 for false. The statement \"Does
+        the earth orbit the sun?\" is true. So probability 1. Output should be JSON
+        according to schema.","content":"{\"probability\": 1}"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":81,"total_tokens":131,"completion_tokens":50,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":42}}}'
+  recorded_at: Mon, 10 Aug 2026 15:33:06 GMT
 recorded_with: VCR 6.4.0

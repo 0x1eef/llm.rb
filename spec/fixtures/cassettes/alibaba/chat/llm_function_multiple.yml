@@ -35,33 +35,33 @@ http_interactions:
       Grpc-Accept-Encoding:
       - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1413'
+      - '1765'
       Date:
-      - Mon, 10 Aug 2026 11:53:45 GMT
+      - Mon, 10 Aug 2026 15:33:04 GMT
       Server:
       - istio-envoy
       X-Request-Id:
-      - e93d2125-f822-4737-8b67-e31b094bdf17
+      - f4ea46fb-1ce8-4a2a-a626-4884ec4dcb5f
       Req-Cost-Time:
-      - '1414'
+      - '1765'
       Req-Arrive-Time:
-      - '1786362824262'
+      - '1786375982815'
       Resp-Start-Time:
-      - '1786362825676'
+      - '1786375984580'
       Vary:
       - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"id":"chatcmpl-e93d2125-f822-4737-8b67-e31b094bdf17","object":"chat.completion","created":1786362824,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"The
+      string: '{"id":"chatcmpl-f4ea46fb-1ce8-4a2a-a626-4884ec4dcb5f","object":"chat.completion","created":1786375982,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"The
         user wants me to run three commands: date, pwd, whoami. These are independent,
         so I can run them in parallel.","content":"I''ll run all three commands for
-        you.\n\n","tool_calls":[{"id":"call_a920c67ef815411cb6036658","type":"function","function":{"name":"system","arguments":"{\"command\":
-        \"date\"}"},"index":0},{"id":"call_8e2c87419f9c4465bc0dfd28","type":"function","function":{"name":"system","arguments":"{\"command\":
-        \"pwd\"}"},"index":1},{"id":"call_441522314fed42049c89f3c9","type":"function","function":{"name":"system","arguments":"{\"command\":
+        you.\n\n","tool_calls":[{"id":"call_b112839da068485ca44d9f7a","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"date\"}"},"index":0},{"id":"call_d05facae83574a4cb8e6d1b0","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"pwd\"}"},"index":1},{"id":"call_634bc90da3ad49ce9a15e314","type":"function","function":{"name":"system","arguments":"{\"command\":
         \"whoami\"}"},"index":2}]},"finish_reason":"tool_calls","logprobs":null}],"usage":{"prompt_tokens":303,"total_tokens":444,"completion_tokens":141,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":29}}}'
-  recorded_at: Mon, 10 Aug 2026 11:53:43 GMT
+  recorded_at: Mon, 10 Aug 2026 15:33:02 GMT
 - request:
     method: post
     uri: https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions
@@ -70,11 +70,11 @@ http_interactions:
       string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
         a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"text","text":"Can
         you run the date command ? Can you run the pwd command ? Can you run the whoami
-        command ?"}]},{"role":"assistant","content":null,"tool_calls":[{"id":"call_a920c67ef815411cb6036658","type":"function","function":{"name":"system","arguments":"{\"command\":
-        \"date\"}"},"index":0},{"id":"call_8e2c87419f9c4465bc0dfd28","type":"function","function":{"name":"system","arguments":"{\"command\":
-        \"pwd\"}"},"index":1},{"id":"call_441522314fed42049c89f3c9","type":"function","function":{"name":"system","arguments":"{\"command\":
-        \"whoami\"}"},"index":2}]},{"role":"tool","tool_call_id":"call_a920c67ef815411cb6036658","content":"{\"stderr\":\"\",\"stdout\":\"Mon
-        Aug 10 11:53:43 UTC 2026\\n\"}"},{"role":"tool","tool_call_id":"call_8e2c87419f9c4465bc0dfd28","content":"{\"stderr\":\"\",\"stdout\":\"/home/robert/projects/llm.rb/\\n\"}"},{"role":"tool","tool_call_id":"call_441522314fed42049c89f3c9","content":"{\"stderr\":\"\",\"stdout\":\"robert\\n\"}"}],"model":"deepseek-v4-flash-0731","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
+        command ?"}]},{"role":"assistant","content":null,"tool_calls":[{"id":"call_b112839da068485ca44d9f7a","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"date\"}"},"index":0},{"id":"call_d05facae83574a4cb8e6d1b0","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"pwd\"}"},"index":1},{"id":"call_634bc90da3ad49ce9a15e314","type":"function","function":{"name":"system","arguments":"{\"command\":
+        \"whoami\"}"},"index":2}]},{"role":"tool","tool_call_id":"call_b112839da068485ca44d9f7a","content":"{\"stderr\":\"\",\"stdout\":\"Mon
+        Aug 10 15:33:02 UTC 2026\\n\"}"},{"role":"tool","tool_call_id":"call_d05facae83574a4cb8e6d1b0","content":"{\"stderr\":\"\",\"stdout\":\"/home/robert/projects/llm.rb/\\n\"}"},{"role":"tool","tool_call_id":"call_634bc90da3ad49ce9a15e314","content":"{\"stderr\":\"\",\"stdout\":\"robert\\n\"}"}],"model":"deepseek-v4-flash-0731","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Run
         a shell command","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}],"stream":false}'
     headers:
       User-Agent:
@@ -101,26 +101,28 @@ http_interactions:
       Grpc-Accept-Encoding:
       - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1302'
+      - '1255'
       Date:
-      - Mon, 10 Aug 2026 11:53:47 GMT
+      - Mon, 10 Aug 2026 15:33:06 GMT
       Server:
       - istio-envoy
       X-Request-Id:
-      - 5aa9b0e7-c66e-402c-b2f1-463fc6b0db9d
+      - 9b868097-aef8-4334-92ca-fe1b866999ca
       Req-Cost-Time:
-      - '1303'
+      - '1255'
       Req-Arrive-Time:
-      - '1786362826759'
+      - '1786375985692'
       Resp-Start-Time:
-      - '1786362828063'
+      - '1786375986948'
       Vary:
       - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: !binary |-
-        eyJpZCI6ImNoYXRjbXBsLTVhYTliMGU3LWM2NmUtNDAyYy1iMmYxLTQ2M2ZjNmIwZGI5ZCIsIm9iamVjdCI6ImNoYXQuY29tcGxldGlvbiIsImNyZWF0ZWQiOjE3ODYzNjI4MjYsIm1vZGVsIjoiZGVlcHNlZWstdjQtZmxhc2gtMDczMSIsImNob2ljZXMiOlt7ImluZGV4IjowLCJtZXNzYWdlIjp7InJvbGUiOiJhc3Npc3RhbnQiLCJyZWFzb25pbmdfY29udGVudCI6IiIsImNvbnRlbnQiOiJZZXMsIEkgcmFuIGFsbCB0aHJlZSBjb21tYW5kcyBzdWNjZXNzZnVsbHk6XG5cbjEuICoqYGRhdGVgKiog4oaSIGBNb24gQXVnIDEwIDExOjUzOjQzIFVUQyAyMDI2YFxuMi4gKipgcHdkYCoqIOKGkiBgL2hvbWUvcm9iZXJ0L3Byb2plY3RzL2xsbS5yYi9gXG4zLiAqKmB3aG9hbWlgKiog4oaSIGByb2JlcnRgXG5cblNvIHRoZSBjdXJyZW50IGRhdGUgaXMgQXVndXN0IDEwLCAyMDI2LCB3ZSdyZSBpbiB0aGUgYGxsbS5yYmAgcHJvamVjdCBkaXJlY3RvcnkgdW5kZXIgYC9ob21lL3JvYmVydC9wcm9qZWN0cy9gLCBhbmQgdGhlIGN1cnJlbnQgdXNlciBpcyBgcm9iZXJ0YC4ifSwiZmluaXNoX3JlYXNvbiI6InN0b3AiLCJsb2dwcm9icyI6bnVsbH1dLCJ1c2FnZSI6eyJwcm9tcHRfdG9rZW5zIjo0OTIsInRvdGFsX3Rva2VucyI6NjA1LCJjb21wbGV0aW9uX3Rva2VucyI6MTEzLCJwcm9tcHRfdG9rZW5zX2RldGFpbHMiOnsiY2FjaGVkX3Rva2VucyI6MH0sImNvbXBsZXRpb25fdG9rZW5zX2RldGFpbHMiOnsicmVhc29uaW5nX3Rva2VucyI6MH19fQ==
-  recorded_at: Mon, 10 Aug 2026 11:53:45 GMT
+      string: '{"id":"chatcmpl-9b868097-aef8-4334-92ca-fe1b866999ca","object":"chat.completion","created":1786375985,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"","content":"Yes,
+        I can run those commands. Here are the results:\n\n- **`date`**: `Mon Aug
+        10 15:33:02 UTC 2026`\n- **`pwd`**: `/home/robert/projects/llm.rb/`\n- **`whoami`**:
+        `robert`\n\nLet me know if you''d like me to run any other commands!"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":492,"total_tokens":574,"completion_tokens":82,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":0}}}'
+  recorded_at: Mon, 10 Aug 2026 15:33:04 GMT
 recorded_with: VCR 6.4.0

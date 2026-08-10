@@ -34,29 +34,28 @@ http_interactions:
       Grpc-Accept-Encoding:
       - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1173'
+      - '985'
       Date:
-      - Mon, 10 Aug 2026 11:53:54 GMT
+      - Mon, 10 Aug 2026 15:33:13 GMT
       Server:
       - istio-envoy
       X-Request-Id:
-      - 10f2920c-027e-4657-92ff-8ee473aa6fd0
+      - 9f533404-7ad7-4bff-a223-4faf267dd53c
       Req-Cost-Time:
-      - '1173'
+      - '985'
       Req-Arrive-Time:
-      - '1786362833993'
+      - '1786375992564'
       Resp-Start-Time:
-      - '1786362835167'
+      - '1786375993550'
       Vary:
       - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"id":"chatcmpl-10f2920c-027e-4657-92ff-8ee473aa6fd0","object":"chat.completion","created":1786362834,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"We
-        need to output a JSON matching the schema. The schema has an object with property
-        \"answers\" which is an array of integers. The user asks to return the numbers
-        10 and 12 in the same order. So we output {\"answers\": [10, 12]}. Ensure
-        it''s valid JSON.","content":"{\"answers\": [10, 12]}"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":89,"total_tokens":163,"completion_tokens":74,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":63}}}'
-  recorded_at: Mon, 10 Aug 2026 11:53:53 GMT
+      string: '{"id":"chatcmpl-9f533404-7ad7-4bff-a223-4faf267dd53c","object":"chat.completion","created":1786375992,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"We
+        need to return the numbers 10 and 12 in that order. The schema expects an
+        object with an \"answers\" array of integers. So I''ll output {\"answers\":
+        [10, 12]}.","content":"{\"answers\": [10, 12]}"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":89,"total_tokens":143,"completion_tokens":54,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":43}}}'
+  recorded_at: Mon, 10 Aug 2026 15:33:11 GMT
 recorded_with: VCR 6.4.0

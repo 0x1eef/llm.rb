@@ -36,27 +36,27 @@ http_interactions:
       Grpc-Accept-Encoding:
       - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1182'
+      - '1105'
       Date:
-      - Mon, 10 Aug 2026 11:53:24 GMT
+      - Mon, 10 Aug 2026 15:32:42 GMT
       Server:
       - istio-envoy
       X-Request-Id:
-      - 28c75b54-b66c-4294-b34e-d264a2ee433f
+      - 42f2e64b-a279-46b0-833c-b8200ef35b0a
       Req-Cost-Time:
-      - '1182'
+      - '1105'
       Req-Arrive-Time:
-      - '1786362803790'
+      - '1786375962382'
       Resp-Start-Time:
-      - '1786362804973'
+      - '1786375963487'
       Vary:
       - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"id":"chatcmpl-28c75b54-b66c-4294-b34e-d264a2ee433f","object":"chat.completion","created":1786362803,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"1.  The
-        user asks for three answers, one per line, each being a number.\n2.  Questions:
-        3+2=5, 5+5=10, 5+7=12.\n3.  Output format: one answer per line, nothing else.","content":"5\n10\n12"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":62,"total_tokens":128,"completion_tokens":66,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":59}}}'
-  recorded_at: Mon, 10 Aug 2026 11:53:22 GMT
+      string: '{"id":"chatcmpl-42f2e64b-a279-46b0-833c-b8200ef35b0a","object":"chat.completion","created":1786375962,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"1.  The
+        user asks for three answers, one per line, each a number, short and concise.\n2.  Questions:
+        3+2=5, 5+5=10, 5+7=12.\n3.  Output format: one number per line, nothing else.","content":"5\n10\n12"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":62,"total_tokens":131,"completion_tokens":69,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":62}}}'
+  recorded_at: Mon, 10 Aug 2026 15:32:40 GMT
 recorded_with: VCR 6.4.0

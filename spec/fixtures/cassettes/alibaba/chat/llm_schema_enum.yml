@@ -34,30 +34,30 @@ http_interactions:
       Grpc-Accept-Encoding:
       - gzip
       X-Envoy-Upstream-Service-Time:
-      - '1366'
+      - '1281'
       Date:
-      - Mon, 10 Aug 2026 11:53:52 GMT
+      - Mon, 10 Aug 2026 15:33:11 GMT
       Server:
       - istio-envoy
       X-Request-Id:
-      - 7c2ae189-8184-458f-beb9-d229b2736e29
+      - 01423f94-ee49-4ff7-8649-f59a928eff1d
       Req-Cost-Time:
-      - '1366'
+      - '1281'
       Req-Arrive-Time:
-      - '1786362831543'
+      - '1786375990196'
       Resp-Start-Time:
-      - '1786362832910'
+      - '1786375991477'
       Vary:
       - Accept-Encoding
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"id":"chatcmpl-7c2ae189-8184-458f-beb9-d229b2736e29","object":"chat.completion","created":1786362831,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"We
-        are asked: \"Your favorite fruit is pineapple\" and then \"What fruit is your
-        favorite?\" So we need to output the favorite fruit, which is pineapple. According
-        to the schema, we must output an object with a \"fruit\" property that is
-        one of the enum values. Pineapple is in the enum. So output: {\"fruit\": \"pineapple\"}","content":"{\"fruit\":
-        \"pineapple\"}"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":88,"total_tokens":171,"completion_tokens":83,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":74}}}'
-  recorded_at: Mon, 10 Aug 2026 11:53:50 GMT
+      string: '{"id":"chatcmpl-01423f94-ee49-4ff7-8649-f59a928eff1d","object":"chat.completion","created":1786375990,"model":"deepseek-v4-flash-0731","choices":[{"index":0,"message":{"role":"assistant","reasoning_content":"We
+        need to answer the user''s question based on the given schema. The user says
+        \"Your favorite fruit is pineapple\" and then asks \"What fruit is your favorite?\"
+        So we should respond with the fruit. The schema expects an object with a \"fruit\"
+        property that is one of the enum values. The user stated pineapple, which
+        is in the enum. So we output the JSON object.","content":"{\"fruit\": \"pineapple\"}"},"finish_reason":"stop","logprobs":null}],"usage":{"prompt_tokens":88,"total_tokens":176,"completion_tokens":88,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":79}}}'
+  recorded_at: Mon, 10 Aug 2026 15:33:08 GMT
 recorded_with: VCR 6.4.0
