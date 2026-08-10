@@ -43,7 +43,8 @@ class LLM::Tool
     end
 
     def spawn(patterns:, path:)
-      Command.new("rg")
+      Command
+        .new("rg")
         .argv(*[*patterns].flat_map { ["-e", _1] }, path)
         .spawn
     end
