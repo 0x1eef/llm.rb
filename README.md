@@ -41,7 +41,12 @@ Every provider is constructed with a class-level factory method on
 or
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
 OpenAI-compatible providers accept the same `key:`, `host:`, and
-`base_path:` options, so switching models is a one-line change:
+`base_path:` options, so switching models is a one-line change.
+
+The same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
+Bedrock, Ollama, and llama.cpp. See the
+[deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
+for a full provider reference:
 
 ```ruby
 llm = LLM.openai(key: ENV["OPENAI_API_KEY"])
@@ -51,11 +56,6 @@ llm = LLM.alibaba(key: ENV["ALIBABA_API_KEY"])   # also: LLM.aliyun
 llm = LLM.moonshot(key: ENV["MOONSHOT_API_KEY"])
 llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
 ```
-
-The same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
-Bedrock, Ollama, and llama.cpp. See the
-[deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
-for a full provider reference.
 
 #### LLM::Agent
 
