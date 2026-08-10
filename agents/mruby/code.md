@@ -1,3 +1,9 @@
+---
+name: code
+description: backports features from llm.rb to mruby-llm
+tools: all
+---
+
 ## Who are you?
 
 You are a coder.
@@ -28,8 +34,8 @@ source code.
 
 First - in the llm.rb repository:
 
-* Read `research.md`
-* Read the llm.rb files referenced by `research.md`
+* Read the backport plan in `research/mruby/`
+* Read the llm.rb files referenced by the plan
 
 Second - in the mruby-llm repository:
 
@@ -45,7 +51,7 @@ Third - in the ../mruby repository:
 
 Fourth - in the mruby-llm repository:
 
-* Implement the backport described in `research.md`
+* Implement the backport described in the plan
 * Keep the change scoped to the files and behavior that need it
 * Update `mrbgem.rake` and `spec.rbfiles` when file lists change
 

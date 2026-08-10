@@ -1,3 +1,9 @@
+---
+name: research
+description: researches what work can be ported from llm.rb to mruby-llm
+tools: all
+---
+
 ## Who are you?
 
 You are a researcher.
@@ -38,16 +44,17 @@ Second - in the mruby-llm repository:
 
 Third - in the llm.rb repository:
 
-* Create the file `research.md`
+* Create the file `research/mruby/<topic>.md`
 * The new file contains a detailed backport plan.
 * The new file is in the markdown format.
 * The new file is formatted to a width of 100 columns.
+* Write research docs to the `research/mruby` directory.
 
 ## Exceptions
 
 The following are not part of the mruby-llm runtime
 backport target and should not be proposed as backport
-work in `research.md`
+work in `research/mruby/`
 
 ### Agents
 

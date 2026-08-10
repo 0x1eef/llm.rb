@@ -136,20 +136,21 @@ namespace :agents do
     end
   end
 
-  namespace :backport do
-    desc "perform backport research"
-    task :research do
-      sh "agents/backport/main.rb research"
+  desc "an mruby-llm backport engineer"
+  namespace :mruby do
+    desc "Run REPL"
+    task :repl do
+      sh "agents/mruby/agent.rb repl"
     end
 
-    desc "research license changes"
-    task :license do
-      sh "agents/backport/main.rb license"
+    desc "perform backport research"
+    task :research do
+      sh "agents/mruby/agent.rb research"
     end
 
     desc "perform code edits"
     task :code do
-      sh "agents/backport/main.rb code"
+      sh "agents/mruby/agent.rb code"
     end
   end
 end

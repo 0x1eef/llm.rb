@@ -818,16 +818,19 @@ rake agents:scribe:yardoc
 rake agents:scribe:coverage
 rake agents:scribe:regressions
 rake agents:scribe:style
+rake agents:scribe:repl
 
 ##
 # Maintains the release
 rake agents:dexter:changelog
 rake agents:dexter:release
+rake agents:dexter:repl
 
 ##
 # Maintains mruby-llm backports
 rake agents:mruby:research
-rake agents:mruby:implement
+rake agents:mruby:code
+rake agents:mruby:repl
 
 ##
 # Refresh the data/ registry
