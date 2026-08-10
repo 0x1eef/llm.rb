@@ -40,6 +40,20 @@ class LLM::Repl
     end
 
     ##
+    # Returns the current model in use.
+    # @return [String]
+    def model
+      Node.new @agent.model.to_s
+    end
+
+    ##
+    # Returns the current working directory.
+    # @return [String]
+    def cwd
+      Node.new Dir.pwd.sub(Dir.home, "~"), Color.cyan
+    end
+
+    ##
     # Sets the status text.
     # @param [String, LLM::Repl::Node, Array<String, LLM::Repl::Node>] value
     # @return [Array<LLM::Repl::Node>]

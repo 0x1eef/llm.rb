@@ -47,8 +47,9 @@ class LLM::Repl
     ##
     # @return [void]
     def redraw
-      draw_status(offset: input.height + 1)
-      draw_divider(offset: 5)
+      draw_status(offset: input.height + 2)
+      draw_meta(offset: input.height + 1)
+      draw_divider(offset: 6)
       draw_buffer(offset: 0)
       draw_input
       Curses.refresh
@@ -138,11 +139,7 @@ class LLM::Repl
     def draw_status(offset:)
       Curses.setpos(Curses.lines - offset, 0)
       Curses.clrtoeol
-      status.nodes.each do |node|
-        Curses.attron(node.attrs) if node.attrs
-        Curses.addstr(node.text)
-        Curses.attroff(node.attrs) if node.attrs
-      end
+      status.nodes.each { addnode(_1) }
       context = status.context_bar
       Curses.setpos(Curses.lines - offset, [(columns - context.length) / 2, 0].max)
       Curses.addstr(context)
@@ -151,12 +148,30 @@ class LLM::Repl
       Curses.addstr(cost)
     end
 
+    ##
+    # Draws the meta row (model left, cwd right) above the status row.
+    # @param [Integer] offset
+    # @return [void]
+    def draw_meta(offset:)
+      Curses.setpos(Curses.lines - offset, 0)
+      Curses.clrtoeol
+      addnode(status.model, status.model.text[0, columns])
+      Curses.setpos(Curses.lines - offset, [columns - status.cwd.size, 0].max)
+      addnode(status.cwd, status.cwd.text[0, columns])
+    end
+
+    ##
+    # Draws a horiztonal line
+    # @return [void]
     def draw_divider(offset:)
       Curses.setpos(Curses.lines - offset, 0)
       Curses.clrtoeol
       Curses.addstr("─" * Curses.cols)
     end
 
+    ##
+    # Draws the input area
+    # @return [void]
     def draw_input
       rows = input.lines
       (0...input.height).each do |idx|
@@ -174,6 +189,17 @@ class LLM::Repl
     # @return [Integer]
     def gutter
       (columns * 0.2).floor
+    end
+
+    ##
+    # Adds a {LLM::Repl::Node} to the Curses window.
+    # @param [LLM::Repl::Node] node
+    # @param [String] text
+    # @return [void]
+    def addnode(node, text = node.text)
+      Curses.attron(node.attrs) if node.attrs
+      Curses.addstr(text)
+      Curses.attroff(node.attrs) if node.attrs
     end
   end
 end

@@ -24,6 +24,13 @@ class LLM::Repl
     end
 
     ##
+    # @return [Integer]
+    def size
+      @text.size
+    end
+    alias_method :length, :size
+
+    ##
     # Hash-like lookup.
     # @param [Symbol] key
     # @return [String, Integer, nil]

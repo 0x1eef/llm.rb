@@ -42,4 +42,16 @@ RSpec.describe LLM::Repl::Status do
       end
     end
   end
+
+  describe "#model" do
+    it "returns the agent's current model" do
+      expect(status.model).to eq(agent.model.to_s)
+    end
+  end
+
+  describe "#cwd" do
+    it "returns the repl's working directory" do
+      expect(status.cwd).to eq(repl.cwd)
+    end
+  end
 end
