@@ -184,6 +184,14 @@ module LLM
       nil
     end
 
+    ##
+    # Called when a request is rate limited and will be retried.
+    # @param [LLM::RateLimitError] error
+    # @return [nil]
+    def on_rate_limit(error)
+      nil
+    end
+
     # @endgroup
 
     # @group Finders

@@ -55,6 +55,22 @@ module LLM
     private_constant :UNDEFINED
 
     ##
+    # Ugh :)
+    # @api private
+    FIELDS = %i[name description
+                path tool_budget
+                retry_budget model
+                skills schema
+                tracer stream
+                tools concurrency
+                instructions confirm]
+    IVARS  =  %i[name description
+                 path tool_budget
+                 tracer concurrency
+                 instructions confirm]
+    private_constant :FIELDS, :IVARS
+
+    ##
     # @api private
     CASE_PATTERN = /(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/
     private_constant :CASE_PATTERN
@@ -336,6 +352,25 @@ module LLM
     end
 
     ##
+    # Sets or returns the retry budget for the agent.
+    #
+    # The retry budget is the maximum number of times a rate-limited
+    # request will be retried before giving up. Each retry sleeps a
+    # growing interval, so an exhausted budget surfaces the rate-limit
+    # error instead of blocking indefinitely. Enabled (3) by default; a
+    # raw {LLM::Context} disables it (0) unless configured.
+    # @param [Integer] budget
+    #  The maximum number of rate-limit retries in a turn.
+    # @return [Integer, nil]
+    def self.retry_budget(budget = UNDEFINED)
+      if budget.equal?(UNDEFINED)
+        @retry_budget.nil? ? 3 : @retry_budget
+      else
+        @retry_budget = budget
+      end
+    end
+
+    ##
     # @param [LLM::Provider] llm
     #  A provider
     # @param [Hash] params
@@ -352,8 +387,7 @@ module LLM
     def initialize(llm, params = {})
       params = {}.merge!(params)
       @llm = llm
-      fields = %i[name description path tool_budget model skills schema tracer stream tools concurrency instructions confirm]
-      fields_ivar = %i[name description path tool_budget tracer concurrency instructions confirm]
+      fields, fields_ivar = FIELDS, IVARS
       fields.each do |field|
         resolvable = params.key?(field) ? params.delete(field) : self.class.public_send(field)
         resolve_symbol = !%i[concurrency].include?(field)

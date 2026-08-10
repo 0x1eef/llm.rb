@@ -954,4 +954,76 @@ RSpec.describe LLM::Context do
       end
     end
   end
+
+  context "rate limit retry" do
+    let(:provider) { LLM.deepseek(key: "test") }
+    let(:ctx) { described_class.new(provider) }
+    let(:stream) do
+      Class.new(LLM::Stream) do
+        attr_reader :limits
+
+        def on_rate_limit(error)
+          (@limits ||= []) << error
+        end
+      end.new
+    end
+    let(:response) { response!(choices: [LLM::Message.new("assistant", "pong")]) }
+
+    before { allow(ctx).to receive(:sleep) }
+
+    describe "retry budget" do
+      subject(:budget) { described_class.new(provider, retry_budget:).retry_budget }
+
+      context "by default" do
+        let(:retry_budget) { nil }
+
+        it { is_expected.to eq(0) }
+      end
+
+      context "when configured" do
+        let(:retry_budget) { 5 }
+
+        it { is_expected.to eq(5) }
+      end
+    end
+
+    context "when a request is rate limited then succeeds" do
+      let(:ctx) { described_class.new(provider, retry_budget: 3, stream:) }
+      let(:failures) { 2 }
+
+      before do
+        calls = 0
+        allow(provider).to receive(:complete) do
+          calls += 1
+          calls <= failures ? raise(LLM::RateLimitError.new("too many")) : response
+        end
+      end
+
+      before { ctx.talk("ping") }
+
+      it "retries and succeeds" do
+        expect(ctx.messages.find(&:assistant?).content).to eq("pong")
+      end
+
+      it "notifies the stream once per rate limit" do
+        expect(stream.limits.size).to eq(failures)
+      end
+
+      it "notifies the stream with rate limit errors" do
+        expect(stream.limits).to all(be_a(LLM::RateLimitError))
+      end
+    end
+
+    context "when the budget is exhausted" do
+      let(:ctx) { described_class.new(provider, retry_budget: 2) }
+
+      before do
+        allow(provider).to receive(:complete).and_raise(LLM::RateLimitError.new("too many"))
+      end
+
+      it "re-raises the rate limit error" do
+        expect { ctx.talk("ping") }.to raise_error(LLM::RateLimitError)
+      end
+    end
+  end
 end

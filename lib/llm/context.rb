@@ -105,6 +105,14 @@ module LLM
         klass: params.delete(:guard) || LLM::Guard::Null,
         options: params.delete(:guard_options) || {}
       }
+      @retry_budget = params.delete(:retry_budget) || 0
+    end
+
+    ##
+    # Returns the retry budget for rate-limited requests.
+    # @return [Integer]
+    def retry_budget
+      @retry_budget
     end
 
     ##
@@ -176,7 +184,7 @@ module LLM
       @owner = @llm.request_owner
       @compactor[:klass].new(self).call(**@compactor[:options])
       repair!(@messages, prompt)
-      prompt, params, res = mode == :responses ? respond(prompt, params) : complete(prompt, params)
+      prompt, params, res = try { mode == :responses ? respond(prompt, params) : complete(prompt, params) }
       self.compacted = false
       if prompt.all?(&:tool_return?)
         @messages.concat prompt.map { LLM::Message.new(@llm.tool_role, _1.content, _1.extra) }
@@ -512,6 +520,26 @@ module LLM
     end
 
     ##
+    ##
+    # Runs a network call, retrying it on {LLM::RateLimitError} up to the
+    # retry budget. Each retry notifies the stream and sleeps a growing
+    # interval (2s, 4s, 6s, ...) rather than the server's `retry_after`.
+    # A 429 is refused before any content streams, so retrying the same
+    # request loses nothing. The bare `retry` below re-runs the method
+    # body while `attempts ||= 0` keeps the count across attempts.
+    # @api private
+    # @return [Object]
+    def try
+      attempts ||= 0
+      yield
+    rescue LLM::RateLimitError => error
+      raise if attempts >= retry_budget
+      attempts += 1
+      stream.on_rate_limit(error)
+      sleep 2.0 * attempts
+      retry
+    end
+
     # Executes a turn through the Responses API.
     # @api private
     def respond(prompt, params)

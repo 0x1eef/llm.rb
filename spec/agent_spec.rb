@@ -133,6 +133,17 @@ RSpec.describe LLM::Agent do
         expect(klass.new(provider).concurrency).to eq(:thread)
       end
 
+      it "passes the retry budget to the context" do
+        klass = Class.new(described_class) do
+          retry_budget 5
+        end
+        expect(wrapped_context(klass.new(provider)).retry_budget).to eq(5)
+      end
+
+      it "enables retries by default on an agent" do
+        expect(wrapped_context(described_class.new(provider)).retry_budget).to eq(3)
+      end
+
       it "passes DSL skills to the context" do
         skill_path = self.skill_path
         klass = Class.new(described_class) do
