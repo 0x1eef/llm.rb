@@ -15,6 +15,23 @@
 
 ## What's next
 
+### Provider
+
+* **add `LLM::Alibaba` for Alibaba Cloud Model Studio** <br>
+  [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
+  is a new provider that talks to
+  [Alibaba Cloud Model Studio](https://www.alibabacloud.com/help/en/model-studio/models)
+  through its OpenAI-compatible API, including the Qwen3 family of
+  models. Create an instance with
+  [`LLM.alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM.html#alibaba-class_method),
+  also aliased as `LLM.aliyun`, which accepts the same `key:`, `host:`,
+  and `base_path:` options as the OpenAI provider. The provider defaults
+  to the `deepseek-v4-flash-0731` model and supports chat completions,
+  streaming, tool calls, and structured output through the shared
+  OpenAI-compatible path; image, audio, moderation, responses, and
+  vector store endpoints raise `NotImplementedError`. Model metadata
+  ships in `data/alibaba.json` for the registry.
+
 ### Function
 
 * **make `Sequential::Group` abide by the `LLM::Function::Group` contract** <br>
@@ -29,6 +46,29 @@
   tasks. This fixes `Sequential::Group#alive?`, which always returned
   `false`, and restores guard handling for sequential execution by
   honoring the shared `guarded:` option on `Sequential::Task`.
+
+### Fix
+
+* **openai: report usage for streamed completions requests** <br>
+  Fix a bug in the OpenAI completions path where `params[:stream]` was
+  checked after it had been deleted from the params hash, so the check
+  always evaluated to `false`. The fix checks the resolved stream's
+  `enabled?` instead, so `stream_options: {include_usage: true}` is
+  added to streamed requests and API usage is reported back to the
+  caller.
+
+* **cli: persist the session mapping file** <br>
+  Fix a bug where `bin/llm.rb` saved the session file at
+  `~/.llm.rb/<provider>/<uuid>.json` but never wrote the updated
+  working-directory mapping back to `~/.llm.rb/<provider>.json`. The
+  mapping file is now written whenever a new session is registered.
+
+### Registry
+
+* **refresh DeepInfra model metadata** <br>
+  Update `data/deepinfra.json` with current pricing for the DeepSeek
+  V4, DeepSeek-V3, DeepSeek-R1-0528, and Kimi-K3 models, and mark
+  `structured_output` support for one model.
 
 ## v14.0.0
 
