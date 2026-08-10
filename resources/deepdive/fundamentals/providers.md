@@ -60,9 +60,9 @@ or its alias `LLM.aliyun`.
 Create an Alibaba provider with an API key, then use it like any
 other provider. The factory accepts the same `key:`, `host:`, and
 `base_path:` options as the OpenAI provider, and defaults to the
-`deepseek-v4-flash-0731` model. The default `host:` is the token
-plan endpoint in Singapore,
-`token-plan.ap-southeast-1.maas.aliyuncs.com`, with `base_path`
+`deepseek-v4-flash-0731` model. The default `host:` is the
+pay-as-you-go DashScope international endpoint
+(`dashscope-intl.aliyuncs.com`) with `base_path`
 `/compatible-mode/v1`:
 
 ```ruby
@@ -75,22 +75,20 @@ ctx.talk "Hello"
 
 `LLM.aliyun` is an alias for `LLM.alibaba`, so either name works.
 
-The default host is my own token plan, so you will likely need to
-point the provider at your own endpoint. Pass `host:` to use your
-own token plan URL, or the pay-as-you-go host
-(`dashscope-intl.aliyuncs.com` for the international region):
+To use a different host, set the `ALIBABA_API_HOST` environment
+variable to override the default globally, or pass `host:` to
+override it for a single instance. For example, Alibaba's Token
+Plan endpoint:
 
 ```ruby
-# Your own token-plan endpoint
+# Global override
+ENV["ALIBABA_API_HOST"] = "token-plan.ap-southeast-1.maas.aliyuncs.com"
+llm = LLM.alibaba(key: ENV["ALIBABA_API_KEY"])
+
+# Per-instance override
 llm = LLM.alibaba(
   key: ENV["ALIBABA_API_KEY"],
   host: "token-plan.ap-southeast-1.maas.aliyuncs.com"
-)
-
-# Pay-as-you-go
-llm = LLM.alibaba(
-  key: ENV["ALIBABA_API_KEY"],
-  host: "dashscope-intl.aliyuncs.com"
 )
 ```
 
@@ -110,9 +108,9 @@ models do not support `json_schema` natively. The image, audio,
 moderation, responses, and vector store endpoints raise
 `NotImplementedError`.
 
-The default host points at a token plan in Singapore, which happens
-to be my default. Your own token plan lives at a different URL, and
-pay-as-you-go users should use the regional dashscope host instead.
-Check your Model Studio dashboard for the correct endpoint.
+The default host is the pay-as-you-go DashScope international
+endpoint. Token Plan users should point the provider at their own
+Token Plan URL via `ALIBABA_API_HOST` or `host:`. Check your
+Model Studio dashboard for the correct endpoint.
 
 Model metadata ships in `data/alibaba.json` for the registry.

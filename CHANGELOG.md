@@ -60,11 +60,13 @@
   "messages must contain the word json" requirement. The same shared
   fallback now also backs DeepSeek.
 
-* **alibaba: default to the token plan host** <br>
+* **alibaba: default to the pay-as-you-go host** <br>
   The default
   [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
-  host has changed from `dashscope-intl.aliyuncs.com` to
-  `token-plan.ap-southeast-1.maas.aliyuncs.com`.
+  host is now `dashscope-intl.aliyuncs.com`. Override it globally with
+  the `ALIBABA_API_HOST` environment variable, or per instance with
+  `LLM.alibaba(host: ...)`, for example to point at a Token Plan
+  endpoint.
 
 ### Function
 
