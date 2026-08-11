@@ -14,10 +14,10 @@ RSpec.describe LLM::Cost do
         input_audio_tokens: 300,
         output_audio_tokens: 400,
         input_image_tokens: 500,
-        cache_read_tokens: 3000,
+        cache_read_tokens: 600,
         cache_write_tokens: 500,
-        reasoning_tokens: 4000,
-        total_tokens: 10_000
+        reasoning_tokens: 400,
+        total_tokens: 3000
       )
     end
 
@@ -44,15 +44,15 @@ RSpec.describe LLM::Cost do
 
       it "builds a cost breakdown from usage" do
         expect(cost.to_h).to eq(
-          input: 0.0015,
-          output: 0.012,
+          input: 0.0006,
+          output: 0.0096,
           input_audio: 0.0009,
           output_audio: 0.0048,
           input_image: 0.00075,
-          cache_read: 0.0015,
+          cache_read: 0.0003,
           cache_write: 0.000625,
-          reasoning: 0.024,
-          total: 0.046075
+          reasoning: 0.0024,
+          total: 0.019975
         )
       end
     end
@@ -73,11 +73,11 @@ RSpec.describe LLM::Cost do
           input_tokens: 1000,
           output_tokens: 2000,
           input_audio_tokens: 0,
-          output_audio_tokens: nil,
-          input_image_tokens: nil,
+          output_audio_tokens: 0,
+          input_image_tokens: 0,
           cache_read_tokens: 0,
-          cache_write_tokens: nil,
-          reasoning_tokens: nil,
+          cache_write_tokens: 0,
+          reasoning_tokens: 0,
           total_tokens: 3000
         )
       end

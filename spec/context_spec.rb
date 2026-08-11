@@ -14,12 +14,17 @@ RSpec.describe LLM::Context do
 
     context "#cost" do
       let(:cost) { LLM::Cost.new(input_costs: 0.000728125) }
+      let(:usage) do
+        LLM::Usage.new(
+          input_tokens: 100,
+          output_tokens: 50,
+          cache_read_tokens: 25,
+          reasoning_tokens: 10
+        )
+      end
 
       before do
-        ctx.usage.input_tokens = 100
-        ctx.usage.output_tokens = 50
-        ctx.usage.cache_read_tokens = 25
-        ctx.usage.reasoning_tokens = 10
+        allow(ctx).to receive(:usage).and_return(usage)
       end
 
       it "delegates cost construction to LLM::Cost" do

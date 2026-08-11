@@ -169,8 +169,8 @@ class LLM::Repl
     end
 
     ##
-    # Draws the top chrome row (model left, cwd right) at the very top of
-    # the screen, with a blue background.
+    # Draws the top chrome row (model left, cwd right) at the very top
+    # of the screen, with a blue background.
     # @param [Integer] offset
     # @return [void]
     def draw_meta(offset:)
@@ -183,9 +183,9 @@ class LLM::Repl
     end
 
     ##
-    # Fills an entire row with the status-bar background color, then draws
-    # the given content on top (which inherits the blue background), and
-    # resets the background afterwards.
+    # Fills an entire row with the status-bar background color, then
+    # draws the given content on top (which inherits the blue
+    # background), and resets the background afterwards.
     # @param [Integer] y
     # @yield Content to draw on the row
     # @return [void]
