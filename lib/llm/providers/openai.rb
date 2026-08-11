@@ -237,7 +237,6 @@ module LLM
       [req, messages]
     end
 
-
     def extract_user_input(messages, fallback:)
       message = messages.reverse.find(&:user?) || messages.last
       value = message&.content || fallback

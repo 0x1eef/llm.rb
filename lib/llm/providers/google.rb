@@ -222,6 +222,5 @@ module LLM
       transport.set_body_stream(req, StringIO.new(body))
       req
     end
-
   end
 end

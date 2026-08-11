@@ -101,3 +101,9 @@ Style/Semicolon:
   Enabled: false
 Style/EmptyStringInsideInterpolation:
   Enabled: false
+Layout/SpaceAroundOperators:
+  Enabled: false
+Layout/HashAlignment:
+  Enabled: false
+Layout/SpaceBeforeComma:
+  Enabled: false

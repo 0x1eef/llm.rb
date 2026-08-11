@@ -107,7 +107,6 @@ class LLM::OpenAI
       define_method(m) { |*args, **kwargs, &b| @provider.send(m, *args, **kwargs, &b) }
     end
 
-
     def adapt_schema(params)
       return {} unless params && params[:schema]
       schema = params.delete(:schema)

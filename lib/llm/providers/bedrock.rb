@@ -221,7 +221,6 @@ module LLM
       [req, messages, body]
     end
 
-
     def build_converse_payload(messages, params)
       adapted = adapt(messages)
       payload = {}
