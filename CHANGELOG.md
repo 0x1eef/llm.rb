@@ -147,6 +147,12 @@
   (`KEY_RESIZE`) while reading input, clearing and redrawing the entire
   window so the layout stays aligned after the terminal is resized.
 
+* **hide the cursor until the window is ready** <br>
+  Fix a visual glitch where the curses-based REPL showed the cursor at
+  position 0,0 at startup and then jumped it to the input area once the
+  window was drawn. The cursor is now hidden until the input field has
+  been drawn and the cursor can be placed directly into it.
+
 * **collapse the cost to two decimal places** <br>
   [`LLM::Cost#to_s`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html)
   now renders the total cost with two decimal places (for example

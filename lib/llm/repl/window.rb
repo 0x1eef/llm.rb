@@ -44,8 +44,10 @@ class LLM::Repl
       Curses.noecho
       Curses.stdscr.keypad(true)
       Curses.stdscr.nodelay = true
+      hide_cursor
       yield
     ensure
+      show_cursor
       Curses.close_screen
     end
 
@@ -218,6 +220,21 @@ class LLM::Repl
       end
       line, col = input.cursor_pos
       Curses.setpos((Curses.lines - input.height) + line, col)
+      show_cursor
+    end
+
+    ##
+    # Hides the cursor.
+    # @return [void]
+    def hide_cursor
+      Curses.curs_set(0)
+    end
+
+    ##
+    # Shows the cursor.
+    # @return [void]
+    def show_cursor
+      Curses.curs_set(1)
     end
 
     ##
