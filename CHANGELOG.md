@@ -99,6 +99,28 @@
   working-directory mapping back to `~/.llm.rb/<provider>.json`. The
   mapping file is now written whenever a new session is registered.
 
+* **context: aggregate usage across all assistant messages** <br>
+  [`LLM::Context#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage-instance_method)
+  now sums token usage across every assistant message in the conversation
+  instead of returning only the first message's usage.
+  [`LLM::Cost.from`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html)
+  now subtracts reasoning tokens from the output total and cache-read
+  tokens from the input total before pricing, and prices reasoning tokens
+  with the model's reasoning rate when one is available.
+
+### Repl
+
+* **draw a top chrome row with the cwd and active model** <br>
+  The curses-based REPL now draws a white-on-blue row at the very top of
+  the screen showing the current working directory on the left and the
+  active model on the right. The row is drawn above the transcript and
+  uses a new blue status-bar color pair.
+
+* **redraw the window on resize** <br>
+  The curses-based REPL now handles the terminal resize signal
+  (`KEY_RESIZE`) while reading input, clearing and redrawing the entire
+  window so the layout stays aligned after the terminal is resized.
+
 ### Registry
 
 * **refresh DeepInfra model metadata** <br>
