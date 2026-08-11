@@ -49,6 +49,7 @@ module LLM
       @sender = "You"
       @agent = configure(agent:, path:)
       @provider = agent.llm.name
+      @model = agent.model
       @input = Input.new(self, height: 3)
       @buffer = Buffer.new(self)
       @status = Status.new(self)
@@ -143,6 +144,19 @@ module LLM
       @sender
     end
 
+    ##
+    # Returns the active model.
+    # @return [String]
+    def model
+      @model
+    end
+
+    ##
+    # Sets the active model.
+    def model=(other)
+      @model = other
+    end
+
     private
 
     ##
@@ -204,7 +218,7 @@ module LLM
         write_message(sender, markdown(text))
         @thread = Thread.new do
           @queue << [:start]
-          agent.talk(text, tools:, stream:)
+          agent.talk(text, model:, tools:, stream:)
           agent.save(path:) if save?
           @queue << [:done]
         rescue LLM::Interrupt => e

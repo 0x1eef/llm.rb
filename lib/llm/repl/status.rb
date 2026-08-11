@@ -15,6 +15,7 @@ class LLM::Repl
     # @param [LLM::Repl] repl
     # @return [LLM::Repl::Status]
     def initialize(repl)
+      @repl = repl
       @agent = repl.agent
       @provider = @agent.llm.name
       @nodes = [Node.new("idle")]
@@ -42,7 +43,7 @@ class LLM::Repl
     # Returns the current model in use.
     # @return [LLM::Repl::Node]
     def model
-      Node.new @agent.model.to_s, Curses::A_BOLD
+      Node.new @repl.model.to_s, Curses::A_BOLD
     end
 
     ##
