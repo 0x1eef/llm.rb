@@ -28,12 +28,13 @@ class LLM::Repl
     REPEATS = {}
     REPEATS.default = 0
 
-    UP        = Curses::Key::UP
-    DOWN      = Curses::Key::DOWN
-    LEFT      = Curses::Key::LEFT
-    RIGHT     = Curses::Key::RIGHT
-    PGUP      = Curses::KEY_PPAGE
-    PGDOWN    = Curses::KEY_NPAGE
+    UP         = Curses::Key::UP
+    DOWN       = Curses::Key::DOWN
+    LEFT       = Curses::Key::LEFT
+    RIGHT      = Curses::Key::RIGHT
+    PGUP       = Curses::KEY_PPAGE
+    PGDOWN     = Curses::KEY_NPAGE
+    KEY_RESIZE = Curses::KEY_RESIZE
 
     TAB       = 9
     ESC       = 27
@@ -126,10 +127,10 @@ class LLM::Repl
       elsif char == RIGHT
         move_right
         :right
-      elsif BACKSPACE == char
+      elsif char == BACKSPACE
         backspace
         :backspace
-      elsif ENTER == char
+      elsif char == ENTER
         if @paste = is_paste.()
           insert("\n")
           :char
@@ -138,6 +139,9 @@ class LLM::Repl
           @walker.cursor = @memory.size
           :submit
         end
+      elsif char == KEY_RESIZE
+        window.resize
+        :resize
       elsif char == UP
         window.scroll_up
         :up

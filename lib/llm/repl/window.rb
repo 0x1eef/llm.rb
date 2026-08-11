@@ -73,6 +73,14 @@ class LLM::Repl
     end
 
     ##
+    # Redraws the window after it has been resized.
+    # @return [void]
+    def resize
+      Curses.clear
+      redraw
+    end
+
+    ##
     # @return [Object]
     def getch
       Curses.getch
