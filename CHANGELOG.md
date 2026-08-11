@@ -147,6 +147,12 @@
   (`KEY_RESIZE`) while reading input, clearing and redrawing the entire
   window so the layout stays aligned after the terminal is resized.
 
+* **collapse the cost to two decimal places** <br>
+  [`LLM::Cost#to_s`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html)
+  now renders the total cost with two decimal places (for example
+  `$0.01`), so the REPL status bar shows a compact cost estimate instead
+  of a long run of digits.
+
 ### Registry
 
 * **refresh DeepInfra model metadata** <br>
