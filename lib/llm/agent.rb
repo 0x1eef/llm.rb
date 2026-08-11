@@ -485,9 +485,18 @@ module LLM
     end
 
     ##
-    # @return [LLM::Usage]
-    def usage
-      @ctx.usage
+    # See also: {LLM::Context#token_usage}
+    # @return (see LLM::Context#token_usage)
+    def token_usage
+      @ctx.token_usage
+    end
+    alias_method :usage, :token_usage
+
+    ##
+    # See also: {LLM::Context#context_usage}
+    # @return (see LLM::Context#context_usage)
+    def context_usage
+      @ctx.context_usage
     end
 
     ##

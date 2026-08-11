@@ -35,6 +35,32 @@
   and the ActiveRecord and Sequel wrappers now return `LLM::Usage` objects
   instead of `LLM::Object` when no provider usage has been recorded yet.
 
+* **add `LLM::Context#context_usage` and `LLM::Agent#context_usage`** <br>
+  Add
+  [`LLM::Context#context_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_usage-instance_method)
+  and
+  [`LLM::Agent#context_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#context_usage-instance_method),
+  which return the fraction of the model's context window currently used as
+  a `Rational` (for example `Rational(100, 10_000)`), or `nil` when the used
+  amount or the window size is unknown. The REPL status bar now renders this
+  fraction instead of computing the remainder from raw token counts.
+
+* **rename `#usage` to `#token_usage` across contexts, agents, and messages** <br>
+  [`LLM::Context#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage-instance_method),
+  [`LLM::Agent#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#usage-instance_method),
+  and
+  [`LLM::Message#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#usage-instance_method)
+  are now aliases of `token_usage`.
+  [`LLM::Message#token_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#token_usage-instance_method)
+  now returns a copy of `LLM::Usage` instead of `LLM::Object`, and only
+  returns a value for assistant messages.
+
+* **`LLM::Context#context_window` now returns `nil` when unknown** <br>
+  [`LLM::Context#context_window`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_window-instance_method)
+  now returns `nil` when the model's context window size is not known to the
+  runtime, instead of `0`. Callers can no longer confuse an unknown window
+  with a zero-sized one.
+
 ### Provider
 
 * **add `LLM::Alibaba` for Alibaba Cloud Model Studio** <br>

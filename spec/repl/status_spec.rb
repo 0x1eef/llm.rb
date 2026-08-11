@@ -20,6 +20,11 @@ RSpec.describe LLM::Repl::Status do
     end
 
     context "when the agent is not compacted" do
+      before do
+        ctx.messages << LLM::Message.new("user", "hi")
+        ctx.messages << LLM::Message.new("assistant", "hi", usage: LLM::Object.from(total_tokens: 100))
+      end
+
       it "renders the remaining usage" do
         expect(status.context_bar).to include("%")
       end

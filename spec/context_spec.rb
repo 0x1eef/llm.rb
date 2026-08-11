@@ -158,7 +158,7 @@ RSpec.describe LLM::Context do
 
     context "#context_window" do
       subject { ctx.context_window }
-      it { is_expected.to be_zero }
+      it { is_expected.to be_nil }
     end
   end
 

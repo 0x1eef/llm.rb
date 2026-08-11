@@ -334,12 +334,45 @@ module LLM
     ##
     # Returns token usage accumulated in this context
     # @return [LLM::Usage]
-    def usage
+    def token_usage
       @messages
         .select(&:assistant?)
-        .map(&:usage)
+        .map(&:token_usage)
         .compact
         .reduce(LLM::Usage.zero, :+)
+    end
+    alias_method :usage, :token_usage
+
+    ##
+    # @return [Rational, nil]
+    #  Returns the fraction of the context window currently used.
+    #  For example: Rational(100, 10_000), or nil when unknown
+    def context_usage
+      return nil if @messages.size < 2
+      used = @messages
+        .find(&:assistant?)
+        .token_usage
+        .total_tokens
+      total = context_window
+      total.nil? || total <= 0 ? nil : Rational(used, total)
+    rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError
+      nil
+    end
+
+    ##
+    # Returns the model's context window.
+    # The context window is the maximum amount of input and output
+    # tokens a model can consider in a single request.
+    # @note
+    #  This method returns nil when the context window size
+    #  is not known to the runtime
+    # @return [Integer, nil]
+    def context_window
+      registry
+        .limit(model:)
+        .context
+    rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError
+      nil
     end
 
     ##
@@ -462,20 +495,9 @@ module LLM
     end
 
     ##
-    # Returns the model's context window.
-    # The context window is the maximum amount of input and output
-    # tokens a model can consider in a single request.
-    # @note
-    #   This method returns 0 when the provider or
-    #   model can't be found within {LLM::Registry}.
-    # @return [Integer]
-    def context_window
-      LLM
-        .registry_for(llm)
-        .limit(model:)
-        .context
-    rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError
-      0
+    # @return [LLM::Registry]
+    def registry
+      LLM.registry_for(llm)
     end
 
     private

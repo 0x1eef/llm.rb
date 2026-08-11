@@ -17,14 +17,14 @@ class LLM::Repl
     FREE = " "
 
     ##
-    # @param [Integer, nil] used
-    #  The used context, or nil when it is unknown (eg after compaction).
-    # @param [Integer] total
+    # @param [Rational, nil] fraction
+    #  The fraction of the context window used, or nil when unknown
+    #  (eg after compaction).
     # @param [Integer] width
     # @return [LLM::Repl::Bar]
-    def initialize(used:, total:, width: 10)
+    def initialize(fraction:, width: 10)
       @width = width
-      @label, @filled = remainder(used, total)
+      @label, @filled = remainder(fraction)
     end
 
     ##
@@ -37,15 +37,13 @@ class LLM::Repl
     private
 
     ##
-    # @param [Integer, nil] used
-    # @param [Integer] total
+    # @param [Rational, nil] fraction
     # @return [[String, Integer]]
-    def remainder(used, total)
-      return ["???", width] if used.nil? || total <= 0
-      diff = total - used
-      return ["0%", 0] if diff <= 0
-      remaining = (diff.fdiv(total) * 100).round(2)
-      ["#{remaining}%", ((remaining / 100) * width).round]
+    def remainder(fraction)
+      return ["???", width] if fraction.nil?
+      remaining = (1 - fraction).to_f * 100
+      remaining = 0.0 if remaining <= 0
+      ["#{remaining.round(2)}%", ((remaining / 100) * width).round]
     end
 
     attr_reader :label, :filled, :width

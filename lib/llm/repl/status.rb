@@ -28,8 +28,7 @@ class LLM::Repl
         # After compaction the used context is unknown until the next
         # response, so the bar renders an unknown state instead of a
         # stale percentage.
-        used: @agent.compacted? ? nil : @agent.usage.total_tokens,
-        total: @agent.context_window
+        fraction: @agent.compacted? ? nil : @agent.context_usage
       ).to_s
     end
 
