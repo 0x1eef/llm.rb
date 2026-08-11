@@ -219,6 +219,17 @@ class LLM::Repl
     end
 
     ##
+    # Completes the argument being typed. The keyword
+    # arguments are the command's parameters; the non-nil
+    # keyword is the active fragment. Subclasses override
+    # this. Returns candidate completions.
+    # @param [Hash] kwargs
+    # @return [Array<String>]
+    def complete(**kwargs)
+      []
+    end
+
+    ##
     # @return [Hash<Symbol, Parameter>]
     def parameters
       self.class.parameters

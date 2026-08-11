@@ -57,6 +57,7 @@ class LLM::Repl
     # @param [LLM::Repl] repl
     # @return [LLM::Repl::Input]
     def initialize(repl, options = {})
+      @repl = repl
       @name = repl.name
       @agent = repl.agent
       @provider = @agent.llm.name
@@ -254,21 +255,20 @@ class LLM::Repl
     def autocomplete
       return unless text[0] == "/"
       ##
-      # This method implements a simple autocomplete
-      # that supports cycling through all known
-      # commands. When given tab in quick succession,
-      # we cycle to the nearest neighbour for the last
-      # full match. However, it's not based on similarity,
-      # it's just the next element in the array.
-      keys = LLM::Command.registry.keys
-      candidates = LLM::Command.complete(text)
-      candidate =
-        if REPEATS[TAB] >= 1
-          keys[keys.index(candidates[0]) + 1] || keys[0]
-        else
-          candidates[0]
-        end
-      set(text: "/#{candidate}")
+      # There are two kinds of an autocomplete
+      # that can take place. The first kind
+      # autocompletes command names, and the
+      # second kind autocompletes command
+      # arguments.
+      #
+      # Command arguments are given to the
+      # `Command#complete(...)` method and
+      # returns an array of potential candidates.
+      if text.include?(" ")
+        complete(:argument)
+      else
+        complete(:command)
+      end
     end
 
     ##
@@ -338,6 +338,47 @@ class LLM::Repl
     end
 
     private
+
+    ##
+    # Autocompletes command names and their arguments.
+    # @param [Symbol] kind
+    #  The kind of completion
+    # @return [void]
+    def complete(kind)
+      case kind
+      when :command
+        keys = LLM::Command.registry.keys
+        candidates = LLM::Command.complete(text)
+        candidate = cycle(candidates, keys, REPEATS[TAB])
+        set(text: "/#{candidate}")
+      when :argument
+        name, *args = text.split(" ")
+        command = LLM::Command.find_by(name: name[1..])
+        return unless command
+        fragment, index = args.last, args.size - 1
+        param = command.parameters.values.find { _1.index == index }
+        return unless param
+        candidates = command.new(@repl).complete(param.name => fragment)
+        return if candidates.empty?
+        candidate = cycle(candidates, candidates, REPEATS[TAB])
+        set(text: "#{name} #{args[0..-2].compact.join(" ")} #{candidate}".squeeze(" "))
+      end
+    end
+
+    ##
+    # Picks the candidate, cycling when TAB is held.
+    # @param [Array<String>] candidates
+    # @param [Array<String>] cycle_keys
+    # @param [Integer] repeats
+    # @return [String]
+    def cycle(candidates, cycle_keys, repeats)
+      return "" if candidates.empty?
+      if repeats >= 1
+        cycle_keys[cycle_keys.index(candidates[0]) + 1] || cycle_keys[0]
+      else
+        candidates[0]
+      end
+    end
 
     ##
     # Adjusts @scroll so the cursor line is visible within

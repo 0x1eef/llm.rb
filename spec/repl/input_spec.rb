@@ -89,6 +89,52 @@ RSpec.describe LLM::Repl::Input do
     end
   end
 
+  describe "#autocomplete" do
+    before { allow(Curses).to receive(:cols).and_return(149) }
+
+    let(:command) do
+      Class.new(LLM::Repl::Command) do
+        name "model"
+        parameter :model, String, "The model"
+
+        def complete(model: nil)
+          %w[deepseek-v4-flash-0731 qwen3.6-flash qwen-flash].select do |m|
+            m.start_with?(model.to_s)
+          end
+        end
+      end
+    end
+
+    before { LLM::Command.registry[command] = command }
+
+    context "when completing a command name" do
+      before { set_buffer("/mod") }
+
+      it "completes to the command name" do
+        input.send(:autocomplete)
+        expect(input.buffer).to eq("/model")
+      end
+    end
+
+    context "when completing a command argument" do
+      before { set_buffer("/model deep") }
+
+      it "completes the argument from the command's complete" do
+        input.send(:autocomplete)
+        expect(input.buffer).to eq("/model deepseek-v4-flash-0731")
+      end
+    end
+
+    context "when the argument has no match" do
+      before { set_buffer("/model zzz") }
+
+      it "leaves the input unchanged" do
+        input.send(:autocomplete)
+        expect(input.buffer).to eq("/model zzz")
+      end
+    end
+  end
+
   describe "#delete" do
     before { allow(Curses).to receive(:cols).and_return(149) }
 
