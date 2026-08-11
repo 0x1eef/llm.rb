@@ -8,7 +8,7 @@ class LLM::Repl
   # such as Curses::A_BOLD.
   module Color
     ##
-    # Enable color and initialize 8 color pairs.
+    # Enable color and initialize 9 color pairs.
     # @return [void]
     def self.enable
       Curses.start_color
@@ -25,6 +25,7 @@ class LLM::Repl
       Curses.init_pair(6, Curses::COLOR_RED     , Curses::COLOR_BLACK)
       Curses.init_pair(7, Curses::COLOR_WHITE   , Curses::COLOR_BLACK)
       Curses.init_pair(8, Curses::COLOR_YELLOW  , Curses::COLOR_BLACK)
+      Curses.init_pair(9, Curses::COLOR_WHITE, Curses::COLOR_BLUE)
     end
 
     ##
@@ -73,6 +74,12 @@ class LLM::Repl
     # @return [Integer]
     def self.yellow
       Curses.color_pair(8)
+    end
+
+    ##
+    # @return [Integer]
+    def self.statusbar
+      Curses.color_pair(9)
     end
   end
 end

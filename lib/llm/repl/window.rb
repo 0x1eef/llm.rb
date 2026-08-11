@@ -7,6 +7,11 @@ class LLM::Repl
   # @api private
   class Window
     ##
+    # Rows reserved for the top chrome (the blue model/cwd row).
+    # @api private
+    TOP_ROWS = 1
+
+    ##
     # @return [LLM::Repl::Status]
     attr_reader :status
 
@@ -47,10 +52,10 @@ class LLM::Repl
     ##
     # @return [void]
     def redraw
-      draw_status(offset: input.height + 2)
-      draw_meta(offset: input.height + 1)
-      draw_divider(offset: 6)
-      draw_buffer(offset: 0)
+      draw_meta(offset: Curses.lines)
+      draw_status(offset: input.height + 1)
+      draw_divider(offset: 5)
+      draw_buffer(offset: TOP_ROWS)
       draw_input
       Curses.refresh
     end
@@ -111,9 +116,12 @@ class LLM::Repl
 
     private
 
+    ##
+    # Draws the window's primary content
+    # @return [void]
     def draw_buffer(offset:)
       rows = buffer.visible(self.rows)
-      rows.each.with_index(offset) do |row, index|
+      rows.each.with_index(TOP_ROWS) do |row, index|
         Curses.setpos(index, 0)
         Curses.clrtoeol
         Curses.setpos(index, gutter)
@@ -136,28 +144,49 @@ class LLM::Repl
       end
     end
 
+    ##
+    # Draws the status line
+    # @return [void]
     def draw_status(offset:)
-      Curses.setpos(Curses.lines - offset, 0)
+      y = Curses.lines - offset
+      Curses.setpos(y, 0)
       Curses.clrtoeol
       status.nodes.each { addnode(_1) }
       context = status.context_bar
-      Curses.setpos(Curses.lines - offset, [(columns - context.length) / 2, 0].max)
+      Curses.setpos(y, [(columns - context.length) / 2, 0].max)
       Curses.addstr(context)
       cost = status.cost.to_s
-      Curses.setpos(Curses.lines - offset, [columns - cost.length, 0].max)
+      Curses.setpos(y, [columns - cost.length, 0].max)
       Curses.addstr(cost)
     end
 
     ##
-    # Draws the meta row (model left, cwd right) above the status row.
+    # Draws the top chrome row (model left, cwd right) at the very top of
+    # the screen, with a blue background.
     # @param [Integer] offset
     # @return [void]
     def draw_meta(offset:)
-      Curses.setpos(Curses.lines - offset, 0)
+      y = Curses.lines - offset
+      fill_row(y) do
+        addnode(status.cwd, status.cwd.text[0, columns])
+        Curses.setpos(y, [columns - status.model.text.size, 0].max)
+        addnode(status.model, status.model.text[0, columns])
+      end
+    end
+
+    ##
+    # Fills an entire row with the status-bar background color, then draws
+    # the given content on top (which inherits the blue background), and
+    # resets the background afterwards.
+    # @param [Integer] y
+    # @yield Content to draw on the row
+    # @return [void]
+    def fill_row(y, &)
+      Curses.setpos(y, 0)
+      Curses.bkgdset(Color.statusbar)
       Curses.clrtoeol
-      addnode(status.model, status.model.text[0, columns])
-      Curses.setpos(Curses.lines - offset, [columns - status.cwd.size, 0].max)
-      addnode(status.cwd, status.cwd.text[0, columns])
+      yield
+      Curses.bkgdset(0)
     end
 
     ##

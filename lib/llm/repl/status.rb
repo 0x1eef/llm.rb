@@ -41,16 +41,16 @@ class LLM::Repl
 
     ##
     # Returns the current model in use.
-    # @return [String]
+    # @return [LLM::Repl::Node]
     def model
-      Node.new @agent.model.to_s
+      Node.new @agent.model.to_s, Curses::A_BOLD
     end
 
     ##
     # Returns the current working directory.
-    # @return [String]
+    # @return [LLM::Repl::Node]
     def cwd
-      Node.new Dir.pwd.sub(Dir.home, "~"), Color.cyan
+      Node.new Dir.pwd.sub(Dir.home, "~"), Curses::A_BOLD
     end
 
     ##
