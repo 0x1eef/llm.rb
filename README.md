@@ -86,7 +86,7 @@ optional; zero or more can be set.
 An error is raised for unknown keys so that typos are caught early.
 
 ```ruby
-class SystemAdmin < LLM::Agent
+class Agent < LLM::Agent
   set name: "sysadmin",
       description: "system administration agent",
       model: "deepseek-v4-pro",
@@ -94,7 +94,7 @@ class SystemAdmin < LLM::Agent
 end
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = SystemAdmin.new(llm)
+agent = Agent.new(llm)
 agent.talk "Run 'date'"
 ```
 
@@ -128,6 +128,13 @@ retry a 429 up to three times with a growing backoff before giving
 up, so most request failures resolve on their own. Set `retry_budget`
 to change the number of retries, or `retry_budget: 0` to disable
 them.
+
+```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, retry_budget: 0)
+```
 
 #### LLM::Context
 
