@@ -35,7 +35,7 @@ class LLM::Repl
     ##
     # @return [String]
     def cost
-      "$#{@agent.cost}"
+      "$#{@agent.cost} "
     end
 
     ##

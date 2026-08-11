@@ -168,6 +168,6 @@ class LLM::Cost
   # @return [String]
   #  Returns the total cost in a human friendly format
   def to_s
-    format("%.12f", total).sub(/\.?0+$/, "")
+    format("%.2f", total)
   end
 end
