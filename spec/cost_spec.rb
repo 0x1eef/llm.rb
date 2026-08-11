@@ -101,6 +101,12 @@ RSpec.describe LLM::Cost do
         expect(cost.to_h).to eq(
           input: 0.0015,
           output: 0.012,
+          input_audio: 0,
+          output_audio: 0,
+          input_image: 0,
+          cache_read: 0,
+          cache_write: 0,
+          reasoning: 0,
           total: 0.0135
         )
       end
