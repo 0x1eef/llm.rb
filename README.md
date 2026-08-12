@@ -25,6 +25,11 @@ Once you learn the fundamentals, everything else falls into place
 naturally. Some features, such as ActiveRecord support, require
 optional dependencies that are opt-in.
 
+It is recommended to read the [deepdive.md](https://r.uby.dev/llm/deepdive)
+guides if you want to learn more about llm.rb. I read them from time to time
+and put a lot of effort into maintaining the deepdive and associated
+documentation. The deepdive covers all llm.rb features.
+
 ## Install
 
 ```bash
