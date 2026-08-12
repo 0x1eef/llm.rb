@@ -287,19 +287,30 @@ res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}
 #### LLM::REPL
 
 The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
-method drops you into a curses-based TUI for talking to an
-agent interactively. It renders markdown directly in the
-terminal and shows a live status line with context usage,
-running cost, and the current tool call. A second thread keeps
-the UI responsive while the model works. Think of it as
+method drops you into a highly capable read-eval-print loop (REPL)
+that is built on top of curses. It can help you debug agents,
+test your tools, connect to MCP servers, and even A2A agents.
+The REPL stands out because it connects to the surrounding
+runtime and it can be extended by your code. Think of it as
 `binding.pry` but for agents.
 
-Set `path:` on the agent for automatic persistence across REPL
-sessions. The `tools:` option attaches extra tools for the
-duration of the session. Recall previous turns with Ctrl+P and
-Ctrl+N. For the full reference, see the
-[REPL section](https://r.uby.dev/llm/deepdive/fundamentals/repl) in the
-deepdive.
+##### Installation
+
+The REPL is distributed with llm.rb so you don't have to install
+a separate gem but it requires a number of optional dependencies
+to be installed separately. The following gems provide the full
+experience:
+
+    gem install curses kramdown xchan.rb test-cmd.rb
+
+##### Persistence
+
+The `path:` option can be set on an agent for automatic persistence
+across REPL sessions. The `tools:` option attaches extra tools
+for the duration of the session. Recall previous turns with Ctrl+P and
+Ctrl+N. For the full reference, see the REPL section in the
+[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/repl)
+document.
 
 ```ruby
 require "llm"
@@ -313,18 +324,16 @@ agent.repl(tools: LLM::Tool.subclasses)
 ##### CLI
 
 The `llm.rb` executable is available on your PATH after installation.
-It starts a REPL session from any directory:
+It starts a REPL session from any directory.The CLI auto-detects your
+provider from standard environment variables (`DEEPSEEK_API_KEY`,
+`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.). Persistent sessions are
+stored under `~/.llm.rb/` and restored automatically on your next visit.
 
 ```bash
 llm.rb                     # auto-detect from $DEEPSEEK_API_KEY
 llm.rb -p openai           # use OpenAI explicitly
 llm.rb -t                  # temporary session, no persistence
 ```
-
-The CLI auto-detects your provider from standard environment variables
-(`DEEPSEEK_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.).
-Persistent sessions are stored under `~/.llm.rb/` and restored
-automatically on your next visit.
 
 #### LLM::MCP
 
