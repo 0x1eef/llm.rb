@@ -144,7 +144,7 @@ class LLM::Cost
       input_audio_costs, output_audio_costs,
       cache_read_costs, cache_write_costs,
       input_image_costs, reasoning_costs
-    ].compact.sum.round(2)
+    ].compact.sum
   end
 
   ##
