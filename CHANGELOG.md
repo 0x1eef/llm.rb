@@ -159,6 +159,26 @@
   `$0.01`), so the REPL status bar shows a compact cost estimate instead
   of a long run of digits.
 
+* **add auto-complete ability for commands** <br>
+  [`LLM::Repl::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html)
+  subclasses can now override a `complete` method to autocomplete their
+  arguments. The method receives the command's parameters as keyword
+  arguments, with the non-nil keyword being the active fragment, and
+  returns candidate completions. Repeated TAB presses cycle through the
+  candidate list.
+
+* **add `LLM::Repl#model` and `LLM::Repl#model=`** <br>
+  [`LLM::Repl`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#model-instance_method)
+  now tracks the active model in its own `model` attribute, seeded from
+  the wrapped agent's model. The status bar reads the model through the
+  repl instead of the agent, so the model can be switched within a
+  session.
+
+* **add `/model` command** <br>
+  A new `/model <name>` command switches the active model within a
+  single REPL session. It supports argument auto-complete that cycles
+  through every model available in the registry.
+
 ### Registry
 
 * **refresh DeepInfra model metadata** <br>

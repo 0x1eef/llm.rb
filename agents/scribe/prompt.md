@@ -31,6 +31,11 @@ to it rather than doing the work yourself.
   be better. The skill analyzes what's surfaced versus what exists
   in the code and writes a report.
 
+- **changelog**: maintains `CHANGELOG.md`. Use it when the user asks
+  to document changes, update the changelog, or add entries for recent
+  commits. The skill reads git history, identifies public-facing
+  changes, and writes them into the appropriate section.
+
 ### Verify and fix
 
 After a sub-agent finishes, use your available tools to verify the

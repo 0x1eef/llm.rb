@@ -9,10 +9,14 @@ class Agent < LLM::Agent
   set :name         => "scribe",
       :description  => "a documentation engineer",
       :instructions => File.read(File.join(__dir__, "prompt.md")),
-      :skills       => %w[regressions.md coverage.md style.md].map { File.join(__dir__, _1) },
+      :skills       => %w[regressions.md coverage.md style.md changelog.md].map { File.join(__dir__, _1) },
       :tools        => LLM::Tool.subclasses,
       :path         => File.join(__dir__, "..", "..", "contexts", "scribe.json"),
       :tracer       => proc { LLM::Tracer::PrettyLogger.new(llm, io: $stderr) }
+
+  def changelog
+    talk("Let's update the changelog")
+  end
 
   def yardoc
     talk("Run 'bundle exec yardoc' and fix all warnings")
