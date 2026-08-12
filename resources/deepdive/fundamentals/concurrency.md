@@ -67,6 +67,12 @@ should run in a fork for isolation.
 The common interface means you can change strategies without
 changing your tool code.
 
+The payoff is when the model orchestrates several tools at once.
+When you give an agent a set of independent tools it can fan the
+calls out across a strategy and synthesize the results, turning N
+round trips into one. See
+[Fan-out with tools](tools.md#fan-out-with-tools) for the pattern.
+
 #### Notes
 
 **sequential**: Tools run one at a time on the calling thread. No

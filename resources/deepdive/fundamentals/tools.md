@@ -45,12 +45,12 @@ by rescuing and returning a domain-specific error hash.
 
 ```ruby
 class Shell < LLM::Tool
-  name "shell"
-  description "execute a shell command"
-  parameter :name, String, "the command's name"
-  parameter :arguments, Array[String], "One or more arguments"
-  required %i[name]
-  defaults arguments: []
+  set name: "shell",
+      description: "execute a shell command",
+      parameters: [
+        [:name, String, "the command's name", {required: true}],
+        [:arguments, Array[String], "command args", {default: []}]
+      ]
 
   def call(name:, arguments: [])
     out = `#{name.shellescape} #{arguments.map(&:shellescape).join(" ")}`
@@ -65,11 +65,20 @@ agent.talk "What files are in the current working directory?"
 
 #### Why would I use it?
 
-Tools are how the model interacts with the outside world. Without
-them, the model can only produce text. With tools, it can query
-databases, run shell commands, fetch web pages, or call APIs. The
-tool loop stays alive even when a tool fails. One broken tool does
-not derail the conversation.
+Tools are how the model interacts with the outside world, and the
+model is the orchestrator. When you give an agent a handful of
+tools and ask it to do something open-ended, the model reads each
+tool's name and description, chooses which to call, and picks the
+arguments. The runtime just executes. The model can chain tools
+into a multi-step workflow, retry after a failure, or fan several
+calls out in parallel and synthesize the results.
+
+That orchestration is the killer feature. One tool lets the model
+reach outside itself; several tools let it plan and execute a
+whole job. A single "research the competitors and compare their
+pricing" turn can fan out to a web search, a database query, and an
+API call at once, then return a synthesized answer. See
+[Fan-out with tools](#fan-out-with-tools) below for the pattern.
 
 #### Notes
 
@@ -160,11 +169,9 @@ class Shell < LLM::Tool
   set name: "shell",
       description: "run a shell command",
       parameters: [
-        [:name, String, "the command name"],
-        [:arguments, Array[String], "one or more arguments"]
-      ],
-      required: %i[name],
-      defaults: {arguments: []}
+        [:name, String, "the command name", {required: true}],
+        [:arguments, Array[String], "command args", {default: []}]
+      ]
 
   def call(name:, arguments: [])
     out = `#{name} #{arguments.join(" ")}`
@@ -212,11 +219,9 @@ class Shell < LLM::Tool
   set name: "shell",
       description: "execute a shell command",
       parameters: [
-        [:name, String, "the command's name"],
-        [:arguments, Array[String], "One or more arguments"]
-      ],
-      required: %i[name],
-      defaults: {arguments: []}
+        [:name, String, "the command's name", {required: true}],
+        [:arguments, Array[String], "One or more arguments", {default: []}]
+      ]
 
   def call(name:, arguments: [])
     out = `#{name.shellescape} #{arguments.map(&:shellescape).join(" ")}`
@@ -236,6 +241,58 @@ Hash that reads like a configuration block.
 
 Unknown keys raise `KeyError`, so typos are caught at class load
 time rather than at runtime.
+
+### Fan-out with tools
+
+#### Overview
+
+The fastest way to see the model's orchestration in action is to
+give it several independent tools and let it run them in parallel.
+This is where tools and
+[concurrency](concurrency.md) meet: the model decides it needs
+multiple answers, issues several tool calls, and the runtime
+executes them concurrently before feeding every result back for
+synthesis.
+
+#### How it works
+
+Attach independent tools to an agent and set a concurrency strategy
+that matches the workload. For IO-bound tools like HTTP fetches,
+`:async` or `:thread` give you parallelism without much overhead.
+For process isolation or CPU-bound work, reach for `:fork` or
+`:ractor`. The agent runs the tool loop, so it keeps calling,
+collecting, and synthesizing until it has the answer. The model
+reads the tool descriptions, decides which are independent, and
+issues the calls. The runtime fans them out across the chosen
+strategy, waits, and returns the combined results as context so the
+model can synthesize a single answer:
+
+```ruby
+require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+tools = [FetchNews, FetchStocks, FetchFeeds]
+agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
+agent.talk "Run the tools in parallel and summarize the results"
+```
+
+#### Why would I use it?
+
+Parallel tool execution turns N round trips into one. A research,
+monitoring, or automation agent that would otherwise call one tool,
+wait, call the next, now gathers everything at once. The result
+arrives faster and the model still gets the full picture before it
+writes. The strategy is a single option, so you tune the trade-off
+between speed (IO), isolation (fork), and CPU parallelism (ractor)
+without touching your tool code.
+
+#### Notes
+
+The six strategies are documented in
+[concurrency](concurrency.md). Whichever you choose, the tool
+loop, confirmation, and error handling behave identically. A single
+failing tool returns a structured error to the model, which can
+decide to retry or continue with the results it has.
 
 ### Built-in tools
 
