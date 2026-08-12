@@ -15,6 +15,50 @@
 
 ## What's next
 
+### Breaking
+
+#### Migration
+
+| Old | New |
+|-----|-----|
+| `ctx.usage` / `agent.usage` / `msg.usage` | `ctx.token_usage` / `agent.token_usage` / `msg.token_usage` (`usage` remains an alias) |
+| `LLM::Message#usage` returns `LLM::Object` | `LLM::Message#token_usage` returns a copy of `LLM::Usage`, for assistant messages only |
+| `ctx.context_window` returns `0` when the model isn't in the registry | returns `nil` when unknown |
+| `LLM::Cost#input` (and other accessors) return `nil` when unused | return `0.0` |
+| `ctx.usage` returns only the first message's usage | sums token usage across all assistant messages |
+
+* **rename `#usage` to `#token_usage` across contexts, agents, and messages** <br>
+  [`LLM::Context#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage-instance_method),
+  [`LLM::Agent#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#usage-instance_method),
+  and
+  [`LLM::Message#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#usage-instance_method)
+  are now aliases of `token_usage`.
+  [`LLM::Message#token_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#token_usage-instance_method)
+  now returns a copy of `LLM::Usage` instead of `LLM::Object`, and only
+  returns a value for assistant messages.
+
+* **`LLM::Context#context_window` now returns `nil` when unknown** <br>
+  [`LLM::Context#context_window`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_window-instance_method)
+  now returns `nil` when the model's context window size is not known to the
+  runtime, instead of `0`. This makes the code check for a window instead
+  of a number, so an unknown window no longer reads as a real (zero) size.
+
+* **`LLM::Cost` accessors always return `Float` objects** <br>
+  The cost accessors on
+  [`LLM::Cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html)
+  (`input`, `output`, `input_audio`, `output_audio`, `input_image`,
+  `cache_read`, `cache_write`, and `reasoning`) now always return a
+  `Float`, returning `0.0` when no tokens of that kind were used, instead
+  of `nil`. Callers can sum and compare cost values without guarding
+  against `nil`.
+
+* **expose new context methods on the ActiveRecord and Sequel wrappers** <br>
+  The `acts_as_llm` (ActiveRecord) and `plugin :llm` (Sequel) wrappers
+  now expose `context_used` and `context_usage`, delegating to the
+  wrapped `LLM::Context`. `token_usage` replaces `usage` (which remains
+  as an alias), and `context_window` now returns `nil` when the model's
+  context window is unknown instead of `0`.
+
 ### Core
 
 * **add `retry_budget` support for rate-limited requests** <br>
@@ -55,38 +99,6 @@
   usage. This fills the gap left after `token_usage` became accumulative and
   no longer represented a single turn, so callers can read how much of the
   context window has been used without walking the messages themselves.
-
-* **rename `#usage` to `#token_usage` across contexts, agents, and messages** <br>
-  [`LLM::Context#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage-instance_method),
-  [`LLM::Agent#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#usage-instance_method),
-  and
-  [`LLM::Message#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#usage-instance_method)
-  are now aliases of `token_usage`.
-  [`LLM::Message#token_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#token_usage-instance_method)
-  now returns a copy of `LLM::Usage` instead of `LLM::Object`, and only
-  returns a value for assistant messages.
-
-* **`LLM::Context#context_window` now returns `nil` when unknown** <br>
-  [`LLM::Context#context_window`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_window-instance_method)
-  now returns `nil` when the model's context window size is not known to the
-  runtime, instead of `0`. Callers can no longer confuse an unknown window
-  with a zero-sized one.
-
-* **expose new context methods on the ActiveRecord and Sequel wrappers** <br>
-  The `acts_as_llm` (ActiveRecord) and `plugin :llm` (Sequel) wrappers
-  now expose `context_used` and `context_usage`, delegating to the
-  wrapped `LLM::Context`. `token_usage` replaces `usage` (which remains
-  as an alias), and `context_window` now returns `nil` when the model's
-  context window is unknown instead of `0`.
-
-* **`LLM::Cost` accessors always return `Float` objects** <br>
-  The cost accessors on
-  [`LLM::Cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html)
-  (`input`, `output`, `input_audio`, `output_audio`, `input_image`,
-  `cache_read`, `cache_write`, and `reasoning`) now always return a
-  `Float`, returning `0.0` when no tokens of that kind were used, instead
-  of `nil`. Callers can sum and compare cost values without guarding
-  against `nil`.
 
 ### Provider
 
