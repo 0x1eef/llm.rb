@@ -25,7 +25,7 @@
 | `LLM::Message#usage` returns `LLM::Object` | `LLM::Message#token_usage` returns a copy of `LLM::Usage`, for assistant messages only |
 | `ctx.context_window` returns `0` when the model isn't in the registry | returns `nil` when unknown |
 | `LLM::Cost#input` (and other accessors) return `nil` when unused | return `0.0` |
-| `ctx.usage` returns only the first message's usage | sums token usage across all assistant messages |
+| `ctx.usage` returns the most recent assistant message usage | sums token usage across all assistant messages |
 
 * **rename `#usage` to `#token_usage` across contexts, agents, and messages** <br>
   [`LLM::Context#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage-instance_method),
