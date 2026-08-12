@@ -72,71 +72,66 @@ class LLM::Cost
   alias_method :eql?, :==
 
   ##
-  # @return [Float, nil]
+  # @return [Float]
   #  Returns the input cost
   def input
-    @input_costs || 0
+    @input_costs || 0.to_f
   end
   alias_method :input_costs, :input
 
   ##
-  # @return [Float, nil]
+  # @return [Float]
   #  Returns the output cost
   def output
-    @output_costs || 0
+    @output_costs || 0.to_f
   end
   alias_method :output_costs, :output
 
   ##
-  # @return [Float, nil]
-  #  Returns the input audio cost, or nil when no input audio tokens
-  #  were used
+  # @return [Float]
+  #  Returns the input audio cost
   def input_audio
-    @input_audio_costs || 0
+    @input_audio_costs || 0.to_f
   end
   alias_method :input_audio_costs, :input_audio
 
   ##
-  # @return [Float, nil]
-  #  Returns the output audio cost, or nil when no output audio tokens
-  #  were used
+  # @return [Float]
+  #  Returns the output audio cost
   def output_audio
-    @output_audio_costs || 0
+    @output_audio_costs || 0.to_f
   end
   alias_method :output_audio_costs, :output_audio
 
   ##
-  # @return [Float, nil]
-  #  Returns the input image cost, or nil when no input image tokens
-  #  were used
+  # @return [Float]
+  #  Returns the input image cost
   def input_image
-    @input_image_costs || 0
+    @input_image_costs || 0.to_f
   end
   alias_method :input_image_costs, :input_image
 
   ##
-  # @return [Float, nil]
-  #  Returns the cache read cost, or nil when no cache tokens were used
+  # @return [Float]
+  #  Returns the cache read cost
   def cache_read
-    @cache_read_costs || 0
+    @cache_read_costs || 0.to_f
   end
   alias_method :cache_read_costs, :cache_read
 
   ##
-  # @return [Float, nil]
-  #  Returns the cache write cost, or nil when no cache creation tokens
-  #  were used
+  # @return [Float]
+  #  Returns the cache write cost
   def cache_write
-    @cache_write_costs || 0
+    @cache_write_costs || 0.to_f
   end
   alias_method :cache_write_costs, :cache_write
 
   ##
-  # @return [Float, nil]
-  #  Returns the reasoning cost, or nil when no reasoning tokens
-  #  were used
+  # @return [Float]
+  #  Returns the reasoning cost
   def reasoning
-    @reasoning_costs || 0
+    @reasoning_costs || 0.to_f
   end
   alias_method :reasoning_costs, :reasoning
 
@@ -149,7 +144,7 @@ class LLM::Cost
       input_audio_costs, output_audio_costs,
       cache_read_costs, cache_write_costs,
       input_image_costs, reasoning_costs
-    ].compact.sum.round(12)
+    ].compact.sum.round(2)
   end
 
   ##
