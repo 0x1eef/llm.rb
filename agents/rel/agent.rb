@@ -5,7 +5,7 @@ require "llm"
 require "llm/tools"
 
 class Agent < LLM::Agent
-  set :name         => "dexter",
+  set :name         => "rel",
       :description  => "release engineer",
       :instructions => File.read(File.join(__dir__, "prompt.md")),
       :skills       => %w[release.md].map { File.join(__dir__, _1) },

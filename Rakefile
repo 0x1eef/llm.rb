@@ -116,23 +116,23 @@ namespace :agents do
     task :coverage do
       sh "agents/scribe/agent.rb coverage"
     end
-  end
-
-  desc "a release engineer"
-  namespace :dexter do
-    desc "Run REPL"
-    task :repl do
-      sh "agents/dexter/agent.rb repl"
-    end
 
     desc "Maintain CHANGELOG.md"
     task :changelog do
-      sh "agents/dexter/agent.rb changelog"
+      sh "agents/scribe/agent.rb changelog"
+    end
+  end
+
+  desc "a release engineer"
+  namespace :rel do
+    desc "Run REPL"
+    task :repl do
+      sh "agents/rel/agent.rb repl"
     end
 
     desc "Prepare a release"
     task :release, [:version] do |_t, args|
-      sh "agents/dexter/agent.rb release #{args[:version]}"
+      sh "agents/rel/agent.rb release #{args[:version]}"
     end
   end
 
