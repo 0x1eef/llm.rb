@@ -8,6 +8,7 @@ class LLM::Repl
   class Input
     require_relative "input/row"
     require_relative "input/char"
+    require_relative "input/cache"
 
     CTRL = {
       A: Curses::KEY_CTRL_A,
@@ -347,37 +348,54 @@ class LLM::Repl
     def complete(kind)
       case kind
       when :command
-        keys = LLM::Command.registry.keys
-        candidates = LLM::Command.complete(text)
-        candidate = cycle(candidates, keys, REPEATS[TAB])
+        fragment = text[1..]
+        candidates =
+          if @cache&.include?(fragment)
+            @cache.candidates
+          else
+            LLM::Command.complete(text)
+          end
+        candidate = cycle(candidates, fragment)
         set(text: "/#{candidate}")
       when :argument
-        name, *args = text.split(" ")
+        name, *args = text.split(" ", -1)
         command = LLM::Command.find_by(name: name[1..])
         return unless command
         fragment, index = args.last, args.size - 1
         param = command.parameters.values.find { _1.index == index }
         return unless param
-        candidates = command.new(@repl).complete(param.name => fragment)
-        return if candidates.empty?
-        candidate = cycle(candidates, candidates, REPEATS[TAB])
+        cmd = command.new(@repl)
+        candidates =
+          if @cache&.include?(fragment)
+            @cache.candidates
+          else
+            list = cmd.method(:complete).call(param.name => fragment)
+            return if list.empty?
+            list
+          end
+        candidate = cycle(candidates, fragment)
         set(text: "#{name} #{args[0..-2].compact.join(" ")} #{candidate}".squeeze(" "))
       end
     end
 
     ##
-    # Picks the candidate, cycling when TAB is held.
+    # Returns the next candidate, cycling through the list
+    # when the current value is already one of the candidates.
     # @param [Array<String>] candidates
-    # @param [Array<String>] cycle_keys
-    # @param [Integer] repeats
+    # @param [String] current
     # @return [String]
-    def cycle(candidates, cycle_keys, repeats)
+    def cycle(candidates, current)
       return "" if candidates.empty?
-      if repeats >= 1
-        cycle_keys[cycle_keys.index(candidates[0]) + 1] || cycle_keys[0]
-      else
-        candidates[0]
-      end
+      index =
+        if @cache and @cache.candidates == candidates
+          @cache.next_index
+        elsif (i = candidates.index(current))
+          (i + 1) % candidates.size
+        else
+          0
+        end
+      @cache = Cache.new(candidates, index)
+      @cache.value
     end
 
     ##

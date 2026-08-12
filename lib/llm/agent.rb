@@ -601,6 +601,13 @@ module LLM
     end
 
     ##
+    # @see LLM::Context#registry
+    # @return [LLM::Registry]
+    def registry
+      @ctx.registry
+    end
+
+    ##
     # @see LLM::Context#compacted?
     # @return [Boolean]
     def compacted?

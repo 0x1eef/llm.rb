@@ -34,6 +34,13 @@ class LLM::Registry
   end
 
   ##
+  # Returns the names of all known models.
+  # @return [Array<String>]
+  def models
+    @models.keys
+  end
+
+  ##
   # @return [LLM::Object]
   #  Returns model costs
   def cost(model:)
