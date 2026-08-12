@@ -72,6 +72,13 @@
   runtime, instead of `0`. Callers can no longer confuse an unknown window
   with a zero-sized one.
 
+* **expose new context methods on the ActiveRecord and Sequel wrappers** <br>
+  The `acts_as_llm` (ActiveRecord) and `plugin :llm` (Sequel) wrappers
+  now expose `context_used` and `context_usage`, delegating to the
+  wrapped `LLM::Context`. `token_usage` replaces `usage` (which remains
+  as an alias), and `context_window` now returns `nil` when the model's
+  context window is unknown instead of `0`.
+
 * **`LLM::Cost` accessors always return `Float` objects** <br>
   The cost accessors on
   [`LLM::Cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html)

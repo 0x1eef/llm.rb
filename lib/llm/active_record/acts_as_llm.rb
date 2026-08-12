@@ -136,16 +136,31 @@ module LLM::ActiveRecord
       # @return [Integer]
       def context_window
         ctx.context_window
-      rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError
-        0
+      end
+
+      ##
+      # Returns how many tokens have been used
+      # within the context window
+      # @return [Integer]
+      def context_used
+        ctx.context_used
+      end
+
+
+      ##
+      # Returns context window usage as a Rational
+      # @return [Rational, nil]
+      def context_usage
+        ctx.context_usage
       end
 
       ##
       # Returns usage from the mapped usage columns.
       # @return [LLM::Usage]
-      def usage
-        ctx.usage || LLM::Usage.zero
+      def token_usage
+        ctx.token_usage
       end
+      alias_method :usage, :token_usage
 
       ##
       # @see LLM::Context#interrupt!
