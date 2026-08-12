@@ -44,6 +44,48 @@ embedding, and vector store support varies by provider and is
 called out in the relevant topic. Providers that lack a given
 endpoint raise `NotImplementedError`.
 
+### Model registry
+
+#### Overview
+
+[`LLM::Registry`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html)
+exposes model metadata shipped with the runtime, sourced from
+models.dev and stored under `data/`. It backs cost estimation,
+context window limits, and the `/model` auto-complete in the REPL.
+
+#### How it works
+
+Access the registry through
+[`LLM::Context#registry`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#registry-instance_method)
+or
+[`LLM::Agent#registry`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#registry-instance_method).
+[`LLM::Registry#models`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#models-instance_method)
+returns the known model names, and
+[`cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#cost-instance_method),
+[`limit`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#limit-instance_method),
+and
+[`modalities`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#modalities-instance_method)
+look up details for a given model:
+
+```ruby
+registry = agent.registry
+registry.models            # => ["deepseek-v4-flash", ...]
+registry.limit(model: "deepseek-v4-flash").context
+```
+
+#### Why would I use it?
+
+The registry lets you discover what a provider offers without
+hardcoding model names. Use it to offer a model picker, check a
+model's context window, or price a request.
+
+#### Notes
+
+Each provider ships a `data/<provider>.json` registry file. A
+missing model or registry raises `LLM::NoSuchModelError` or
+`LLM::NoSuchRegistryError`, which the runtime rescues to default
+gracefully (for example, an unknown context window reads as `nil`).
+
 ### Alibaba
 
 #### Overview

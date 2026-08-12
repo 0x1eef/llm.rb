@@ -29,7 +29,7 @@ cost = ctx.cost
 cost.input    # => 0.0000042
 cost.output   # => 0.0000084
 cost.total    # => 0.0000126
-cost.to_s     # => "0.0000126"
+cost.to_s     # => "0.00"
 ```
 
 #### Why would I use it?
@@ -63,10 +63,10 @@ and
 
 #### How it works
 
-Each component is a Float, or `nil` when no tokens of that type were
-used. The
+Each component is a Float, and defaults to `0` when no tokens of
+that type were used. The
 [`LLM::Cost#to_h`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method)
-method returns a Hash with only the non-nil components and the total:
+method returns a Hash with every component and the total:
 
 ```ruby
 cost = ctx.cost
@@ -80,7 +80,9 @@ cost.input_audio
 cost.output_audio
 cost.input_image
 
-cost.to_h  # => {input: 4.2e-06, output: 8.4e-06, total: 1.26e-05}
+cost.to_h  # => {input: 4.2e-06, output: 8.4e-06, cache_read: 0.0,
+           #     cache_write: 0.0, input_audio: 0.0, output_audio: 0.0,
+           #     input_image: 0.0, reasoning: 0.0, total: 1.26e-05}
 ```
 
 #### Why would I use it?
@@ -94,6 +96,12 @@ at the end of a session to keep a spend trail.
 #### Notes
 
 [`LLM::Cost#to_s`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_s-instance_method)
-returns the total in a compact, human-friendly format
-(`"0.0000126"`). Components that were not used are `nil`, so sum
-them with `compact` if you aggregate across conversations.
+returns the total in a compact, human-friendly format, rounded to
+two decimals (`"0.01"`). Components that were not used are `0`, so
+you never need to guard against `nil` when aggregating.
+
+The REPL renders context usage as a proportion, not a cost.
+[`LLM::Context#context_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_usage-instance_method)
+returns a `Rational` of the tokens used over the context window
+(for example `Rational(100, 10_000)`), or `nil` when the window is
+unknown or the conversation is too short.

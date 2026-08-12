@@ -25,6 +25,10 @@ Commands start with `/` and are dispatched to registered
 subclasses. Type `/compact` to free context window
 space, `/exit` to leave.
 
+The top chrome row shows the active model on the left and the
+current working directory on the right. Switch models mid-session
+with `/model <name>`; the model name updates there immediately.
+
 When characters arrive faster than a threshold, the REPL detects
 paste mode. In paste mode, pressing Enter inserts a newline instead
 of submitting.
@@ -64,6 +68,20 @@ and
 helpers write a formatted `user:` message with a trailing newline,
 and `LLM::Command#write_message` matches the same interface.
 
+### Switch the model
+
+The active model is exposed through
+[`LLM::Repl#model`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#model-instance_method)
+and
+[`LLM::Repl#model=`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#model=-instance_method),
+seeded from the agent at startup. The `/model` command switches it
+mid-session, and its argument auto-completes through the provider's
+[`LLM::Registry#models`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#models-instance_method)
+so you can cycle through available models with Tab. The top chrome
+row reflects the change immediately.
+
+### Commands
+
 Commands use the same vocabulary as tools: declare a name,
 description, and parameters with `parameter` and `required`.
 Subclassing an existing command inherits its name, description,
@@ -82,6 +100,30 @@ class Greeter < LLM::Command
 end
 ```
 
+To add argument completion to a custom command, override the
+`complete` method. It receives the command's parameters as keyword
+arguments, where the non-nil one is the fragment being typed, and
+returns the candidate completions. Pressing Tab cycles through them:
+
+```ruby
+class SwitchEnv < LLM::Command
+  name "env"
+  description "switch the working environment"
+  parameter :env, String, "The environment name"
+  required %i[env]
+
+  def call(env:)
+    write "Switched to #{env}"
+  end
+
+  private
+
+  def complete(env: nil)
+    %w[staging production].select { _1.start_with?(env.to_s) }
+  end
+end
+```
+
 The input area supports several keyboard shortcuts:
 
 | Key | Action |
@@ -93,7 +135,7 @@ The input area supports several keyboard shortcuts:
 | `Ctrl+P` / `Ctrl+N` | Recall previous / next user message |
 | `Ctrl+Y` | Paste previously killed text |
 | `Enter` | Submit the current prompt |
-| `Tab` | Complete `/command` names |
+| `Tab` | Complete `/command` names and arguments |
 | `Esc` | Cancel the current request |
 | `Up` / `Down` | Scroll the transcript one line |
 | `PgUp` / `PgDn` | Scroll the transcript by one page |
