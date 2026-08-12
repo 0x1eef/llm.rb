@@ -25,7 +25,7 @@ A tool is a subclass of
 [`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
 with a name, description, and optional typed parameters. The model sees the name and
 description and decides whether to call it. When it does, the
-runtime serialises the arguments and passes them to
+runtime serializes the arguments and passes them to
 [`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call).
 
 Tools that spawn subprocesses can include
