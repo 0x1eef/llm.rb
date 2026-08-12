@@ -45,6 +45,17 @@
   amount or the window size is unknown. The REPL status bar now renders this
   fraction instead of computing the remainder from raw token counts.
 
+* **add `LLM::Context#context_used` and `LLM::Agent#context_used`** <br>
+  Add
+  [`LLM::Context#context_used`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_used-instance_method)
+  and
+  [`LLM::Agent#context_used`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#context_used-instance_method),
+  which return the live context size (in tokens) of the most recent
+  assistant message, or `nil` when no assistant message has a recorded token
+  usage. This fills the gap left after `token_usage` became accumulative and
+  no longer represented a single turn, so callers can read how much of the
+  context window has been used without walking the messages themselves.
+
 * **rename `#usage` to `#token_usage` across contexts, agents, and messages** <br>
   [`LLM::Context#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage-instance_method),
   [`LLM::Agent#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#usage-instance_method),
@@ -60,6 +71,15 @@
   now returns `nil` when the model's context window size is not known to the
   runtime, instead of `0`. Callers can no longer confuse an unknown window
   with a zero-sized one.
+
+* **`LLM::Cost` accessors always return `Float` objects** <br>
+  The cost accessors on
+  [`LLM::Cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html)
+  (`input`, `output`, `input_audio`, `output_audio`, `input_image`,
+  `cache_read`, `cache_write`, and `reasoning`) now always return a
+  `Float`, returning `0.0` when no tokens of that kind were used, instead
+  of `nil`. Callers can sum and compare cost values without guarding
+  against `nil`.
 
 ### Provider
 

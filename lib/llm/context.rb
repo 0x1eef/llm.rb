@@ -344,15 +344,24 @@ module LLM
     alias_method :usage, :token_usage
 
     ##
+    # @return [Integer, nil]
+    #  Returns the live context size (in tokens) of the most
+    #  recent assistant message.
+    def context_used
+      @messages
+        .find(&:assistant?)
+        &.token_usage
+        &.total_tokens
+    end
+
+    ##
     # @return [Rational, nil]
     #  Returns the fraction of the context window currently used.
     #  For example: Rational(100, 10_000), or nil when unknown
     def context_usage
       return nil if @messages.size < 2
-      used = @messages
-        .find(&:assistant?)
-        .token_usage
-        .total_tokens
+      used = context_used
+      return nil if used.nil?
       total = context_window
       total.nil? || total <= 0 ? nil : Rational(used, total)
     rescue LLM::NoSuchModelError, LLM::NoSuchRegistryError

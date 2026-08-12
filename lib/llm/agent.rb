@@ -493,6 +493,13 @@ module LLM
     alias_method :usage, :token_usage
 
     ##
+    # See also: {LLM::Context#context_used}
+    # @return (see LLM::Context#context_used)
+    def context_used
+      @ctx.context_used
+    end
+
+    ##
     # See also: {LLM::Context#context_usage}
     # @return (see LLM::Context#context_usage)
     def context_usage
