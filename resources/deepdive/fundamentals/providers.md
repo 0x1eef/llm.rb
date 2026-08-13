@@ -110,7 +110,7 @@ pay-as-you-go DashScope international endpoint
 ```ruby
 require "llm"
 
-llm = LLM.alibaba(key: ENV["ALIBABA_API_KEY"])
+llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"])
 ctx = LLM::Context.new(llm)
 ctx.talk "Hello"
 ```
@@ -125,11 +125,11 @@ Plan endpoint:
 ```ruby
 # Global override
 ENV["ALIBABA_API_HOST"] = "token-plan.ap-southeast-1.maas.aliyuncs.com"
-llm = LLM.alibaba(key: ENV["ALIBABA_API_KEY"])
+llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"])
 
 # Per-instance override
 llm = LLM.alibaba(
-  key: ENV["ALIBABA_API_KEY"],
+  key: ENV["DASHSCOPE_API_KEY"],
   host: "token-plan.ap-southeast-1.maas.aliyuncs.com"
 )
 ```

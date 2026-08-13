@@ -57,7 +57,7 @@ for a full provider reference:
 llm = LLM.openai(key: ENV["OPENAI_API_KEY"])
 llm = LLM.anthropic(key: ENV["ANTHROPIC_API_KEY"])
 llm = LLM.deepseek(key: ENV["DEEPSEEK_API_KEY"])
-llm = LLM.alibaba(key: ENV["ALIBABA_API_KEY"])   # also: LLM.aliyun
+llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"]) # also: LLM.aliyun
 llm = LLM.moonshot(key: ENV["MOONSHOT_API_KEY"])
 llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
 ```

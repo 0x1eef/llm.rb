@@ -20,7 +20,7 @@ module LLM
   #   #!/usr/bin/env ruby
   #   require "llm"
   #
-  #   llm = LLM.alibaba(key: ENV["ALIBABA_API_KEY"])
+  #   llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"])
   #   ctx = LLM::Context.new(llm)
   #   ctx.talk "Hello"
   class Alibaba < OpenAI

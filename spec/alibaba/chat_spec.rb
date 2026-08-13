@@ -5,7 +5,7 @@ require "setup"
 RSpec.describe "LLM::Context: alibaba" do
   let(:provider) { LLM.alibaba(key:) }
   let(:llm) { provider }
-  let(:key) { ENV["ALIBABA_API_KEY"] || "TOKEN" }
+  let(:key) { ENV["DASHSCOPE_API_KEY"] || "TOKEN" }
   let(:ctx) { LLM::Context.new(provider, params) }
   let(:params) { {} }
 

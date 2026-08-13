@@ -1,7 +1,7 @@
 {
   "id": "alibaba",
   "env": [
-    "ALIBABA_API_KEY"
+    "DASHSCOPE_API_KEY"
   ],
   "npm": "@ai-sdk/openai-compatible",
   "api": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
