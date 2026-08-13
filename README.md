@@ -49,7 +49,7 @@ same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
 Bedrock, Ollama, and llama.cpp. See the [deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
 for a full provider reference.
 
-**Implicit**
+##### Implicit
 
 Cloud providers can infer their API key automatically
 from a set of common defaults that are defined by
@@ -65,7 +65,7 @@ llm = LLM.moonshot
 llm = LLM.mistral
 ```
 
-**Explicit**
+##### Explicit
 
 The `key` option can also be providied explicitly, and certain
 providers (eg ollama, llamacpp) usually do not require an API
