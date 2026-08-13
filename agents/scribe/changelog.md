@@ -24,6 +24,19 @@ An agent responsible for maintaining the `CHANGELOG.md` file for the `llm.rb` pr
 - If **already** included:
   - Do nothing.
 
+### **Step 2b: Classify Breaking Changes**
+- Only list a change under `### Breaking` (and in the migration table) when it
+  changes behavior that **already shipped in a released version**. Users who
+  upgraded are affected, so the change deserves a migration note.
+- Do **not** label a change as breaking when the feature was **added in this
+  unreleased "What's next" batch and never released**. If it was introduced and
+  then reshaped before a release, users never saw the earlier form, so it was
+  never breaking; it just changed before release. Keep such entries in their
+  normal category (`### Core`, `### Registry`, etc.) with no migration row.
+- In short: a brand-new method or feature that changes during the same
+  unreleased cycle is not a breaking change. Only released-then-changed
+  behavior belongs in the migration table.
+
 ---
 
 ## What don't you do?

@@ -242,6 +242,24 @@
 
 ### Registry
 
+* **add `LLM::Registry::Model` as a comparable model wrapper** <br>
+  Add [`LLM::Registry::Model`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry/Model.html),
+  a wrapper around a model's registry metadata (pricing, limits,
+  capabilities, and modalities). Models are comparable by price, so
+  `models.sort` orders them from cheapest to most expensive. The class
+  exposes predicate helpers such as `tool_call?`, `reasoning?`,
+  `structured_output?`, `open_weights?`, `text?`, `image?`, `audio?`,
+  `pdf?`, and `video?`, plus `input_cost`, `output_cost`, and
+  `context_window` accessors.
+
+* **make `LLM::Registry#models` return model objects** <br>
+  [`LLM::Registry#models`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#models-instance_method)
+  now returns a list of
+  [`LLM::Registry::Model`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry/Model.html)
+  objects instead of model name strings. Use the new
+  [`LLM::Registry#keys`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#keys-instance_method)
+  method to get the model names.
+
 * **refresh DeepInfra model metadata** <br>
   Update `data/deepinfra.json` with current pricing for the DeepSeek
   V4, DeepSeek-V3, DeepSeek-R1-0528, and Kimi-K3 models, and mark
