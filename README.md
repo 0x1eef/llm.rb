@@ -128,7 +128,7 @@ the agent restores conversation history from the file on startup
 and saves it back after every turn, with no manual serialization
 code. For database-backed persistence, ActiveRecord and Sequel
 integrations are also available (see the
-[database deepdive](https://r.uby.dev/llm/deepdive/fundamentals/database)
+[database deepdive](https://r.uby.dev/llm/deepdive/features/database)
 for details). All persistence options use the same underlying
 serialization.
 
@@ -196,7 +196,7 @@ for extending the feature set or abilities of a model.
 
 The runtime also ships with a catalog of built-in tools for
 filesystem, search, and shell operations. See the
-[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/builtin_tools)
+[deepdive.md](https://r.uby.dev/llm/deepdive/features/builtin_tools)
 for details.
 
 ```ruby
@@ -327,7 +327,7 @@ The `path:` option can be set on an agent for automatic persistence
 across REPL sessions. The `tools:` option attaches extra tools
 for the duration of the session. Recall previous turns with Ctrl+P and
 Ctrl+N. For the full reference, see the REPL section in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/repl)
+[deepdive.md](https://r.uby.dev/llm/deepdive/features/repl)
 document.
 
 ```ruby
@@ -497,7 +497,7 @@ or PostgreSQL's [pg-vector](https://github.com/pgvector/pgvector).
 llm.rb also includes support for OpenAI's vector store API. It
 provides a vector database as a HTTP service but we won't cover
 that here. For a deeper explanation see the
-[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/embeddings).
+[deepdive.md](https://r.uby.dev/llm/deepdive/features/embeddings).
 
 ```ruby
 require "llm"
@@ -529,7 +529,7 @@ The `:fork` strategy also provides a separate process that offers
 isolation from its parent.
 
 You can learn more about the llm.rb concurrency model in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/concurrency).
+[deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency).
 
 ```ruby
 require "llm"

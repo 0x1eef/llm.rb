@@ -54,14 +54,22 @@ place to start if you are new to llm.rb.
 - [Providers](deepdive/fundamentals/providers.md)
 - [Agents](deepdive/fundamentals/agents.md)
 - [Tools](deepdive/fundamentals/tools.md)
-- [Built-in tools](deepdive/fundamentals/builtin_tools.md)
-- [Skills](deepdive/fundamentals/skills.md)
-- [Schema](deepdive/fundamentals/schema.md)
 - [Stream](deepdive/fundamentals/stream.md)
-- [Database](deepdive/fundamentals/database.md)
-- [Concurrency](deepdive/fundamentals/concurrency.md)
-- [REPL](deepdive/fundamentals/repl.md)
-- [Embeddings](deepdive/fundamentals/embeddings.md)
+- [Schema](deepdive/fundamentals/schema.md)
+- [Skills](deepdive/fundamentals/skills.md)
+
+## Protocols
+
+- [MCP](deepdive/protocols/mcp.md)
+- [A2A](deepdive/protocols/a2a.md)
+
+## Features
+
+- [Built-in tools](deepdive/features/builtin_tools.md)
+- [Concurrency](deepdive/features/concurrency.md)
+- [Embeddings](deepdive/features/embeddings.md)
+- [Database](deepdive/features/database.md)
+- [REPL](deepdive/features/repl.md)
 
 ## Advanced
 
@@ -71,17 +79,15 @@ place to start if you are new to llm.rb.
 - [Transports](deepdive/advanced/transports.md)
 - [Transformer](deepdive/advanced/transformer.md)
 - [Guard](deepdive/advanced/guard.md)
-- [Tracer](deepdive/advanced/tracer.md)
 
-## Protocols
+## Media
 
-- [MCP](deepdive/protocols/mcp.md)
-- [A2A](deepdive/protocols/a2a.md)
+- [Images](deepdive/media/images.md)
+- [Audio](deepdive/media/audio.md)
+- [OCR](deepdive/media/ocr.md)
 
-## Everything else
+## Reference
 
-- [Images](deepdive/everything_else/images.md)
-- [Audio](deepdive/everything_else/audio.md)
-- [OCR](deepdive/everything_else/ocr.md)
-- [LLM::Object](deepdive/everything_else/object.md)
-- [LLM::Cost](deepdive/everything_else/cost.md)
+- [LLM::Object](deepdive/reference/object.md)
+- [LLM::Cost](deepdive/reference/cost.md)
+- [Tracer](deepdive/reference/tracer.md)
