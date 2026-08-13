@@ -20,7 +20,7 @@
 
 Welcome to the llm.rb deepdive. This document provides a series
 of guides that explains how to use the llm.rb runtime so you can
-build capable AI applications on CRuby. This page provides a guide
+build advanced AI applications on CRuby. This page provides a guide
 index and explains the pattern that all guides follow.
 
 An optimized version exists
@@ -91,3 +91,4 @@ is the best place to start if you are new to llm.rb.
 - [LLM::Object](deepdive/reference/object.md)
 - [LLM::Cost](deepdive/reference/cost.md)
 - [Tracer](deepdive/reference/tracer.md)
+- [Model registry](deepdive/reference/registry.md)

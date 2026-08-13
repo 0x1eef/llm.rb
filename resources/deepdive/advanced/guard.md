@@ -71,7 +71,7 @@ returns the configured guard class. Because `call` returns an
 rather than a warning string, a guard can block an individual tool
 call while the rest of the batch still executes. The guard is stamped
 onto every function the context binds, so it runs whenever a task is
-spawned — including tool calls a stream queues itself during a
+spawned, including tool calls a stream queues itself during a
 streaming turn. A blocked call yields its return without executing.
 
 The runtime binds a guard instance to the context and stamps it onto

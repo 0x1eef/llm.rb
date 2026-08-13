@@ -9,7 +9,8 @@
 represents the approximate cost of a conversation. It breaks the
 total down by token type, so you can see how much was spent on input,
 output, cached tokens, reasoning, audio, and images. Cost is computed
-from token usage and the pricing data shipped in the model registry.
+from token usage and the pricing data shipped in the
+[model registry](../reference/registry.md).
 
 #### How it works
 
@@ -45,7 +46,8 @@ for a single number.
 
 #### Notes
 
-Cost is an approximation based on the pricing in the model registry.
+Cost is an approximation based on the pricing in the
+[model registry](../reference/registry.md).
 [`LLM::Cost.from`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#from-class_method)
 returns an empty cost when the model or registry cannot be found, so
 a missing model never crashes your code.

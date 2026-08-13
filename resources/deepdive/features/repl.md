@@ -76,9 +76,9 @@ and
 [`LLM::Repl#model=`](https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#model=-instance_method),
 seeded from the agent at startup. The `/model` command switches it
 mid-session, and its argument auto-completes through the provider's
-[`LLM::Registry#models`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#models-instance_method)
-so you can cycle through available models with Tab. The top chrome
-row reflects the change immediately.
+[`LLM::Registry#keys`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#keys-instance_method)
+so you can cycle through the available model names with Tab. The top
+chrome row reflects the change immediately.
 
 ### Commands
 

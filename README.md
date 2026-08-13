@@ -80,6 +80,26 @@ llm = LLM.moonshot(key: ENV["MOONSHOT_API_KEY"])
 llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
 ```
 
+##### Registry
+
+Each provider ships its model catalog, pricing, limits, and
+modalities with the gem, sourced from [models.dev](https://models.dev).
+Reach it from any provider, context, or agent, enumerate models, or
+sort them by price. See the
+[model registry](https://r.uby.dev/llm/deepdive/reference/registry)
+for the full reference:
+
+```ruby
+require "llm"
+
+llm      = LLM.openai
+registry = llm.registry                # => LLM::Provider#registry
+cheapest = registry.models.sort.first  # => LLM::Model
+cheapest.id                            # => "text-embedding-3-small"
+cheapest.context_window                # => 8191
+cheapest.structured_output?            # => false
+```
+
 #### LLM::Agent
 
 The
@@ -774,7 +794,9 @@ models or providers can be done with minimal code change.
   Every context tracks its own cost and token usage, per turn.
   Break the spend down by input, output, cache, and reasoning,
   so the exact cost of any conversation is visible at a
-  glance.
+  glance. Each provider ships its model catalog, pricing, and
+  limits with the gem so you can enumerate and sort models by
+  price with the [model registry](https://r.uby.dev/llm/deepdive/reference/registry).
 
 </details>
 
