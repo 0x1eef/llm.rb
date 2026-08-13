@@ -171,6 +171,14 @@ module LLM
       "deepseek.v3.2"
     end
 
+    ##
+    # @return (see LLM::Provider#key?)
+    def key?
+      @access_key_id.to_s.strip.size > 0      and
+      @secret_access_key.to_s.strip.size > 0  and
+      @aws_region.to_s.strip.size > 0
+    end
+
     private
 
     def headers
