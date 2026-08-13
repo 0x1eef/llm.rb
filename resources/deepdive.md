@@ -18,10 +18,10 @@
 
 #### Overview
 
-Welcome to the llm.rb deepdive. This document is a continuation
-of the [homepage documentation](https://r.uby.dev/llm). It assumes
-you are familiar with the basics already, and focuses on features
-that didn't make it into the homepage documentation.
+Welcome to the llm.rb deepdive. This document provides a series
+of guides that explains how to use the llm.rb runtime so you can
+build capable AI applications on CRuby. This page provides a guide
+index and explains the pattern that all guides follow.
 
 An optimized version exists
 at [https://r.uby.dev/llm/deepdive](https://r.uby.dev/llm/deepdive)
@@ -36,16 +36,16 @@ code, `#### Why would I use it?` explains the use case, and
 
 #### Why would I use it?
 
-The deepdive documents everything the homepage leaves out:
-advanced patterns, configuration options, ORM integrations,
-protocol support, and edge cases. Read it when you need to go
-beyond the basics.
+The deepdive documents everything there is to know about llm.rb.
+It includes the fundamnetals, advanced patterns, configuration
+options, ORM support, protocol support, and edge cases. It is
+useful when you need to go beyond the basics.
 
 #### Notes
 
 The deepdive is a living document. Sections are added as new
-features land. The [homepage](https://r.uby.dev/llm) is the best
-place to start if you are new to llm.rb.
+features land. The [README.md](https://github.com/r-uby-dev/llm#readme)
+is the best place to start if you are new to llm.rb.
 
 ---
 
