@@ -57,6 +57,41 @@ RSpec.describe LLM::Provider do
       expect(provider).to be_a(LLM::Bedrock)
       expect(provider.name).to eq(:bedrock)
     end
+
+    context "when credentials are resolved from the environment" do
+      let(:access_key_id) { "AKIA_ENV" }
+      let(:secret_access_key) { "SECRET_ENV" }
+      let(:region) { "eu-west-1" }
+
+      before do
+        ENV["AWS_ACCESS_KEY_ID"] = access_key_id
+        ENV["AWS_SECRET_ACCESS_KEY"] = secret_access_key
+        ENV["AWS_REGION"] = region
+      end
+      after do
+        ENV.delete("AWS_ACCESS_KEY_ID")
+        ENV.delete("AWS_SECRET_ACCESS_KEY")
+        ENV.delete("AWS_REGION")
+      end
+
+      subject { LLM.bedrock.key? }
+      it { is_expected.to be(true) }
+    end
+
+    context "when credentials are missing" do
+      before do
+        ENV.delete("AWS_ACCESS_KEY_ID")
+        ENV.delete("AWS_SECRET_ACCESS_KEY")
+      end
+      after do
+        ENV.delete("AWS_ACCESS_KEY_ID")
+        ENV.delete("AWS_SECRET_ACCESS_KEY")
+      end
+
+      it "raises an ArgumentError" do
+        expect { LLM.bedrock }.to raise_error(ArgumentError, "you must provide an API key")
+      end
+    end
   end
 
   context "with a transport class" do

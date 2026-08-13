@@ -209,14 +209,6 @@ module LLM
   end
 
   ##
-  # @param (see LLM::Bedrock#initialize)
-  # @return (see LLM::Bedrock#initialize)
-  def bedrock(**)
-    lock(:require) { require_relative "llm/providers/bedrock" unless defined?(LLM::Bedrock) }
-    LLM::Bedrock.new(**)
-  end
-
-  ##
   # @param key (see LLM::XAI#initialize)
   # @param host (see LLM::XAI#initialize)
   # @return (see LLM::XAI#initialize)
@@ -281,6 +273,24 @@ module LLM
     end
   end
   alias_method :aliyun, :alibaba
+
+  ##
+  # @param (see LLM::Bedrock#initialize)
+  # @return (see LLM::Bedrock#initialize)
+  def bedrock(access_key_id: UNDEFINED, secret_access_key: UNDEFINED, region: UNDEFINED, **)
+    lock(:require) { require_relative "llm/providers/bedrock" unless defined?(LLM::Bedrock) }
+    if [access_key_id, secret_access_key, region].any? { _1 == UNDEFINED }
+      access_key_id = ENV["AWS_ACCESS_KEY_ID"] if access_key_id == UNDEFINED
+      secret_access_key = ENV["AWS_SECRET_ACCESS_KEY"] if secret_access_key == UNDEFINED
+      region = ENV["AWS_REGION"] if region == UNDEFINED
+      if access_key_id.to_s.strip.empty? || secret_access_key.to_s.strip.empty?
+        raise ArgumentError, "you must provide an API key"
+      end
+      LLM::Bedrock.new(access_key_id:, secret_access_key:, region:, **)
+    else
+      LLM::Bedrock.new(access_key_id:, secret_access_key:, region:, **)
+    end
+  end
 
   ##
   # @param [Hash] opts
