@@ -14,6 +14,8 @@
 # @see LLM::Agent The recommended high-level interface
 # @see LLM::Context The low-level stateful runtime (advanced)
 module LLM
+  extend self
+
   require "stringio"
   require "securerandom"
   require_relative "llm/compactor"
@@ -55,6 +57,10 @@ module LLM
   require_relative "llm/uridata"
 
   ##
+  # @api private
+  UNDEFINED = Object.new
+
+  ##
   # Thread-safe monitors for different contexts
   @monitors = {require: Monitor.new, inherited: Monitor.new, registry: Monitor.new, mcp: Monitor.new}
 
@@ -94,8 +100,6 @@ module LLM
     end
   end
 
-  module_function
-
   ##
   # Returns the JSON adapter used by the library
   # @return [Class]
@@ -131,17 +135,25 @@ module LLM
   ##
   # @param (see LLM::Provider#initialize)
   # @return (see LLM::Anthropic#initialize)
-  def anthropic(**)
+  def anthropic(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/anthropic" unless defined?(LLM::Anthropic) }
-    LLM::Anthropic.new(**)
+    if key == UNDEFINED
+      LLM::Anthropic.new(key: key(name: __method__), **)
+    else
+      LLM::Anthropic.new(key:, **)
+    end
   end
 
   ##
   # @param (see LLM::Provider#initialize)
   # @return (see LLM::Google#initialize)
-  def google(**)
+  def google(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/google" unless defined?(LLM::Google) }
-    LLM::Google.new(**)
+    if key == UNDEFINED
+      LLM::Google.new(key: key(name: __method__), **)
+    else
+      LLM::Google.new(key:, **)
+    end
   end
 
   ##
@@ -163,25 +175,37 @@ module LLM
   ##
   # @param key (see LLM::Provider#initialize)
   # @return (see LLM::DeepSeek#initialize)
-  def deepseek(**)
+  def deepseek(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/deepseek" unless defined?(LLM::DeepSeek) }
-    LLM::DeepSeek.new(**)
+    if key == UNDEFINED
+      LLM::DeepSeek.new(key: key(name: __method__), **)
+    else
+      LLM::DeepSeek.new(key:, **)
+    end
   end
 
   ##
   # @param key (see LLM::Provider#initialize)
   # @return (see LLM::OpenAI#initialize)
-  def openai(**)
+  def openai(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/openai" unless defined?(LLM::OpenAI) }
-    LLM::OpenAI.new(**)
+    if key == UNDEFINED
+      LLM::OpenAI.new(key: key(name: __method__), **)
+    else
+      LLM::OpenAI.new(key:, **)
+    end
   end
 
   ##
   # @param key (see LLM::Provider#initialize)
   # @return (see LLM::DeepInfra#initialize)
-  def deepinfra(**)
+  def deepinfra(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/deepinfra" unless defined?(LLM::DeepInfra) }
-    LLM::DeepInfra.new(**)
+    if key == UNDEFINED
+      LLM::DeepInfra.new(key: key(name: __method__), **)
+    else
+      LLM::DeepInfra.new(key:, **)
+    end
   end
 
   ##
@@ -196,45 +220,65 @@ module LLM
   # @param key (see LLM::XAI#initialize)
   # @param host (see LLM::XAI#initialize)
   # @return (see LLM::XAI#initialize)
-  def xai(**)
+  def xai(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/xai" unless defined?(LLM::XAI) }
-    LLM::XAI.new(**)
+    if key == UNDEFINED
+      LLM::XAI.new(key: key(name: __method__), **)
+    else
+      LLM::XAI.new(key:, **)
+    end
   end
 
   ##
   # @param key (see LLM::Mistral#initialize)
   # @param host (see LLM::Mistral#initialize)
   # @return (see LLM::Mistral#initialize)
-  def mistral(**)
+  def mistral(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/mistral" unless defined?(LLM::Mistral) }
-    LLM::Mistral.new(**)
+    if key == UNDEFINED
+      LLM::Mistral.new(key: key(name: __method__), **)
+    else
+      LLM::Mistral.new(key:, **)
+    end
   end
 
   ##
   # @param key (see LLM::ZAI#initialize)
   # @param host (see LLM::ZAI#initialize)
   # @return (see LLM::ZAI#initialize)
-  def zai(**)
+  def zai(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/zai" unless defined?(LLM::ZAI) }
-    LLM::ZAI.new(**)
+    if key == UNDEFINED
+      LLM::ZAI.new(key: key(name: __method__), **)
+    else
+      LLM::ZAI.new(key:, **)
+    end
   end
 
   ##
   # @param key (see LLM::Moonshot#initialize)
   # @param host (see LLM::Moonshot#initialize)
   # @return (see LLM::Moonshot#initialize)
-  def moonshot(**)
+  def moonshot(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/moonshot" unless defined?(LLM::Moonshot) }
-    LLM::Moonshot.new(**)
+    if key == UNDEFINED
+      LLM::Moonshot.new(key: key(name: __method__), **)
+    else
+      LLM::Moonshot.new(key:, **)
+    end
   end
 
   ##
   # @param key (see LLM::Alibaba#initialize)
   # @param host (see LLM::Alibaba#initialize)
   # @return (see LLM::Alibaba#initialize)
-  def alibaba(**)
+  def alibaba(key: UNDEFINED, **)
     lock(:require) { require_relative "llm/providers/alibaba" unless defined?(LLM::Alibaba) }
-    LLM::Alibaba.new(**)
+    if key == UNDEFINED
+      LLM::Alibaba.new(key: key(name: :alibaba), **)
+    else
+      LLM::Alibaba.new(key:, **)
+    end
   end
   alias_method :aliyun, :alibaba
 
@@ -308,4 +352,22 @@ module LLM
   # @param [Proc] block The block to execute within the lock
   # @return [void]
   def lock(name, &block) = @monitors[name].synchronize(&block)
+
+  private
+
+  ##
+  # Resolves a provider's API key from the environment.
+  # @param [Symbol] name
+  #  The provider name.
+  # @raise [ArgumentError]
+  #  When no registered env var is set.
+  # @return [String]
+  def key(name:)
+    registry = LLM::Registry.for(name)
+    keyname  = registry.env.find { ENV.key?(_1) }
+    if keyname.nil?
+      raise ArgumentError, "you must provide an api key"
+    end
+    ENV[keyname]
+  end
 end

@@ -41,6 +41,12 @@ class LLM::Registry
   end
 
   ##
+  # @return [Array<String>]
+  def env
+    @registry.env
+  end
+
+  ##
   # @return [LLM::Object]
   #  Returns model costs
   def cost(model:)

@@ -24,9 +24,12 @@ RSpec.describe LLM::Provider do
     end
 
     describe "#key?" do
-      context "when given nil as a key" do
-        subject { LLM.openai(key: nil).key? }
-        it { is_expected.to be(false) }
+      context "when given a key resolved via environment" do
+        let(:key) { "sk-from-env" }
+        before { ENV["OPENAI_API_KEY"] = key }
+        after { ENV.delete("OPENAI_API_KEY")  }
+        subject { LLM.openai.key? }
+        it { is_expected.to be(true) }
       end
 
       context "when given an empty string as a key" do

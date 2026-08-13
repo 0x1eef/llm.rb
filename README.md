@@ -40,18 +40,38 @@ gem install llm.rb
 
 #### Providers
 
-Every provider is constructed with a class-level factory method on
-`LLM`, and the resulting instance is passed to an
+Each provider is constructed with a class-level factory method on
+`LLM`, and the resulting instance is passed to
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 or
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
-OpenAI-compatible providers accept the same `key:`, `host:`, and
-`base_path:` options, so switching models is a one-line change.
 
 The same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
 Bedrock, Ollama, and llama.cpp. See the
 [deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
-for a full provider reference:
+for a full provider reference.
+
+**Implicit**
+
+Cloud providers can infer their API key automatically
+from a set of common defaults that are defined by
+the [models.dev](https://models.dev) registry that
+is also distributed with llm.rb.
+
+```ruby
+llm = LLM.openai
+llm = LLM.anthropic
+llm = LLM.deepseek
+llm = LLM.alibaba  # also: LLM.aliyun
+llm = LLM.moonshot
+llm = LLM.mistral
+```
+
+**Explicit**
+
+The `key` option can also be providied explicitly, and certain
+providers (eg ollama, llamacpp) usually do not require an API
+key at all.
 
 ```ruby
 llm = LLM.openai(key: ENV["OPENAI_API_KEY"])
