@@ -504,9 +504,10 @@ module LLM
     end
 
     ##
+    # @see LLM::Provider#registry
     # @return [LLM::Registry]
     def registry
-      LLM.registry_for(llm)
+      llm.registry
     end
 
     private
