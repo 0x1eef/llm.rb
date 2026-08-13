@@ -132,5 +132,23 @@ RSpec.describe LLM::Registry do
     it "exposes the cost object" do
       expect(model.cost).to be_a(LLM::Object)
     end
+
+    it "exposes the input and output costs" do
+      expect(model.input_cost).to be_a(Numeric)
+      expect(model.output_cost).to be_a(Numeric)
+    end
+
+    it "orders cheaper models before expensive ones" do
+      cheap = LLM::Registry.for(:openai).models.find { _1.id == "gpt-4o-mini" }
+      expensive = LLM::Registry.for(:openai).models.find { _1.id == "o1-pro" }
+      expect(cheap).to be < expensive
+    end
+
+    it "sorts unpriced models after priced ones" do
+      registry = LLM::Registry.for(:openai)
+      priced = registry.models.find { !_1.input_cost.nil? }
+      unpriced = registry.models.find { _1.input_cost.nil? }
+      expect(priced).to be < unpriced
+    end
   end
 end

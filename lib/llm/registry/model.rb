@@ -5,7 +5,13 @@ class LLM::Registry
   # A single model from the registry, wrapping its
   # metadata (pricing, limits, capabilities, and
   # modalities).
+  #
+  # Models are {Comparable} by price: input cost first, then
+  # output cost, so `models.sort` orders them from cheapest to
+  # most expensive.
   class Model
+    include Comparable
+
     ##
     # @return [LLM::Object]
     #  The model's metadata.
@@ -35,6 +41,29 @@ class LLM::Registry
     #  Returns the model's pricing.
     def cost
       data.cost
+    end
+
+    ##
+    # @return [Float, nil]
+    #  Returns the input price per million tokens, or nil when unpriced.
+    def input_cost
+      cost&.input
+    end
+
+    ##
+    # @return [Float, nil]
+    #  Returns the output price per million tokens, or nil when unpriced.
+    def output_cost
+      cost&.output
+    end
+
+    ##
+    # Compares models by price: input cost first, then output cost.
+    # Models without a price sort as the most expensive.
+    # @param [LLM::Registry::Model] other
+    # @return [Integer, nil]
+    def <=>(other)
+      [price(input_cost), price(output_cost)] <=> [price(other.input_cost), price(other.output_cost)]
     end
 
     ##
@@ -80,6 +109,16 @@ class LLM::Registry
     # @return [Boolean]
     def open_weights?
       !!data.open_weights
+    end
+
+    private
+
+    ##
+    # Maps a missing price to infinity so unpriced models sort last.
+    # @param [Float, nil] value
+    # @return [Float]
+    def price(value)
+      value.nil? ? Float::INFINITY : value.to_f
     end
   end
 end
