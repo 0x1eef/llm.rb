@@ -150,5 +150,26 @@ RSpec.describe LLM::Registry do
       unpriced = registry.models.find { _1.input_cost.nil? }
       expect(priced).to be < unpriced
     end
+
+    it "identifies a text LLM from both directions" do
+      model = LLM::Registry.for(:openai).models.find { _1.id == "gpt-4.1" }
+      expect(model.text?).to be(true)
+    end
+
+    it "excludes generation models from text?" do
+      model = LLM::Registry.for(:google).models.find { _1.id == "gemini-3.1-flash-tts-preview" }
+      expect(model.text?).to be(false)
+    end
+
+    it "reports a modality supported on either side" do
+      model = LLM::Registry.for(:alibaba).models.find { _1.id == "qwen3.8-max" }
+      expect(model.pdf?).to be(true)
+    end
+
+    it "distinguishes input from output support" do
+      model = LLM::Registry.for(:openai).models.find { _1.id == "gpt-4.1" }
+      expect(model.input?("pdf")).to be(true)
+      expect(model.output?("image")).to be(false)
+    end
   end
 end

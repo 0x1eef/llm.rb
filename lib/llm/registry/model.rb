@@ -111,14 +111,76 @@ class LLM::Registry
       !!data.open_weights
     end
 
+    ##
+    # Returns whether the model is probably a text LLM:
+    # it reads and writes text. A generation model that
+    # only produces audio or images reports false.
+    # @return [Boolean]
+    def text?
+      input?("text") and output?("text")
+    end
+
+    ##
+    # @return [Boolean]
+    def image?
+      supports?("image")
+    end
+
+    ##
+    # @return [Boolean]
+    def audio?
+      supports?("audio")
+    end
+
+    ##
+    # @return [Boolean]
+    def pdf?
+      supports?("pdf")
+    end
+
+    ##
+    # @return [Boolean]
+    def video?
+      supports?("video")
+    end
+
+    ##
+    # Returns whether the model reads a modality as input.
+    # @param [String] modality
+    #  One of "text", "image", "audio", "video", "pdf".
+    # @return [Boolean]
+    def input?(modality)
+      modalities&.input&.include?(modality)
+    end
+
+    ##
+    # Returns whether the model produces a modality as output.
+    # @param [String] modality
+    #  One of "text", "image", "audio", "video", "pdf".
+    # @return [Boolean]
+    def output?(modality)
+      modalities&.output&.include?(modality)
+    end
+
     private
 
     ##
-    # Maps a missing price to infinity so unpriced models sort last.
+    # Maps a missing price to infinity so unpriced
+    # models sort last.
     # @param [Float, nil] value
     # @return [Float]
     def price(value)
       value.nil? ? Float::INFINITY : value.to_f
+    end
+
+    ##
+    # Returns whether the model handles a modality in either direction,
+    # so a model that reads PDFs but writes text still reports `pdf?`.
+    # @param [String] modality
+    #  One of "text", "image", "audio", "video", "pdf".
+    # @return [Boolean]
+    def supports?(modality)
+      input?(modality) or output?(modality)
     end
   end
 end
