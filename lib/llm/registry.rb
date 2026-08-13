@@ -7,6 +7,7 @@
 # stored under `data/`. The data is provided by https://models.dev
 # and shipped with llm.rb.
 class LLM::Registry
+  require_relative "registry/model"
   @root = File.join(__dir__, "..", "..")
 
   ##
@@ -34,10 +35,17 @@ class LLM::Registry
   end
 
   ##
-  # Returns the names of all known models.
+  # Returns the model keys (names) in the registry.
   # @return [Array<String>]
-  def models
+  def keys
     @models.keys
+  end
+
+  ##
+  # Returns all models as {LLM::Registry::Model} objects.
+  # @return [Array<LLM::Registry::Model>]
+  def models
+    @models.map { |id, data| Model.new(data.merge(id:)) }
   end
 
   ##
@@ -50,37 +58,47 @@ class LLM::Registry
   # @return [LLM::Object]
   #  Returns model costs
   def cost(model:)
-    lookup(model:).cost
+    find(model:).cost
   end
 
   ##
   # @return [LLM::Object]
   #  Returns model modalities
   def modalities(model:)
-    lookup(model:).modalities
+    find(model:).modalities
   end
 
   ##
   # @return [LLM::Object]
   #  Returns model limits such as the context window size
   def limit(model:)
-    lookup(model:).limit
+    find(model:).limit
   end
 
   private
 
-  def lookup(model:)
-    if @models.key?(model)
-      @models[model]
-    else
-      patterns = {/-\d{4}-\d{2}-\d{2}$/ => "", /\A(gpt-.*)-\d{4}$/ => "\\1"}
-      fallback = find_map(patterns) { model.dup.sub!(_1, _2) } || "none"
-      if @models.key?(fallback)
-        @models[fallback]
-      else
-        raise LLM::NoSuchModelError, "no such model: #{model} (fallback: #{fallback})"
-      end
+  ##
+  # Find a model, or raise an error
+  # @param [String] model
+  #  Model ID
+  # @return [LLM::Registry::Model]
+  def find(model:)
+    data = @models[model]
+    if data.nil?
+      fallback = find_fallback(model)
+      data = @models[fallback]
+      raise LLM::NoSuchModelError, "no such model: #{model} (fallback: #{fallback})" if data.nil?
     end
+    Model.new(data)
+  end
+
+  ##
+  # Finds a fallback model name, or "none"
+  # @param [String] model_id
+  # @return [String]
+  def find_fallback(model_id)
+    patterns = {/-\d{4}-\d{2}-\d{2}$/ => "", /\A(gpt-.*)-\d{4}$/ => "\\1"}
+    find_map(patterns) { model_id.dup.sub!(_1, _2) } || "none"
   end
 
   ##

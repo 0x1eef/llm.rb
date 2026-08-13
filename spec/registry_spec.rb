@@ -93,4 +93,44 @@ RSpec.describe LLM::Registry do
     include_examples "model exists", "anthropic.claude-sonnet-4-5-20250929-v1:0"
     include_examples "model exists", "meta.llama3-3-70b-instruct-v1:0"
   end
+
+  describe "#keys" do
+    let(:provider) { :openai }
+
+    subject { registry.keys }
+
+    it "returns the model names" do
+      expect(subject).to include("gpt-4.1")
+    end
+  end
+
+  describe "#models" do
+    let(:provider) { :openai }
+
+    subject(:models) { registry.models }
+
+    it "returns registry models" do
+      expect(models).to all(be_a(LLM::Registry::Model))
+    end
+
+    it "exposes the model ids" do
+      expect(models.map(&:id)).to include("gpt-4.1")
+    end
+  end
+
+  describe LLM::Registry::Model do
+    subject(:model) { LLM::Registry.for(:openai).models.find { _1.id == "gpt-4.1" } }
+
+    it "exposes a display name" do
+      expect(model.name).to be_a(String)
+    end
+
+    it "exposes the context window" do
+      expect(model.context_window).to be_a(Integer)
+    end
+
+    it "exposes the cost object" do
+      expect(model.cost).to be_a(LLM::Object)
+    end
+  end
 end
