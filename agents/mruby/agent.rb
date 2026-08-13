@@ -23,7 +23,7 @@ class Agent < LLM::Agent
 end
 
 def main(argv)
-  llm     = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+  llm     = LLM.deepseek
   agent   = Agent.new(llm)
   command = argv[0]
   case command

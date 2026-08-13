@@ -44,11 +44,9 @@ Each provider is constructed with a class-level factory method on
 `LLM`, and the resulting instance is passed to
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 or
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
-
-The same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
-Bedrock, Ollama, and llama.cpp. See the
-[deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html). The
+same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
+Bedrock, Ollama, and llama.cpp. See the [deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
 for a full provider reference.
 
 **Implicit**
@@ -898,13 +896,13 @@ rake agents:scribe:yardoc
 rake agents:scribe:coverage
 rake agents:scribe:regressions
 rake agents:scribe:style
+rake agents:scribe:changelog
 rake agents:scribe:repl
 
 ##
 # Maintains the release
-rake agents:dexter:changelog
-rake agents:dexter:release
-rake agents:dexter:repl
+rake agents:rel:release
+rake agents:rel:repl
 
 ##
 # Maintains mruby-llm backports

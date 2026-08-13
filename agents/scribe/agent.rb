@@ -50,7 +50,7 @@ class Agent < LLM::Agent
 end
 
 def main(argv)
-  llm   = LLM.alibaba(key: ENV["ALIBABA_SECRET"])
+  llm   = LLM.alibaba
   agent = Agent.new(llm)
   if argv[0] == "repl"
     agent.repl

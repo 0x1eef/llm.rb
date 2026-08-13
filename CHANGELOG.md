@@ -61,6 +61,17 @@
 
 ### Core
 
+* **discover API keys from the environment** <br>
+  [Cloud provider factories](https://r.uby.dev/api-docs/llm.rb/LLM.html)
+  (`LLM.anthropic`, `LLM.google`, `LLM.deepseek`, `LLM.openai`,
+  `LLM.xai`, `LLM.mistral`, `LLM.zai`, `LLM.moonshot`,
+  `LLM.alibaba`, and `LLM.aliyun`) now resolve the provider's API key
+  automatically when no `key:` is given, by walking the environment
+  variable names listed in the models.dev registry. So `LLM.openai`
+  works without an explicit key as long as `OPENAI_API_KEY` (or one of
+  the registry's alternative names) is set in the environment. A
+  missing key raises `ArgumentError`.
+
 * **add `retry_budget` support for rate-limited requests** <br>
   [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
   now accepts a `retry_budget:` that automatically sleeps and retries a
@@ -102,6 +113,12 @@
 
 ### Provider
 
+* **add `LLM::Provider#registry`** <br>
+  Add [`LLM::Provider#registry`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#registry-instance_method),
+  which returns the provider's model registry. `LLM::Context#registry`
+  and `LLM::Agent#registry` now delegate to their underlying provider
+  instead of looking it up on their own.
+
 * **add `LLM::Alibaba` for Alibaba Cloud Model Studio** <br>
   [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
   is a new provider that talks to
@@ -132,6 +149,11 @@
   the `ALIBABA_API_HOST` environment variable, or per instance with
   `LLM.alibaba(host: ...)`, for example to point at a Token Plan
   endpoint.
+
+* **alibaba: use `DASHSCOPE_API_KEY` as the default key env var** <br>
+  [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
+  now discovers its API key from `DASHSCOPE_API_KEY` instead of
+  `ALIBABA_API_KEY`, following the models.dev registry convention.
 
 ### Function
 
