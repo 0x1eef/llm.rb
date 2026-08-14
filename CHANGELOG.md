@@ -146,7 +146,7 @@
   The default
   [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
   host is now `dashscope-intl.aliyuncs.com`. Override it globally with
-  the `ALIBABA_API_HOST` environment variable, or per instance with
+  the `DASHSCOPE_API_HOST` environment variable, or per instance with
   `LLM.alibaba(host: ...)`, for example to point at a Token Plan
   endpoint.
 
@@ -154,6 +154,20 @@
   [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
   now discovers its API key from `DASHSCOPE_API_KEY` instead of
   `ALIBABA_API_KEY`, following the models.dev registry convention.
+
+* **bedrock: auto-discover AWS credentials from the environment** <br>
+  [`LLM.bedrock`](https://r.uby.dev/api-docs/llm.rb/LLM.html#bedrock-class_method)
+  now infers its credentials from the `AWS_ACCESS_KEY_ID`,
+  `AWS_SECRET_ACCESS_KEY`, and `AWS_REGION` environment variables when
+  they are not passed explicitly, matching the other cloud providers. A
+  missing key raises `ArgumentError`.
+
+* **add `LLM::Bedrock#key?`** <br>
+  Add
+  [`LLM::Bedrock#key?`](https://r.uby.dev/api-docs/llm.rb/LLM/Bedrock.html#key%3F-instance_method),
+  which overrides the superclass method to check all three Bedrock
+  credentials (`access_key_id`, `secret_access_key`, and `region`)
+  instead of a single API key.
 
 ### Function
 
