@@ -38,9 +38,9 @@ DESCRIPTION
   spec.executables = ["llm.rb"]
   spec.require_paths = ["lib"]
   spec.post_install_message = "\n" \
-                              "Learn more about llm.rb by reading the deepdive:" \
+                              "Learn more about llm.rb on GitHub:" \
                               "\n" \
-                              "https://r.uby.dev/llm/deepdive" \
+                              "https://github.com/r-uby-dev/llm#readme" \
                               "\n\n"
 
   spec.add_development_dependency "webmock", "~> 3.24.0"
