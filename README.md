@@ -366,6 +366,40 @@ agent.talk "Contact support@example.com for help"
 </details>
 
 <details>
+<summary>Compactors</summary>
+<br>
+
+Every model has a context window: the finite number of tokens it can
+consider in a single request. Generally a compactor will drop or
+summarize older messages to keep the conversation within that window,
+and it runs automatically before every turn. By default it is disabled
+so it is a feature you must opt into.
+
+[`LLM::Compactor::Truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html)
+keeps the most recent messages via an integer count or a percentage like
+`"80%"`. It preserves tool call and return pairs so the conversation
+never contains an orphaned result. It is also possible to subclass
+[`LLM::Compactor`](https://r.uby.dev/api-docs/llm.rb/LLM/Compactor.html)
+to implement your own compactor with its own logic. Streams can observe the
+process through the
+[`LLM::Stream#on_compaction`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction)
+and
+[`LLM::Stream#on_compaction_finish`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction_finish)
+callbacks.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/compaction) to learn more.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 64}
+)
+```
+</details>
+
+<details>
 <summary>Automatic retries</summary>
 <br>
 
