@@ -8,12 +8,18 @@ require "securerandom"
 ##
 # utils
 
-def keys
-  @keys ||= Dir[File.join(__dir__, "..", "lib", "llm", "providers", "*")]
+def providers
+  @providers ||= Dir[File.join(__dir__, "..", "lib", "llm", "providers", "*")]
     .select { File.file?(_1) }
     .map { File.basename(_1, ".rb") }
-    .sort_by { _1 == "deepseek" ? 0 : 1 }
-    .map { "#{_1.upcase}_API_KEY" } - ["BEDROCK_API_KEY"]
+    .sort_by { |provider|
+      # <3 DeepSeek
+      case provider
+      when "deepseek" then -1
+      when "ollama", "llamacpp" then 1
+      else 0
+      end
+    }
 end
 
 def help
@@ -94,15 +100,25 @@ def main(argv)
   # No provider has been given.
   # Try to infer one.
   if provider.nil?
-    key = keys.find { ENV[_1] }
-    if key.nil?
+    llm = providers.filter_map do
+      LLM.method(_1).call
+    rescue ArgumentError
+    end.first
+    if llm.nil?
       warn "llm.rb: provide a provider with the -p switch"
       exit 1
-    else
-      provider, = key.split("_")
+    end
+  else
+    begin
+      llm = LLM.method(provider).call
+    rescue ArgumentError
+      warn "llm.rb: set credentials for #{provider}"
+      exit 1
+    rescue NameError
+      warn "llm.rb: unknown provider (#{provider})"
+      exit 1
     end
   end
-  provider = provider.downcase
 
   ##
   # Setup the filesystem where <provider>.json maps
@@ -112,8 +128,8 @@ def main(argv)
   # This can be skipped with the `-t` option.
   if temp.nil?
     home   = File.join(Dir.home, ".llm.rb")
-    file   = File.join(home, "#{provider}.json")
-    parent = File.join(home, provider)
+    file   = File.join(home, "#{llm.name}.json")
+    parent = File.join(home, llm.name.to_s)
 
     FileUtils.mkdir_p(parent)
     FileUtils.touch(file)
@@ -131,19 +147,8 @@ def main(argv)
   ##
   # We're ready to start the REPL
   # This should always succeed unless -p gave garbage
-  if LLM.respond_to?(provider)
-    key ||= "#{provider.upcase}_API_KEY"
-    if ENV[key].nil? || ENV[key].to_s.empty?
-      warn "llm.rb: set #{key} to use #{provider}"
-      exit 1
-    end
-    llm   = LLM.method(provider).call(key: ENV[key])
-    path  = temp ? nil : data[Dir.getwd]
-    agent = LLM::Agent.new(llm, path:, tools: LLM::Tool.subclasses)
-    agent.repl
-  else
-    warn "llm.rb: #{provider} was not recognized"
-    exit 1
-  end
+  path  = temp ? nil : data[Dir.getwd]
+  agent = LLM::Agent.new(llm, path:, tools: LLM::Tool.subclasses)
+  agent.repl
 end
 main(ARGV)
