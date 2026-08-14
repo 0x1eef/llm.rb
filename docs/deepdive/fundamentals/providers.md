@@ -53,7 +53,7 @@ capabilities, sourced from [models.dev](https://models.dev) and stored
 under `data/`. The registry backs cost estimation, context window
 limits, and many other runtime features. For the full API,
 see the
-[model registry reference](../reference/registry.md).
+[model registry reference](../reference/model_registry.md).
 
 #### How it works
 

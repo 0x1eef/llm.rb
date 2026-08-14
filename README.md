@@ -565,7 +565,7 @@ llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
 </details>
 
 <details>
-<summary>Registry</summary>
+<summary>Model Registry</summary>
 <br>
 
 Each provider ships its model catalog, pricing, limits, and
@@ -573,7 +573,7 @@ modalities with the gem, sourced from [models.dev](https://models.dev).
 Reach it from any provider, context, or agent, enumerate models, or
 sort them by price.
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/reference/registry) to learn more.
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/reference/model_registry) to learn more.
 
 ```ruby
 require "llm"

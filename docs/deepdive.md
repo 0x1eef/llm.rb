@@ -91,4 +91,4 @@ is the best place to start if you are new to llm.rb.
 - [LLM::Object](deepdive/reference/object.md)
 - [LLM::Cost](deepdive/reference/cost.md)
 - [Tracer](deepdive/reference/tracer.md)
-- [Model registry](deepdive/reference/registry.md)
+- [Model registry](deepdive/reference/model_registry.md)
