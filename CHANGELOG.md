@@ -72,6 +72,14 @@
   the registry's alternative names) is set in the environment. A
   missing key raises `ArgumentError`.
 
+* **cli: auto-discover credentials and support Bedrock** <br>
+  `bin/llm.rb` now resolves the provider through the `LLM` factory
+  methods instead of mapping environment variable names directly, so it
+  picks up Bedrock (all three AWS credentials) and relies on the same
+  automatic key discovery as the library. The CLI also always starts
+  now: without arguments it falls back to `ollama` or `llamacpp`. A
+  provider whose credentials are not set exits with status 1.
+
 * **add `retry_budget` support for rate-limited requests** <br>
   [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
   now accepts a `retry_budget:` that automatically sleeps and retries a
