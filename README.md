@@ -15,20 +15,20 @@
 Welcome to the canonical llm.rb repository.
 
 llm.rb is an advanced runtime for building capable AI applications
-on CRuby. It has zero runtime dependencies by default, and a single
-coherent API that spans 13+ providers. Streaming, tools, guards,
-compaction, the REPL, builtin MCP/A2A support and the database
-integrations all build on the same three concepts: providers,
-contexts, and agents.
+on CRuby. It has zero runtime dependencies by default, it supports
+concurrent and parallel tool execution and has a single coherent API
+that spans 13+ providers. Streaming, tools, guards, compaction, the
+REPL, builtin MCP/A2A support and the database integrations all build
+on the same three concepts: providers, contexts, and agents.
 
 Once you learn the fundamentals, everything else falls into place
 naturally. Some features, such as ActiveRecord support, require
 optional dependencies that are opt-in.
 
 It is recommended to read the [deepdive.md](https://r.uby.dev/llm/deepdive)
-guides if you want to learn more about llm.rb. I read them from time to time
-and put a lot of effort into maintaining the deepdive and associated
-documentation. The deepdive covers all llm.rb features.
+guides when you want to learn about advanced llm.rb features. I read them from
+time to time and put a lot of effort into maintaining the deepdive and
+associated documentation. The deepdive covers all llm.rb features.
 
 ## Install
 
@@ -38,69 +38,7 @@ gem install llm.rb
 
 ## Quick start
 
-#### Providers
-
-Each provider is constructed with a class-level factory method on
-`LLM`, and the resulting instance is passed to
-[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
-or
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html). The
-same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
-Bedrock, Ollama, and llama.cpp. See the [deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
-for a full provider reference.
-
-##### Implicit
-
-Cloud providers can infer their API key automatically
-from a set of common defaults that are defined by
-the [models.dev](https://models.dev) registry that
-is also distributed with llm.rb.
-
-```ruby
-llm = LLM.openai
-llm = LLM.anthropic
-llm = LLM.deepseek
-llm = LLM.alibaba  # also: LLM.aliyun
-llm = LLM.moonshot
-llm = LLM.mistral
-```
-
-##### Explicit
-
-The `key` option can also be providied explicitly, and certain
-providers (eg ollama, llamacpp) usually do not require an API
-key at all.
-
-```ruby
-llm = LLM.openai(key: ENV["OPENAI_API_KEY"])
-llm = LLM.anthropic(key: ENV["ANTHROPIC_API_KEY"])
-llm = LLM.deepseek(key: ENV["DEEPSEEK_API_KEY"])
-llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"]) # also: LLM.aliyun
-llm = LLM.moonshot(key: ENV["MOONSHOT_API_KEY"])
-llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
-```
-
-##### Registry
-
-Each provider ships its model catalog, pricing, limits, and
-modalities with the gem, sourced from [models.dev](https://models.dev).
-Reach it from any provider, context, or agent, enumerate models, or
-sort them by price. See the
-[model registry](https://r.uby.dev/llm/deepdive/reference/registry)
-for the full reference:
-
-```ruby
-require "llm"
-
-llm      = LLM.openai
-registry = llm.registry                # => LLM::Provider#registry
-cheapest = registry.models.sort.first  # => LLM::Model
-cheapest.id                            # => "text-embedding-3-small"
-cheapest.context_window                # => 8191
-cheapest.structured_output?            # => false
-```
-
-#### LLM::Agent
+### Agents
 
 The
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
@@ -117,121 +55,37 @@ llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"
 ```
+<details>
+<summary>Streaming</summary>
+<br>
 
-
-##### Concurrency
-
-The runtime supports six different concurrency strategies that have
-different attributes. The choice between all of them often depends
-on the requirements of your application.
-
-IO-bound tools are a good fit for the `:async`, `:thread`,
-and `:fiber` strategies while true parallelism can be achieved
-with the `:fork` and `:ractor` strategies. The
-`:sequential` strategy runs tools one at a time and is the default.
-The `:fork` strategy also provides a separate process that offers
-isolation from its parent.
-
-You can learn more about the llm.rb concurrency model in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency).
+Streams can be simple IO objects or subclasses of
+[`LLM::Stream`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html)
+with structured callbacks for content,
+reasoning, tool calls, tool returns, and compaction.
+Streams can also observe message transformers, which rewrite
+outgoing messages before they reach the provider (see the
+[deepdive.md](https://r.uby.dev/llm/deepdive/advanced/transformer)).
 
 ```ruby
-require "llm"
+class MyStream < LLM::Stream
+  def on_content(content)
+    print content
+  end
 
-llm   = LLM.deepseek(key: ENV["KEY"])
-tools = [FetchNews, FetchStocks, FetchFeeds]
-agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
-agent.talk "Run the tools in parallel"
-```
-
-##### Persistence
-
-Set `path:` on an agent for automatic filesystem persistence;
-the agent restores conversation history from the file on startup
-and saves it back after every turn, with no manual serialization
-code. For database-backed persistence, ActiveRecord and Sequel
-integrations are also available (see the
-[database deepdive](https://r.uby.dev/llm/deepdive/features/database)
-for details). All persistence options use the same underlying
-serialization.
-
-```ruby
-require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, path: "session.json")
-agent.talk "remember my name is robert"
-
-# Next time, the conversation is restored automatically:
-agent = LLM::Agent.new(llm, path: "session.json")
-agent.talk "what's my name?"
-```
-
-##### Automatic retries
-
-Rate-limited requests are retried automatically by default. Agents
-retry a 429 up to three times with a growing backoff before giving
-up, so most request failures resolve on their own. Set `retry_budget`
-to change the number of retries, or `retry_budget: 0` to disable
-them.
-
-```ruby
-require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, retry_budget: 0)
-```
-
-##### set
-
-[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
-is a class-level DSL that accepts a Hash of properties. Each key resolves to a
-corresponding class accessor: `name`, `description`, `model`, `tools`,
-`instructions`, `schema`, `stream`, `tracer`, `concurrency`, `confirm`,
-`path`, `skills`, `tool_budget`, and `retry_budget`. All options are
-optional; zero or more can be set.
-An error is raised for unknown keys so that typos are caught early.
-
-```ruby
-class Agent < LLM::Agent
-  set name: "sysadmin",
-      description: "system administration agent",
-      model: "deepseek-v4-pro",
-      tools: [Shell]
+  def on_reasoning_content(content)
+    warn content
+  end
 end
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = Agent.new(llm)
-agent.talk "Run 'date'"
+agent = LLM::Agent.new(llm, stream: MyStream.new)
+agent.talk "Explain Ruby fibers."
 ```
+</details>
 
-#### LLM::Context
-
-The
-[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
-class is at the heart of the runtime
-and it is what
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
-uses under the hood.
-It requires that the tool call loop be managed manually -
-sometimes that can be useful, but usually for advanced use-cases.
-If you're new to llm.rb, try
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) first.
-
-Every context tracks its own token usage and estimated cost. After any
-turn, you can read the cost breakdown through
-[`LLM::Context#cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cost-instance_method),
-and the REPL shows the running total in the status line.
-
-```ruby
-require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-ctx = LLM::Context.new(llm, stream: $stdout)
-ctx.talk "Hello world"
-```
-
-#### LLM::Tool
+<details><summary>Tools</summary>
+<br>
 
 Subclasses of
 [`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
@@ -257,249 +111,10 @@ class ReadFile < LLM::Tool
   end
 end
 ```
-
-##### set
-
-[`LLM::Tool.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method)
-is an alternative way to define tool properties using a Hash. It works
-the same way as
-[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
-and accepts the same keys that the individual methods do: `name`,
-`description`, `parameters`, `required`, and `defaults`:
-
-```ruby
-class MathTool < LLM::Tool
-  set name: "math",
-      description: "Performs arithmetic",
-      parameters: [
-        [:x, Integer, "first number" , {required: true}],
-        [:y, Integer, "second number", {default: 0}]
-      ]
-
-  def call(x:, y: 0)
-    {result: x + y}
-  end
-end
-```
-
-#### LLM::Stream
-
-Streams can be simple IO objects or subclasses of
-[`LLM::Stream`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html)
-with structured callbacks for content,
-reasoning, tool calls, tool returns, and compaction.
-Streams can also observe message transformers, which rewrite
-outgoing messages before they reach the provider (see the
-[deepdive.md](https://r.uby.dev/llm/deepdive/advanced/transformer)).
-
-```ruby
-class MyStream < LLM::Stream
-  def on_content(content)
-    print content
-  end
-
-  def on_reasoning_content(content)
-    warn content
-  end
-end
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, stream: MyStream.new)
-agent.talk "Explain Ruby fibers."
-```
-
-#### LLM::Schema
-
-[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
-subclasses produce typed, structured
-output from any model call. Pass a schema to
-[`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk-instance_method),
-[`LLM::Agent#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk-instance_method),
-or
-[`LLM::Provider#complete`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#complete-instance_method)
-to receive validated JSON instead of free text. Schemas work alongside tools and streams.
-
-[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
-can define objects, arrays, enums, nested schemas,
-and more. It is also used internally by
-[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) for parameter
-definitions, so you already benefit from it when you declare tool
-parameters.
-
-The
-[`LLM::DeepSeek`](https://r.uby.dev/api-docs/llm.rb/LLM/DeepSeek.html)
-provider includes runtime-level optimisations such as structured
-output support (despite no official structured outputs API) and
-SVG image generation. This example uses
-[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html) with
-DeepSeek:
-
-```ruby
-class Weather < LLM::Schema
-  property :city, String, "The city name"
-  property :temperature, Number, "Current temperature"
-  property :conditions, String, "Weather conditions"
-  required %i[city temperature conditions]
-end
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, schema: Weather)
-res = agent.talk "Weather in Paris?"
-res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}
-```
-
-#### LLM::REPL
-
-The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
-method drops you into a highly capable read-eval-print loop (REPL)
-that is built on top of curses. It can help you debug agents,
-test your tools, connect to MCP servers, and even A2A agents.
-The REPL stands out because it connects to the surrounding
-runtime and it can be extended by your code. Think of it as
-`binding.pry` but for agents.
-
-##### Installation
-
-The REPL is distributed with llm.rb so you don't have to install
-a separate gem but it requires a number of optional dependencies
-to be installed separately. The following gems provide the full
-experience:
-
-    gem install curses kramdown xchan.rb test-cmd.rb
-
-##### Persistence
-
-The `path:` option can be set on an agent for automatic persistence
-across REPL sessions. The `tools:` option attaches extra tools
-for the duration of the session. Recall previous turns with Ctrl+P and
-Ctrl+N. For the full reference, see the REPL section in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/features/repl)
-document.
-
-```ruby
-require "llm"
-require "llm/tools"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent", path: "agent.json")
-agent.repl(tools: LLM::Tool.subclasses)
-```
-
-##### CLI
-
-The `llm.rb` executable is available on your PATH after installation.
-It starts a REPL session from any directory.The CLI auto-detects your
-provider from standard environment variables (`DEEPSEEK_API_KEY`,
-`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.). Persistent sessions are
-stored under `~/.llm.rb/` and restored automatically on your next visit.
-
-```bash
-llm.rb                     # auto-detect from $DEEPSEEK_API_KEY
-llm.rb -p openai           # use OpenAI explicitly
-llm.rb -t                  # temporary session, no persistence
-```
-
-#### LLM::MCP
-
-The Model Context Protocol (MCP) has first-class support
-in llm.rb. The stdio and http transports work out of the
-box. MCP tools are translated into subclasses of
-[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
-used with
-[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
-
-```ruby
-require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
-agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
-agent.talk "Run the tool"
-```
-
-##### Persistent connections
-
-Set `persistent: true` on HTTP transports to reuse connections
-across requests. This uses
-[`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
-under the hood and avoids opening a new TCP connection for every
-request:
-
-```ruby
-mcp = LLM::MCP.http(
-  url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch('GITHUB_PAT')}"},
-  persistent: true
-)
-```
-
-#### LLM::A2A
-
-The Agent 2 Agent (A2A) protocol has first-class support
-in llm.rb. The http and jsonrpc transports work out of the
-box. A2A skills are translated into subclasses of
-[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
-used with
-[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
-
-```ruby
-require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
-agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
-agent.talk "Run the skill"
-```
-
-##### Persistent connections
-
-Set `persistent: true` on HTTP transports to reuse connections
-across requests. This uses
-[`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
-under the hood and avoids opening a new TCP connection for every
-request:
-
-```ruby
-a2a = LLM::A2A.rest(url: "https://agent.example.com", persistent: true)
-a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", persistent: true)
-```
-
-#### LLM::Guard
-
-[`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
-is the hook that sees every tool call before it runs. A guard
-can let a call through, cancel it, block it with an error, or
-even answer for it. Because it runs before the tool, anything
-it intercepts never executes. Policy, validation, quotas, and
-cost ceilings all live here.
-
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
-enables
-[`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
-by default, so agents get loop protection out of the box. To
-write your own guard, subclass
-[`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
-and implement
-[`LLM::Guard#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method).
-The pending call arrives as `function:`. Return a value to close
-the call, or `nil` to let it run:
-
-```ruby
-class PolicyGuard < LLM::Guard
-  def call(function:)
-    if function.name == "shell"
-      function.return(error: true, type: "policy_error",
-                      message: "shell is disabled")
-    end
-  end
-end
-
-agent = LLM::Agent.new(llm, guard: PolicyGuard)
-```
-
-#### LLM::Skill
+</details>
+<details>
+<summary>Skills</summary>
+<br>
 
 A skill turns a markdown file into a callable tool. When the model
 calls it, the runtime spawns a subagent with the skill's instructions
@@ -530,38 +145,63 @@ llm   = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, skills: ["./skills/summary"])
 agent.talk "Summarize the last week of work"
 ```
+</details>
 
-#### RAG
+<details>
+<summary>Concurrency</summary>
+<br>
 
-Most providers offer an embedding model that can be
-used for semantic search, or similarity search. An
-embedding model can generate embeddings that can then
-be stored in a database that is optimized for storing
-and querying vectors, such as SQLite's [sqlite-vec](https://github.com/asg017/sqlite-vec)
-or PostgreSQL's [pg-vector](https://github.com/pgvector/pgvector).
+The runtime supports six different concurrency strategies that have
+different attributes. The choice between all of them often depends
+on the requirements of your application.
 
-llm.rb also includes support for OpenAI's vector store API. It
-provides a vector database as a HTTP service but we won't cover
-that here. For a deeper explanation see the
-[deepdive.md](https://r.uby.dev/llm/deepdive/features/embeddings).
+IO-bound tools are a good fit for the `:async`, `:thread`,
+and `:fiber` strategies while true parallelism can be achieved
+with the `:fork` and `:ractor` strategies. The
+`:sequential` strategy runs tools one at a time and is the default.
+The `:fork` strategy also provides a separate process that offers
+isolation from its parent.
+
+You can learn more about the llm.rb concurrency model in the
+[deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency).
 
 ```ruby
 require "llm"
 
-llm  = LLM.openai(key: ENV["KEY"])
-body = "llm.rb is Ruby's capable AI runtime."
-embedding = llm.embed([body]).embeddings.first
-
-# Document is your ActiveRecord or Sequel model
-# with a vector column (e.g. sqlite-vec or pgvector)
-Document.create!(
-  title: "llm.rb",
-  body:,
-  embedding:,
-)
+llm   = LLM.deepseek(key: ENV["KEY"])
+tools = [FetchNews, FetchStocks, FetchFeeds]
+agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
+agent.talk "Run the tools in parallel"
 ```
 
-#### ORM
+</details>
+<details>
+<summary>Persistence</summary>
+<br>
+
+Set `path:` on an agent for automatic filesystem persistence;
+the agent restores conversation history from the file on startup
+and saves it back after every turn, with no manual serialization
+code. For database-backed persistence, ActiveRecord and Sequel
+integrations are also available (see the
+[database deepdive](https://r.uby.dev/llm/deepdive/features/database)
+for details). All persistence options use the same underlying
+serialization.
+
+```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, path: "session.json")
+agent.talk "remember my name is robert"
+
+# Next time, the conversation is restored automatically:
+agent = LLM::Agent.new(llm, path: "session.json")
+agent.talk "what's my name?"
+```
+</details>
+<details><summary>ActiveRecord | Sequel</summary>
+<br>
 
 Because both
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) and
@@ -617,8 +257,352 @@ agent = Agent.create!
 agent.research
 agent.act_on_research!
 ```
+</details>
 
-#### Images
+<details><summary>Structured outputs</summary>
+<br>
+
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
+subclasses produce typed, structured
+output from any model call. Pass a schema to
+[`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk-instance_method),
+[`LLM::Agent#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk-instance_method),
+or
+[`LLM::Provider#complete`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#complete-instance_method)
+to receive validated JSON instead of free text. Schemas work alongside tools and streams.
+
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
+can define objects, arrays, enums, nested schemas,
+and more. It is also used internally by
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) for parameter
+definitions, so you already benefit from it when you declare tool
+parameters.
+
+The
+[`LLM::DeepSeek`](https://r.uby.dev/api-docs/llm.rb/LLM/DeepSeek.html)
+provider includes runtime-level optimisations such as structured
+output support (despite no official structured outputs API) and
+SVG image generation. This example uses
+[`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html) with
+DeepSeek:
+
+```ruby
+class Weather < LLM::Schema
+  property :city, String, "The city name"
+  property :temperature, Number, "Current temperature"
+  property :conditions, String, "Weather conditions"
+  required %i[city temperature conditions]
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, schema: Weather)
+res = agent.talk "Weather in Paris?"
+res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}
+```
+</details>
+<details><summary>Guards</summary>
+<br>
+
+[`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
+is the hook that sees every tool call before it runs. A guard
+can let a call through, cancel it, block it with an error, or
+even answer for it. Because it runs before the tool, anything
+it intercepts never executes. Policy, validation, quotas, and
+cost ceilings all live here.
+
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
+enables
+[`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
+by default, so agents get loop protection out of the box. To
+write your own guard, subclass
+[`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
+and implement
+[`LLM::Guard#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method).
+The pending call arrives as `function:`. Return a value to close
+the call, or `nil` to let it run:
+
+```ruby
+class PolicyGuard < LLM::Guard
+  def call(function:)
+    if function.name == "shell"
+      function.return(error: true, type: "policy_error",
+                      message: "shell is disabled")
+    end
+  end
+end
+
+agent = LLM::Agent.new(llm, guard: PolicyGuard)
+```
+</details>
+<details>
+<summary>Automatic retries</summary>
+<br>
+
+Rate-limited requests are retried automatically by default. Agents
+retry a 429 up to three times with a growing backoff before giving
+up, so most request failures resolve on their own. Set `retry_budget`
+to change the number of retries, or `retry_budget: 0` to disable
+them.
+
+```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, retry_budget: 0)
+```
+
+</details>
+
+<details>
+<summary>binding.pry for agents</summary>
+<br>
+
+The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
+method drops you into a highly capable read-eval-print loop (REPL)
+that is built on top of curses. It can help you debug agents,
+test your tools, connect to MCP servers, and even A2A agents.
+The REPL stands out because it connects to the surrounding
+runtime and it can be extended by your code. Think of it as
+`binding.pry` but for agents.
+
+##### Installation
+
+The REPL is distributed with llm.rb so you don't have to install
+a separate gem but it requires a number of optional dependencies
+to be installed separately. The following gems provide the full
+experience:
+
+    gem install curses kramdown xchan.rb test-cmd.rb
+
+##### Persistence
+
+The `path:` option can be set on an agent for automatic persistence
+across REPL sessions. The `tools:` option attaches extra tools
+for the duration of the session. Recall previous turns with Ctrl+P and
+Ctrl+N. For the full reference, see the REPL section in the
+[deepdive.md](https://r.uby.dev/llm/deepdive/features/repl)
+document.
+
+```ruby
+require "llm"
+require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, name: "my-agent", path: "agent.json")
+agent.repl(tools: LLM::Tool.subclasses)
+```
+
+##### CLI
+
+The `llm.rb` executable is available on your PATH after installation.
+It starts a REPL session from any directory.The CLI auto-detects your
+provider from standard environment variables (`DEEPSEEK_API_KEY`,
+`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.). Persistent sessions are
+stored under `~/.llm.rb/` and restored automatically on your next visit.
+
+```bash
+llm.rb                     # auto-detect from $DEEPSEEK_API_KEY
+llm.rb -p openai           # use OpenAI explicitly
+llm.rb -t                  # temporary session, no persistence
+```
+</details>
+
+<details>
+<summary>As a subclass</summary>
+<br>
+
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
+is a class-level DSL that accepts a Hash of properties. Each key resolves to a
+corresponding class accessor: `name`, `description`, `model`, `tools`,
+`instructions`, `schema`, `stream`, `tracer`, `concurrency`, `confirm`,
+`path`, `skills`, `tool_budget`, and `retry_budget`. All options are
+optional; zero or more can be set.
+An error is raised for unknown keys so that typos are caught early.
+
+```ruby
+class Agent < LLM::Agent
+  set name: "sysadmin",
+      description: "system administration agent",
+      model: "deepseek-v4-pro",
+      tools: [Shell]
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = Agent.new(llm)
+agent.talk "Run 'date'"
+```
+</details>
+
+### Providers
+
+Each provider is constructed with a class-level factory method on
+`LLM`, and the resulting instance is passed to
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+or
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html). The
+same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
+Bedrock, Ollama, and llama.cpp. See the [deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
+for a full provider reference.
+
+<details>
+<summary>Implicit</summary>
+<br>
+
+Cloud providers can infer their API key automatically
+from a set of common defaults that are defined by
+the [models.dev](https://models.dev) registry that
+is also distributed with llm.rb.
+
+```ruby
+llm = LLM.openai
+llm = LLM.anthropic
+llm = LLM.deepseek
+llm = LLM.alibaba  # also: LLM.aliyun
+llm = LLM.moonshot
+llm = LLM.mistral
+```
+</details>
+<details>
+<summary>Explicit</summary>
+<br>
+
+The `key` option can also be providied explicitly, and certain
+providers (eg ollama, llamacpp) usually do not require an API
+key at all.
+
+```ruby
+llm = LLM.openai(key: ENV["OPENAI_API_KEY"])
+llm = LLM.anthropic(key: ENV["ANTHROPIC_API_KEY"])
+llm = LLM.deepseek(key: ENV["DEEPSEEK_API_KEY"])
+llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"]) # also: LLM.aliyun
+llm = LLM.moonshot(key: ENV["MOONSHOT_API_KEY"])
+llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
+```
+</details>
+
+<details>
+<summary>Registry</summary>
+<br>
+
+Each provider ships its model catalog, pricing, limits, and
+modalities with the gem, sourced from [models.dev](https://models.dev).
+Reach it from any provider, context, or agent, enumerate models, or
+sort them by price. See the
+[model registry](https://r.uby.dev/llm/deepdive/reference/registry)
+for the full reference:
+
+```ruby
+require "llm"
+
+llm      = LLM.openai
+registry = llm.registry                # => LLM::Provider#registry
+cheapest = registry.models.sort.first  # => LLM::Model
+cheapest.id                            # => "text-embedding-3-small"
+cheapest.context_window                # => 8191
+cheapest.structured_output?            # => false
+```
+</details>
+
+### RAG
+
+Most providers offer an embedding model that can be
+used for semantic search, or similarity search. An
+embedding model can generate embeddings that can then
+be stored in a database that is optimized for storing
+and querying vectors, such as SQLite's [sqlite-vec](https://github.com/asg017/sqlite-vec)
+or PostgreSQL's [pg-vector](https://github.com/pgvector/pgvector).
+
+llm.rb also includes support for OpenAI's vector store API. It
+provides a vector database as a HTTP service but we won't cover
+that here. For a deeper explanation see the
+[deepdive.md](https://r.uby.dev/llm/deepdive/features/embeddings).
+
+```ruby
+require "llm"
+
+llm  = LLM.openai(key: ENV["KEY"])
+body = "llm.rb is Ruby's capable AI runtime."
+embedding = llm.embed([body]).embeddings.first
+
+# Document is your ActiveRecord or Sequel model
+# with a vector column (e.g. sqlite-vec or pgvector)
+Document.create!(
+  title: "llm.rb",
+  body:,
+  embedding:,
+)
+```
+
+### MCP
+
+The Model Context Protocol (MCP) has first-class support
+in llm.rb. The stdio and http transports work out of the
+box. MCP tools are translated into subclasses of
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
+used with
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+
+```ruby
+require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
+agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
+agent.talk "Run the tool"
+```
+
+##### Persistent connections
+
+
+Set `persistent: true` on HTTP transports to reuse connections
+across requests. This uses
+[`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
+under the hood and avoids opening a new TCP connection for every
+request:
+
+```ruby
+mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch('GITHUB_PAT')}"},
+  persistent: true
+)
+```
+</details>
+
+### A2A
+
+The Agent 2 Agent (A2A) protocol has first-class support
+in llm.rb. The http and jsonrpc transports work out of the
+box. A2A skills are translated into subclasses of
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
+used with
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+
+```ruby
+require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
+agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
+agent.talk "Run the skill"
+```
+
+##### Persistent connections
+
+Set `persistent: true` on HTTP transports to reuse connections
+across requests. This uses
+[`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
+under the hood and avoids opening a new TCP connection for every
+request:
+
+```ruby
+a2a = LLM::A2A.rest(url: "https://agent.example.com", persistent: true)
+a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", persistent: true)
+```
+
+### Images
 
 A handful of providers can generate images from a text prompt.
 OpenAI, Google, xAI, and DeepInfra all support it. The API is
@@ -656,155 +640,14 @@ res = llm.images.create(prompt: "add a dog next to the rocket",
 IO.copy_stream res.images[0], "rocket-with-dog.svg"
 ```
 
-## Features
-
-One runtime, 13+ providers. The same API drives OpenAI, Anthropic,
-Google Gemini, Moonshot (kimi), Alibaba (Qwen3), Mistral, DeepSeek,
-DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp, so switching
-models or providers can be done with minimal code change.
-
-<details>
-<summary><b>Agents</b></summary>
-
-* **First-class support** <br>
-  llm.rb is designed to build agents. They can be attached to a
-  terminal-based read-eval-print loop (repl), persisted to disk
-  or a database column, run tools concurrently and be safely
-  interrupted.
-
-* **Builtin REPL** <br>
-  A curses-based TUI for talking to an agent interactively. It
-  renders markdown, shows a live status line with context usage
-  and running cost, and recalls previous turns, so a
-  conversation survives a restart.
-
-* **Persistence** <br>
-  Set `path:` and the agent saves its conversation to disk
-  automatically. ActiveRecord and Sequel support keep the same
-  state in a single database column, so you pick the storage
-  and the API stays identical.
-
-</details>
-
-<details>
-<summary><b>MCP &amp; A2A</b></summary>
-
-* **MCP** <br>
-  The Model Context Protocol is first-class. Point an MCP client
-  at any tool server over stdio or HTTP, and its tools translate
-  into local `LLM::Tool` subclasses, with the same tracing and
-  error handling.
-
-* **A2A** <br>
-  The Agent 2 Agent protocol is first-class. Point an A2A client
-  at another agent over HTTP or JSON-RPC, and call its skills
-  exactly like local tools.
-
-</details>
-
-<details>
-<summary><b>ORM</b></summary>
-
-* **ActiveRecord** <br>
-  Add `acts_as_agent` to a model and the agent state lives in a
-  single database column, saved after every turn and restored
-  on load. Works in Rack and Rails apps, with `jsonb` on
-  PostgreSQL.
-
-* **Sequel** <br>
-  Add `plugin :agent` to a Sequel model for the same single-
-  column persistence, with the `pg_json` extension loaded
-  automatically on PostgreSQL.
-
-</details>
-
-<details>
-<summary><b>RAG</b></summary>
-
-* **RAG, out of the box** <br>
-  Embeddings, OCR, and OpenAI's vector stores API come first-
-  class. Ground answers in your own documents, with vectors in
-  a managed store or in your own database such as sqlite-vec
-  or pgvector.
-
-</details>
-
-<details>
-<summary><b>Runtime</b></summary>
-
-* **Streaming** <br>
-  Streaming is first-class, with structured callbacks for
-  content, reasoning, and tool calls. Tools can start while
-  the model is still talking, so the first result lands
-  before the response finishes.
-
-* **Concurrency** <br>
-  Six ways to run tools: sequential, threads, async, fibers,
-  forks, and ractors. Plus three HTTP backends, so you pick
-  the concurrency model that fits the workload, not the other
-  way around.
-
-* **Interruption** <br>
-  Cancel an in-flight request or a running tool at any moment,
-  on any transport or concurrency strategy. A stuck call never
-  leaves a thread running that you can't stop.
-
-* **Rate-limit retries** <br>
-  Rate-limited requests are retried automatically. Agents retry
-  up to three times with a growing backoff, and notify your
-  stream through `on_rate_limit` before each retry.
-
-</details>
-
-<details>
-<summary><b>Provider extras</b></summary>
-
-* **DeepSeek-optimized** <br>
-  DeepSeek is the most cost-effective option for API users, and the
-  runtime closes its gaps: [`LLM::Schema`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html)
-  makes structured outputs work despite no official API, and
-  `images.create`/`edit` produce SVG vector graphics.
-</details>
-
-<details>
-<summary><b>Portable</b></summary>
-
-* **mruby-llm** <br>
-  The same runtime runs on mruby as
-  [mruby-llm](https://github.com/r-uby-dev/mruby-llm), with an
-  almost identical interface and the same set of capabilities.
-
-</details>
-
-<details>
-<summary><b>Everything else</b></summary>
-
-* **Skills** <br>
-  Write a SKILL.md, get a tool. The runtime spawns a
-  disposable subagent with the skill's instructions and tool
-  set for one turn, then discards it. Fresh and stateless
-  every call.
-
-* **A unified plugin family** <br>
-  Compactors, transformers, and guards all share one
-  interface. Context management, message rewriting, and tool
-  supervision (policy, quotas, loop detection) plug in the
-  same way and compose freely.
-
-* **Cost and usage tracking** <br>
-  Every context tracks its own cost and token usage, per turn.
-  Break the spend down by input, output, cache, and reasoning,
-  so the exact cost of any conversation is visible at a
-  glance. Each provider ships its model catalog, pricing, and
-  limits with the gem so you can enumerate and sort models by
-  price with the [model registry](https://r.uby.dev/llm/deepdive/reference/registry).
-
 </details>
 
 ## FAQ
 
 <details>
 <summary>What providers does llm.rb support?</summary>
+<br>
+
 <br>
 <p>
 
@@ -851,6 +694,8 @@ In no particular order:
 <details>
 <summary>I have a limited budget. What should I do?</summary>
 <br>
+
+<br>
 <p>
 There are a few options. The first option is to host
 your own model, and use the ollama or llamacpp
@@ -878,6 +723,8 @@ If you're on a budget, DeepSeek is hard to beat.
 </details>
 <details>
 <summary>Can I download llm.rb via a decentralized network?</summary>
+<br>
+
 <br>
 Yes.
 <br>
