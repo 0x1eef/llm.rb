@@ -354,6 +354,32 @@ agent = LLM::Agent.new(llm, retry_budget: 0)
 </details>
 
 <details>
+<summary>Cancellation</summary>
+<br>
+
+Abort a request mid-stream and interrupt any running tools with
+[`LLM::Agent#interrupt!`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#interrupt!)
+(or `cancel!`), from any thread. The runtime raises
+[`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html)
+on the caller and on every active tool. A forked tool gets interrupted over
+the control channel, a ractor via message passing, and pending tools
+are stopped before they run. The in-flight HTTP request is closed
+too, so a turn you no longer want stops without burning tokens.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+Thread.new { sleep(1); agent.cancel! }
+
+begin
+  agent.talk "write a very long poem", stream: $stdout
+rescue LLM::Interrupt
+  puts "cancelled"
+end
+```
+</details>
+
+<details>
 <summary>binding.pry for agents</summary>
 <br>
 
