@@ -97,7 +97,7 @@ call them on your behalf, and they're one of the most powerful features
 for extending the feature set or abilities of a model.
 
 The runtime also ships with a catalog of built-in tools for
-filesystem, search, and shell operations. <br> See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/tools) to learn more.
+filesystem, search, and shell operations. <br> See the [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/tools) to learn more.
 
 ```ruby
 class ReadFile < LLM::Tool
