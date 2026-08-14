@@ -148,7 +148,7 @@ class LLM::Repl
         end
       end
       last_drawn = offset + rows.size
-      (last_drawn...self.rows).each do |line|
+      (last_drawn...(Curses.lines - 5)).each do |line|
         Curses.setpos(line, 0)
         Curses.clrtoeol
       end
