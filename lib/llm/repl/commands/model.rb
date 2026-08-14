@@ -23,7 +23,11 @@ class LLM::Repl
     # @param [String] model
     # @return [Array<String>]
     def complete(model: nil)
-      registry.keys.select { _1.start_with?(model.to_s) }
+      registry
+        .models
+        .select(&:text?)
+        .select { _1.id.start_with?(model.to_s) }
+        .map(&:id)
     end
 
     ##
