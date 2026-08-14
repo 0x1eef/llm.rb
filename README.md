@@ -312,8 +312,6 @@ even answer for it. Because it runs before the tool, anything
 it intercepts never executes. Policy, validation, quotas, and
 cost ceilings all live here.
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/guard) to learn more.
-
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
 enables
 [`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
@@ -324,6 +322,8 @@ and implement
 [`LLM::Guard#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method).
 The pending call arrives as `function:`. Return a value to close
 the call, or `nil` to let it run:
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/guard) to learn more.
 
 ```ruby
 class PolicyGuard < LLM::Guard
