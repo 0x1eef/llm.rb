@@ -52,8 +52,8 @@ manages conversation state, and much more.
 require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, tools: [ReadFile], stream: $stdout)
-agent.talk "summarize README.md"
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "hello world"
 ```
 <details>
 <summary>Streaming</summary>
@@ -110,6 +110,10 @@ class ReadFile < LLM::Tool
     {contents: File.read(path)}
   end
 end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tools: [ReadFile], stream: $stdout)
+agent.talk "summarize README.md"
 ```
 </details>
 <details>
@@ -167,9 +171,10 @@ See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency) to le
 
 ```ruby
 require "llm"
+require "llm/tools"
 
 llm   = LLM.deepseek(key: ENV["KEY"])
-tools = [FetchNews, FetchStocks, FetchFeeds]
+tools = LLM::Tool.subclasses
 agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
 agent.talk "Run the tools in parallel"
 ```
@@ -335,6 +340,7 @@ class PolicyGuard < LLM::Guard
   end
 end
 
+llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, guard: PolicyGuard)
 ```
 </details>
@@ -396,6 +402,7 @@ agent = LLM::Agent.new(
   compactor: LLM::Compactor::Truncate,
   compactor_options: {keep: 64}
 )
+agent.talk "Hello"
 ```
 </details>
 
@@ -414,6 +421,7 @@ require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, retry_budget: 0)
+agent.talk "Hello"
 ```
 
 </details>
@@ -538,11 +546,14 @@ optional; zero or more can be set.
 An error is raised for unknown keys so that typos are caught early.
 
 ```ruby
+require "llm"
+require "llm/tools"
+
 class Agent < LLM::Agent
   set name: "sysadmin",
       description: "system administration agent",
       model: "deepseek-v4-pro",
-      tools: [Shell]
+      tools: [LLM::Tool::Shell]
 end
 
 llm = LLM.deepseek(key: ENV["KEY"])
