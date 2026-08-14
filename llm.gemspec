@@ -5,15 +5,17 @@ require_relative "lib/llm/version"
 Gem::Specification.new do |spec|
   spec.name = "llm.rb"
   spec.version = LLM::VERSION
-  spec.authors = ["robert", "Antar Azri", "Rodrigo Serrano"]
+  spec.authors = ["Robert Gleeson", "Antar Azri", "Rodrigo Serrano"]
   spec.email = ["robert@r.uby.dev"]
 
   spec.summary = "Ruby's capable AI runtime"
   spec.description = <<~DESCRIPTION
-llm.rb is an advanced runtime for building capable AI applications
-on CRuby. By default it has zero runtime dependencies although certain
-functionality (such as ActiveRecord support) require
-optional dependencies that are opt-in.
+llm.rb is an advanced runtime for building capable AI applications on CRuby.
+It has zero runtime dependencies by default, it supports concurrent and parallel
+tool execution and has a single coherent API that spans 13+ providers. Streaming,
+tools, guards, compaction, the REPL, builtin MCP/A2A support and the database
+integrations all build on the same three concepts: providers, contexts, and
+agents.
 DESCRIPTION
 
   spec.license = "MIT"
@@ -21,9 +23,9 @@ DESCRIPTION
 
   spec.homepage = "https://r.uby.dev/llm/"
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/r-uby-dev/llm.rb"
+  spec.metadata["source_code_uri"] = "https://github.com/r-uby-dev/llm"
   spec.metadata["documentation_uri"] = spec.homepage
-  spec.metadata["changelog_uri"] = "https://r.uby.dev/api-docs/llm.rb/file.CHANGELOG.html"
+  spec.metadata["changelog_uri"] = "https://github.com/r-uby-dev/llm/blob/main/CHANGELOG.md"
 
   spec.files = Dir[
     "README.md", "LICENSE",
