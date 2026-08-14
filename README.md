@@ -52,8 +52,8 @@ manages conversation state, and much more.
 require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, stream: $stdout)
-agent.talk "Hello world"
+agent = LLM::Agent.new(llm, tools: [ReadFile], stream: $stdout)
+agent.talk "summarize README.md"
 ```
 <details>
 <summary>Streaming</summary>
