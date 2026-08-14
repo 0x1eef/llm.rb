@@ -32,7 +32,7 @@ module LLM
     # @param host (see LLM::Provider#initialize)
     # @param base_path (see LLM::Provider#initialize)
     # @return [LLM::Alibaba]
-    def initialize(host: ENV.fetch("ALIBABA_API_HOST", HOST), base_path: BASE_PATH, **)
+    def initialize(host: ENV.fetch("DASHSCOPE_API_HOST", HOST), base_path: BASE_PATH, **)
       super
     end
 
