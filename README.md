@@ -64,8 +64,10 @@ Streams can be simple IO objects or subclasses of
 with structured callbacks for content,
 reasoning, tool calls, tool returns, and compaction.
 Streams can also observe message transformers, which rewrite
-outgoing messages before they reach the provider (see the
-[deepdive.md](https://r.uby.dev/llm/deepdive/advanced/transformer)).
+outgoing messages before they reach the provider.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/stream/)
+to learn more.
 
 ```ruby
 class MyStream < LLM::Stream
@@ -95,9 +97,7 @@ call them on your behalf, and they're one of the most powerful features
 for extending the feature set or abilities of a model.
 
 The runtime also ships with a catalog of built-in tools for
-filesystem, search, and shell operations. See the
-[deepdive.md](https://r.uby.dev/llm/deepdive/features/builtin_tools)
-for details.
+filesystem, search, and shell operations. <br> See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/builtin_tools) to learn more.
 
 ```ruby
 class ReadFile < LLM::Tool
@@ -120,8 +120,9 @@ A skill turns a markdown file into a callable tool. When the model
 calls it, the runtime spawns a subagent with the skill's instructions
 as its system prompt and the skill's own tool set. The subagent runs
 one turn and returns the result, then is discarded. Each call
-is fresh and stateless. For a deeper explanation see the
-[deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/skills).
+is fresh and stateless.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/skills) to learn more.
 
 ##### SKILL.md
 
@@ -162,8 +163,7 @@ with the `:fork` and `:ractor` strategies. The
 The `:fork` strategy also provides a separate process that offers
 isolation from its parent.
 
-You can learn more about the llm.rb concurrency model in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency).
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency) to learn more.
 
 ```ruby
 require "llm"
@@ -183,10 +183,10 @@ Set `path:` on an agent for automatic filesystem persistence;
 the agent restores conversation history from the file on startup
 and saves it back after every turn, with no manual serialization
 code. For database-backed persistence, ActiveRecord and Sequel
-integrations are also available (see the
-[database deepdive](https://r.uby.dev/llm/deepdive/features/database)
-for details). All persistence options use the same underlying
-serialization.
+integrations are also available. All persistence options use the same
+underlying serialization.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/database) to learn more.
 
 ```ruby
 require "llm"
@@ -213,6 +213,8 @@ The runtime includes first-class support for both ActiveRecord *and* Sequel, and
 for both Rack-based applications *and* Rails-based applications. On databases
 where it is supported, such as PostgreSQL, the column can be optimized by using
 the `jsonb` type.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/database) to learn more.
 
 ```ruby
 require "active_record"
@@ -310,6 +312,8 @@ even answer for it. Because it runs before the tool, anything
 it intercepts never executes. Policy, validation, quotas, and
 cost ceilings all live here.
 
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/guard) to learn more.
+
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
 enables
 [`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
@@ -344,6 +348,8 @@ It is possible to rewrite outgoing messages before they reach the provider with
 Create a subclass and implement `call(message:)` to scrub sensitive data,
 inject context, or normalize content. The transform runs automatically
 on every turn, so you never have to change your prompt code.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/transformer) to learn more.
 
 ```ruby
 class RedactEmails < LLM::Transformer
@@ -391,6 +397,8 @@ the control channel, a ractor via message passing, and pending tools
 are stopped before they run. The in-flight HTTP request is closed
 too, so a turn you no longer want stops without burning tokens.
 
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/cancellation) to learn more.
+
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
@@ -420,6 +428,8 @@ exports spans via OTLP for OpenTelemetry in production.
 * [`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html):
 structured JSON to stdout or a file.
 
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/reference/tracer) to learn more.
+
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM::Tracer::PrettyLogger.new(llm))
@@ -439,6 +449,8 @@ The REPL stands out because it connects to the surrounding
 runtime and it can be extended by your code. Think of it as
 `binding.pry` but for agents.
 
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/repl) to learn more.
+
 ##### Installation
 
 The REPL is distributed with llm.rb so you don't have to install
@@ -453,9 +465,7 @@ experience:
 The `path:` option can be set on an agent for automatic persistence
 across REPL sessions. The `tools:` option attaches extra tools
 for the duration of the session. Recall previous turns with Ctrl+P and
-Ctrl+N. For the full reference, see the REPL section in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/features/repl)
-document.
+Ctrl+N.
 
 ```ruby
 require "llm"
@@ -561,9 +571,9 @@ llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
 Each provider ships its model catalog, pricing, limits, and
 modalities with the gem, sourced from [models.dev](https://models.dev).
 Reach it from any provider, context, or agent, enumerate models, or
-sort them by price. See the
-[model registry](https://r.uby.dev/llm/deepdive/reference/registry)
-for the full reference:
+sort them by price.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/reference/registry) to learn more.
 
 ```ruby
 require "llm"
@@ -588,8 +598,9 @@ or PostgreSQL's [pg-vector](https://github.com/pgvector/pgvector).
 
 llm.rb also includes support for OpenAI's vector store API. It
 provides a vector database as a HTTP service but we won't cover
-that here. For a deeper explanation see the
-[deepdive.md](https://r.uby.dev/llm/deepdive/features/embeddings).
+that here.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/embeddings) to learn more.
 
 ```ruby
 require "llm"
