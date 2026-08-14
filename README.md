@@ -14,7 +14,7 @@
 
 Welcome to the canonical llm.rb repository.
 
-llm.rb is an advanced runtime for building capable AI applications
+llm.rb is an advanced runtime for building agentic AI applications
 on CRuby. It has zero runtime dependencies by default, it supports
 concurrent and parallel tool execution and has a single coherent API
 that spans 13+ providers. Streaming, tools, guards, compaction, the
@@ -24,11 +24,6 @@ on the same three concepts: providers, contexts, and agents.
 Once you learn the fundamentals, everything else falls into place
 naturally. Some features, such as ActiveRecord support, require
 optional dependencies that are opt-in.
-
-It is recommended to read the [deepdive.md](https://r.uby.dev/llm/deepdive)
-guides when you want to learn about advanced llm.rb features. I read them from
-time to time and put a lot of effort into maintaining the deepdive and
-associated documentation. The deepdive covers all llm.rb features.
 
 ## Install
 
