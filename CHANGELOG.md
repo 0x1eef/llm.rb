@@ -259,8 +259,18 @@
 
 * **add `/model` command** <br>
   A new `/model <name>` command switches the active model within a
-  single REPL session. It supports argument auto-complete that cycles
-  through every model available in the registry.
+  single REPL session. Its argument auto-completes through the
+  text-to-text models in the registry.
+
+* **repl: restrict autocomplete to text-to-text models** <br>
+  The `/model` command's argument auto-complete now suggests only
+  text-to-text models, so embedding and other non-chat models are
+  left out of the completion list.
+
+* **repl: fix a scroll render artifact** <br>
+  Fix a bug where scrolling upward could leave a piece of text just
+  above the status row as a render artifact. The row above the status
+  row is now cleared on every buffer render.
 
 ### Registry
 

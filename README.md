@@ -118,27 +118,30 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"
 ```
 
-##### set
 
-[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
-is a class-level DSL that accepts a Hash of properties. Each key resolves to a
-corresponding class accessor: `name`, `description`, `model`, `tools`,
-`instructions`, `schema`, `stream`, `tracer`, `concurrency`, `confirm`,
-`path`, `skills`, `tool_budget`, and `retry_budget`. All options are
-optional; zero or more can be set.
-An error is raised for unknown keys so that typos are caught early.
+##### Concurrency
+
+The runtime supports six different concurrency strategies that have
+different attributes. The choice between all of them often depends
+on the requirements of your application.
+
+IO-bound tools are a good fit for the `:async`, `:thread`,
+and `:fiber` strategies while true parallelism can be achieved
+with the `:fork` and `:ractor` strategies. The
+`:sequential` strategy runs tools one at a time and is the default.
+The `:fork` strategy also provides a separate process that offers
+isolation from its parent.
+
+You can learn more about the llm.rb concurrency model in the
+[deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency).
 
 ```ruby
-class Agent < LLM::Agent
-  set name: "sysadmin",
-      description: "system administration agent",
-      model: "deepseek-v4-pro",
-      tools: [Shell]
-end
+require "llm"
 
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = Agent.new(llm)
-agent.talk "Run 'date'"
+llm   = LLM.deepseek(key: ENV["KEY"])
+tools = [FetchNews, FetchStocks, FetchFeeds]
+agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
+agent.talk "Run the tools in parallel"
 ```
 
 ##### Persistence
@@ -177,6 +180,29 @@ require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, retry_budget: 0)
+```
+
+##### set
+
+[`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
+is a class-level DSL that accepts a Hash of properties. Each key resolves to a
+corresponding class accessor: `name`, `description`, `model`, `tools`,
+`instructions`, `schema`, `stream`, `tracer`, `concurrency`, `confirm`,
+`path`, `skills`, `tool_budget`, and `retry_budget`. All options are
+optional; zero or more can be set.
+An error is raised for unknown keys so that typos are caught early.
+
+```ruby
+class Agent < LLM::Agent
+  set name: "sysadmin",
+      description: "system administration agent",
+      model: "deepseek-v4-pro",
+      tools: [Shell]
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = Agent.new(llm)
+agent.talk "Run 'date'"
 ```
 
 #### LLM::Context
@@ -533,31 +559,6 @@ Document.create!(
   body:,
   embedding:,
 )
-```
-
-#### Concurrency
-
-The runtime supports six different concurrency strategies that have
-different attributes. The choice between all of them often depends
-on the requirements of your application.
-
-IO-bound tools are a good fit for the `:async`, `:thread`,
-and `:fiber` strategies while true parallelism can be achieved
-with the `:fork` and `:ractor` strategies. The
-`:sequential` strategy runs tools one at a time and is the default.
-The `:fork` strategy also provides a separate process that offers
-isolation from its parent.
-
-You can learn more about the llm.rb concurrency model in the
-[deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency).
-
-```ruby
-require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-tools = [FetchNews, FetchStocks, FetchFeeds]
-agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
-agent.talk "Run the tools in parallel"
 ```
 
 #### ORM
