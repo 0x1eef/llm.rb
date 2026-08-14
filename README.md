@@ -380,6 +380,29 @@ end
 </details>
 
 <details>
+<summary>Observability</summary>
+<br>
+
+Trace what an agent is doing by attaching a tracer. Hook into
+requests, tool calls, and other runtime events to debug a
+misbehaving agent, monitor latency, or export spans to an
+observability backend. All built-in tracers share one interface,
+so switching between them means changing a class name:
+
+* [`LLM::Tracer::PrettyLogger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html): human-readable single-line logs to stderr, ideal during development.
+* [`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html):
+exports spans via OTLP for OpenTelemetry in production.
+* [`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html):
+structured JSON to stdout or a file.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tracer: LLM::Tracer::PrettyLogger.new(llm))
+agent.talk "Hello"
+```
+</details>
+
+<details>
 <summary>binding.pry for agents</summary>
 <br>
 
