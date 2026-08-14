@@ -334,6 +334,31 @@ end
 agent = LLM::Agent.new(llm, guard: PolicyGuard)
 ```
 </details>
+
+<details>
+<summary>Transformers</summary>
+<br>
+
+It is possible to rewrite outgoing messages before they reach the provider with
+[`LLM::Transformer`](https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html).
+Create a subclass and implement `call(message:)` to scrub sensitive data,
+inject context, or normalize content. The transform runs automatically
+on every turn, so you never have to change your prompt code.
+
+```ruby
+class RedactEmails < LLM::Transformer
+  def call(message:)
+    content = message.content.to_s.gsub(/[\w.+-]+@[\w-]+\.[\w.]+/, "[EMAIL]")
+    LLM::Message.new(message.role, content, message.extra)
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, transformer: RedactEmails)
+agent.talk "Contact support@example.com for help"
+```
+</details>
+
 <details>
 <summary>Automatic retries</summary>
 <br>
