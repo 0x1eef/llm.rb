@@ -22,7 +22,7 @@ class LLM::Repl
     def initialize(repl)
       @repl   = repl
       @window = repl.window
-      @rows = [[]]
+      @rows = [[], []]
       @cursor = nil
       @snapshot = nil
       @offset = 0

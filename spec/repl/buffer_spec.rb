@@ -70,6 +70,20 @@ RSpec.describe LLM::Repl::Buffer do
   # Renders all rows as plain strings.
   # @return [Array<String>]
   def rendered
-    buffer.visible(100).map { |row| row.map { |chunk| chunk[:text] }.join }
+    buffer.visible(100).map { |row| row.map { |chunk| chunk[:text] }.join }.reject(&:empty?)
+  end
+
+  describe "spacer row" do
+    subject(:rows) { buffer.visible(100).map { |row| row.map { |chunk| chunk[:text] }.join } }
+
+    before { buffer.write("first") }
+
+    it "keeps a leading empty row above the first message" do
+      expect(rows[0]).to eq("")
+    end
+
+    it "places the first message below the spacer" do
+      expect(rows[1]).to eq("first")
+    end
   end
 end
