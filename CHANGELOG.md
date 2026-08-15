@@ -194,6 +194,16 @@
 
 ### Fix
 
+* **a2a: fix a typo in the HTTP transport** <br>
+  Fix a bug in
+  [`LLM::A2A::Transport::HTTP`](https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Transport/HTTP.html)
+  where the constructor read `uri.port` instead of `@uri.port`, which
+  crashed the program whenever
+  [`LLM::A2A.rest`](https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html#rest-class_method)
+  or
+  [`LLM::A2A.jsonrpc`](https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html#jsonrpc-class_method)
+  was used. The transport now reads the port from the parsed `@uri`.
+
 * **openai: report usage for streamed completions requests** <br>
   Fix a bug in the OpenAI completions path where `params[:stream]` was
   checked after it had been deleted from the params hash, so the check
