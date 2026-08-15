@@ -350,4 +350,24 @@ RSpec.describe LLM::A2A do
       expect(transport.gets[0]).to eq("/tenant-1/tasks/task_1")
     end
   end
+
+  describe ".rest" do
+    let(:client) do
+      described_class.rest(url: "https://agent.example.com", transport: :net_http_persistent)
+    end
+
+    it "builds an A2A client over an HTTP transport" do
+      expect(client).to be_a(LLM::A2A)
+    end
+  end
+
+  describe ".jsonrpc" do
+    let(:client) do
+      described_class.jsonrpc(url: "https://agent.example.com", transport: :net_http_persistent)
+    end
+
+    it "builds an A2A client over an HTTP transport" do
+      expect(client).to be_a(LLM::A2A)
+    end
+  end
 end

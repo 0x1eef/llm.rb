@@ -24,7 +24,7 @@ class LLM::A2A
         @uri = URI.parse(url)
         @headers = headers
         @protocol_version = protocol_version
-        @transport = resolve_transport(host: @uri.host, port: uri.port, ssl: @uri.scheme == "https", timeout:, persistent:, transport:)
+        @transport = resolve_transport(host: @uri.host, port: @uri.port, ssl: @uri.scheme == "https", timeout:, persistent:, transport:)
       end
 
       ##
