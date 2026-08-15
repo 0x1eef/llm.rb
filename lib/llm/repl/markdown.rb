@@ -36,7 +36,7 @@ class LLM::Repl
     # @param [Integer] width
     # @return [LLM::Repl::Markdown]
     def initialize(text, width)
-      @doc = Kramdown::Document.new(text)
+      @doc = Kramdown::Document.new(fenced_code_blocks(text))
       @width = width
       @ast = []
     end
@@ -94,6 +94,7 @@ class LLM::Repl
       when :codespan
         emit(node.value, Color.green)
       when :codeblock
+        emit("#{lang(node)}\n", Curses::A_BOLD | Color.white) unless lang(node).empty?
         emit(node.value, Color.green)
         emit("\n\n", attrs)
       when :typographic_sym, :smart_quote
@@ -136,6 +137,29 @@ class LLM::Repl
 
     def symbol(node)
       SYMBOLS[node.value]
+    end
+
+    ##
+    # Kramdown's native fenced-code syntax uses
+    # `~~~`, not the GitHub-style ``` fences that
+    # models commonly emit. Rewrite ```lang blocks
+    # so they are parsed as real code blocks instead
+    # of inline code spans. The language is preserved
+    # so Kramdown tags the block with a `language-*`
+    # class.
+    # @param [String] text
+    # @return [String]
+    def fenced_code_blocks(text)
+      text.gsub(/^```(\S*)\s*$/) { "~~~#{$1}" }
+    end
+
+    ##
+    # Extracts the language from a code block's
+    # `language-*` class.
+    # @param [Kramdown::Element] node
+    # @return [String]
+    def lang(node)
+      node.attr["class"].to_s.sub(/\Alanguage-/, "")
     end
   end
 end

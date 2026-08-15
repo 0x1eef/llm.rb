@@ -22,6 +22,23 @@ RSpec.describe LLM::Repl::Markdown do
     end
   end
 
+  describe "github-style fenced code blocks" do
+    let(:ast) { described_class.new("```ruby\nputs 1\n```", 80).ast }
+
+    it "does not render the backtick fence" do
+      expect(ast.map { _1[:text] }.join).not_to include("```")
+    end
+
+    it "renders the language label" do
+      expect(ast.map { _1[:text] }.join).to include("ruby")
+    end
+
+    it "renders the code in green" do
+      node = ast.find { _1[:text] == "puts 1\n" }
+      expect(node[:attrs]).to eq(LLM::Repl::Color.green)
+    end
+  end
+
   ##
   # Returns the concatenated text of the rendered AST.
   # @param [String] text
