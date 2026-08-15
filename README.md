@@ -244,6 +244,13 @@ runtime and it can be extended by your code. Think of it as
 
 See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/repl) to learn more.
 
+##### Demo
+
+[Watch in high quality on asciinema](https://asciinema.org/a/OsS8wwaasKasoDDz)
+
+![llm.rb REPL demo](demo.gif)
+
+
 ##### Installation
 
 The REPL is distributed with llm.rb so you don't have to install
@@ -252,12 +259,6 @@ to be installed separately. The following gems provide the full
 experience:
 
     gem install curses kramdown xchan.rb test-cmd.rb
-
-##### Demo
-
-[Watch in high quality on asciinema](https://asciinema.org/a/OsS8wwaasKasoDDz)
-
-![llm.rb REPL demo](demo.gif)
 
 ##### Persistence
 
