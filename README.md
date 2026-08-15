@@ -230,7 +230,59 @@ rescue LLM::Interrupt
 end
 ```
 </details>
+<details>
+<summary>Console (<code>binding.pry</code> for agents)</summary>
+<br>
 
+The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
+method drops you into a highly capable read-eval-print loop (REPL)
+that is built on top of curses. It can help you debug agents,
+test your tools, connect to MCP servers, and even A2A agents.
+The REPL stands out because it connects to the surrounding
+runtime and it can be extended by your code. Think of it as
+`binding.pry` but for agents.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/repl) to learn more.
+
+##### Installation
+
+The REPL is distributed with llm.rb so you don't have to install
+a separate gem but it requires a number of optional dependencies
+to be installed separately. The following gems provide the full
+experience:
+
+    gem install curses kramdown xchan.rb test-cmd.rb
+
+##### Persistence
+
+The `path:` option can be set on an agent for automatic persistence
+across REPL sessions. The `tools:` option attaches extra tools
+for the duration of the session. Recall previous turns with Ctrl+P and
+Ctrl+N.
+
+```ruby
+require "llm"
+require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, name: "my-agent", path: "agent.json")
+agent.repl(tools: LLM::Tool.subclasses)
+```
+
+##### CLI
+
+The `llm.rb` executable is available on your PATH after installation.
+It starts a REPL session from any directory.The CLI auto-detects your
+provider from standard environment variables (`DEEPSEEK_API_KEY`,
+`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.). Persistent sessions are
+stored under `~/.llm.rb/` and restored automatically on your next visit.
+
+```bash
+llm.rb                     # auto-detect from $DEEPSEEK_API_KEY
+llm.rb -p openai           # use OpenAI explicitly
+llm.rb -t                  # temporary session, no persistence
+```
+</details>
 <details>
 <summary>Persistence</summary>
 <br>
@@ -500,60 +552,6 @@ See the [deepdive.md](https://r.uby.dev/llm/deepdive/reference/tracer) to learn 
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM::Tracer::PrettyLogger.new(llm))
 agent.talk "Hello"
-```
-</details>
-
-<details>
-<summary>binding.pry for agents</summary>
-<br>
-
-The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
-method drops you into a highly capable read-eval-print loop (REPL)
-that is built on top of curses. It can help you debug agents,
-test your tools, connect to MCP servers, and even A2A agents.
-The REPL stands out because it connects to the surrounding
-runtime and it can be extended by your code. Think of it as
-`binding.pry` but for agents.
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/repl) to learn more.
-
-##### Installation
-
-The REPL is distributed with llm.rb so you don't have to install
-a separate gem but it requires a number of optional dependencies
-to be installed separately. The following gems provide the full
-experience:
-
-    gem install curses kramdown xchan.rb test-cmd.rb
-
-##### Persistence
-
-The `path:` option can be set on an agent for automatic persistence
-across REPL sessions. The `tools:` option attaches extra tools
-for the duration of the session. Recall previous turns with Ctrl+P and
-Ctrl+N.
-
-```ruby
-require "llm"
-require "llm/tools"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent", path: "agent.json")
-agent.repl(tools: LLM::Tool.subclasses)
-```
-
-##### CLI
-
-The `llm.rb` executable is available on your PATH after installation.
-It starts a REPL session from any directory.The CLI auto-detects your
-provider from standard environment variables (`DEEPSEEK_API_KEY`,
-`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.). Persistent sessions are
-stored under `~/.llm.rb/` and restored automatically on your next visit.
-
-```bash
-llm.rb                     # auto-detect from $DEEPSEEK_API_KEY
-llm.rb -p openai           # use OpenAI explicitly
-llm.rb -t                  # temporary session, no persistence
 ```
 </details>
 
