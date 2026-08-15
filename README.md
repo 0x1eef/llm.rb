@@ -656,6 +656,26 @@ cheapest.structured_output?            # => false
 ```
 </details>
 
+<details>
+<summary>Transports</summary>
+<br>
+
+The `transport:` option selects which HTTP library a provider uses for
+network communication. Three backends ship out of the box: `net/http`
+is always available and the default, `net/http/persistent` pools
+connections for many requests to the same host, and `curb` wraps
+libcurl. They share one interface, so switching is a one-word change.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/transports) to learn more.
+
+```ruby
+llm = LLM.deepseek(
+  key: ENV["KEY"],
+  transport: :net_http_persistent
+)
+```
+</details>
+
 ### RAG
 
 Most providers offer an embedding model that can be
