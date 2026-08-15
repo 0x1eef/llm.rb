@@ -742,7 +742,7 @@ request:
 ```ruby
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV.fetch('GITHUB_PAT')}"},
+  headers: {"Authorization" => "Bearer #{ENV['GITHUB_PAT']}"},
   transport: :net_http_persistent
 )
 ```
