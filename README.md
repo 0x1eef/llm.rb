@@ -728,9 +728,8 @@ agent.talk "Run the tool"
 
 ##### Persistent connections
 
-
-Set `persistent: true` on HTTP transports to reuse connections
-across requests. This uses
+Set `transport: :net_http_persistent` on the HTTP client to reuse
+connections across requests. This uses
 [`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
 under the hood and avoids opening a new TCP connection for every
 request:
@@ -739,7 +738,7 @@ request:
 mcp = LLM::MCP.http(
   url: "https://api.githubcopilot.com/mcp/",
   headers: {"Authorization" => "Bearer #{ENV.fetch('GITHUB_PAT')}"},
-  persistent: true
+  transport: :net_http_persistent
 )
 ```
 
@@ -764,15 +763,15 @@ agent.talk "Run the skill"
 
 ##### Persistent connections
 
-Set `persistent: true` on HTTP transports to reuse connections
-across requests. This uses
+Set `transport: :net_http_persistent` on the HTTP client to reuse
+connections across requests. This uses
 [`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
 under the hood and avoids opening a new TCP connection for every
 request:
 
 ```ruby
-a2a = LLM::A2A.rest(url: "https://agent.example.com", persistent: true)
-a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", persistent: true)
+a2a = LLM::A2A.rest(url: "https://agent.example.com", transport: :net_http_persistent)
+a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", transport: :net_http_persistent)
 ```
 
 ### Images
