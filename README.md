@@ -176,6 +176,34 @@ agent.talk "Run the tools in parallel"
 
 </details>
 <details>
+<summary>Cancellation</summary>
+<br>
+
+Abort a request mid-stream and interrupt any running tools with
+[`LLM::Agent#interrupt!`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#interrupt!)
+(or `cancel!`), from any thread. The runtime raises
+[`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html)
+on the caller and on every active tool. A forked tool gets interrupted over
+the control channel, a ractor via message passing, and pending tools
+are stopped before they run. The in-flight HTTP request is closed
+too, so a turn you no longer want stops without burning tokens.
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/cancellation) to learn more.
+
+```ruby
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+Thread.new { sleep(1); agent.cancel! }
+
+begin
+  agent.talk "write a very long poem", stream: $stdout
+rescue LLM::Interrupt
+  puts "cancelled"
+end
+```
+</details>
+
+<details>
 <summary>Persistence</summary>
 <br>
 
@@ -421,33 +449,6 @@ agent.talk "Hello"
 
 </details>
 
-<details>
-<summary>Cancellation</summary>
-<br>
-
-Abort a request mid-stream and interrupt any running tools with
-[`LLM::Agent#interrupt!`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#interrupt!)
-(or `cancel!`), from any thread. The runtime raises
-[`LLM::Interrupt`](https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html)
-on the caller and on every active tool. A forked tool gets interrupted over
-the control channel, a ractor via message passing, and pending tools
-are stopped before they run. The in-flight HTTP request is closed
-too, so a turn you no longer want stops without burning tokens.
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/cancellation) to learn more.
-
-```ruby
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-Thread.new { sleep(1); agent.cancel! }
-
-begin
-  agent.talk "write a very long poem", stream: $stdout
-rescue LLM::Interrupt
-  puts "cancelled"
-end
-```
-</details>
 
 <details>
 <summary>Observability</summary>
@@ -693,7 +694,6 @@ mcp = LLM::MCP.http(
   persistent: true
 )
 ```
-</details>
 
 ### A2A
 
@@ -764,8 +764,6 @@ res = llm.images.create(prompt: "add a dog next to the rocket",
                         agent: res.agent)
 IO.copy_stream res.images[0], "rocket-with-dog.svg"
 ```
-
-</details>
 
 ## FAQ
 
@@ -860,15 +858,9 @@ web</a>.
 </p>
 </details>
 
-## Resources
-
-If you like what you read so far, check out the [deepdive.md](https://r.uby.dev/llm/deepdive/)
-to learn more. Unfortunately it
-wasn't possible to cover every feature without the README becoming a small book.
-The [r.uby.dev](https://r.uby.dev) homepage also includes more learning material
-and resources.
-
-## Developers
+<details>
+<summary>What advice do you have for llm.rb developers?</summary>
+<br>
 
 The llm.rb project is quite large and maintained primarily by one
 person. It would be near impossible for me to maintain both the codebase
@@ -905,6 +897,16 @@ rake agents:mruby:repl
 # Refresh the data/ registry
 rake models.dev:download
 ```
+
+</details>
+
+## Resources
+
+If you like what you read so far, check out the [deepdive.md](https://r.uby.dev/llm/deepdive/)
+to learn more. Unfortunately it
+wasn't possible to cover every feature without the README becoming a small book.
+The [r.uby.dev](https://r.uby.dev) homepage also includes more learning material
+and resources.
 
 ## License
 
