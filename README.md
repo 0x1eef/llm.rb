@@ -51,7 +51,7 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "hello world"
 ```
 <details>
-<summary>Streaming</summary>
+<summary>Stream</summary>
 <br>
 
 Streams can be simple IO objects or subclasses of
@@ -66,12 +66,40 @@ to learn more.
 
 ```ruby
 class MyStream < LLM::Stream
+  # Visible assistant output.
   def on_content(content)
     print content
   end
 
+  # Reasoning output streamed separately from visible content.
   def on_reasoning_content(content)
     warn content
+  end
+
+  # A streamed tool call has been fully parsed.
+  def on_tool_call(tool)
+  end
+
+  # Queued streamed tool work has returned.
+  def on_tool_return(tool, result)
+  end
+
+  # Before and after a transformer rewrites an outgoing message.
+  def on_transform(transformer)
+  end
+
+  def on_transform_finish(transformer)
+  end
+
+  # Before and after a compactor trims the conversation.
+  def on_compaction(compactor)
+  end
+
+  def on_compaction_finish(compactor)
+  end
+
+  # A request was rate limited and will be retried.
+  def on_rate_limit(error)
   end
 end
 
