@@ -88,7 +88,7 @@
   6s, ...) and notifies the stream through
   [`LLM::Stream#on_rate_limit`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_rate_limit-instance_method).
   [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
-  enables a budget of 3 by default, while a raw context disables it (0)
+  enables a budget of 5 by default, while a raw context disables it (0)
   unless configured.
 
 * **add `LLM::Usage.zero`** <br>
@@ -277,10 +277,22 @@
   text-to-text models, so embedding and other non-chat models are
   left out of the completion list.
 
+* **repl: highlight GitHub-flavored codeblocks** <br>
+  The curses-based REPL now parses the GitHub-style ``` fences that
+  models commonly emit as real code blocks. Kramdown's native fenced-code
+  syntax uses `~~~`, so the ``` fences were previously parsed as inline
+  code spans. The language name is now shown in bold white above the code,
+  which renders in green.
+
 * **repl: fix a scroll render artifact** <br>
   Fix a bug where scrolling upward could leave a piece of text just
   above the status row as a render artifact. The row above the status
   row is now cleared on every buffer render.
+
+* **repl: add a buffer row below the blue status bar** <br>
+  The curses-based REPL buffer now starts with an empty row below the
+  blue status bar, improving the visual spacing of the first exchange
+  in the chat.
 
 ### Registry
 
