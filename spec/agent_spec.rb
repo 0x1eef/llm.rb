@@ -141,7 +141,7 @@ RSpec.describe LLM::Agent do
       end
 
       it "enables retries by default on an agent" do
-        expect(wrapped_context(described_class.new(provider)).retry_budget).to eq(3)
+        expect(wrapped_context(described_class.new(provider)).retry_budget).to eq(5)
       end
 
       it "passes DSL skills to the context" do

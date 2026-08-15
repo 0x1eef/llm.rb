@@ -245,7 +245,7 @@ of hanging.
 #### Notes
 
 The retry budget applies to rate-limited requests only, other
-errors are never retried. The budget defaults to three for agents,
+errors are never retried. The budget defaults to five for agents,
 while a raw
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 defaults to zero (`retry_budget: 0`). A 429 is refused before any

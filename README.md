@@ -520,7 +520,7 @@ agent.talk "Hello"
 <br>
 
 Rate-limited requests are retried automatically by default. Agents
-retry a 429 up to three times with a growing backoff before giving
+retry a 429 up to five times with a growing backoff before giving
 up, so most request failures resolve on their own. Set `retry_budget`
 to change the number of retries, or `retry_budget: 0` to disable
 them.
