@@ -772,8 +772,6 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"
 <details>
 <summary>What providers does llm.rb support?</summary>
 <br>
-
-<br>
 <p>
 
 **Cloud**
@@ -819,8 +817,6 @@ In no particular order:
 <details>
 <summary>I have a limited budget. What should I do?</summary>
 <br>
-
-<br>
 <p>
 There are a few options. The first option is to host
 your own model, and use the ollama or llamacpp
@@ -849,8 +845,7 @@ If you're on a budget, DeepSeek is hard to beat.
 <details>
 <summary>Can I download llm.rb via a decentralized network?</summary>
 <br>
-
-<br>
+<p>
 Yes.
 <br>
 We are on the <a href="https://radicle.network">radicle.network</a>
@@ -862,6 +857,7 @@ Our repository ID is z2PtfQ6dYwyYaW2aGrztG1sMyDmCE.
 Browse on <a
 href="https://radicle.network/nodes/iris.radicle.network/z2PtfQ6dYwyYaW2aGrztG1sMyDmCE">the
 web</a>.
+</p>
 </details>
 
 ## Resources
