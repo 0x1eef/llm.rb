@@ -5,9 +5,9 @@ class LLM::Alibaba
   # Handles non-2XX responses from Alibaba Cloud Model Studio.
   #
   # Falls back to the OpenAI-compatible error handling for
-  # everything except Alibaba's `insufficient_quota`, which
-  # is raised as its own {LLM::InsufficientQuotaError} (a quota
-  # issue, not a transient rate limit, so it is not retried).
+  # everything except Alibaba's `insufficient_quota`,
+  # which is raised as {LLM::InsufficientQuotaError} (a tokens
+  # per-minute rate limit).
   # @api private
   class ErrorHandler < LLM::OpenAI::ErrorHandler
     private

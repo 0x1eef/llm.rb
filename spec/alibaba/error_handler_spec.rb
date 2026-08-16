@@ -27,8 +27,8 @@ RSpec.describe LLM::Alibaba::ErrorHandler do
       expect { handler.raise_error! }.to raise_error(LLM::InsufficientQuotaError)
     end
 
-    it "does not raise LLM::RateLimitError" do
-      expect(captured_error).not_to be_a(LLM::RateLimitError)
+    it "is a LLM::RateLimitError" do
+      expect(captured_error).to be_a(LLM::RateLimitError)
     end
   end
 

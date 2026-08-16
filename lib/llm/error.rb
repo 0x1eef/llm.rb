@@ -32,10 +32,11 @@ module LLM
   RateLimitError = Class.new(Error)
 
   ##
-  # When the provider reports that the account quota is exhausted.
-  # This is distinct from a transient rate limit and should not be
-  # retried.
-  InsufficientQuotaError = Class.new(Error)
+  # A tokens-per-minute (TPM) rate limit. Alibaba reports this as
+  # `Throttling.AllocationQuota` / `insufficient_quota`. It is a
+  # rate limit (retriable), distinct from a request-rate limit only
+  # for classification.
+  InsufficientQuotaError = Class.new(RateLimitError)
 
   ##
   # HTTPServerError
