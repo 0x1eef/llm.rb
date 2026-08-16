@@ -29,6 +29,7 @@ def help
   warn ""
   warn "Options:"
   warn "  -p PROVIDER    Choose a provider"
+  warn "  -c STRATEGY    Concurrency strategy for tool calls (eg thread, async, fork)"
   warn "  -t             Temporary session that doesn't persist to disk"
   warn "  -h             Show this help"
   warn ""
@@ -82,6 +83,15 @@ def main(argv)
       exit 0
     when '-t'
       temp = true
+    when '-c'
+      concurrency = argv.shift
+      if concurrency.nil?
+        warn "llm.rb: -c switch requires an argument"
+        help
+        exit 1
+      else
+        concurrency = concurrency.to_sym
+      end
     when '-p'
       provider = argv.shift
       if provider.nil?
@@ -146,9 +156,9 @@ def main(argv)
 
   ##
   # We're ready to start the REPL
-  # This should always succeed unless -p gave garbage
+  concurrency ||= :sequential
   path  = temp ? nil : data[Dir.getwd]
-  agent = LLM::Agent.new(llm, path:, tools: LLM::Tool.subclasses)
+  agent = LLM::Agent.new(llm, path:, concurrency:, tools: LLM::Tool.subclasses)
   agent.repl
 end
 main(ARGV)
