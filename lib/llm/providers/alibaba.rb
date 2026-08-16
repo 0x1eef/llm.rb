@@ -24,6 +24,8 @@ module LLM
   #   ctx = LLM::Context.new(llm)
   #   ctx.talk "Hello"
   class Alibaba < OpenAI
+    require_relative "alibaba/error_handler"
+
     HOST = "dashscope-intl.aliyuncs.com"
     BASE_PATH = "/compatible-mode/v1"
 
@@ -41,6 +43,13 @@ module LLM
     #  Returns the provider's name
     def name
       :alibaba
+    end
+
+    ##
+    # @return [Class]
+    #  Returns the class that handles unsuccessful responses
+    def error_handler
+      LLM::Alibaba::ErrorHandler
     end
 
     ##
