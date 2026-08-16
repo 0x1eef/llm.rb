@@ -30,6 +30,7 @@ def help
   warn "Options:"
   warn "  -p PROVIDER    Choose a provider"
   warn "  -c STRATEGY    Concurrency strategy for tool calls (eg thread, async, fork)"
+  warn "  -n TRANSPORT   HTTP transports - net-http (default), net-http-persistent, and curb"
   warn "  -t             Temporary session that doesn't persist to disk"
   warn "  -h             Show this help"
   warn ""
@@ -92,6 +93,15 @@ def main(argv)
       else
         concurrency = concurrency.to_sym
       end
+    when '-n'
+      transport = argv.shift
+      if transport.nil?
+        warn "llm.rb: -n switch requires an argument"
+        help
+        exit 1
+      else
+        transport = transport.gsub("-", "_").to_sym
+      end
     when '-p'
       provider = argv.shift
       if provider.nil?
@@ -110,8 +120,9 @@ def main(argv)
   # No provider has been given.
   # Try to infer one.
   if provider.nil?
+    transport ||= :net_http
     llm = providers.filter_map do
-      LLM.method(_1).call
+      LLM.method(_1).call(transport:)
     rescue ArgumentError
     end.first
     if llm.nil?
