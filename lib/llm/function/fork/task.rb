@@ -29,7 +29,20 @@ class LLM::Function
         control: xchan(:marshal),
         result: xchan(:marshal, sock: Socket::SOCK_STREAM)
       )
-      @pid = Kernel.fork { Fork::Job.new(@function, @ch).call }
+      @pid = Kernel.fork do
+        ##
+        # The child inherits the parent's terminal. When
+        # the runtime runs under a curses REPL, the forked
+        # tool writing to the tty would clobber the parent's
+        # display (a blank screen). Redirect the child's
+        # stdout/stderr to null so it keeps off the user's
+        # terminal. A tool that genuinely needs the terminal
+        # can reopen it via /dev/tty; the tty fd stays
+        # available to the child.
+        $stdout.reopen(File::NULL)
+        $stderr.reopen(File::NULL)
+        Fork::Job.new(@function, @ch).call
+      end
       @spawned = true
       self
     end
