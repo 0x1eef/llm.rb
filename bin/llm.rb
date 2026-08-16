@@ -37,6 +37,8 @@ def help
   warn "Examples:"
   warn "  #{prog}                     # auto-detect provider from $PROVIDER_API_KEY"
   warn "  #{prog} -p openai           # use OpenAI"
+  warn "  #{prog} -n curb             # use libcurl"
+  warn "  #{prog} -c thread           # run tool calls on a separate thread"
   warn "  #{prog} -h                  # this help"
   warn ""
 end
