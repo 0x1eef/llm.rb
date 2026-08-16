@@ -119,8 +119,8 @@ def main(argv)
   ##
   # No provider has been given.
   # Try to infer one.
+  transport ||= :net_http
   if provider.nil?
-    transport ||= :net_http
     llm = providers.filter_map do
       LLM.method(_1).call(transport:)
     rescue ArgumentError
@@ -131,7 +131,7 @@ def main(argv)
     end
   else
     begin
-      llm = LLM.method(provider).call
+      llm = LLM.method(provider).call(transport:)
     rescue ArgumentError
       warn "llm.rb: set credentials for #{provider}"
       exit 1
