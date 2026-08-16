@@ -18,8 +18,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install PostgreSQL client headers
-      run: sudo apt-get update && sudo apt-get install -y libpq-dev
+    - name: Install libcurl (libcurl4-openssl-dev) and PostgreSQL headers
+      run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libpq-dev
+    - name: Verify libcurl loads
+      run: bundle exec ruby -e 'require "curb"'
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
