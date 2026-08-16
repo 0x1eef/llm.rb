@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-LLM.require "curses"
-LLM.require "kramdown"
-
 module LLM
   ##
   # The {LLM::Repl LLM::Repl} class provides a small
@@ -15,6 +12,9 @@ module LLM
   # task correctly, or for it to correct course after a
   # mistake was made.
   class Repl
+    LLM.require "curses", "~> 1.6"
+    LLM.require "kramdown", "~> 2.5"
+
     require_relative "repl/color"
     require_relative "repl/window"
     require_relative "repl/status"
