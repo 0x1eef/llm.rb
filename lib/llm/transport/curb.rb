@@ -139,22 +139,42 @@ class LLM::Transport
     def set_body(easy, request)
       case request.method
       when "POST"
-        easy.post_body = request.body if request.body
+        easy.post_body = body_for(request)
       when "PUT"
-        easy.put_data = request.body if request.body
+        easy.put_data = body_for(request)
       when "DELETE"
         easy.delete = true
       end
     end
 
+    ##
+    # Resolves the request body. Streaming requests
+    # set a body stream (via
+    # {LLM::Transport#set_body_stream}) instead of a plain
+    # body; read it into a string so curb can send it.
+    # The chunked transfer header is dropped because
+    # curb sets a content length.
+    # @param [LLM::Transport::Request] request
+    # @return [String, nil]
+    def body_for(request)
+      if request.body_stream
+        request["transfer-encoding"] = nil
+        request.body_stream.read
+      else
+        request.body
+      end
+    end
+
     def perform_blocking(easy, owner)
       check_interrupted(owner)
+      body = +""
       easy.on_body { |chunk|
         check_interrupted(owner)
+        body << chunk
         chunk.bytesize
       }
       easy.perform
-      build_response(easy)
+      build_response(easy).tap { _1.body = body }
     end
 
     def perform_streaming(easy, owner, stream)
