@@ -146,7 +146,6 @@ module LLM::ActiveRecord
         ctx.context_used
       end
 
-
       ##
       # Returns context window usage as a Rational
       # @return [Rational, nil]
