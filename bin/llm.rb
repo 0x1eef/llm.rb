@@ -22,6 +22,26 @@ def providers
     }
 end
 
+def warn_title(text)
+  wrap(text, 51).each_with_index { |chunk, i| warn(i.zero? ? "  ✖  #{chunk}" : "     #{chunk}") }
+end
+
+def wrapped(text, prefix)
+  line = "#{prefix}#{text}"
+  line.length <= 58 ? warn(line) : wrap(text, 51).each { |chunk| warn "#{prefix}#{chunk}" }
+end
+
+def wrap(text, width)
+  text.split.each_with_object([+""]) do |word, lines|
+    line_length = lines.last.length
+    word_length = word.length
+    if line_length.positive? and line_length + word_length + 1 > width
+      lines << +""
+    end
+    lines.last << (line_length.zero? ? word : " #{word}")
+  end
+end
+
 def help
   prog = File.basename($PROGRAM_NAME)
   warn ""
@@ -48,18 +68,39 @@ def loaderror(ex)
   warn ""
   warn "  ── llm.rb ──────────────────────────────────────────────"
   warn ""
-  warn "  ✖  Missing dependency: #{gem}"
+  warn_title "Missing dependency: #{gem}"
   warn ""
   warn "     The repl needs this gem, but it's not installed."
   warn ""
-  warn "     Fix:  gem install #{gem}"
-  warn "     Or:   bundle add #{gem}"
+  wrapped "Fix:  gem install #{gem}", "     "
+  wrapped "Or:   bundle add #{gem}", "     "
   warn ""
   warn "     Tip:  If you don't need the repl, you can use the"
-  warn "           library directly with:  require \"llm\""
+  wrapped "library directly with:  require \"llm\"", "           "
   warn ""
   warn "  ───────────────────────────────────────────────────────"
   warn ""
+end
+
+def fatal(ex)
+  title  = ex.message.lines.first.to_s.strip
+  detail = ex.message.lines.drop(1).map(&:strip).reject(&:empty?).first
+  warn ""
+  warn "  ── llm.rb ──────────────────────────────────────────────"
+  warn ""
+  warn_title "#{ex.class}: #{title}"
+  if detail
+    warn ""
+    wrapped detail, "     "
+  end
+  warn ""
+  warn "     This is an unexpected error. If it keeps happening,"
+  warn "     consider opening an issue at"
+  warn "     https://github.com/r-uby-dev/llm/issues"
+  warn ""
+  warn "  ───────────────────────────────────────────────────────"
+  warn ""
+  exit 1
 end
 
 ##
@@ -76,102 +117,108 @@ def main(argv)
     exit 1
   end
 
-  ##
-  # C-Style option parser
-  # No external dep
-  while option = argv.shift
-    case option
-    when '-h'
-      help
-      exit 0
-    when '-t'
-      temp = true
-    when '-c'
-      concurrency = argv.shift
-      if concurrency.nil?
-        warn "llm.rb: -c switch requires an argument"
+  begin
+    ##
+    # C-Style option parser
+    # No external dep
+    while option = argv.shift
+      case option
+      when '-h'
+        help
+        exit 0
+      when '-t'
+        temp = true
+      when '-c'
+        concurrency = argv.shift
+        if concurrency.nil?
+          warn "llm.rb: -c switch requires an argument"
+          help
+          exit 1
+        else
+          concurrency = concurrency.to_sym
+        end
+      when '-n'
+        transport = argv.shift
+        if transport.nil?
+          warn "llm.rb: -n switch requires an argument"
+          help
+          exit 1
+        else
+          transport = transport.gsub("-", "_").to_sym
+        end
+      when '-p'
+        provider = argv.shift
+        if provider.nil?
+          warn "llm.rb: -p switch requires an argument"
+          help
+          exit 1
+        end
+      else
+        warn "llm.rb: unknown option #{option}"
         help
         exit 1
-      else
-        concurrency = concurrency.to_sym
       end
-    when '-n'
-      transport = argv.shift
-      if transport.nil?
-        warn "llm.rb: -n switch requires an argument"
-        help
-        exit 1
-      else
-        transport = transport.gsub("-", "_").to_sym
-      end
-    when '-p'
-      provider = argv.shift
-      if provider.nil?
-        warn "llm.rb: -p switch requires an argument"
-        help
+    end
+
+    ##
+    # No provider has been given.
+    # Try to infer one.
+    transport ||= :net_http
+    if provider.nil?
+      llm = providers.filter_map do
+        LLM.method(_1).call(transport:)
+      rescue ArgumentError
+      end.first
+      if llm.nil?
+        warn "llm.rb: provide a provider with the -p switch"
         exit 1
       end
     else
-      warn "llm.rb: unknown option #{option}"
-      help
-      exit 1
+      begin
+        llm = LLM.method(provider).call(transport:)
+      rescue ArgumentError
+        warn "llm.rb: set credentials for #{provider}"
+        exit 1
+      rescue NameError
+        warn "llm.rb: unknown provider (#{provider})"
+        exit 1
+      end
     end
-  end
 
-  ##
-  # No provider has been given.
-  # Try to infer one.
-  transport ||= :net_http
-  if provider.nil?
-    llm = providers.filter_map do
-      LLM.method(_1).call(transport:)
-    rescue ArgumentError
-    end.first
-    if llm.nil?
-      warn "llm.rb: provide a provider with the -p switch"
-      exit 1
-    end
-  else
-    begin
-      llm = LLM.method(provider).call(transport:)
-    rescue ArgumentError
-      warn "llm.rb: set credentials for #{provider}"
-      exit 1
-    rescue NameError
-      warn "llm.rb: unknown provider (#{provider})"
-      exit 1
-    end
-  end
+    ##
+    # Setup the filesystem where <provider>.json maps
+    # the current working directory to a session file,
+    # and where the session file is stored in
+    # `~/.llm.rb/<provider>/<uuid>.json`.
+    # This can be skipped with the `-t` option.
+    if temp.nil?
+      home   = File.join(Dir.home, ".llm.rb")
+      file   = File.join(home, "#{llm.name}.json")
+      parent = File.join(home, llm.name.to_s)
 
-  ##
-  # Setup the filesystem where <provider>.json maps
-  # the current working directory to a session file,
-  # and where the session file is stored in
-  # `~/.llm.rb/<provider>/<uuid>.json`.
-  # This can be skipped with the `-t` option.
-  if temp.nil?
-    home   = File.join(Dir.home, ".llm.rb")
-    file   = File.join(home, "#{llm.name}.json")
-    parent = File.join(home, llm.name.to_s)
+      FileUtils.mkdir_p(parent)
+      FileUtils.touch(file)
 
-    FileUtils.mkdir_p(parent)
-    FileUtils.touch(file)
-
-    if File.size(file).zero?
-      data = LLM::Object.from({})
+      if File.size(file).zero?
+        data = LLM::Object.from({})
+        File.binwrite file, JSON.pretty_generate(data)
+      else
+        data = LLM::Object.from JSON.parse(File.read(file))
+      end
+      data[Dir.getwd] ||= File.join(parent, "#{SecureRandom.uuid}.json")
       File.binwrite file, JSON.pretty_generate(data)
-    else
-      data = LLM::Object.from JSON.parse(File.read(file))
     end
-    data[Dir.getwd] ||= File.join(parent, "#{SecureRandom.uuid}.json")
-    File.binwrite file, JSON.pretty_generate(data)
-  end
 
-  ##
-  # We're ready to start the REPL
-  concurrency ||= :sequential
-  path  = temp ? nil : data[Dir.getwd]
-  agent = LLM::Agent.new(llm, path:, concurrency:, tools: LLM::Tool.subclasses)
-  agent.repl
+    ##
+    # Let's go!
+    concurrency ||= :sequential
+    path  = temp ? nil : data[Dir.getwd]
+    agent = LLM::Agent.new(llm, path:, concurrency:, tools: LLM::Tool.subclasses)
+    agent.repl
+  rescue Interrupt
+    warn "llm.rb: Bye!"
+  rescue => ex
+    fatal(ex)
+  end
 end
 main(ARGV)
