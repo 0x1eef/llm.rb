@@ -80,6 +80,13 @@
   now: without arguments it falls back to `ollama` or `llamacpp`. A
   provider whose credentials are not set exits with status 1.
 
+* **cli: add `-c` and `-n` switches** <br>
+  `bin/llm.rb` now accepts a `-c STRATEGY` switch to choose the
+  concurrency strategy used for tool calls (`thread`, `async`, `fork`,
+  or any of the other strategies) and a `-n TRANSPORT` switch to choose
+  the HTTP transport (`net-http`, `net-http-persistent`, or `curb`),
+  both forwarded to the session's agent and provider.
+
 * **add `retry_budget` support for rate-limited requests** <br>
   [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
   now accepts a `retry_budget:` that automatically sleeps and retries a
@@ -163,6 +170,16 @@
   now discovers its API key from `DASHSCOPE_API_KEY` instead of
   `ALIBABA_API_KEY`, following the models.dev registry convention.
 
+* **alibaba: raise `LLM::InsufficientQuotaError` for exhausted quota** <br>
+  Add
+  [`LLM::InsufficientQuotaError`](https://r.uby.dev/api-docs/llm.rb/LLM/InsufficientQuotaError.html),
+  a subclass of `LLM::RateLimitError`, for when a provider reports a
+  tokens-per-minute (TPM) quota limit.
+  [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
+  now raises it when Alibaba responds with an `insufficient_quota`
+  error. Since it subclasses `RateLimitError`, quota errors are retried
+  like other rate limits.
+
 * **bedrock: auto-discover AWS credentials from the environment** <br>
   [`LLM.bedrock`](https://r.uby.dev/api-docs/llm.rb/LLM.html#bedrock-class_method)
   now infers its credentials from the `AWS_ACCESS_KEY_ID`,
@@ -211,6 +228,20 @@
   `enabled?` instead, so `stream_options: {include_usage: true}` is
   added to streamed requests and API usage is reported back to the
   caller.
+
+* **curb: read the stream body and resolve streaming requests** <br>
+  Fix two bugs in [`LLM::Transport::Curb`](https://r.uby.dev/api-docs/llm.rb/LLM/Transport/Curb.html)
+  that left the `curb` transport unusable. The request body setter now
+  reads a streaming request's body stream into a string (dropping the
+  chunked transfer header, which curb replaces with a content length),
+  and the result builder now accumulates the response body from the
+  `on_body` callback instead of leaving it empty.
+
+* **cli: handle errors in `main`** <br>
+  Wrap all of `bin/llm.rb`'s `main` method in error handling: an
+  interrupted session exits gracefully with `Bye!`, an explicit provider
+  is passed the resolved transport, and any unexpected error prints a
+  formatted diagnostic with a link to issue tracking before exiting.
 
 * **cli: persist the session mapping file** <br>
   Fix a bug where `bin/llm.rb` saved the session file at
