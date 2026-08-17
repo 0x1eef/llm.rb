@@ -390,6 +390,7 @@ end
 email = Email.create!(subject: "Streaming support", body: "How do I stream responses?")
 email.draft_reply!
 
+##
 # The conversation (the email and the draft
 # reply) is persisted to the email's column. A
 # fresh instance restores it and continues the
