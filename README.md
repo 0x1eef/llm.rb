@@ -313,7 +313,7 @@ llm.rb -t                  # temporary session, no persistence
 <summary>Persistence</summary>
 <br>
 
-Set `path:` on an agent for automatic filesystem persistence;
+Set `path:` on an agent for automatic filesystem persistence:
 the agent restores conversation history from the file on startup
 and saves it back after every turn, with no manual serialization
 code. For database-backed persistence, ActiveRecord and Sequel
