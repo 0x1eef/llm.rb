@@ -522,7 +522,7 @@ class PolicyGuard < LLM::Guard
 end
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, guard: PolicyGuard)
+agent = LLM::Agent.new(llm, tools: [Shell, ReadFile], guard: PolicyGuard)
 ```
 </details>
 
