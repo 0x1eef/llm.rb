@@ -617,9 +617,25 @@ Each provider is constructed with a class-level factory method on
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 or
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html). The
-same API also drives Google Gemini, DeepInfra, xAI, Z.ai, AWS
-Bedrock, Ollama, and llama.cpp. See the [deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
+same API drives every one of them, so switching models is a one-line
+change. See the [deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
 for a full provider reference.
+
+#### What providers does llm.rb support?
+
+* **Anthropic** (`LLM.anthropic`)
+* **Google** (`LLM.google`)
+* **OpenAI** (`LLM.openai`)
+* **DeepSeek** (`LLM.deepseek`)
+* **DeepInfra** (`LLM.deepinfra`)
+* **xAI** (`LLM.xai`)
+* **Z.ai** (`LLM.zai`)
+* **Moonshot (Kimi)** (`LLM.moonshot`)
+* **Alibaba (Qwen3)** (`LLM.alibaba`, also `LLM.aliyun`)
+* **Mistral** (`LLM.mistral`)
+* **AWS Bedrock** (`LLM.bedrock`)
+* **Ollama** (`LLM.ollama`)
+* **llama.cpp** (`LLM.llamacpp`)
 
 <details>
 <summary>Implicit</summary>
