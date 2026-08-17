@@ -161,7 +161,7 @@ is fresh and stateless.
 
 See the [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/skills) to learn more.
 
-##### SKILL.md
+##### summary.md
 
 ```markdown
 ---
@@ -180,7 +180,7 @@ and write a summary to summary.txt.
 require "llm"
 
 llm   = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, skills: ["./skills/summary"])
+agent = LLM::Agent.new(llm, skills: ["summary.md"])
 agent.talk "Summarize the last week of work"
 ```
 </details>
