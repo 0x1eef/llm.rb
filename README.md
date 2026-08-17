@@ -897,45 +897,21 @@ web</a>.
 </details>
 
 <details>
-<summary>How do you maintain the documentation?</summary>
+<summary>Who maintains llm.rb?</summary>
 <br>
 
-The llm.rb project is quite large and maintained primarily by one
-person. It would be near impossible for me to maintain both the codebase
-and its documentation, especially the [deepdive.md](https://r.uby.dev/llm/deepdive/)
-so I have written agents that maintain the documentation assets and that
-allows me to put more focus on the code.
+The llm.rb project is maintained primarily by one
+person (contributors are welcome!). I use the repl
+that is distributed with llm.rb to build llm.rb itself
+so there is a healthy feedback loop and llm.rb has
+also been battle tested in production environments.
 
-The following agents are available for those tasks, and some of them
-use the most cost effective option: DeepSeek. Feel free to use them
-in your own fork.
+I have also also written llm.rb agents within the
+repository that help me maintain the documentation,
+and backport changes to the mruby-llm runtime as well.
 
-```sh
-##
-# Maintains the deepdive and API docs
-rake agents:scribe:yardoc
-rake agents:scribe:coverage
-rake agents:scribe:regressions
-rake agents:scribe:style
-rake agents:scribe:changelog
-rake agents:scribe:repl
-
-##
-# Maintains the release
-rake agents:rel:release
-rake agents:rel:repl
-
-##
-# Maintains mruby-llm backports
-rake agents:mruby:research
-rake agents:mruby:code
-rake agents:mruby:repl
-
-##
-# Refresh the data/ registry
-rake models.dev:download
-```
-
+I am constantly focused on improving llm.rb by using
+it as my primary driver for development.
 </details>
 
 ## Resources
