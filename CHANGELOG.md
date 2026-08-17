@@ -15,6 +15,17 @@
 
 ## What's next
 
+## v15.0.0
+
+Changes since `v14.0.0`.
+
+This release renames `usage` to `token_usage` across contexts, agents,
+and messages, makes `context_window` return `nil` when unknown, and
+makes `LLM::Cost` accessors always return `Float`. It also adds the
+Alibaba provider, automatic API key discovery from the environment,
+new context-usage and context-used methods, a retry budget for
+rate-limited requests, and a range of REPL and skills improvements.
+
 ### Breaking
 
 #### Migration
