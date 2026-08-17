@@ -395,6 +395,53 @@ agent.act_on_research!
 ```
 </details>
 
+<details><summary>MCP</summary>
+<br>
+
+The Model Context Protocol (MCP) has first-class support
+in llm.rb. The stdio and http transports work out of the
+box. MCP tools are translated into subclasses of
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
+used with
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/protocols/mcp/), and the
+[deepdive.md on persistent connections](https://r.uby.dev/llm/deepdive/features/transports) to learn more.
+
+```ruby
+require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
+agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
+agent.talk "Run the tool"
+```
+</details>
+<details><summary>A2A</summary>
+<br>
+
+The Agent 2 Agent (A2A) protocol has first-class support
+in llm.rb. The http and jsonrpc transports work out of the
+box. A2A skills are translated into subclasses of
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
+used with
+[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
+[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
+
+See the [deepdive.md](https://r.uby.dev/llm/deepdive/protocols/a2a/), and the
+[deepdive.md on persistent connections](https://r.uby.dev/llm/deepdive/features/transports) to learn more.
+
+```ruby
+require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
+agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
+agent.talk "Run the skill"
+```
+</details>
+
 <details><summary>Structured outputs</summary>
 <br>
 
@@ -745,73 +792,6 @@ Document.create!(
   body:,
   embedding:,
 )
-```
-
-### MCP
-
-The Model Context Protocol (MCP) has first-class support
-in llm.rb. The stdio and http transports work out of the
-box. MCP tools are translated into subclasses of
-[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
-used with
-[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
-
-```ruby
-require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
-agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
-agent.talk "Run the tool"
-```
-
-##### Persistent connections
-
-Set `transport: :net_http_persistent` on the HTTP client to reuse
-connections across requests. This uses
-[`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
-under the hood and avoids opening a new TCP connection for every
-request:
-
-```ruby
-mcp = LLM::MCP.http(
-  url: "https://api.githubcopilot.com/mcp/",
-  headers: {"Authorization" => "Bearer #{ENV['GITHUB_PAT']}"},
-  transport: :net_http_persistent
-)
-```
-
-### A2A
-
-The Agent 2 Agent (A2A) protocol has first-class support
-in llm.rb. The http and jsonrpc transports work out of the
-box. A2A skills are translated into subclasses of
-[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html) that can be
-used with
-[`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
-
-```ruby
-require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
-agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
-agent.talk "Run the skill"
-```
-
-##### Persistent connections
-
-Set `transport: :net_http_persistent` on the HTTP client to reuse
-connections across requests. This uses
-[`Net::HTTP::Persistent`](https://github.com/drbrain/net-http-persistent)
-under the hood and avoids opening a new TCP connection for every
-request:
-
-```ruby
-a2a = LLM::A2A.rest(url: "https://agent.example.com", transport: :net_http_persistent)
-a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", transport: :net_http_persistent)
 ```
 
 ### Images
