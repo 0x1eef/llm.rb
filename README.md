@@ -855,7 +855,7 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"
 ## FAQ
 
 <details>
-<summary>What about local LLM support?</sumary>
+<summary>What about local LLM support?</summary>
 
 The following providers can be run used with models that
 are running on your own hardware. They're reasonably well
@@ -896,12 +896,10 @@ type.
 If you're on a budget, DeepSeek is hard to beat.
 </details>
 <details>
-<summary>Can I download llm.rb via a decentralized network?</summary>
+<summary>Sources other than GitHub?</summary>
 <br>
 <p>
-Yes.
-<br>
-We are on the <a href="https://radicle.network">radicle.network</a>
+We are on the <a href="https://radicle.network">radicle.network</a> as well.
 <br>
 Every commit that lands on GitHub also lands on Radicle.
 <br>
