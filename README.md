@@ -855,44 +855,12 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"
 ## FAQ
 
 <details>
-<summary>What providers does llm.rb support?</summary>
+<summary>What about local LLM support?</sumary>
+
+The following providers can be run used with models that
+are running on your own hardware. They're reasonably well
+tested but not my main driver.
 <br>
-<p>
-
-**Cloud**
-
-The following cloud-based providers are available to choose from. <br>
-In no particular order:
-
-🇺🇸 OpenAI <br>
-🇺🇸 DeepInfra <br>
-🇺🇸 xAI <br>
-🇺🇸 Google (Gemini) <br>
-🇺🇸 AWS bedrock <br>
-🇺🇸 Anthropic <br>
-🇨🇳 DeepSeek <br>
-🇨🇳 zAI <br>
-🇨🇳 Moonshot AI (Kimi) <br>
-🇨🇳 Alibaba (Qwen3) <br>
-🇪🇺 Mistral <br>
-
-**Weights**
-
-The following providers provide access to open-weight models. <br>
-In no particular order:
-
-🇺🇸 DeepInfra <br>
-🇺🇸 AWS bedrock <br>
-🇨🇳 DeepSeek <br>
-🇨🇳 zAI <br>
-🇨🇳 Moonshot AI (Kimi) <br>
-🇨🇳 Alibaba (Qwen3) <br>
-🇪🇺 Mistral <br>
-
-**Local**
-
-The following providers can be run locally on your own hardware. <br>
-In no particular order:
 
 * Ollama
 * Llamacpp
@@ -946,7 +914,7 @@ web</a>.
 </details>
 
 <details>
-<summary>What advice do you have for llm.rb developers?</summary>
+<summary>How do you maintain the documentation?</summary>
 <br>
 
 The llm.rb project is quite large and maintained primarily by one
@@ -955,7 +923,7 @@ and its documentation, especially the [deepdive.md](https://r.uby.dev/llm/deepdi
 so I have written agents that maintain the documentation assets and that
 allows me to put more focus on the code.
 
-The following agents are available for those tasks, and all of them
+The following agents are available for those tasks, and some of them
 use the most cost effective option: DeepSeek. Feel free to use them
 in your own fork.
 
