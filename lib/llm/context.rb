@@ -40,6 +40,16 @@ module LLM
     include Deserializer
 
     ##
+    # Returns the set of runtime parameters that
+    # configure this context and must never be forwarded
+    # to a provider request body.
+    # @api private
+    # @return [Array<Symbol>]
+    def self.params
+      %w[guard retry_budget concurrency transformer compactor]
+    end
+
+    ##
     # Returns the accumulated message history for this context
     # @return [LLM::Buffer<LLM::Message>]
     attr_reader :messages
@@ -566,7 +576,7 @@ module LLM
     # @api private
     def respond(prompt, params)
       history = @messages.to_a
-      params = @params.merge(params)
+      params = @params.merge(params).reject { self.class.params.include?(_1.to_s) }
       extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
       params[:stream] = LLM::Stream.try(params[:stream], extra:)
       res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
@@ -585,7 +595,7 @@ module LLM
     def complete(prompt, params)
       history = @messages.to_a
       params = params.merge(messages: history)
-      params = @params.merge(params)
+      params = @params.merge(params).reject { self.class.params.include?(_1.to_s) }
       extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
       params[:stream] = LLM::Stream.try(params[:stream], extra:)
       messages = transform(prompt, params)
