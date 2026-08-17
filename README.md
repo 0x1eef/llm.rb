@@ -355,21 +355,19 @@ require "active_record"
 require "llm"
 require "llm/active_record"
 
-class Agent < ApplicationRecord
+class Email < ApplicationRecord
   acts_as_agent do |agent|
-    agent.set name: "my-agent",
-              instructions: "solve the user's query",
-              model: "deepseek-v4-pro",
-              tools: [Research, ActOnResearch],
-              concurrency: :async
+    agent.set name: "mail",
+              instructions: "Write concise, friendly replies to emails",
+              model: "deepseek-v4-pro"
   end
 
-  def research
-    talk("start the research")
+  def draft_reply!
+    talk("Draft a reply to:\n\n#{body}")
   end
 
-  def act_on_research!
-    talk("act on the research")
+  def summarize
+    talk("Summarize this email thread in a few sentences")
   end
 
   private
@@ -389,9 +387,15 @@ class Agent < ApplicationRecord
   end
 end
 
-agent = Agent.create!
-agent.research
-agent.act_on_research!
+email = Email.create!(subject: "Streaming support", body: "How do I stream responses?")
+email.draft_reply!
+
+# The conversation (the email and the draft
+# reply) is persisted to the email's column. A
+# fresh instance restores it and continues the
+# thread, so the summary below knows what was
+# already drafted:
+Email.find(email.id).summarize
 ```
 </details>
 
