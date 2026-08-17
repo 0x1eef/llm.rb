@@ -100,7 +100,14 @@ module LLM
       Class.new(LLM::Tool) do
         attr_accessor :tracer
 
-        name skill.name
+        ##
+        # The skill's tool is named "<skill>-skill" so
+        # that it is unique from any tool the skill
+        # itself exposes (or any global tool). Otherwise
+        # a skill named `weather` that uses a `weather`
+        # tool would collide: both resolve to the same
+        # name.
+        name "#{skill.name}-skill"
         description skill.description
 
         define_singleton_method(:skill?) do

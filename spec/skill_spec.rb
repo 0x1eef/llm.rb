@@ -166,7 +166,7 @@ RSpec.describe LLM::Skill do
       end
 
       it "builds a tool with the skill metadata" do
-        expect(tool.name).to eq("weather")
+        expect(tool.name).to eq("weather-skill")
         expect(tool.description).to eq("Get the current weather")
       end
 
@@ -201,7 +201,7 @@ RSpec.describe LLM::Skill do
           {content: "rain"}
         end
         expect(function.task(:thread).value.to_h).to eq(
-          id: "call_1", name: "weather", value: {content: "rain"}
+          id: "call_1", name: "weather-skill", value: {content: "rain"}
         )
       end
     end
