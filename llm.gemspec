@@ -31,8 +31,8 @@ DESCRIPTION
     "README.md", "LICENSE",
     "lib/*.rb", "lib/**/*.rb",
     "data/*.json", "CHANGELOG.md",
-    "resources/deepdive.md",
-    "resources/deepdive/*/*.md",
+    "docs/deepdive.md",
+    "docs/deepdive/*/*.md",
     "llm.gemspec", "bin/llm.rb"
   ]
   spec.executables = ["llm.rb"]
