@@ -856,15 +856,15 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"
 
 <details>
 <summary>What about local LLM support?</summary>
-
+<br>
+<p>
 The following providers can be run used with models that
 are running on your own hardware. They're reasonably well
-tested but not my main driver.
-<br>
+tested but not my main driver:
+</p>
 
 * Ollama
 * Llamacpp
-</p>
 </details>
 
 <details>
