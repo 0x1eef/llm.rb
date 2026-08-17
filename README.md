@@ -902,7 +902,7 @@ web</a>.
 
 The llm.rb project is maintained primarily by one
 person. llm.rb has been in active development for more
-than three years and over that time multipleother
+than three years and over that time multiple other
 contributors have contributed to llm.rb as well. New
 contributors are always welcome.
 
