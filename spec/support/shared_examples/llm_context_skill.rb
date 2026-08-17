@@ -5,7 +5,7 @@ RSpec.shared_examples "LLM::Agent: skill" do |dirname, options = {}|
     {vcr: {cassette_name: "#{dirname}/chat/#{basename}"}.merge(options)}
   end
 
-  context "when the model calls a skill", vcr.call("llm_chat_skill_stream") do
+  context "when given a skill", vcr.call("llm_chat_skill_stream") do
     let(:events) { [] }
     let(:stream) do
       events = self.events
@@ -28,10 +28,17 @@ RSpec.shared_examples "LLM::Agent: skill" do |dirname, options = {}|
         end
       end
     end
-    let(:skill_dir) do
-      dir = File.join(Dir.tmpdir, "skills_spec_#{$$}")
-      FileUtils.mkdir_p(dir)
-      File.write(File.join(dir, "SKILL.md"), <<~MD)
+    let(:path) do
+      dirname = File.join(Dir.tmpdir, "skills_spec_#{Process.pid}")
+      File.join(dirname, "weather.md")
+    end
+    let(:params) { {skills: [path], tools: [tool], stream:} }
+    let(:agent) { LLM::Agent.new(llm, params) }
+    let(:run) { agent.talk("What's the weather?") }
+
+    before do
+      FileUtils.mkdir_p(File.dirname(path))
+      File.write(path, <<~MD)
         ---
         name: weather
         description: Get the current weather
@@ -40,31 +47,41 @@ RSpec.shared_examples "LLM::Agent: skill" do |dirname, options = {}|
         ---
         Use the weather tool to report the current weather.
       MD
-      dir
-    end
-    let(:params) { {skills: [skill_dir], tools: [tool], stream:} }
-    let(:agent) { LLM::Agent.new(llm, params) }
-    let(:run) { agent.talk("Use the weather skill") }
-
-    context "with stream hooks" do
-      it "fires on_skill_call before on_skill_return" do
-        run
-        expect(events.map(&:first)).to eq([:call, :return])
-      end
-
-      it "passes the skill to both hooks" do
-        run
-        expect(events.map { _1[1] }).to eq(%w[weather weather])
-      end
-
-      it "passes a response to on_skill_return" do
-        run
-        expect(events.last[2]).to be_a(LLM::Response)
-      end
     end
 
-    context "with the conversation" do
-      it "records the skill subagent's turn in the parent" do
+    context "when given callbacks" do
+      context "when given on_skill_call" do
+        it "calls the method" do
+          run
+          expect(events[0][0]).to eq(:call)
+        end
+
+        it "forwards the skill name" do
+          run
+          expect(events[0][1]).to eq("weather")
+        end
+      end
+
+      context "when given on_skill_return" do
+        it "calls the method" do
+          run
+          expect(events[1][0]).to eq(:return)
+        end
+
+        it "forwards the skill name" do
+          run
+          expect(events[1][1]).to eq("weather")
+        end
+
+        it "forwards an LLM::Response" do
+          run
+          expect(events[1][2]).to be_a(LLM::Response)
+        end
+      end
+    end
+
+    context "when given an agent" do
+      it "it contains a response" do
         run
         expect(agent.messages.size).to be >= 2
       end
