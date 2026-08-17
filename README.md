@@ -343,8 +343,8 @@ Because both
 can be serialized to JSON and stored in a simple string, both ActiveRecord
 and Sequel support can be implemented within a single column on a single row.
 
-The runtime includes first-class support for both ActiveRecord *and* Sequel, and
-for both Rack-based applications *and* Rails-based applications. On databases
+The runtime includes first-class support for both ActiveRecord / Sequel, and
+for both Rack-based / Rails-based applications. On databases
 where it is supported, such as PostgreSQL, the column can be optimized by using
 the `jsonb` type.
 
