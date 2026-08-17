@@ -26,6 +26,7 @@
 | `ctx.context_window` returns `0` when the model isn't in the registry | returns `nil` when unknown |
 | `LLM::Cost#input` (and other accessors) return `nil` when unused | return `0.0` |
 | `ctx.usage` returns the most recent assistant message usage | sums token usage across all assistant messages |
+| a skill exposes its tool as `weather` (the skill name) | the generated tool is now named `weather-skill` |
 
 * **rename `#usage` to `#token_usage` across contexts, agents, and messages** <br>
   [`LLM::Context#usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage-instance_method),
@@ -86,6 +87,13 @@
   or any of the other strategies) and a `-n TRANSPORT` switch to choose
   the HTTP transport (`net-http`, `net-http-persistent`, or `curb`),
   both forwarded to the session's agent and provider.
+
+* **context: keep runtime parameters from reaching the provider** <br>
+  [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
+  now strips its runtime-only parameters (`guard`, `retry_budget`,
+  `concurrency`, `transformer`, and `compactor`) before merging params
+  into a provider request, so they can never cross the context-provider
+  boundary and risk an API-level error.
 
 * **add `retry_budget` support for rate-limited requests** <br>
   [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
@@ -209,6 +217,15 @@
   `false`, and restores guard handling for sequential execution by
   honoring the shared `guarded:` option on `Sequential::Task`.
 
+* **function: redirect output streams in `:fork` tool processes** <br>
+  The `:fork` concurrency strategy (via
+  [`LLM::Function::Fork::Task`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Fork/Task.html))
+  now redirects the child process's `$stdout` and `$stderr` to
+  `File::NULL`, so a forked tool can no longer clobber the parent
+  terminal, for example by blanking the curses REPL display. A tool that
+  genuinely needs the terminal can still reopen `/dev/tty`; the file
+  descriptor stays available to the child.
+
 ### Fix
 
 * **a2a: fix a typo in the HTTP transport** <br>
@@ -325,6 +342,28 @@
   blue status bar, improving the visual spacing of the first exchange
   in the chat.
 
+* **repl: pin `curses` and `kramdown` to tested versions** <br>
+  The REPL now pins `curses` to `~> 1.6` and `kramdown` to `~> 2.5`
+  through `LLM.require`, so it loads gem versions known to have been
+  tested instead of whatever happens to be installed.
+
+### Skills
+
+* **skills: append `-skill` to the generated tool name** <br>
+  A skill is now exposed as a tool named `"<skill>-skill"` instead of
+  just the skill's name, so a skill like `weather` that also uses a tool
+  named `weather` no longer collides with it (or a same-named global
+  tool) in the tool registry.
+
+* **skills: add `LLM::Stream` skill lifecycle callbacks** <br>
+  Add
+  [`LLM::Stream#on_skill_call`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_skill_call-instance_method)
+  and
+  [`LLM::Stream#on_skill_return`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_skill_return-instance_method),
+  which are called before a skill's sub-agent runs and after it finishes
+  (with the resulting `LLM::Response`). A stream can use the two
+  callbacks to know when a skill sub-agent is running.
+
 ### Registry
 
 * **add `LLM::Registry::Model` as a comparable model wrapper** <br>
@@ -336,6 +375,11 @@
   `structured_output?`, `open_weights?`, `text?`, `image?`, `audio?`,
   `pdf?`, and `video?`, plus `input_cost`, `output_cost`, and
   `context_window` accessors.
+
+* **gemspec: bundle the deepdive guide from `docs/`** <br>
+  The gemspec now packages the deepdive guide from `docs/deepdive.md`
+  and `docs/deepdive/*/*.md` after the deepdive sources moved from
+  `resources/` to `docs/`, so the full guide ships with the gem.
 
 * **make `LLM::Registry#models` return model objects** <br>
   [`LLM::Registry#models`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#models-instance_method)
