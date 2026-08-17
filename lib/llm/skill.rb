@@ -80,19 +80,24 @@ module LLM
     end
 
     ##
-    # Execute the skill by wrapping it in a small agent with the skill
-    # instructions. The context is bound explicitly by the caller so the
-    # nested agent can inherit context-level behavior such as streaming.
+    # Execute the skill by wrapping it in a small agent
+    # with the skill instructions. The context is bound
+    # explicitly by the caller so the nested agent can
+    # inherit context-level behavior such as streaming.
     # @param [LLM::Context] ctx
     # @return [Hash]
     def call(ctx)
-      content = agent(ctx).talk("Solve the user's query.").content
-      {content:}
+      stream = ctx.stream
+      stream.on_skill_call(self)
+      result = agent(ctx).talk("Solve the user's query.")
+      stream.on_skill_return(self, result)
+      {content: result.content}
     end
 
     ##
-    # Expose the skill as a normal LLM::Tool. The context is bound explicitly
-    # when the tool class is built.
+    # Expose the skill as a normal LLM::Tool. The
+    # context is bound explicitly when the tool class
+    # is built.
     # @param [LLM::Context] ctx
     # @return [Class<LLM::Tool>]
     def to_tool(ctx)

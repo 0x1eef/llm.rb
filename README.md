@@ -84,18 +84,28 @@ class MyStream < LLM::Stream
   def on_tool_return(tool, result)
   end
 
-  # Before and after a transformer rewrites an outgoing message.
+  # Before a transformer rewrites an outgoing message.
   def on_transform(transformer)
   end
 
+  # Aftter a transformer rewrites an outgoing message.
   def on_transform_finish(transformer)
   end
 
-  # Before and after a compactor trims the conversation.
+  # Before a compactor trims the conversation.
   def on_compaction(compactor)
   end
 
+  # After a compactor trims the conversation.
   def on_compaction_finish(compactor)
+  end
+
+  # Before a skill's subagent runs.
+  def on_skill_call(skill)
+  end
+
+  # After a skill's subagent runs.
+  def on_skill_return(skill, result)
   end
 
   # A request was rate limited and will be retried.

@@ -15,6 +15,10 @@ RSpec.describe "LLM::Context: alibaba" do
     include_examples "LLM::Context: text stream", :alibaba
   end
 
+  context LLM::Agent do
+    include_examples "LLM::Agent: skill", :alibaba
+  end
+
   ##
   # Alibaba's `qwen-flash` model keeps re-invoking a tool when the tool
   # only reports `{success: true}` without the actual output. To avoid an

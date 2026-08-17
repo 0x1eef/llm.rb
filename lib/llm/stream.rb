@@ -192,6 +192,23 @@ module LLM
       nil
     end
 
+    ##
+    # Called before a skill's subagent runs.
+    # @param [LLM::Skill] skill
+    # @return [nil]
+    def on_skill_call(skill)
+      nil
+    end
+
+    ##
+    # Called after a skill's subagent finishes.
+    # @param [LLM::Skill] skill
+    # @param [LLM::Response, nil] result
+    # @return [nil]
+    def on_skill_return(skill, result)
+      nil
+    end
+
     # @endgroup
 
     # @group Finders

@@ -9,7 +9,7 @@ RSpec.describe "LLM::Skill: openai",
     description "Runs system commands"
     params { _1.object(command: _1.string.required) }
     def call(command:)
-      {success: Kernel.system(command)}
+      {success: true, output: "2025-08-24"}
     end
   end
 
