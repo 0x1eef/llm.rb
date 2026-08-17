@@ -360,9 +360,12 @@
   [`LLM::Stream#on_skill_call`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_skill_call-instance_method)
   and
   [`LLM::Stream#on_skill_return`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_skill_return-instance_method),
-  which are called before a skill's sub-agent runs and after it finishes
-  (with the resulting `LLM::Response`). A stream can use the two
-  callbacks to know when a skill sub-agent is running.
+  which are called before a skill's sub-agent runs and after it finishes.
+  `on_skill_return` receives the `LLM::Agent` sub-agent that ran the skill
+  along with the resulting `LLM::Response`, so a stream can inspect the
+  sub-agent's conversation, tally its usage, or add a verification step. A
+  stream can use the two callbacks to know when a skill sub-agent is
+  running.
 
 ### Registry
 
