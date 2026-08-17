@@ -117,7 +117,7 @@ class MyStream < LLM::Stream
   end
 
   # After a skill's subagent runs.
-  def on_skill_return(skill, result)
+  def on_skill_return(agent, skill, result)
   end
 
   # A request was rate limited and will be retried.

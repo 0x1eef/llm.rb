@@ -105,7 +105,10 @@ class MyStream < LLM::Stream
   end
 
   # After a skill's subagent runs.
-  def on_skill_return(skill, result)
+  # The subagent that ran it, the skill, and its response are passed
+  # through, so you can introspect the agent, tally skill usage, or
+  # track costs.
+  def on_skill_return(agent, skill, result)
   end
 
   # A request was rate limited and will be retried.
@@ -157,7 +160,11 @@ A skill turns a markdown file into a callable tool. When the model
 calls it, the runtime spawns a subagent with the skill's instructions
 as its system prompt and the skill's own tool set. The subagent runs
 one turn and returns the result, then is discarded. Each call
-is fresh and stateless.
+is fresh and stateless. A [LLM::Stream](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html)
+can be notified as a skill starts and when it returns. The `on_skill_return`
+callback hands back the subagent that ran the skill, so you can inspect
+its conversation, measure its usage, track costs or add a verification
+step (eg `subagent.talk("verify your work`)).
 
 See the [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/skills) to learn more.
 

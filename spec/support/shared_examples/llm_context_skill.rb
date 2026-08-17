@@ -13,8 +13,8 @@ RSpec.shared_examples "LLM::Agent: skill" do |dirname, options = {}|
         define_method(:on_skill_call) do |skill|
           events << [:call, skill.name]
         end
-        define_method(:on_skill_return) do |skill, result|
-          events << [:return, skill.name, result]
+        define_method(:on_skill_return) do |agent, skill, result|
+          events << [:return, skill.name, result, agent]
         end
       end.new
     end
@@ -76,6 +76,11 @@ RSpec.shared_examples "LLM::Agent: skill" do |dirname, options = {}|
         it "forwards an LLM::Response" do
           run
           expect(events[1][2]).to be_a(LLM::Response)
+        end
+
+        it "forwards an LLM::Agent" do
+          run
+          expect(events[1][3]).to be_a(LLM::Agent)
         end
       end
     end

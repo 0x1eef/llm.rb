@@ -202,10 +202,12 @@ module LLM
 
     ##
     # Called after a skill's subagent finishes.
+    # @param [LLM::Agent] agent
+    #  The subagent that ran the skill
     # @param [LLM::Skill] skill
     # @param [LLM::Response, nil] result
     # @return [nil]
-    def on_skill_return(skill, result)
+    def on_skill_return(agent, skill, result)
       nil
     end
 
