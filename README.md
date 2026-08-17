@@ -901,10 +901,15 @@ web</a>.
 <br>
 
 The llm.rb project is maintained primarily by one
-person (contributors are welcome!). I use the repl
-that is distributed with llm.rb to build llm.rb itself
-so there is a healthy feedback loop and llm.rb has
-also been battle tested in production environments.
+person. llm.rb has been in active development for more
+than three years and over that time multipleother
+contributors have contributed to llm.rb as well. New
+contributors are always welcome.
+
+I use the repl that is distributed with llm.rb to build
+llm.rb itself so there is a healthy feedback loop and
+llm.rb has also been battle tested in production
+environments.
 
 I have also also written llm.rb agents within the
 repository that help me maintain the documentation,
