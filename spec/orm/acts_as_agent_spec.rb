@@ -59,13 +59,17 @@ RSpec.describe "acts_as_agent" do
       tool = self.tool
       Class.new(model) do
         acts_as_agent do |agent|
-          agent.tools { [tool] }
+          agent.tools { tools }
         end
 
         private
 
         def set_provider
           LLM.openai(key: "secret")
+        end
+
+        def tools
+          [LLM::Tool.registry.first]
         end
       end
     end
