@@ -15,6 +15,27 @@
 
 ## What's next
 
+### Agent
+
+* **agent: fix `set (skills|tools): Symbol|Proc`** <br>
+  The `skills`, `tools`, `confirm`, and `schema` class accessors now
+  consistently resolve a single `Symbol` or `Proc` lazily at agent
+  initialization, so `LLM::Agent.set(skills: proc { [...] })` and
+  `LLM::Agent.set(tools: :tools)` no longer raise. The `set` family
+  shares one `single_callable?` helper rather than each accessor
+  duplicating its own logic.
+
+### Fix
+
+* **orm: resolve a `Symbol` through the bound record** <br>
+  When an ORM model using `acts_as_agent` (ActiveRecord), `plugin :agent`
+  (Sequel), or `acts_as_llm` / `plugin :llm` configures an option as a
+  `Symbol`, that symbol is now resolved on the model instance (or its
+  bound record) instead of the `LLM::Agent` instance. The contexts and
+  agents built by the wrappers are now bound to the record, so a model like
+  `agent.set :tools` with a `tools` method on the record works as
+  expected.
+
 ## v15.0.0
 
 Changes since `v14.0.0`.
