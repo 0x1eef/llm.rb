@@ -88,7 +88,7 @@ module LLM::Sequel
           options = self.class.llm_plugin_options
           columns = Agent::Utils.columns(options)
           params = Agent::Utils.resolve_options(self, options[:context], Agent::EMPTY_HASH).dup
-          ctx = self.class.agent.new(llm, params.compact)
+          ctx = self.class.agent.new(llm, params.compact.merge(record: self))
           data = self[columns[:data_column]]
           if data.nil? || data == ""
             ctx

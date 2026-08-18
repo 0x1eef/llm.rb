@@ -75,6 +75,31 @@ RSpec.describe "acts_as_agent" do
     end
   end
 
+  context "when tools are declared via a symbol on the record" do
+    let(:agent) do
+      tool = self.tool
+      Class.new(model) do
+        acts_as_agent do |agent|
+          agent.tools :tools
+        end
+
+        private
+
+        define_method(:tools) do
+          [tool]
+        end
+
+        def set_provider
+          LLM.openai(key: "secret")
+        end
+      end
+    end
+
+    it "resolves the tools against the bound record" do
+      expect(record.send(:ctx).params[:tools]).to eq([tool])
+    end
+  end
+
   context "when model is declared with a block" do
     let(:agent) do
       Class.new(model) do

@@ -57,14 +57,16 @@ module LLM
     ##
     # Ugh :)
     # @api private
-    FIELDS = %i[name description
+    FIELDS = %i[record
+                name description
                 path tool_budget
                 retry_budget model
                 skills schema
                 tracer stream
                 tools concurrency
                 instructions confirm]
-    IVARS  =  %i[name description
+    IVARS  =  %i[record
+                 name description
                  path tool_budget
                  tracer concurrency
                  instructions confirm]
@@ -402,7 +404,7 @@ module LLM
       @llm = llm
       fields, fields_ivar = FIELDS, IVARS
       fields.each do |field|
-        resolvable = params.key?(field) ? params.delete(field) : self.class.public_send(field)
+        resolvable = params.key?(field) ? params.delete(field) : (self.class.respond_to?(field) ? self.class.public_send(field) : nil)
         resolve_symbol = !%i[concurrency].include?(field)
         resolved = resolvable != nil ? resolve_option(self, resolvable, resolve_symbol:) : resolvable
         resolved = [*resolved].map(&:to_s) if field == :confirm && resolved
@@ -431,6 +433,13 @@ module LLM
     # @return [String, nil]
     def path
       @path
+    end
+
+    ##
+    # Returns the ORM record this agent is bound to, or nil.
+    # @return [Object, nil]
+    def record
+      @record
     end
 
     ##

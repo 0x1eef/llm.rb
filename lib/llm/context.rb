@@ -46,7 +46,7 @@ module LLM
     # @api private
     # @return [Array<Symbol>]
     def self.params
-      %w[guard retry_budget concurrency transformer compactor]
+      %w[guard retry_budget concurrency transformer compactor record]
     end
 
     ##
@@ -63,6 +63,11 @@ module LLM
     # Returns the context mode
     # @return [Symbol]
     attr_reader :mode
+
+    ##
+    # Returns the ORM record this context is bound to, or nil.
+    # @return [Object, nil]
+    attr_reader :record
 
     ##
     # @param [LLM::Provider] llm
@@ -95,6 +100,7 @@ module LLM
     def initialize(llm, params = {})
       params = {}.merge!(params)
       @llm = llm
+      @record = params.delete(:record)
       @mode = params.delete(:mode) || (llm.name == :openai ? :responses : :completions)
       tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
       @params = {model: llm.default_model, schema: nil}.compact.merge!(params)

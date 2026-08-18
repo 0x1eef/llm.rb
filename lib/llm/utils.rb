@@ -20,10 +20,32 @@ module LLM
     def resolve_option(obj, option, resolve_symbol: true)
       case option
       when Proc then obj.instance_exec(&option)
-      when Symbol then resolve_symbol ? obj.send(option) : option
+      when Symbol
+        if resolve_symbol
+          if obj.respond_to?(option, true) and record?(obj)
+            obj.send(option)
+          elsif obj.respond_to?(:record) and obj.record.respond_to?(option, true)
+            obj.record.send(option)
+          elsif obj.respond_to?(option, true)
+            obj.send(option)
+          else
+            raise ArgumentError, "unable to resolve #{option}"
+          end
+        else
+          option
+        end
       when Hash then option.dup
       else option
       end
+    end
+
+    ##
+    # Returns true when `obj` is an ActiveRecord or Sequel model.
+    # @param [Object] obj
+    # @api private
+    def record?(obj)
+      (defined?(::ActiveRecord::Base) and ::ActiveRecord::Base === obj) or
+      (defined?(::Sequel::Model) and ::Sequel::Model === obj)
     end
 
     ##

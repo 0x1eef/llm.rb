@@ -243,7 +243,7 @@ module LLM::ActiveRecord
           options = self.class.llm_plugin_options
           columns = Utils.columns(options)
           params = Utils.resolve_options(self, options[:context], EMPTY_HASH).dup
-          ctx = LLM::Context.new(llm, params.compact)
+          ctx = LLM::Context.new(llm, params.compact.merge(record: self))
           data = self[columns[:data_column]]
           if data.nil? || data == ""
             ctx
