@@ -169,8 +169,19 @@ module LLM
     # @return [String, nil]
     #  Returns the current model when no argument is provided
     def self.model(model = nil, &block)
-      return @model if model.nil? && !block
+      return @model if model.nil? and !block
       @model = block || model
+    end
+
+    ##
+    # Set or get the default schema
+    # @param [#to_json, nil] schema
+    #  The schema
+    # @return [#to_json, nil]
+    #  Returns the current schema when no argument is provided
+    def self.schema(schema = nil, &block)
+      return @schema if schema.nil? and !block
+      @schema = block || schema
     end
 
     ##
@@ -180,11 +191,13 @@ module LLM
     # @return [Array<LLM::Function>]
     #  Returns the current tools when no argument is provided
     def self.tools(*tools, &block)
-      return @tools || [] if tools.empty? && !block
-      if tools.size == 1 and tools.grep(Symbol).any?
+      return @tools || [] if tools.empty? and !block
+      if block
+        @tools = block
+      elsif single_callable?(tools)
         @tools = tools.first
       else
-        @tools = block || tools.flatten
+        @tools = tools.flatten
       end
     end
 
@@ -195,23 +208,46 @@ module LLM
     # @return [Array<String>, nil]
     #  Returns the current skills when no argument is provided
     def self.skills(*skills, &block)
-      return @skills if skills.empty? && !block
-      if skills.size == 1 and skills.grep(Symbol).any?
+      return @skills if skills.empty? and !block
+      if block
+        @skills = block
+      elsif single_callable?(skills)
         @skills = skills.first
       else
-        @skills = block || skills.flatten
+        @skills = skills.flatten
       end
     end
 
     ##
-    # Set or get the default schema
-    # @param [#to_json, nil] schema
-    #  The schema
-    # @return [#to_json, nil]
-    #  Returns the current schema when no argument is provided
-    def self.schema(schema = nil, &block)
-      return @schema if schema.nil? && !block
-      @schema = block || schema
+    # Set or get the tool names that require confirmation before they can run.
+    #
+    # When a single Symbol is given, it is stored as-is and resolved at
+    # initialization time by calling the method with that name on the agent
+    # instance. This allows dynamic tool confirmation lists.
+    #
+    # @example
+    #   class MyAgent < LLM::Agent
+    #     confirm :tools_that_need_confirmation
+    #
+    #     def tools_that_need_confirmation
+    #       some_condition ? %w[delete destroy] : %w[delete]
+    #     end
+    #   end
+    #
+    # @param [String, Symbol, Array<String, Symbol>, Proc] tool_names
+    #  One or more tool names.
+    # @param [Proc] block
+    #  An optional, lazy-evaluated Proc
+    # @return [Array<String>, Proc, Symbol, nil]
+    def self.confirm(*tool_names, &block)
+      return @confirm if tool_names.empty? and !block
+      if block
+        @confirm = block
+      elsif single_callable?(tool_names)
+        @confirm = tool_names.first
+      else
+        @confirm = tool_names.flatten.map(&:to_s)
+      end
     end
 
     ##
@@ -286,36 +322,6 @@ module LLM
     end
 
     ##
-    # Set or get the tool names that require confirmation before they can run.
-    #
-    # When a single Symbol is given, it is stored as-is and resolved at
-    # initialization time by calling the method with that name on the agent
-    # instance. This allows dynamic tool confirmation lists.
-    #
-    # @example
-    #   class MyAgent < LLM::Agent
-    #     confirm :tools_that_need_confirmation
-    #
-    #     def tools_that_need_confirmation
-    #       some_condition ? %w[delete destroy] : %w[delete]
-    #     end
-    #   end
-    #
-    # @param [String, Symbol, Array<String, Symbol>, Proc] tool_names
-    #  One or more tool names.
-    # @param [Proc] block
-    #  An optional, lazy-evaluated Proc
-    # @return [Array<String>, Proc, Symbol, nil]
-    def self.confirm(*tool_names, &block)
-      return @confirm if tool_names.empty? && !block
-      if tool_names.size == 1 && tool_names.grep(Symbol).any?
-        @confirm = tool_names.first
-      else
-        @confirm = block || tool_names.flatten.map(&:to_s)
-      end
-    end
-
-    ##
     # Set the file path where an agent's memory
     # can be restored from, and written to.
     # @param [String] path
@@ -369,6 +375,13 @@ module LLM
         @retry_budget = budget
       end
     end
+
+    ##
+    # @api private
+    def self.single_callable?(callable)
+      callable.size == 1 and (Proc === callable[0] or Symbol === callable[0])
+    end
+    private_class_method :single_callable?
 
     ##
     # @param [LLM::Provider] llm

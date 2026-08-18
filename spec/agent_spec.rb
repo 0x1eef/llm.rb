@@ -30,6 +30,65 @@ RSpec.describe LLM::Agent do
         expect(agent.params[:tools]).to eq([tool])
       end
     end
+
+    context "when resolved via a proc" do
+      let(:agent) do
+        _tool = tool
+        Class.new(described_class) do
+          tools proc { [_tool] }
+        end.new(provider)
+      end
+
+      it "resolves the proc to the tool list" do
+        expect(agent.params[:tools]).to eq([tool])
+      end
+    end
+
+    context "when given a single proc via set" do
+      let(:agent) do
+        _tool = tool
+        Class.new(described_class) do
+          set tools: proc { [_tool] }
+        end.new(provider)
+      end
+
+      it "resolves the proc to the tool list" do
+        expect(agent.params[:tools]).to eq([tool])
+      end
+    end
+
+    context "when resolved via a symbol through set" do
+      let(:agent) do
+        _tool = tool
+        Class.new(described_class) do
+          set tools: :set_tools
+          define_method(:set_tools) { _tool }
+        end.new(provider)
+      end
+
+      it "resolves successfully" do
+        expect(agent.params[:tools]).to eq([tool])
+      end
+    end
+
+    context "when resolved via the :tools method through set" do
+      let(:agent) do
+        _tool = tool
+        Class.new(described_class) do
+          set tools: :tools
+          # `:tools` resolves by calling the DSL
+          # accessor on the instance. `LLM::Agent`
+          # exposes `self.tools` (class DSL), so we
+          # provide an instance `#tools` method
+          # returning the tool list.
+          define_method(:tools) { [_tool] }
+        end.new(provider)
+      end
+
+      it "resolves successfully" do
+        expect(agent.params[:tools]).to eq([tool])
+      end
+    end
   end
 
   describe ".name" do
