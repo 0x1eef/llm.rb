@@ -15,6 +15,14 @@
 
 ## What's next
 
+## v15.0.1
+
+Changes since `v15.0.0`.
+
+This release fixes agent `set` handling of single `Symbol`/`Proc`
+values and resolves ORM options as `Symbol`s through the bound record
+instead of the `LLM::Agent` instance.
+
 ### Agent
 
 * **agent: fix `set (skills|tools): Symbol|Proc`** <br>
