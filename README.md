@@ -25,6 +25,12 @@ Once you learn the fundamentals, everything else falls into place
 naturally. Some features, such as ActiveRecord support, require
 optional dependencies that are opt-in.
 
+The best way to learn about llm.rb is to ask [the official chatbot](https://r.uby.dev)
+a question. It is connected to the llm.rb GitHub repository, backed by
+ActiveRecord and uses the builtin MCP feature to connect to GitHub. If
+you want to know more then simply [ask the chatbot](https://r.uby.dev) and
+you should get an answer that is grounded in the source code.
+
 ## Install
 
 ```bash
