@@ -21,7 +21,7 @@ DESCRIPTION
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
 
-  spec.homepage = "https://r.uby.dev/llm/"
+  spec.homepage = "https://r.uby.dev"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/r-uby-dev/llm"
   spec.metadata["documentation_uri"] = spec.homepage
@@ -38,9 +38,15 @@ DESCRIPTION
   spec.executables = ["llm.rb"]
   spec.require_paths = ["lib"]
   spec.post_install_message = "\n" \
-                              "Learn more about llm.rb on GitHub:" \
+                              "Got a question about llm.rb? " \
                               "\n" \
-                              "https://github.com/r-uby-dev/llm#readme" \
+                              "Ask our chatbot." \
+                              "\n" \
+                              "It is connected to the official GitHub repository." \
+                              "\n" \
+                              "100% free to use." \
+                              "\n" \
+                              "https://r.uby.dev" \
                               "\n\n"
 
   spec.add_development_dependency "webmock", "~> 3.24.0"
