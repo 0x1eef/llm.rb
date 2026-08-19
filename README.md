@@ -30,7 +30,7 @@ a question. It is connected to the llm.rb GitHub repository, backed by
 ActiveRecord and uses the builtin MCP feature to connect to GitHub. If
 you want to know more then simply [ask the chatbot](https://r.uby.dev) and
 you should get an answer that is grounded in the source code. It is 100%
-free to use.
+free to use and powered by DeepSeek under the hood. 
 
 ## Install
 
