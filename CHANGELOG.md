@@ -15,6 +15,24 @@
 
 ## What's next
 
+## v15.0.2
+
+Changes since `v15.0.1`.
+
+This release fixes a concurrency race in MCP tool calls by
+reference-counting the transport session, so overlapping tool calls
+reuse the running transport instead of racing `start`/`stop`.
+
+### Fix
+
+* **mcp: fix concurrent MCP tool call race** <br>
+  `LLM::MCP` now reference-counts its transport session: the first
+  caller starts the transport and the last caller stops it. Concurrent
+  or overlapping tool calls reuse the running transport instead of
+  racing `start`/`stop`, avoiding "MCP transport is not running" errors
+  that could occur with the `async` strategy. An externally started
+  transport is never stopped by a borrower.
+
 ## v15.0.1
 
 Changes since `v15.0.0`.
