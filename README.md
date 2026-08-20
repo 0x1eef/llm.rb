@@ -891,7 +891,7 @@ it as my primary driver for development.
 
 ## Resources
 
-The [r.uby.dev](https://r.uby.dev) chatbot is connected
+The [r.uby.dev chatbot](https://r.uby.dev) is connected
 to this very GitHub repository. It can read documentation,
 source code, issues, and pull requests. The [docs/](docs/)
 directory contains the full documentation and the chatbot
