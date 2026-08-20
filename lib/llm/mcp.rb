@@ -87,7 +87,10 @@ class LLM::MCP
   # @return [LLM::MCP] A new MCP instance
   def initialize(stdio: nil, http: nil, timeout: 30)
     @timeout = timeout
-    if stdio && http
+    @lock = Mutex.new
+    @borrowers = 0
+    @owned = false
+    if stdio and http
       raise ArgumentError, "stdio and http are mutually exclusive"
     elsif stdio
       @command = Command.new(**stdio)
@@ -125,7 +128,10 @@ class LLM::MCP
   #  Propagates errors raised by {#start}, the block itself, or {#stop}
   # @return [void]
   def run
-    start
+    @lock.synchronize do
+      start
+      @owned = false
+    end
     yield
   ensure
     stop
@@ -182,13 +188,32 @@ class LLM::MCP
 
   attr_reader :command, :transport, :timeout
 
+  ##
+  # Borrows the transport for the duration of the block.
+  #
+  # The first borrower starts the transport, concurrent borrowers reuse
+  # it, and the last borrower stops it, so overlapping tool calls never
+  # race `start`/`stop` and trip over "MCP transport is not running".
+  # An externally started transport is never stopped by a borrower.
+  # @yield Runs while the transport is running
+  # @return [void]
   def with_session
-    return yield if transport.running?
-    session_started = true
-    start
+    @lock.synchronize do
+      @borrowers += 1
+      unless transport.running?
+        start
+        @owned = true
+      end
+    end
     yield
   ensure
-    stop if session_started
+    @lock.synchronize do
+      @borrowers -= 1
+      if @borrowers.zero? and @owned
+        @owned = false
+        stop
+      end
+    end
   end
 
   def adapt_content(content)
