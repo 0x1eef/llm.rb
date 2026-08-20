@@ -31,6 +31,9 @@ RSpec.describe LLM::MCP do
     described_class.allocate.tap do |instance|
       instance.instance_variable_set(:@transport, transport)
       instance.instance_variable_set(:@timeout, 0.1)
+      instance.instance_variable_set(:@lock, Mutex.new)
+      instance.instance_variable_set(:@borrowers, 0)
+      instance.instance_variable_set(:@owned, false)
     end
   end
 
@@ -173,6 +176,9 @@ RSpec.describe LLM::MCP do
       described_class.allocate.tap do |instance|
         instance.instance_variable_set(:@transport, transport)
         instance.instance_variable_set(:@timeout, 0.1)
+        instance.instance_variable_set(:@lock, Mutex.new)
+        instance.instance_variable_set(:@borrowers, 0)
+        instance.instance_variable_set(:@owned, false)
       end
     end
 
