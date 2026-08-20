@@ -30,7 +30,7 @@ a question. It is connected to the llm.rb GitHub repository, backed by
 ActiveRecord and uses the builtin MCP feature to connect to GitHub. If
 you want to know more then simply [ask the chatbot](https://r.uby.dev) and
 you should get an answer that is grounded in the source code. It is 100%
-free to use and powered by DeepSeek under the hood. 
+free to use and powered by DeepSeek under the hood.
 
 ## Install
 
@@ -46,8 +46,7 @@ The
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
 class is the default high-level interface,
 and it is recommended for most use-cases. It manages tool execution
-automatically and
-[guards against infinite loops](https://r.uby.dev/llm/deepdive/advanced/guard),
+automatically and guards against infinite loops,
 manages conversation state, and much more.
 
 ```ruby
@@ -67,9 +66,6 @@ with structured callbacks for content,
 reasoning, tool calls, tool returns, and compaction.
 Streams can also observe message transformers, which rewrite
 outgoing messages before they reach the provider.
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/stream/)
-to learn more.
 
 ```ruby
 class MyStream < LLM::Stream
@@ -140,7 +136,7 @@ call them on your behalf, and they're one of the most powerful features
 for extending the feature set or abilities of a model.
 
 The runtime also ships with a catalog of built-in tools for
-filesystem, search, and shell operations. <br> See the [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/tools) to learn more.
+filesystem, search, and shell operations.
 
 ```ruby
 class ReadFile < LLM::Tool
@@ -174,8 +170,6 @@ can be notified as a skill starts and when it returns. The `on_skill_return`
 callback hands back the subagent that ran the skill, so you can inspect
 its conversation, measure its usage, track costs or add a verification
 step (eg `subagent.talk("verify your work")`).
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/fundamentals/skills) to learn more.
 
 ##### summary.md
 
@@ -216,8 +210,6 @@ with the `:fork` and `:ractor` strategies. The
 The `:fork` strategy also provides a separate process that offers
 isolation from its parent.
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/concurrency) to learn more.
-
 ```ruby
 require "llm"
 require "llm/tools"
@@ -242,8 +234,6 @@ the control channel, a ractor via message passing, and pending tools
 are stopped before they run. The in-flight HTTP request is closed
 too, so a turn you no longer want stops without burning tokens.
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/cancellation) to learn more.
-
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
@@ -267,8 +257,6 @@ test your tools, connect to MCP servers, and even A2A agents.
 The REPL stands out because it connects to the surrounding
 runtime and it can be extended by your code. Think of it as
 `binding.pry` but for agents.
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/repl) to learn more.
 
 ##### Demo
 
@@ -327,8 +315,6 @@ code. For database-backed persistence, ActiveRecord and Sequel
 integrations are also available. All persistence options use the same
 underlying serialization.
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/database) to learn more.
-
 ```ruby
 require "llm"
 
@@ -354,8 +340,6 @@ The runtime includes first-class support for both ActiveRecord / Sequel, and
 for both Rack-based / Rails-based applications. On databases
 where it is supported, such as PostgreSQL, the column can be optimized by using
 the `jsonb` type.
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/database) to learn more.
 
 ```ruby
 require "active_record"
@@ -418,9 +402,6 @@ used with
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/protocols/mcp/), and the
-[deepdive.md on persistent connections](https://r.uby.dev/llm/deepdive/features/transports) to learn more.
-
 ```ruby
 require "llm"
 
@@ -440,9 +421,6 @@ box. A2A skills are translated into subclasses of
 used with
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html) or
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html).
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/protocols/a2a/), and the
-[deepdive.md on persistent connections](https://r.uby.dev/llm/deepdive/features/transports) to learn more.
 
 ```ruby
 require "llm"
@@ -516,8 +494,6 @@ and implement
 The pending call arrives as `function:`. Return a value to close
 the call, or `nil` to let it run:
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/guard) to learn more.
-
 ```ruby
 class PolicyGuard < LLM::Guard
   def call(function:)
@@ -542,8 +518,6 @@ It is possible to rewrite outgoing messages before they reach the provider with
 Create a subclass and implement `call(message:)` to scrub sensitive data,
 inject context, or normalize content. The transform runs automatically
 on every turn, so you never have to change your prompt code.
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/transformer) to learn more.
 
 ```ruby
 class RedactEmails < LLM::Transformer
@@ -580,8 +554,6 @@ process through the
 and
 [`LLM::Stream#on_compaction_finish`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction_finish)
 callbacks.
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/compaction) to learn more.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
@@ -631,8 +603,6 @@ exports spans via OTLP for OpenTelemetry in production.
 * [`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html):
 structured JSON to stdout or a file.
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/reference/tracer) to learn more.
-
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM::Tracer::PrettyLogger.new(llm))
@@ -676,9 +646,8 @@ Each provider is constructed with a class-level factory method on
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 or
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html). The
-same API drives every one of them, so switching models is a one-line
-change. See the [deepdive](https://r.uby.dev/llm/deepdive/fundamentals/providers)
-for a full provider reference.
+same API drives every one of them, so switching providers is a one-line
+change.
 
 #### What providers does llm.rb support?
 
@@ -741,8 +710,6 @@ modalities with the gem, sourced from [models.dev](https://models.dev).
 Reach it from any provider, context, or agent, enumerate models, or
 sort them by price.
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/reference/model_registry) to learn more.
-
 ```ruby
 require "llm"
 
@@ -765,8 +732,6 @@ is always available and the default, `net/http/persistent` pools
 connections for many requests to the same host, and `curb` wraps
 libcurl. They share one interface, so switching is a one-word change.
 
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/advanced/transports) to learn more.
-
 ```ruby
 llm = LLM.deepseek(
   key: ENV["KEY"],
@@ -787,8 +752,6 @@ or PostgreSQL's [pg-vector](https://github.com/pgvector/pgvector).
 llm.rb also includes support for OpenAI's vector store API. It
 provides a vector database as a HTTP service but we won't cover
 that here.
-
-See the [deepdive.md](https://r.uby.dev/llm/deepdive/features/embeddings) to learn more.
 
 ```ruby
 require "llm"
@@ -928,11 +891,11 @@ it as my primary driver for development.
 
 ## Resources
 
-If you like what you read so far, check out the [deepdive.md](https://r.uby.dev/llm/deepdive/)
-to learn more. Unfortunately it
-wasn't possible to cover every feature without the README becoming a small book.
-The [r.uby.dev](https://r.uby.dev) homepage also includes more learning material
-and resources.
+The [r.uby.dev](https://r.uby.dev) chatbot is connected
+to this very GitHub repository. It can read documentation,
+source code, issues, and pull requests. The [docs/](docs/)
+directory contains the full documentation and the chatbot
+can find the answers to your questions there.
 
 ## License
 
