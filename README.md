@@ -25,8 +25,7 @@ Once you learn the fundamentals, everything else falls into place
 naturally. Some features, such as ActiveRecord support, require
 optional dependencies that are opt-in.
 
-The most effective way to learn about llm.rb and to see what it can do
-is to ask [the r.uby.dev chatbot](https://r.uby.dev) a question. It is
+The most effective way to learn about llm.rb is to ask [the r.uby.dev chatbot](https://r.uby.dev) a question. It is
 connected to the llm.rb GitHub repository, backed by ActiveRecord and
 uses the builtin MCP feature to connect to GitHub. All answers are grounded
 in the llm.rb source code. It is a community service that is free to use.
