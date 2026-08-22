@@ -36,6 +36,11 @@ module LLM
     attr_reader :description
 
     ##
+    # Returns the model the skill will use.
+    # @return [String, nil]
+    attr_reader :model
+
+    ##
     # Returns the skill instructions.
     # @return [String]
     attr_reader :instructions
@@ -90,7 +95,7 @@ module LLM
       stream = ctx.stream
       stream.on_skill_call(self)
       agent = self.agent(ctx)
-      res = agent.talk("Solve the user's query.")
+      res = agent.talk("Solve the user's query.", model:)
       stream.on_skill_return(agent, self, res)
       {content: res.content}
     end
@@ -156,6 +161,7 @@ module LLM
       @frontmatter = LLM::Object.from(YAML.safe_load(match[1]) || {})
       @name = @frontmatter.name || @name
       @description = @frontmatter.description || @description
+      @model = @frontmatter.model || nil
       @instructions = match[2]
       @inherit_tools, @tools = parse_tools(@frontmatter.tools)
     end

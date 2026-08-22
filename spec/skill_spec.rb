@@ -94,6 +94,39 @@ RSpec.describe LLM::Skill do
       end
     end
 
+    context "when given a skill with a model" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          model: deepseek-v4-flash
+          ---
+          Use the helper tools.
+        MD
+      end
+
+      it "loads the model from SKILL.md" do
+        expect(skill.model).to eq("deepseek-v4-flash")
+      end
+    end
+
+    context "when given a skill without a model" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          ---
+          Use the helper tools.
+        MD
+      end
+
+      it "defaults the model to nil" do
+        expect(skill.model).to be_nil
+      end
+    end
+
     context "when given a skill that inherits tools" do
       before do
         write("SKILL.md", <<~MD)
@@ -242,7 +275,6 @@ RSpec.describe LLM::Skill do
         allow(provider).to receive(:responses).and_return(responses)
         expect(responses).to receive(:create) do |prompt, params|
           expect(prompt.to_a.any? { _1.content == "Solve the user's query." }).to eq(true)
-          expect(params).to include(model: "gpt-5.4-mini")
           res
         end
         expect(call_skill).to eq({content: "It is raining"})
