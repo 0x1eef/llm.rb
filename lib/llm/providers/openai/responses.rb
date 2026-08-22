@@ -35,7 +35,8 @@ class LLM::OpenAI
     #  When given an object a provider does not understand
     # @return [LLM::Response]
     def create(prompt, params = {})
-      params = {role: :user, model: @provider.default_model}.merge!(params)
+      params = {}.merge!(params)
+      params = {role: :user, model: params.delete(:model) || @provider.default_model}.merge!(params)
       role, stream = params.delete(:role), LLM::Stream.try(params.delete(:stream))
       tools  = resolve_tools(params.delete(:tools))
       params = [
