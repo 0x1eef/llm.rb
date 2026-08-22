@@ -31,7 +31,7 @@ module LLM
     # Reads still use the full per-provider timeout, so slow reasoning
     # models and local models keep their headroom while a dropped
     # handshake fails fast.
-    OPEN_TIMEOUT = 30
+    OPEN_TIMEOUT = 10
 
     require_relative "transport/request"
     require_relative "transport/response"
