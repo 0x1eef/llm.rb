@@ -407,6 +407,11 @@ class Raven < ActiveRecord::Base
 end
 
 agent = Raven.create!
+
+##
+# Every call to `talk` automatically persists
+# to the database (under the hood research_issues
+# calls the talk method)
 agent.research_issues
 
 ##
