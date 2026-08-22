@@ -39,7 +39,7 @@ module LLM::ActiveRecord
     def self.serialize_context(ctx, format)
       case format
       when :string then ctx.to_json
-      when :json, :jsonb then ctx.to_h
+      when :json, :jsonb then LLM.json.load(ctx.to_json)
       else raise ArgumentError, "Unknown format: #{format.inspect}"
       end
     end

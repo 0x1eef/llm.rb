@@ -21,10 +21,6 @@ that spans 13+ providers. Streaming, tools, guards, compaction, the
 REPL, builtin MCP/A2A support and the database integrations all build
 on the same three concepts: providers, contexts, and agents.
 
-Once you learn the fundamentals, everything else falls into place
-naturally. Some features, such as ActiveRecord support, require
-optional dependencies that are opt-in.
-
 The most effective way to learn about llm.rb is to ask [the r.uby.dev chatbot](https://r.uby.dev)
 a question. It is connected to the llm.rb GitHub repository, backed by
 ActiveRecord and uses the builtin MCP feature to connect to GitHub. All
