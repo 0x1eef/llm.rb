@@ -15,6 +15,21 @@
 
 ## What's next
 
+## v15.0.3
+
+Changes since `v15.0.2`.
+
+This release fixes ActiveRecord `:json`/`:jsonb` serialization so tool
+call arguments round-trip as JSON objects instead of arrays of pairs.
+
+### Fix
+
+* **activerecord: serialize tool call arguments properly** <br>
+  Fix a bug where the ActiveRecord `:json`/`:jsonb` layer serialized tool
+  call arguments as an array of pairs instead of a Hash. The context is
+  now serialized through its JSON form, so tool call arguments round-trip
+  as JSON objects that providers accept.
+
 ## v15.0.2
 
 Changes since `v15.0.1`.
