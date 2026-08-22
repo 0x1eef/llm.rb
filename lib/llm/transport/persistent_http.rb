@@ -110,7 +110,7 @@ class LLM::Transport
           LLM.require "net/http/persistent" unless defined?(Net::HTTP::Persistent)
           client = Net::HTTP::Persistent.new(name: self.class.name)
           client.read_timeout = timeout
-          client.open_timeout = timeout
+          client.open_timeout = connect_timeout
           self.class.registry[client_id] = client
         end
       end

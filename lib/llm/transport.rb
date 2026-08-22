@@ -26,6 +26,13 @@ module LLM
   # can rely on one normalized response contract instead of
   # transport-specific classes.
   class Transport
+    ##
+    # Maximum number of seconds to wait for a TCP connection to open.
+    # Reads still use the full per-provider timeout, so slow reasoning
+    # models and local models keep their headroom while a dropped
+    # handshake fails fast.
+    OPEN_TIMEOUT = 60
+
     require_relative "transport/request"
     require_relative "transport/response"
     require_relative "transport/utils"
@@ -76,6 +83,14 @@ module LLM
       return Fiber.current unless defined?(::Async)
       Async::Task.current? ? Async::Task.current : Fiber.current
     end
+
+    ##
+    # Returns the connect timeout, capped at {OPEN_TIMEOUT}.
+    # @return [Integer, nil]
+    def connect_timeout
+      timeout and [timeout, OPEN_TIMEOUT].min
+    end
+    private :connect_timeout
 
     ##
     # Returns the exception classes that indicate an interrupted request.

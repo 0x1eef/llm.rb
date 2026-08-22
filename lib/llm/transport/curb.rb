@@ -118,7 +118,7 @@ class LLM::Transport
       LLM.require "curb" unless defined?(::Curl)
       easy = ::Curl::Easy.new(request_url(request))
       easy.timeout = timeout
-      easy.connect_timeout = timeout
+      easy.connect_timeout = connect_timeout
       request.headers.each { |k, v| easy.headers[k] = v }
       easy.follow_location = true
       easy.ssl_verify_peer = false if !ssl

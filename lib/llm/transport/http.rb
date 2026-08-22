@@ -97,7 +97,7 @@ class LLM::Transport
 
     def client
       client = Net::HTTP.new(host, port)
-      client.open_timeout = timeout
+      client.open_timeout = connect_timeout
       client.read_timeout = timeout
       client.use_ssl = ssl
       client
