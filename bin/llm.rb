@@ -49,6 +49,7 @@ def help
   warn ""
   warn "Options:"
   warn "  -p PROVIDER    Choose a provider"
+  warn "  -m MODEL       Choose a model"
   warn "  -c STRATEGY    Concurrency strategy for tool calls (eg thread, async, fork)"
   warn "  -n TRANSPORT   HTTP transports - net-http (default), net-http-persistent, and curb"
   warn "  -t             Temporary session that doesn't persist to disk"
