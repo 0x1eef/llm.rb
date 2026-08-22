@@ -219,7 +219,7 @@ def main(argv)
 
     if model
       if not llm.registry.keys.include?(model)
-        warn "llm.rb: #{model} is a valid #{llm.name} model"
+        warn "llm.rb: #{model} is not a valid #{llm.name} model"
         exit 1
       end
     else
