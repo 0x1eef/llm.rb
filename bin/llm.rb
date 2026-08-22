@@ -52,6 +52,7 @@ def help
   warn "  -m MODEL       Choose a model"
   warn "  -c STRATEGY    Concurrency strategy for tool calls (eg thread, async, fork)"
   warn "  -n TRANSPORT   HTTP transports - net-http (default), net-http-persistent, and curb"
+  warn "  -x TIMEOUT     The default connection timeout (in seconds)"
   warn "  -t             Temporary session that doesn't persist to disk"
   warn "  -h             Show this help"
   warn ""
@@ -61,6 +62,7 @@ def help
   warn "  #{prog} -m gpt-5.6          # use a model other than the provider default"
   warn "  #{prog} -n curb             # use libcurl"
   warn "  #{prog} -c thread           # run tool calls on a separate thread"
+  warn "  #{prog} -x 600              # timeout of 10mins"
   warn "  #{prog} -h                  # this help"
   warn ""
 end
@@ -162,6 +164,15 @@ def main(argv)
           help
           exit 1
         end
+      when '-x'
+        timeout = argv.shift
+        if timeout.nil?
+          warn "llm.rb: -x switch requires an argument"
+          help
+          exit 1
+        else
+          timeout = Integer(timeout)
+        end
       else
         warn "llm.rb: unknown option #{option}"
         help
@@ -173,9 +184,10 @@ def main(argv)
     # No provider has been given.
     # Try to infer one.
     transport ||= :net_http
+    options = timeout ? {timeout:, transport:} : {transport:}
     if provider.nil?
       llm = providers.filter_map do
-        LLM.method(_1).call(transport:)
+        LLM.method(_1).call(**options)
       rescue ArgumentError
       end.first
       if llm.nil?
@@ -184,7 +196,7 @@ def main(argv)
       end
     else
       begin
-        llm = LLM.method(provider).call(transport:)
+        llm = LLM.method(provider).call(**options)
       rescue ArgumentError
         warn "llm.rb: set credentials for #{provider}"
         exit 1
