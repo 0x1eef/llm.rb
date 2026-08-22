@@ -341,53 +341,85 @@ for both Rack-based / Rails-based applications. On databases
 where it is supported, such as PostgreSQL, the column can be optimized by using
 the `jsonb` type.
 
+The following example is based on the agent used to power the
+[r.uby.dev chatbot](https://r.uby.dev)
+
 ```ruby
 require "active_record"
 require "llm"
 require "llm/active_record"
 
-class Email < ApplicationRecord
-  acts_as_agent do |agent|
-    agent.set name: "mail",
-              instructions: "Write concise, friendly replies to emails",
-              model: "deepseek-v4-pro"
+class Raven < ActiveRecord::Base
+  acts_as_agent(format: :jsonb) do |agent|
+    agent.set name: "raven",
+              description: "a chatbot for the r.uby.dev website",
+              instructions: proc { File.read(File.join(__dir__, "raven", "prompt.md")) },
+              tools: :tools,
+              concurrency: :async
   end
 
-  def draft_reply!
-    talk("Draft a reply to:\n\n#{body}")
+  def research_issues
+    talk("research open pull requests on r-uby-dev/llm")
   end
 
-  def summarize
-    talk("Summarize this email thread in a few sentences")
+  def research_codebase
+    talk("research the codebase on r-uby-dev/llm")
+  end
+
+  ##
+  # @return [LLM::MCP]
+  def github
+    @github ||= LLM::MCP.http(
+      url: "https://api.githubcopilot.com/mcp/",
+      headers: {"Authorization" => "Bearer #{ENV['GITHUB_RUBYDEV_PAT']}"},
+      transport: :net_http_persistent
+    )
+  end
+
+  ##
+  # @return [Array<LLM::Tool>]
+  def tools
+    github.tools.select { allowlist.include?(_1.name.to_s) }
   end
 
   private
 
-  ##
-  # By convention, this method defines the provider for a model.
-  # If necessary, it can be renamed with: provider: :your_method.
   def set_provider
-    LLM.deepseek(key: ENV["KEY"])
+    LLM.deepseek
   end
 
-  ##
-  # By convention, this method returns the context options given
-  # to LLM::Context or LLM::Agent. This method can be left undefined.
-  def set_context
-    {}
+  def allowlist
+    %w[
+        get_commit
+        get_file_contents
+        list_branches
+        list_commits
+        search_code
+        search_commits
+        search_repositories
+        search_issues
+        pull_request_read
+        list_pull_requests
+        list_issues
+        issue_read
+    ].freeze
   end
 end
 
-email = Email.create!(subject: "Streaming support", body: "How do I stream responses?")
-email.draft_reply!
+agent = Raven.create!
+agent.research_issues
 
 ##
-# The conversation (the email and the draft
-# reply) is persisted to the email's column. A
-# fresh instance restores it and continues the
-# thread, so the summary below knows what was
-# already drafted:
-Email.find(email.id).summarize
+# The conversation was persisted to database. A
+# fresh instance restores it and continues where
+# we left off
+agent = Raven.find(agent.id).tap(&:research_codebase)
+
+##
+# Start an agent console.
+# Query agent's state, debug, etc.
+# The REPL does not persist back to the database.
+agent.repl
 ```
 </details>
 
