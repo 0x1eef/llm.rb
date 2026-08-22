@@ -57,6 +57,7 @@ def help
   warn "Examples:"
   warn "  #{prog}                     # auto-detect provider from $PROVIDER_API_KEY"
   warn "  #{prog} -p openai           # use OpenAI"
+  warn "  #{prog} -m gpt-5.6          # use a model other than the provider default"
   warn "  #{prog} -n curb             # use libcurl"
   warn "  #{prog} -c thread           # run tool calls on a separate thread"
   warn "  #{prog} -h                  # this help"
@@ -153,6 +154,13 @@ def main(argv)
           help
           exit 1
         end
+      when '-m'
+        model = argv.shift
+        if model.nil?
+          warn "llm.rb: -m switch requires an argument"
+          help
+          exit 1
+        end
       else
         warn "llm.rb: unknown option #{option}"
         help
@@ -209,11 +217,20 @@ def main(argv)
       File.binwrite file, JSON.pretty_generate(data)
     end
 
+    if model
+      if not llm.registry.keys.include?(model)
+        warn "llm.rb: #{model} is a valid #{llm.name} model"
+        exit 1
+      end
+    else
+      model = llm.default_model
+    end
+
     ##
     # Let's go!
     concurrency ||= :sequential
     path  = temp ? nil : data[Dir.getwd]
-    agent = LLM::Agent.new(llm, path:, concurrency:, tools: LLM::Tool.subclasses)
+    agent = LLM::Agent.new(llm, model:, path:, concurrency:, tools: LLM::Tool.subclasses)
     agent.repl
   rescue Interrupt
     warn "llm.rb: Bye!"
