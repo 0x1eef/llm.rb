@@ -185,12 +185,15 @@ module LLM
     end
 
     ##
-    # Called when a request is rate limited and will be retried.
-    # @param [LLM::RateLimitError] error
+    # Called when a request is retried because it was rate limited or
+    # timed out.
+    # @param [Exception] error
+    #  The error that caused the retry
     # @return [nil]
-    def on_rate_limit(error)
+    def on_retry(error)
       nil
     end
+    alias_method :on_rate_limit, :on_retry
 
     ##
     # Called before a skill's subagent runs.

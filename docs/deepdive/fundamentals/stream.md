@@ -67,8 +67,8 @@ receives tokens as they arrive.
 fires when the model requests a tool.
 [`LLM::Stream#on_tool_return`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_tool_return)
 fires when the tool completes.
-[`LLM::Stream#on_rate_limit`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_rate_limit)
-fires each time a rate-limited request is retried. Compaction hooks
+[`LLM::Stream#on_retry`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_retry)
+fires each time a failed request is retried. Compaction hooks
 let you show progress or log what was trimmed. Skill hooks bracket a
 skill's subagent execution:
 [`LLM::Stream#on_skill_call`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_skill_call)
@@ -120,8 +120,8 @@ class MyStream < LLM::Stream
   def on_skill_return(agent, skill, result)
   end
 
-  # A request was rate limited and will be retried.
-  def on_rate_limit(error)
+  # A request was rate limited or timed out and will be retried.
+  def on_retry(error)
   end
 end
 

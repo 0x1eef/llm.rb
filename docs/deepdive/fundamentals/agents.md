@@ -206,22 +206,22 @@ longer used.
 #### Overview
 
 [`LLM::Agent.retry_budget`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#retry_budget-class_method)
-is the maximum number of times an agent retries a rate-limited
-request before giving up. It is enabled by default at three
-retries, so most agents survive a transient 429 without any
-configuration. Only a raw
+is the maximum number of times an agent retries a failed request
+before giving up. It is enabled by default at five retries, so
+most agents survive a transient 429 or a dropped connection without
+any configuration. Only a raw
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 disables it by default.
 
 #### How it works
 
-When you want to control how many times a rate-limited request is
+When you want to control how many times a failed request is
 retried, set the budget with
 [`LLM::Agent.set`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method)
 or per-instance with the `retry_budget:` keyword argument. Each
-retry notifies your stream through `on_rate_limit` and sleeps a
+retry notifies your stream through `on_retry` and sleeps a
 growing interval (2s, 4s, 6s, ...). Once the budget is spent, the
-agent re-raises the rate-limit error instead of blocking forever:
+agent re-raises the error instead of blocking forever:
 
 ```ruby
 class Chat < LLM::Agent
@@ -244,9 +244,10 @@ of hanging.
 
 #### Notes
 
-The retry budget applies to rate-limited requests only, other
-errors are never retried. The budget defaults to five for agents,
-while a raw
+The retry budget applies to rate-limited requests
+(`LLM::RateLimitError`) and timeouts (`Timeout::Error`, covering
+`Net::OpenTimeout` and `Net::ReadTimeout`), other errors are never
+retried. The budget defaults to five for agents, while a raw
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 defaults to zero (`retry_budget: 0`). A 429 is refused before any
 content streams, so retrying the same request loses nothing. Pass

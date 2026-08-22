@@ -108,8 +108,8 @@ class MyStream < LLM::Stream
   def on_skill_return(agent, skill, result)
   end
 
-  # A request was rate limited and will be retried.
-  def on_rate_limit(error)
+  # A request was rate limited or timed out and will be retried.
+  def on_retry(error)
   end
 end
 

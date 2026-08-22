@@ -39,6 +39,13 @@ module LLM
     include Serializer
     include Deserializer
 
+    TRY_ERRORS = [
+      "LLM::RateLimitError",
+      "Net::ReadTimeout",
+      "Net::OpenTimeout"
+    ]
+    private_constant :TRY_ERRORS
+
     ##
     # Returns the set of runtime parameters that
     # configure this context and must never be forwarded
@@ -559,23 +566,30 @@ module LLM
 
     ##
     ##
-    # Runs a network call, retrying it on {LLM::RateLimitError} up to the
-    # retry budget. Each retry notifies the stream and sleeps a growing
-    # interval (2s, 4s, 6s, ...) rather than the server's `retry_after`.
-    # A 429 is refused before any content streams, so retrying the same
-    # request loses nothing. The bare `retry` below re-runs the method
-    # body while `attempts ||= 0` keeps the count across attempts.
+    # Runs a network call, retrying it when the request is rate limited
+    # ({LLM::RateLimitError}) or times out (`Timeout::Error`, which covers
+    # `Net::OpenTimeout` and `Net::ReadTimeout`), up to the retry budget.
+    # Each retry notifies the stream and sleeps a growing interval
+    # (2s, 4s, 6s, ...) rather than the server's `retry_after`. A 429 is
+    # refused before any content streams, so retrying the same request
+    # loses nothing. The bare `retry` below re-runs the method body while
+    # `attempts ||= 0` keeps the count across attempts.
     # @api private
     # @return [Object]
     def try
       attempts ||= 0
       yield
-    rescue LLM::RateLimitError => error
-      raise if attempts >= retry_budget
-      attempts += 1
-      stream.on_rate_limit(error)
-      sleep 2.0 * attempts
-      retry
+    rescue => ex
+      case ex.class.to_s
+      when *TRY_ERRORS
+        raise if attempts >= retry_budget
+        attempts += 1
+        stream.on_retry(ex)
+        sleep 2.0 * attempts
+        retry
+      else
+        raise(ex)
+      end
     end
 
     # Executes a turn through the Responses API.

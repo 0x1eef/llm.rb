@@ -74,12 +74,14 @@ with `store: false`, so no conversation state is kept server-side.
 Pass `mode: :completions` to use the legacy Chat Completions API
 instead. Every other provider defaults to `mode: :completions`.
 
-A raw context disables rate-limit retries by default (`retry_budget: 0`).
-Pass `retry_budget:` to retry a rate-limited request up to that many
-times. Each retry sleeps a growing interval (2s, 4s, 6s, ...) and
-notifies the stream through
-[`LLM::Stream#on_rate_limit`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_rate_limit-instance_method)
-before trying again. An `LLM::Agent` enables a budget of 3 by
+A raw context disables retries by default (`retry_budget: 0`).
+Pass `retry_budget:` to retry a request that was rate limited
+(`LLM::RateLimitError`) or timed out (`Timeout::Error`, covering
+`Net::OpenTimeout` and `Net::ReadTimeout`), up to that many times.
+Each retry sleeps a growing interval (2s, 4s, 6s, ...) and notifies
+the stream through
+[`LLM::Stream#on_retry`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_retry-instance_method)
+before trying again. An `LLM::Agent` enables a budget of 5 by
 default, so most users never touch this directly.
 
 ### Manual loop
