@@ -281,6 +281,23 @@ RSpec.describe LLM::Skill do
       end
     end
 
+    context "when the skill declares no model" do
+      before do
+        write("SKILL.md", <<~MD)
+          ---
+          name: weather
+          description: Get the current weather
+          ---
+          Use the helper tools.
+        MD
+      end
+
+      it "inherits the parent context's model for the subagent" do
+        subagent = skill.method(:agent).call(ctx)
+        expect(subagent.params[:model]).to eq("gpt-5.4-mini")
+      end
+    end
+
     context "when the active stream carries concurrency" do
       let(:threads) { Queue.new }
       let(:tool) do

@@ -95,7 +95,7 @@ module LLM
       stream = ctx.stream
       stream.on_skill_call(self)
       agent = self.agent(ctx)
-      res = agent.talk("Solve the user's query.", model:)
+      res = agent.talk("Solve the user's query.", model: model || ctx.model)
       stream.on_skill_return(agent, self, res)
       {content: res.content}
     end

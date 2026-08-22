@@ -476,7 +476,7 @@ module LLM
     # Returns the model a Context is actively using
     # @return [String]
     def model
-      messages.find(&:assistant?)&.model || @params[:model]
+      messages.find(&:assistant?)&.model || @params[:model] || @llm.default_model
     end
 
     ##
