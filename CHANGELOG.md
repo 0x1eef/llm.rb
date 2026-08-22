@@ -15,6 +15,43 @@
 
 ## What's next
 
+### Provider
+
+* **providers: `model: nil` falls back to `default_model`** <br>
+  [`LLM::Provider`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html)
+  now treats a `model: nil` payload as "use the default model" instead of
+  sending a model value that providers reject. Previously a `{model: nil}`
+  param overwrote the default and then was removed by `.compact`, leaving
+  undefined behavior where providers could reject the request.
+
+* **openai: handle `model: nil` in the Responses API** <br>
+  The OpenAI Responses API path now also falls back to the default model
+  when `model: nil`, matching the completions path.
+
+### Skills
+
+* **skills: add a `model` frontmatter parameter** <br>
+  A skill's `SKILL.md` frontmatter can now declare a `model:` value, so a
+  skill's sub-agent runs on a specific model instead of the default. This
+  lets a parent agent run on one model (for example `deepseek-v4-flash`)
+  while the skill runs on another (`deepseek-v4-pro`). The `model` value is
+  not strictly portable between providers.
+
+* **skills: inherit the model of the parent agent** <br>
+  A skill's sub-agent now inherits the active model of the agent that
+  spawns it instead of falling back to the provider default. The frontmatter
+  `model:` parameter overrides it explicitly when set.
+  [`LLM::Context#model`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#model-instance_method)
+  now falls back to the provider's default model when no model is set.
+
+### Cli
+
+* **cli: add a `-m` switch for choosing the model** <br>
+  `bin/llm.rb` now accepts `-m MODEL` to run the session on a model other
+  than the provider default, for example
+  `llm.rb -p deepseek -m deepseek-v4-pro`. A model unknown to the provider's
+  registry prints an error and exits.
+
 ## v15.0.3
 
 Changes since `v15.0.2`.
