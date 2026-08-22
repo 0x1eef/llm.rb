@@ -1,1 +1,1 @@
--m markdown -M redcarpet --hide-void-return --no-private --files README.md,CHANGELOG.md,resources/deepdive.md
+-m markdown -M redcarpet --hide-void-return --no-private --files CHANGELOG.md
