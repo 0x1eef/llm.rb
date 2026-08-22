@@ -210,7 +210,7 @@ module LLM
     end
 
     def normalize_complete_params(params)
-      params = {role: :user, model: default_model, max_tokens: 2048}.merge!(params)
+      params = {role: :user, model: params.delete(:model) || default_model, max_tokens: 2048}.merge!(params)
       tools = resolve_tools(params.delete(:tools))
       params = [params, adapt_schema(params), adapt_tools(tools)].inject({}, &:merge!).compact
       role, stream = params.delete(:role), LLM::Stream.try(params.delete(:stream))

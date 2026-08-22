@@ -202,7 +202,7 @@ module LLM
 
     def normalize_complete_params(params)
       except = %i[role model messages stream]
-      params = {role: :user, model: default_model}.merge!(params)
+      params = {role: :user, model: params.delete(:model) || default_model}.merge!(params)
       tools  = resolve_tools(params.delete(:tools))
       config = adapt_generation_config(params.except(*except))
       params = [params.except(:schema), config, adapt_tools(tools)].inject({}, &:merge!).compact
