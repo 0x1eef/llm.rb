@@ -342,7 +342,7 @@ where it is supported, such as PostgreSQL, the column can be optimized by using
 the `jsonb` type.
 
 The following example is based on the agent used to power the
-[r.uby.dev chatbot](https://r.uby.dev)
+[r.uby.dev chatbot](https://r.uby.dev).
 
 ```ruby
 require "active_record"
