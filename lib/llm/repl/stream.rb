@@ -17,6 +17,7 @@ class LLM::Repl
     # @return [LLM::Repl::Stream]
     def initialize(repl, queue)
       @repl = repl
+      @agent = @repl.agent
       @_queue = queue
       @buffer = +""
       @tools = {}
@@ -40,6 +41,14 @@ class LLM::Repl
     end
 
     ##
+    # @param [Exception] ex
+    # @param [Integer] attempt
+    # @return [void]
+    def on_retry(ex, attempt)
+      @_queue.push [:status, retry_error(ex, attempt)]
+    end
+
+    ##
     # @param [LLM::Function] tool
     # @param [LLM::Function::Return] result
     # @return [void]
@@ -57,9 +66,26 @@ class LLM::Repl
     private
 
     ##
+    # @return [LLM::Agent]
+    def agent
+      @agent
+    end
+
+    ##
     # @return [LLM::Repl::Node]
     def lambda
       Node.new("λ", Curses::A_BOLD | Color.red)
+    end
+
+    ##
+    # @return [LLM::Repl::Node]
+    def retry_error(ex, attempt)
+      err = case ex.class.to_s
+      when "LLM::RateLimitError" then "Rate limited"
+      when "Net::ReadTimeout", "Net::OpenTimeout" then "Timed out"
+      else "#{ex.class}"
+      end
+      Node.new("🔁 #{err} • attempt #{attempt} of #{agent.retry_budget}", Color.red | Curses::A_BOLD)
     end
 
     ##

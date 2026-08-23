@@ -189,8 +189,10 @@ module LLM
     # timed out.
     # @param [Exception] error
     #  The error that caused the retry
+    # @param [Integer] attempt
+    #  The one-based retry attempt number
     # @return [nil]
-    def on_retry(error)
+    def on_retry(error, attempt)
       nil
     end
     alias_method :on_rate_limit, :on_retry

@@ -584,7 +584,7 @@ module LLM
       when *TRY_ERRORS
         raise if attempts >= retry_budget
         attempts += 1
-        stream.on_retry(ex)
+        stream.on_retry(ex, attempts)
         sleep 2.0 * attempts
         retry
       else

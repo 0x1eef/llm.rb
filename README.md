@@ -109,7 +109,7 @@ class MyStream < LLM::Stream
   end
 
   # A request was rate limited or timed out and will be retried.
-  def on_retry(error)
+  def on_retry(error, attempt)
   end
 end
 

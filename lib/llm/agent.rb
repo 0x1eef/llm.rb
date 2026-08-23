@@ -487,6 +487,12 @@ module LLM
     end
 
     ##
+    # @return [Integer]
+    def retry_budget
+      @ctx.retry_budget
+    end
+
+    ##
     # @return [Array<LLM::Function>]
     def pending_functions
       @tracer ? @llm.with_tracer(@tracer) { @ctx.pending_functions } : @ctx.pending_functions

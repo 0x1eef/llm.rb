@@ -967,7 +967,7 @@ RSpec.describe LLM::Context do
       Class.new(LLM::Stream) do
         attr_reader :limits
 
-        def on_retry(error)
+        def on_retry(error, attempt)
           (@limits ||= []) << error
         end
       end.new
