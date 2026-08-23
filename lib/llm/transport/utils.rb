@@ -24,18 +24,19 @@ class LLM::Transport
     # @param [String] host
     # @param [Integer] port
     # @param [Integer, nil] timeout
+    # @param [Integer] connect_timeout
     # @param [Boolean] ssl
     # @param [Boolean] persistent
     # @param [LLM::Transport, Class, Symbol, nil] transport
     # @return [LLM::Transport]
-    def resolve_transport(host:, port:, timeout:, ssl:, persistent:, transport:)
+    def resolve_transport(host:, port:, timeout:, connect_timeout: 5, ssl:, persistent:, transport:)
       if transport.nil?
-        default_transport(host:, port:, timeout:, ssl:, persistent:)
+        default_transport(host:, port:, timeout:, connect_timeout:, ssl:, persistent:)
       elsif Class === transport && transport <= LLM::Transport
-        transport.new(host:, port:, timeout:, ssl:)
+        transport.new(host:, port:, timeout:, connect_timeout:, ssl:)
       elsif Symbol === transport
         transport = LLM::Transport.public_send(transport)
-        transport.new(host:, port:, timeout:, ssl:)
+        transport.new(host:, port:, timeout:, connect_timeout:, ssl:)
       else
         transport
       end
@@ -49,12 +50,13 @@ class LLM::Transport
     # @param [String] host
     # @param [Integer] port
     # @param [Integer, nil] timeout
+    # @param [Integer] connect_timeout
     # @param [Boolean] ssl
     # @param [Boolean] persistent
     # @return [LLM::Transport]
-    def default_transport(host:, port:, timeout:, ssl:, persistent:)
+    def default_transport(host:, port:, timeout:, connect_timeout:, ssl:, persistent:)
       target = persistent ? LLM::Transport::PersistentHTTP : LLM::Transport::HTTP
-      target.new(host:, port:, timeout:, ssl:)
+      target.new(host:, port:, timeout:, connect_timeout:, ssl:)
     end
   end
 end

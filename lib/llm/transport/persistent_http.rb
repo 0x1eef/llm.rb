@@ -32,12 +32,14 @@ class LLM::Transport
     # @param [String] host
     # @param [Integer] port
     # @param [Integer] timeout
+    # @param [Integer] connect_timeout
     # @param [Boolean] ssl
     # @return [LLM::Transport::PersistentHTTP]
-    def initialize(host:, port:, timeout:, ssl:)
+    def initialize(host:, port:, timeout:, connect_timeout:, ssl:)
       @host = host
       @port = port
       @timeout = timeout
+      @connect_timeout = connect_timeout
       @ssl = ssl
       @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
       @monitor = Monitor.new
@@ -100,7 +102,7 @@ class LLM::Transport
 
     private
 
-    attr_reader :host, :port, :timeout, :ssl, :base_uri
+    attr_reader :host, :port, :timeout, :connect_timeout, :ssl, :base_uri
 
     def client
       self.class.lock do
@@ -117,7 +119,7 @@ class LLM::Transport
     end
 
     def client_id
-      "#{host}:#{port}:#{timeout}:#{ssl}"
+      "#{host}:#{port}:#{timeout}:#{connect_timeout}:#{ssl}"
     end
 
     def close_socket(http)

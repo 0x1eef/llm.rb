@@ -17,7 +17,12 @@ class LLM::Provider
   # @param [Integer] port
   #  The port number
   # @param [Integer] timeout
-  #  The number of seconds to wait for a response
+  #  The number of seconds to wait for a response. Also serves as the
+  #  default read timeout.
+  # @param [Integer, nil] read_timeout
+  #  The number of seconds to wait for a response. Defaults to `timeout`.
+  # @param [Integer] connect_timeout
+  #  The number of seconds to wait for a TCP connection to open.
   # @param [Boolean] ssl
   #  Whether to use SSL for the connection
   # @param [String] base_path
@@ -27,17 +32,27 @@ class LLM::Provider
   #  Requires the net-http-persistent gem.
   # @param [LLM::Transport, Class, nil] transport
   #  Optional override with any {LLM::Transport} instance or subclass.
-  def initialize(key:, host:, port: 443, timeout: 600, ssl: true, base_path: "", persistent: false, transport: nil)
+  def initialize(key:, host:, port: 443, timeout: 600, read_timeout: nil, connect_timeout: 5, ssl: true, base_path: "", persistent: false, transport: nil)
     @key = key
     @host = host
     @port = port
-    @timeout = timeout
+    @read_timeout = read_timeout || timeout
+    @timeout = @read_timeout
+    @connect_timeout = connect_timeout
     @ssl = ssl
     @base_path = LLM::Utils.normalize_base_path(base_path)
     @base_uri = URI("#{ssl ? "https" : "http"}://#{host}:#{port}/")
     @headers = {"User-Agent" => "llm.rb v#{LLM::VERSION}"}
-    @transport = LLM::Transport::Utils.resolve_transport(host:, port:, timeout:, ssl:, transport:, persistent:)
     @monitor = Monitor.new
+    @transport = LLM::Transport::Utils.resolve_transport(
+      host:,
+      port:,
+      timeout: @read_timeout,
+      connect_timeout: @connect_timeout,
+      ssl:,
+      transport:,
+      persistent:
+    )
   end
 
   ##
@@ -412,7 +427,7 @@ class LLM::Provider
     "#{@base_path}#{suffix}"
   end
 
-  attr_reader :base_uri, :host, :port, :timeout, :ssl, :transport
+  attr_reader :base_uri, :host, :port, :timeout, :read_timeout, :connect_timeout, :ssl, :transport
 
   ##
   # The headers to include with a request

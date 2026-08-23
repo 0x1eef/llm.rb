@@ -51,7 +51,7 @@ class LLM::Bedrock
     # @param [String] host
     # @return [LLM::Transport]
     def build_transport(host)
-      transport.class.new(host:, port: 443, timeout:, ssl: true)
+      transport.class.new(host:, port: 443, timeout:, connect_timeout:, ssl: true)
     end
 
     ##
@@ -102,7 +102,7 @@ class LLM::Bedrock
       end
     end
 
-    [:timeout, :tracer, :transport].each do |m|
+    [:timeout, :connect_timeout, :tracer, :transport].each do |m|
       define_method(m) { @provider.send(m) }
     end
   end

@@ -121,7 +121,7 @@ RSpec.describe LLM::Provider do
       else
         stub_const("Net::HTTP::Persistent", Class.new)
       end
-      transport = LLM::Transport::PersistentHTTP.new(host: "api.openai.com", port: 443, timeout: 60, ssl: true)
+      transport = LLM::Transport::PersistentHTTP.new(host: "api.openai.com", port: 443, timeout: 60, connect_timeout: 5, ssl: true)
       provider = LLM.openai(key: "test", transport:)
       client = persistent_class.allocate
       connection = double(:connection, http: nil)
