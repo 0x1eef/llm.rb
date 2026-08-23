@@ -207,7 +207,8 @@ class LLM::Repl
     def cursor_pos
       scroll!
       row, col = @cursor
-      col += prompt.size if row.zero?
+      col = Node.width(@rows[row].chars[0...col].map(&:to_s).join)
+      col += Node.width(prompt) if row.zero?
       [row - @scroll, col]
     end
 
@@ -435,7 +436,7 @@ class LLM::Repl
       if char == "\n"
         @rows.insert(row + 1, Row.new(:newline))
         @cursor = [row + 1, 0]
-      elsif current_line.size >= Curses.cols
+      elsif Node.width(current_line) >= Curses.cols
         if char == " "
           @rows.insert(row + 1, Row.new(:space))
           @cursor = [row + 1, 0]
@@ -510,8 +511,8 @@ class LLM::Repl
       ##
       # Only the first row shares its columns with the prompt,
       # so it has fewer columns left for text.
-      width = Curses.cols - (row.equal?(@rows.first) ? prompt.size : 0)
-      if row.chars.any? and row.to_s.length + 1 > width
+      width = Curses.cols - (row.equal?(@rows.first) ? Node.width(prompt) : 0)
+      if row.chars.any? and Node.width(row.to_s) + 1 > width
         wrap(row)
       end
       @rows.last.chars << Char.new(char)

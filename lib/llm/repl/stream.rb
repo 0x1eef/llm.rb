@@ -85,7 +85,8 @@ class LLM::Repl
       when "Net::ReadTimeout", "Net::OpenTimeout" then "Timed out"
       else "#{ex.class}"
       end
-      Node.new("🔁 #{err} • attempt #{attempt} of #{agent.retry_budget}", Color.red | Curses::A_BOLD)
+      [Node.new("🔁"),
+       Node.new("#{err} • attempt #{attempt} of #{agent.retry_budget}", Color.red | Curses::A_BOLD)]
     end
 
     ##
@@ -108,7 +109,7 @@ class LLM::Repl
       props  = props.sort_by { tool.params.properties[_1].index }
       props  = props.filter_map { args[_1] ? "#{_1}: #{format_value(args[_1])}" : nil }
       result = props.join(", ")
-      result.size > max ? "#{result[0...max - 1]}…" : result
+      Node.width(result) > max ? "#{Node.slice(result, max - 1)}…" : result
     end
 
     ##
@@ -118,7 +119,7 @@ class LLM::Repl
     def format_value(value, max: 18)
       case value
       when String
-        value.size > max ? "#{value[0...max]}…".inspect : value.inspect
+        Node.width(value) > max ? "#{Node.slice(value, max)}…".inspect : value.inspect
       when Array
         items = value.take(2).map { format_value(_1, max: 10) }
         items << "…" if value.size > 2
@@ -129,7 +130,7 @@ class LLM::Repl
         "nil"
       else
         str = value.inspect
-        str.size > max ? "#{str[0...max]}…" : str
+        Node.width(str) > max ? "#{Node.slice(str, max)}…" : str
       end
     end
   end

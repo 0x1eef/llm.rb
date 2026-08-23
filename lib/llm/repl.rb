@@ -14,6 +14,7 @@ module LLM
   class Repl
     LLM.require "curses", "~> 1.6"
     LLM.require "kramdown", "~> 2.5"
+    LLM.require "unicode/display_width", "~> 3.2"
 
     require_relative "repl/color"
     require_relative "repl/window"

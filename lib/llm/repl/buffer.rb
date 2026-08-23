@@ -147,15 +147,15 @@ class LLM::Repl
         if token == "\n"
           rows << []
         elsif token.match?(/\s/)
-          if sum(rows.last) + token.length <= width
+          if sum(rows.last) + Node.width(token) <= width
             rows.last << Node.new(token, attrs)
           end
-        elsif sum(rows.last) + token.length > width
+        elsif sum(rows.last) + Node.width(token) > width
           if sum(rows.last) == 0
             ##
             # A single word wider than the row: break it
-            # every width characters.
-            token.scan(/.{1,#{width}}/).each do |piece|
+            # every width columns.
+            slices(token, width).each do |piece|
               rows.last << Node.new(piece, attrs)
               if sum(rows.last) >= width
                 rows << []
@@ -190,7 +190,22 @@ class LLM::Repl
     ##
     # @api private
     def sum(row)
-      row.sum { _1[:text].to_s.length }
+      row.sum { _1.size }
+    end
+
+    ##
+    # Splits a single word into pieces that each fit within the
+    # buffer's width, measured in display columns.
+    # @api private
+    def slices(token, width)
+      pieces = []
+      remaining = token
+      until remaining.empty?
+        piece = Node.slice(remaining, width)
+        pieces << piece
+        remaining = remaining[piece.length..] || +""
+      end
+      pieces
     end
   end
 end

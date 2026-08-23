@@ -77,7 +77,9 @@ module LLM
   # @raise [LLM::LoadError]
   #  When the dependency cannot be loaded
   def self.require(name, version = nil)
-    names = {"xchan" => "xchan.rb", "net/http/persistent" => "net-http-persistent"}
+    names = { "xchan" => "xchan.rb",
+              "net/http/persistent" => "net-http-persistent",
+              "unicode/display_width" => "unicode-display_width" }
     gem(names[name] || name, version) if version
     super(name)
   rescue ::LoadError

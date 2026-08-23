@@ -23,7 +23,10 @@ class LLM::Repl::Markdown
         emit("| ", attrs)
         row.each_with_index do |chunks, i|
           width = widths[i]
-          chunks.each { |c| emit(c[:text].ljust(width), c[:attrs]) }
+          chunks.each do |c|
+            text = c[:text].to_s
+            emit(text + (" " * (width - Node.width(text))), c[:attrs])
+          end
           emit(" | ", attrs) unless i == row.size - 1
         end
         emit(" |", attrs)
@@ -77,7 +80,7 @@ class LLM::Repl::Markdown
       return [] if rows.empty?
       cols = rows.first.size
       (0...cols).map do |i|
-        rows.map { |r| r[i].map { _1[:text] }.join.length }.max
+        rows.map { |r| Node.width(r[i].map { _1[:text] }.join) }.max
       end
     end
   end

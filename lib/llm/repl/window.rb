@@ -140,11 +140,11 @@ class LLM::Repl
           remaining = buffer.width - width
           break if remaining <= 0
           text, attrs = chunk.text.to_s, chunk.attrs
-          clipped = text[0, remaining]
+          clipped = Node.slice(text, remaining)
           Curses.attron(attrs) if attrs
           Curses.addstr(clipped)
           Curses.attroff(attrs) if attrs
-          width += clipped.length
+          width += Node.width(clipped)
         end
       end
       last_drawn = offset + rows.size
@@ -163,10 +163,10 @@ class LLM::Repl
       Curses.clrtoeol
       status.nodes.each { addnode(_1) }
       context = status.context_bar
-      Curses.setpos(y, [(columns - context.length) / 2, 0].max)
+      Curses.setpos(y, [(columns - Node.width(context)) / 2, 0].max)
       Curses.addstr(context)
       cost = status.cost.to_s
-      Curses.setpos(y, [columns - cost.length, 0].max)
+      Curses.setpos(y, [columns - Node.width(cost), 0].max)
       Curses.addstr(cost)
     end
 
@@ -178,9 +178,9 @@ class LLM::Repl
     def draw_meta(offset:)
       y = Curses.lines - offset
       fill_row(y) do
-        addnode(status.cwd, status.cwd.text[0, columns])
-        Curses.setpos(y, [columns - status.model.text.size, 0].max)
-        addnode(status.model, status.model.text[0, columns])
+        addnode(status.cwd, Node.slice(status.cwd.text, columns))
+        Curses.setpos(y, [columns - status.model.size, 0].max)
+        addnode(status.model, Node.slice(status.model.text, columns))
       end
     end
 

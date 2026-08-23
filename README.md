@@ -272,7 +272,7 @@ a separate gem but it requires a number of optional dependencies
 to be installed separately. The following gems provide the full
 experience:
 
-    gem install curses kramdown xchan.rb test-cmd.rb
+    gem install unicode-display_width curses kramdown xchan.rb test-cmd.rb
 
 ##### Persistence
 
