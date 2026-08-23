@@ -52,7 +52,7 @@ def help
   warn "  -m MODEL       Choose a model"
   warn "  -c STRATEGY    Concurrency strategy for tool calls (eg thread, async, fork)"
   warn "  -n TRANSPORT   HTTP transports - net-http (default), net-http-persistent, and curb"
-  warn "  -x TIMEOUT     The default connection timeout (in seconds)"
+  warn "  -x TIMEOUT     The default read timeout (in seconds)"
   warn "  -t             Temporary session that doesn't persist to disk"
   warn "  -h             Show this help"
   warn ""
@@ -62,7 +62,7 @@ def help
   warn "  #{prog} -m gpt-5.6          # use a model other than the provider default"
   warn "  #{prog} -n curb             # use libcurl"
   warn "  #{prog} -c thread           # run tool calls on a separate thread"
-  warn "  #{prog} -x 600              # timeout of 10mins"
+  warn "  #{prog} -x 900              # read timeout of 15mins"
   warn "  #{prog} -h                  # this help"
   warn ""
 end
