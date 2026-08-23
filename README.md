@@ -696,6 +696,7 @@ change.
 * **xAI** (`LLM.xai`)
 * **Z.ai** (`LLM.zai`)
 * **Moonshot (Kimi)** (`LLM.moonshot`)
+* **OpenRouter** (`LLM.openrouter`)
 * **Alibaba (Qwen3)** (`LLM.alibaba`, also `LLM.aliyun`)
 * **Mistral** (`LLM.mistral`)
 * **AWS Bedrock** (`LLM.bedrock`)
@@ -717,6 +718,7 @@ llm = LLM.anthropic
 llm = LLM.deepseek
 llm = LLM.alibaba  # also: LLM.aliyun
 llm = LLM.moonshot
+llm = LLM.openrouter
 llm = LLM.mistral
 ```
 </details>
@@ -734,6 +736,7 @@ llm = LLM.anthropic(key: ENV["ANTHROPIC_API_KEY"])
 llm = LLM.deepseek(key: ENV["DEEPSEEK_API_KEY"])
 llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"]) # also: LLM.aliyun
 llm = LLM.moonshot(key: ENV["MOONSHOT_API_KEY"])
+llm = LLM.openrouter(key: ENV["OPENROUTER_API_KEY"])
 llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
 ```
 </details>

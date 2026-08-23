@@ -40,6 +40,7 @@ VCR.configure do |config|
   config.filter_sensitive_data("TOKEN") { ENV["XAI_SECRET"] }
   config.filter_sensitive_data("TOKEN") { ENV["ZAI_SECRET"] }
   config.filter_sensitive_data("TOKEN") { ENV["MOONSHOT_API_KEY"] }
+  config.filter_sensitive_data("TOKEN") { ENV["OPENROUTER_API_KEY"] }
   config.filter_sensitive_data("TOKEN") { ENV["DASHSCOPE_API_KEY"] }
   config.filter_sensitive_data("TOKEN") { ENV["AWS_ACCESS_KEY_ID"] }
   config.filter_sensitive_data("TOKEN") { ENV["AWS_SECRET_ACCESS_KEY"] }

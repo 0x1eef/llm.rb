@@ -263,6 +263,19 @@ module LLM
   end
 
   ##
+  # @param key (see LLM::OpenRouter#initialize)
+  # @param host (see LLM::OpenRouter#initialize)
+  # @return (see LLM::OpenRouter#initialize)
+  def openrouter(key: UNDEFINED, **)
+    lock(:require) { require_relative "llm/providers/openrouter" unless defined?(LLM::OpenRouter) }
+    if key == UNDEFINED
+      LLM::OpenRouter.new(key: key(name: __method__), **)
+    else
+      LLM::OpenRouter.new(key:, **)
+    end
+  end
+
+  ##
   # @param key (see LLM::Alibaba#initialize)
   # @param host (see LLM::Alibaba#initialize)
   # @return (see LLM::Alibaba#initialize)

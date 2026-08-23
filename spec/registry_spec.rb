@@ -80,6 +80,16 @@ RSpec.describe LLM::Registry do
     include_examples "model exists", "kimi-k2.5"
   end
 
+  context "when given openrouter" do
+    let(:provider) { :openrouter }
+
+    include_examples "model exists", "openrouter/free"
+
+    it "includes the automatic router" do
+      expect(registry.keys).to include("openrouter/auto")
+    end
+  end
+
   context "when given alibaba" do
     let(:provider) { :alibaba }
 
