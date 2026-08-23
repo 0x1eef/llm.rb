@@ -28,6 +28,21 @@
   The OpenAI Responses API path now also falls back to the default model
   when `model: nil`, matching the completions path.
 
+* **provider: separate `connect_timeout` and `read_timeout`** <br>
+  [`LLM::Provider`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html)
+  now accepts a `connect_timeout:` for opening the connection (default 5
+  seconds) and a `read_timeout:` for waiting on an idle connection (default
+  600 seconds), instead of a single `timeout`. The legacy `timeout:` option
+  remains as a shorthand for `read_timeout`. The provider exposes the new
+  `#read_timeout` and `#connect_timeout` accessors.
+
+* **provider: retry timed-out requests** <br>
+  Requests that time out (`Net::OpenTimeout` or `Net::ReadTimeout`) are now
+  retried along with rate-limited requests, up to the `retry_budget`. When
+  a heavily loaded provider (for example DeepSeek) drops the connection
+  during the connect or read phase, the request is retried instead of
+  failing, and the stream is notified through `on_retry`.
+
 ### Skills
 
 * **skills: add a `model` frontmatter parameter** <br>
@@ -44,6 +59,16 @@
   [`LLM::Context#model`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#model-instance_method)
   now falls back to the provider's default model when no model is set.
 
+### Stream
+
+* **stream: rename `on_rate_limit` to `on_retry`** <br>
+  [`LLM::Stream#on_rate_limit`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_rate_limit-instance_method)
+  is renamed to
+  [`LLM::Stream#on_retry`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_retry-instance_method),
+  which fires when a request is retried after a rate limit or a timeout,
+  and now receives the one-based retry attempt number as a second argument.
+  The old `on_rate_limit` name remains as an alias.
+
 ### Cli
 
 * **cli: add a `-m` switch for choosing the model** <br>
@@ -51,6 +76,30 @@
   than the provider default, for example
   `llm.rb -p deepseek -m deepseek-v4-pro`. A model unknown to the provider's
   registry prints an error and exits.
+
+* **cli: add a `-x` switch for the read timeout** <br>
+  `bin/llm.rb` now accepts `-x SECONDS` to set the provider read timeout.
+
+### Repl
+
+* **repl: show retry progress in the status bar** <br>
+  When a request is rate limited or times out, the curses-based REPL status
+  bar shows a retry indicator with the error and the remaining attempts, for
+  example `🔁 Rate limited • attempt 2 of 5`.
+
+* **repl: measure text width with `unicode-display_width`** <br>
+  The curses-based REPL now counts and slices text by display column width
+  instead of character count, so wrapping, table columns, and clipping stay
+  aligned for wide characters such as emoji. It requires the optional
+  `unicode-display_width` gem.
+
+### Registry
+
+* **refresh model metadata** <br>
+  Update `data/*.json` with current model listings and pricing, adding
+  GPT-5.6 Sol, Terra, and Luna models to Bedrock, Grok 4.6 and Grok Imagine
+  Image 2.0 to xAI, DeepSeek V4 Flash Vision to DeepSeek, and DeepSeek V4
+  Pro 0813, Qwen3 VL, and Qwen3.8 models to DeepInfra.
 
 ## v15.0.3
 
