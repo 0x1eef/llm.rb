@@ -105,7 +105,7 @@
   and now receives the one-based retry attempt number as a second argument.
   The old `on_rate_limit` name remains as an alias.
 
-### Cli
+### CLI
 
 * **cli: add a `-m` switch for choosing the model** <br>
   `bin/llm.rb` now accepts `-m MODEL` to run the session on a model other
@@ -115,6 +115,11 @@
 
 * **cli: add a `-x` switch for the read timeout** <br>
   `bin/llm.rb` now accepts `-x SECONDS` to set the provider read timeout.
+
+* **cli: print a backtrace on fatal crashes** <br>
+  When `bin/llm.rb` hits an unexpected error, the crash message now includes
+  up to three stack lines from the backtrace, so the failure is easier to
+  locate and report than a bare diagnostic.
 
 ### Repl
 
@@ -135,13 +140,6 @@
   [`LLM::InsufficientQuotaError`](https://r.uby.dev/api-docs/llm.rb/LLM/InsufficientQuotaError.html),
   matching how ordinary `LLM::RateLimitError`s are shown, instead of falling
   through to the raw class name.
-
-### Cli
-
-* **cli: print a backtrace on fatal crashes** <br>
-  When `bin/llm.rb` hits an unexpected error, the crash message now includes
-  up to three stack lines from the backtrace, so the failure is easier to
-  locate and report than a bare diagnostic.
 
 ### Registry
 
