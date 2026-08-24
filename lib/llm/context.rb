@@ -40,6 +40,7 @@ module LLM
     include Deserializer
 
     TRY_ERRORS = [
+      "LLM::InsufficientQuotaError",
       "LLM::RateLimitError",
       "Net::ReadTimeout",
       "Net::OpenTimeout"
