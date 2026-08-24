@@ -98,6 +98,11 @@ def fatal(ex)
     wrapped detail, "     "
   end
   warn ""
+  warn "     Backtrace:"
+  ex.backtrace.drop(1).first(3).each do |line|
+    wrapped line, "       "
+  end
+  warn ""
   warn "     This is an unexpected error. If it keeps happening,"
   warn "     consider opening an issue at"
   warn "     https://github.com/r-uby-dev/llm/issues"
