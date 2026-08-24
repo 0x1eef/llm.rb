@@ -32,13 +32,15 @@ class LLM::Function
       @pid = Kernel.fork do
         ##
         # The child inherits the parent's terminal. When
-        # the runtime runs under a curses REPL, the forked
-        # tool writing to the tty would clobber the parent's
-        # display (a blank screen). Redirect the child's
-        # stdout/stderr to null so it keeps off the user's
-        # terminal. A tool that genuinely needs the terminal
-        # can reopen it via /dev/tty; the tty fd stays
-        # available to the child.
+        # the runtime runs under a curses REPL, a forked
+        # tool reading or writing the tty would steal the
+        # user's input or clobber the parent's display.
+        # Point all three standard streams at null so the
+        # child keeps off the user's terminal entirely. A
+        # tool that genuinely needs the terminal can reopen
+        # it via /dev/tty; the tty fd stays available to
+        # the child.
+        $stdin.reopen(File::NULL)
         $stdout.reopen(File::NULL)
         $stderr.reopen(File::NULL)
         Fork::Job.new(@function, @ch).call
