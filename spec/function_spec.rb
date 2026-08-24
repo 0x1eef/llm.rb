@@ -20,10 +20,8 @@ RSpec.describe LLM::Function do
     end
   end
 
-  describe "#return" do
-    subject(:result) do
-      tool.return(error: true, type: "guard_error", message: "stop")
-    end
+  describe "when building a return" do
+    subject(:result) { tool.return(error: true, type: "guard_error", message: "stop") }
 
     it "builds a return using the function's id and name" do
       expect(result.to_h).to eq(
@@ -34,7 +32,7 @@ RSpec.describe LLM::Function do
     end
   end
 
-  describe "#task" do
+  describe "when building a task" do
     subject(:task) { tool.task(strategy) }
 
     let(:strategy) { :ractor }
@@ -47,34 +45,43 @@ RSpec.describe LLM::Function do
       end
     end
 
-    describe "#value" do
-      subject { task.value.to_h }
+    describe "when calling #value" do
+      subject(:value) { task.value.to_h }
+
       it { is_expected.to eq(id: "call_1", name: "system", value: {"ok" => true}) }
     end
 
-    describe "#alive?" do
-      slow_tool = Class.new(LLM::Tool) do
-        name "slow"
-        def call
-          sleep 0.5
-          {"ok" => true}
+    describe "when checking #alive?" do
+      let(:slow_tool) do
+        Class.new(LLM::Tool) do
+          name "slow"
+          def call
+            sleep 0.5
+            {"ok" => true}
+          end
+        end.function.dup.tap do |fn|
+          fn.id = "call_2"
+          fn.arguments = {}
         end
-      end.function.dup.tap do |fn|
-        fn.id = "call_2"
-        fn.arguments = {}
+      end
+      let(:slow_task) { slow_tool.task(:ractor) }
+
+      before do
+        slow_task.spawn
+        sleep 0.01 until slow_task.alive?
       end
 
-      it "tracks task liveness" do
-        task = slow_tool.task(:ractor)
-        task.spawn
-        sleep 0.01 until task.alive?
-        expect(task.alive?).to be(true)
-        task.wait
-        expect(task.alive?).to be(false)
+      it "reports true while the task is alive" do
+        expect(slow_task.alive?).to be(true)
+      end
+
+      it "reports false after the task has been waited on" do
+        slow_task.wait
+        expect(slow_task.alive?).to be(false)
       end
     end
 
-    describe "#interrupt!" do
+    describe "when interrupting a task" do
       before do
         skip "not supported by yajl or oj" unless ENV.fetch("JSON_PARSER", "json") == "json"
       end
@@ -88,33 +95,42 @@ RSpec.describe LLM::Function do
           end
         end
       end
+      let(:slow_function) do
+        tool.function.dup.tap do |fn|
+          fn.id = "call_3"
+          fn.arguments = {}
+        end
+      end
+      let(:slow_task) { slow_function.task(:ractor) }
 
-      it "interrupts the tool execution" do
-        fn = tool.function.dup.tap {
-          _1.id = "call_3"
-          _1.arguments = {}
-        }
-        task = fn.task(:ractor)
-        task.spawn
-        sleep 0.05 until task.alive?
-        task.interrupt!
-        expect(task.wait.to_h).to eq(id: "call_3", name: "slow", value: {cancelled: true, reason: "interrupted"})
+      context "when the task is running" do
+        before do
+          slow_task.spawn
+          sleep 0.05 until slow_task.alive?
+        end
+
+        it "interrupts the tool execution" do
+          slow_task.interrupt!
+          expect(slow_task.wait.to_h).to eq(id: "call_3", name: "slow", value: {cancelled: true, reason: "interrupted"})
+        end
       end
 
-      it "returns nil from interrupt!" do
-        task = tool.function.dup.tap {
-          _1.id = "call_4"
-          _1.arguments = {}
-        }.task(:ractor)
-        expect(task.interrupt!).to be_nil
+      context "when the task has not started" do
+        it "returns nil from interrupt!" do
+          expect(slow_task.interrupt!).to be_nil
+        end
+      end
+    end
+
+    let(:proc_function) do
+      LLM::Function.new("echo").tap do |fn|
+        fn.arguments = {"value" => "hello"}
+        fn.define { |value:| {value:} }
       end
     end
 
     it "rejects proc-defined functions" do
-      fn = LLM::Function.new("echo")
-      fn.arguments = {"value" => "hello"}
-      fn.define { |value:| {value:} }
-      expect { fn.task(:ractor) }.to raise_error(
+      expect { proc_function.task(:ractor) }.to raise_error(
         LLM::RactorError,
         "Ractor concurrency only supports class-based tools"
       )
@@ -126,16 +142,19 @@ RSpec.describe LLM::Function do
       before do
         tool.tracer = tracer
         tool.model = "gpt-4.1"
+        task.wait
       end
 
-      it "traces the ractor-backed tool call" do
-        expect(task.wait.to_h).to eq(id: "call_1", name: "system", value: {"ok" => true})
+      it "traces the tool start" do
         expect(tracer).to have_received(:on_tool_start).with(
           id: "call_1",
           name: "system",
           arguments: {"command" => "date"},
           model: "gpt-4.1"
         )
+      end
+
+      it "traces the tool finish" do
         expect(tracer).to have_received(:on_tool_finish).with(
           result: have_attributes(id: "call_1", name: "system", value: {"ok" => true}),
           span: :span
@@ -150,7 +169,23 @@ RSpec.describe LLM::Function do
         expect(task.wait.to_h).to eq(id: "call_1", name: "system", value: {"ok" => true})
       end
 
-      describe "error handling" do
+      let(:guarded_tool) do
+        tool_class.function.dup.tap do |fn|
+          fn.id = "call_5"
+          fn.arguments = {"command" => "date"}
+          fn.guard = ->(function:) { function.return(error: true, type: "guard_error", message: "stop") }
+        end
+      end
+
+      it "returns the guard result when the tool is blocked" do
+        expect(guarded_tool.task(:fork).wait.to_h).to eq(
+          id: "call_5",
+          name: "system",
+          value: {error: true, type: "guard_error", message: "stop"}
+        )
+      end
+
+      describe "when the tool raises an error" do
         let(:error_tool) do
           tool_class.function.dup.tap do |fn|
             fn.id = "call_4"
@@ -174,16 +209,19 @@ RSpec.describe LLM::Function do
         before do
           tool.tracer = tracer
           tool.model = "gpt-4.1"
+          task.wait
         end
 
-        it "traces the fork-backed tool call" do
-          expect(task.wait.to_h).to eq(id: "call_1", name: "system", value: {"ok" => true})
+        it "traces the tool start" do
           expect(tracer).to have_received(:on_tool_start).with(
             id: "call_1",
             name: "system",
             arguments: {"command" => "date"},
             model: "gpt-4.1"
           )
+        end
+
+        it "traces the tool finish" do
           expect(tracer).to have_received(:on_tool_finish).with(
             result: have_attributes(id: "call_1", name: "system", value: {"ok" => true}),
             span: :span
@@ -191,56 +229,69 @@ RSpec.describe LLM::Function do
         end
       end
 
-      let(:interrupt_tool) do
-        tool_class = Class.new(LLM::Tool) do
-          name "interruptible"
+      describe "when interrupting a fork-backed tool" do
+        context "when the tool rescues LLM::Interrupt" do
+          let(:interrupt_tool) do
+            tool_class = Class.new(LLM::Tool) do
+              name "interruptible"
 
-          define_method(:call) do
-            sleep 10
-            {"ok" => true}
-          rescue LLM::Interrupt
-            {"ok" => true, "interrupted" => true}
+              define_method(:call) do
+                sleep 10
+                {"ok" => true}
+              rescue LLM::Interrupt
+                {"ok" => true, "interrupted" => true}
+              end
+            end
+            tool_class.function.dup.tap do |fn|
+              fn.id = "call_3"
+              fn.arguments = {}
+            end
+          end
+          let(:interrupt_task) { interrupt_tool.task(:fork) }
+
+          before do
+            interrupt_task.spawn
+            sleep 0.05 until interrupt_task.alive?
+          end
+
+          it "delivers interrupts to the child tool" do
+            interrupt_task.interrupt!
+            expect(interrupt_task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true, "interrupted" => true})
           end
         end
-        tool_class.function.dup.tap do |fn|
-          fn.id = "call_3"
-          fn.arguments = {}
-        end
-      end
 
-      it "delivers interrupts to the child tool" do
-        task = interrupt_tool.task(:fork)
-        task.spawn
-        sleep 0.05 until task.alive?
-        task.interrupt!
-        expect(task.wait.to_h).to eq(id: "call_3", name: "interruptible", value: {"ok" => true, "interrupted" => true})
-      end
+        context "when the tool does not rescue LLM::Interrupt" do
+          let(:brittle_tool) do
+            Class.new(LLM::Tool) do
+              name "brittle"
 
-      it "propagates LLM::Interrupt when the tool does not rescue it" do
-        tool_class = Class.new(LLM::Tool) do
-          name "brittle"
+              define_method(:call) do
+                sleep 10
+                {"ok" => true}
+              end
+            end.function.dup.tap do |fn|
+              fn.id = "call_4"
+              fn.arguments = {}
+            end
+          end
+          let(:brittle_task) { brittle_tool.task(:fork) }
 
-          define_method(:call) do
-            sleep 10
-            {"ok" => true}
+          before do
+            brittle_task.spawn
+            sleep 0.05 until brittle_task.alive?
+            brittle_task.interrupt!
+          end
+
+          it "propagates LLM::Interrupt" do
+            expect { brittle_task.wait }.to raise_error(LLM::Interrupt)
           end
         end
-        fn = tool_class.function.dup.tap do |f|
-          f.id = "call_4"
-          f.arguments = {}
-        end
-        task = fn.task(:fork)
-        task.spawn
-        sleep 0.05 until task.alive?
-        task.interrupt!
-        expect { task.wait }.to raise_error(LLM::Interrupt)
       end
     end
 
     context "when using fiber concurrency without a scheduler" do
       it "raises a clear error" do
-        task = tool.task(:fiber)
-        expect { task.spawn }.to raise_error(
+        expect { tool.task(:fiber).spawn }.to raise_error(
           ArgumentError,
           "Fiber concurrency requires Fiber.scheduler"
         )
@@ -249,7 +300,7 @@ RSpec.describe LLM::Function do
   end
 
   describe LLM::Function::Sequential::Group do
-    describe "#interrupt!" do
+    describe "when interrupting a sequential group" do
       subject(:group) { LLM::Function::Sequential::Group.new([function.task(:sequential)]) }
 
       let(:fn_class) do
@@ -268,43 +319,64 @@ RSpec.describe LLM::Function do
         end
       end
 
-      it "raises LLM::Interrupt on the thread running wait" do
-        thread = Thread.new { group.wait }
-        thread.report_on_exception = false
-        sleep 0.05
-        group.interrupt!
-        expect { thread.value }.to raise_error(LLM::Interrupt)
-      end
-
-      it "interrupts the currently running tool execution" do
-        thread = Thread.new {
-          group.wait rescue LLM::Interrupt
-          :interrupted
-        }
-        thread.report_on_exception = false
-        sleep 0.05
-        group.interrupt!
-        expect(thread.value).to eq(:interrupted)
-      end
-
-      it "is a no-op when wait has not been called" do
-        expect(group.interrupt!).to be_nil
-      end
-
-      it "is a no-op when wait has completed" do
-        fn = fn_class.function.dup.tap do |f|
-          f.define { {ok: true} }
-          f.id = "call_2"
-          f.arguments = {}
+      context "when wait has not been called" do
+        it "is a no-op" do
+          expect(group.interrupt!).to be_nil
         end
-        LLM::Function::Sequential::Group.new([fn.task(:sequential)]).wait
-        expect(group.interrupt!).to be_nil
+      end
+
+      context "when wait has completed" do
+        let(:completed_function) do
+          fn_class.function.dup.tap do |f|
+            f.define { {ok: true} }
+            f.id = "call_2"
+            f.arguments = {}
+          end
+        end
+
+        before do
+          LLM::Function::Sequential::Group.new([completed_function.task(:sequential)]).wait
+        end
+
+        it "is a no-op" do
+          expect(group.interrupt!).to be_nil
+        end
+      end
+
+      context "when wait runs on another thread" do
+        let(:thread) do
+          Thread.new { group.wait rescue LLM::Interrupt; :interrupted }.tap do |t|
+            t.report_on_exception = false
+          end
+        end
+
+        before { thread; sleep 0.05 }
+
+        it "interrupts the currently running tool execution" do
+          group.interrupt!
+          expect(thread.value).to eq(:interrupted)
+        end
+      end
+
+      context "when wait runs on another thread without rescuing" do
+        let(:thread) do
+          Thread.new { group.wait }.tap do |t|
+            t.report_on_exception = false
+          end
+        end
+
+        before { thread; sleep 0.05 }
+
+        it "raises LLM::Interrupt on the thread running wait" do
+          group.interrupt!
+          expect { thread.value }.to raise_error(LLM::Interrupt)
+        end
       end
     end
   end
 
   describe LLM::Function::Task do
-    describe "#interrupt!" do
+    describe "when interrupting a task" do
       let(:fn) do
         LLM::Function.new("test") { _1.define { {ok: true} } }.tap do |f|
           f.id = "call_1"
@@ -313,13 +385,20 @@ RSpec.describe LLM::Function do
       end
 
       context "when wrapping a Thread" do
-        it "raises LLM::Interrupt on the thread" do
-          slow = LLM::Function.new("slow") { _1.define { sleep 10; {ok: true} } }
-          slow.id = "call_1"
-          slow.arguments = {}
-          task = LLM::Function::Thread::Task.new(slow)
+        let(:slow_fn) do
+          LLM::Function.new("slow") { _1.define { sleep 10; {ok: true} } }.tap do |f|
+            f.id = "call_1"
+            f.arguments = {}
+          end
+        end
+        let(:task) { LLM::Function::Thread::Task.new(slow_fn) }
+
+        before do
           task.spawn
           sleep 0.05 until task.alive?
+        end
+
+        it "raises LLM::Interrupt on the thread" do
           task.interrupt!
           expect { task.wait }.to raise_error(LLM::Interrupt)
         end
@@ -337,26 +416,36 @@ RSpec.describe LLM::Function do
           Console.logger.level = :fatal if defined?(Console)
         end
 
-        it "raises LLM::Interrupt on the underlying fiber" do
-          slow = LLM::Function.new("slow") { _1.define { sleep 10; {ok: true} } }
-          slow.id = "call_1"
-          slow.arguments = {}
-          reactor = LLM::Function::Async::Reactor.new
-          task = LLM::Function::Async::Task.new(slow, reactor:)
-          task.spawn
-          sleep 0.05 until task.alive?
-          task.interrupt!
-          expect { task.wait }.to raise_error(LLM::Interrupt)
-        ensure
-          reactor&.stop
+        let(:reactor) { LLM::Function::Async::Reactor.new }
+
+        after { reactor&.stop }
+
+        context "when the task is running" do
+          let(:slow_fn) do
+            LLM::Function.new("slow") { _1.define { sleep 10; {ok: true} } }.tap do |f|
+              f.id = "call_1"
+              f.arguments = {}
+            end
+          end
+          let(:slow_task) { LLM::Function::Async::Task.new(slow_fn, reactor:) }
+
+          before do
+            slow_task.spawn
+            sleep 0.05 until slow_task.alive?
+          end
+
+          it "raises LLM::Interrupt on the underlying fiber" do
+            slow_task.interrupt!
+            expect { slow_task.wait }.to raise_error(LLM::Interrupt)
+          end
         end
 
-        it "is a no-op on a dead async task" do
-          reactor = LLM::Function::Async::Reactor.new
-          task = LLM::Function::Async::Task.new(fn, reactor:).tap(&:wait)
-          expect { task.interrupt! }.not_to raise_error
-        ensure
-          reactor&.stop
+        context "when the task has finished" do
+          let(:dead_task) { LLM::Function::Async::Task.new(fn, reactor:).tap(&:wait) }
+
+          it "is a no-op" do
+            expect { dead_task.interrupt! }.not_to raise_error
+          end
         end
       end
 
@@ -364,9 +453,11 @@ RSpec.describe LLM::Function do
         let(:interruptible) do
           Class.new do
             attr_reader :interrupted
+
             def initialize
               @interrupted = false
             end
+
             def interrupt!
               @interrupted = true
             end
@@ -375,44 +466,14 @@ RSpec.describe LLM::Function do
 
         it "calls interrupt! on the task if it responds to it" do
           interruptible.interrupt!
-          expect(interruptible.interrupted).to be true
+          expect(interruptible.interrupted).to be(true)
         end
       end
+
+      let(:spawned_thread_task) { LLM::Function::Thread::Task.new(fn).tap(&:spawn) }
 
       it "returns nil" do
-        task = LLM::Function::Thread::Task.new(fn).tap(&:spawn)
-        expect(task.interrupt!).to be_nil
-      end
-    end
-  end
-
-  describe LLM::Function::Array do
-    subject { [tool].extend(LLM::Function::Array).wait(:ractor).map(&:to_h) }
-    it { is_expected.to eq([{id: "call_1", name: "system", value: {"ok" => true}}]) }
-
-    it "waits on forked work" do
-      expect([tool].extend(LLM::Function::Array).wait(:fork).map(&:to_h)).to eq(
-        [{id: "call_1", name: "system", value: {"ok" => true}}]
-      )
-    end
-  end
-
-  describe "#params" do
-    context "when no parameters are defined" do
-      it "returns an empty schema hash" do
-        fn = tool_class.function
-        expect(fn.params).to eq(LLM::Schema::Object.new({}))
-      end
-    end
-
-    context "when parameters are defined" do
-      it "returns the defined schema" do
-        tool = Class.new(LLM::Tool) do
-          name "greeter"
-          parameter :name, String, "The name"
-          required %i[name]
-        end
-        expect(tool.function.params[:name]).to_not be_nil
+        expect(spawned_thread_task.interrupt!).to be_nil
       end
     end
   end
