@@ -85,7 +85,7 @@ class LLM::Repl
       when "Net::ReadTimeout", "Net::OpenTimeout" then "Timed out"
       else "#{ex.class}"
       end
-      [Node.new("🔁"),
+      [Node.new(" 🔁 "),
        Node.new("#{err} • attempt #{attempt} of #{agent.retry_budget}", Color.red | Curses::A_BOLD)]
     end
 
