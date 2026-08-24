@@ -15,11 +15,29 @@ RSpec.describe LLM::Provider do
           .with(headers: {"OpenAI-Project" => "llmrb/llm"})
       end
 
-      it "adds headers" do
+      it "adds headers via the legacy headers: keyword" do
         is_expected.to include(
           "OpenAI-Organization" => "llmrb",
           "OpenAI-Project" => "llmrb/llm"
         )
+      end
+
+      context "when given a positional header hash" do
+        before { provider.with("User-Agent" => "llmrb/1.0") }
+
+        it "adds the header" do
+          is_expected.to include("User-Agent" => "llmrb/1.0")
+        end
+      end
+
+      context "when combining positional and keyword headers" do
+        before do
+          provider.with("User-Agent" => "llmrb/1.0", headers: {"X-Extra" => "yes"})
+        end
+
+        it "merges both forms" do
+          is_expected.to include("User-Agent" => "llmrb/1.0", "X-Extra" => "yes")
+        end
       end
     end
 
