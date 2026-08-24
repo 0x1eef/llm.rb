@@ -7,12 +7,25 @@
 # and reasoning costs separately and can return the total.
 class LLM::Cost
   ##
+  # Build a zero-valued cost breakdown. Every component
+  # is nil (treated as no cost), so the total is 0.
+  # @return [LLM::Cost]
+  def self.zero
+    new
+  end
+
+  ##
   # Build a cost breakdown from token usage and model pricing.
   # @param [LLM::Context] ctx
   #  Context used to resolve provider, model, and token usage
   # @return [LLM::Cost]
   def self.from(ctx)
     pricing = LLM.registry_for(ctx.llm).cost(model: ctx.model)
+    ##
+    # A model may have no known pricing (eg OpenRouter's
+    # `openrouter/auto` auto-router). Fall back to a zero
+    # cost rather than crashing on a nil pricing.
+    return zero if pricing.nil?
     usage = ctx.usage
     output = usage.output_tokens - usage.reasoning_tokens
     input = usage.input_tokens - usage.cache_read_tokens
