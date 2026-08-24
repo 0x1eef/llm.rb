@@ -81,7 +81,7 @@ class LLM::Repl
     # @return [LLM::Repl::Node]
     def retry_error(ex, attempt)
       err = case ex.class.to_s
-      when "LLM::RateLimitError" then "Rate limited"
+      when "LLM::RateLimitError", "LLM::InsufficientQuotaError" then "Rate limited"
       when "Net::ReadTimeout", "Net::OpenTimeout" then "Timed out"
       else "#{ex.class}"
       end
