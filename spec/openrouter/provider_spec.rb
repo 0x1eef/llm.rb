@@ -5,10 +5,8 @@ require "setup"
 RSpec.describe "LLM::OpenRouter" do
   subject(:provider) do
     LLM.openrouter(key: "TOKEN").with(
-      headers: {
-        "HTTP-Referer" => "https://example.com",
-        "X-OpenRouter-Title" => "Example App"
-      }
+      "HTTP-Referer" => "https://example.com",
+      "X-OpenRouter-Title" => "Example App"
     )
   end
 

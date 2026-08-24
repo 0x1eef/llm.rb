@@ -806,6 +806,22 @@ llm = LLM.deepseek(
 )
 ```
 
+<details>
+<summary>Headers</summary>
+<br>
+
+Providers can accept a custom set of headers with
+the [`LLM::Provider#with`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#with-instance_method) method.
+For example, you could set a custom User-Agent header,
+or provide headers that carry special meaning to
+certain providers (eg OpenAI, OpenRouter).
+
+```ruby
+llm = LLM.openrouter
+llm = llm.with("HTTP-Referer" => "https://example.com")
+llm = llm.with("X-OpenRouter-Title" => "Example App")
+```
+
 </details>
 
 ### RAG
