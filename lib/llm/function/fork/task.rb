@@ -83,8 +83,10 @@ class LLM::Function
       @tracer&.on_tool_finish(result:, span: @span)
       result
     ensure
-      reap
-      [@ch.control, @ch.result].each { _1.close unless _1.closed? }
+      if @guarded.nil?
+        reap
+        [@ch.control, @ch.result].each { _1.close unless _1.closed? } if @ch
+      end
     end
     alias_method :value, :wait
 
@@ -97,7 +99,7 @@ class LLM::Function
     private
 
     def reap
-      return if @waited
+      return if @waited || @guarded || !@pid
       ::Process.waitpid(@pid)
       @waited = true
     rescue Errno::ECHILD
