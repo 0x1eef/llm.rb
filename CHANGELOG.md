@@ -17,6 +17,26 @@
 
 ### Provider
 
+* **add `LLM::OpenRouter` for the OpenRouter provider** <br>
+  [`LLM::OpenRouter`](https://r.uby.dev/api-docs/llm.rb/LLM/OpenRouter.html)
+  is a new provider that talks to [OpenRouter](https://openrouter.ai)
+  through its OpenAI-compatible API, contributed via
+  [PR #165](https://github.com/r-uby-dev/llm.rb/pull/165). Create an
+  instance with
+  [`LLM.openrouter`](https://r.uby.dev/api-docs/llm.rb/LLM.html#openrouter-class_method),
+  which accepts the same `key:`, `host:`, and `base_path:` options as the
+  OpenAI provider. It defaults to the `openrouter/auto` router model and
+  supports chat completions, streaming, tool calls, structured output,
+  and embeddings; image, audio, moderation, files, and vector store
+  endpoints raise `NotImplementedError`. Model metadata ships in
+  `data/openrouter.json` for the registry.
+
+* **provider: `LLM::Provider#with` accepts headers without the `headers:` keyword** <br>
+  [`LLM::Provider#with`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#with-instance_method)
+  now accepts headers directly as a Hash (`llm.with("User-Agent" => "llmrb/1.0")`)
+  in addition to the legacy `headers:` keyword form. Both are merged, and
+  the keyword form remains for backwards compatibility.
+
 * **providers: `model: nil` falls back to `default_model`** <br>
   [`LLM::Provider`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html)
   now treats a `model: nil` payload as "use the default model" instead of
