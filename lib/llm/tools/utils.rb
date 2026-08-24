@@ -8,7 +8,7 @@ class LLM::Tool
     # Wait for a command to finish, or abort
     # with an error when it exceeds the
     # specified timeout.
-    # @param [Test::Cmd] command
+    # @param [Test::Command] command
     # @param [Integer] timeout
     # @return [void]
     def wait(command:, timeout:)
