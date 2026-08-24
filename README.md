@@ -805,6 +805,7 @@ llm = LLM.deepseek(
   read_timeout: 600     # waiting for the next bytes
 )
 ```
+</details>
 
 <details>
 <summary>Headers</summary>
