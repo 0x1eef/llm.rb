@@ -63,6 +63,22 @@
   during the connect or read phase, the request is retried instead of
   failing, and the stream is notified through `on_retry`.
 
+* **context: retry on `LLM::InsufficientQuotaError`, too** <br>
+  A request that raises
+  [`LLM::InsufficientQuotaError`](https://r.uby.dev/api-docs/llm.rb/LLM/InsufficientQuotaError.html)
+  is now retried like other rate-limited requests. The error is a subclass
+  of `LLM::RateLimitError` and can be raised at regular intervals, in
+  particular by the Alibaba provider.
+
+* **cost: return `LLM::Cost.zero` when the registry has no pricing** <br>
+  Add
+  [`LLM::Cost.zero`](https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#zero-class_method),
+  a factory for a zero-valued cost breakdown.
+  [`LLM::Context#cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cost-instance_method)
+  now returns it when the active model has no pricing in the registry (for
+  example OpenRouter's `openrouter/auto` router model), instead of crashing
+  on a nil pricing entry.
+
 ### Skills
 
 * **skills: add a `model` frontmatter parameter** <br>
@@ -112,6 +128,20 @@
   instead of character count, so wrapping, table columns, and clipping stay
   aligned for wide characters such as emoji. It requires the optional
   `unicode-display_width` gem.
+
+* **repl: treat `LLM::InsufficientQuotaError` as a rate limit in the status bar** <br>
+  The curses-based REPL status bar now shows `Rate limited` when a request
+  raises
+  [`LLM::InsufficientQuotaError`](https://r.uby.dev/api-docs/llm.rb/LLM/InsufficientQuotaError.html),
+  matching how ordinary `LLM::RateLimitError`s are shown, instead of falling
+  through to the raw class name.
+
+### Cli
+
+* **cli: print a backtrace on fatal crashes** <br>
+  When `bin/llm.rb` hits an unexpected error, the crash message now includes
+  up to three stack lines from the backtrace, so the failure is easier to
+  locate and report than a bare diagnostic.
 
 ### Registry
 
