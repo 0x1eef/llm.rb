@@ -1,0 +1,126 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
+        a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"text","text":"What
+        is the date?"}]}],"model":"openrouter/auto","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Runs
+        system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}],"stream":false}'
+    headers:
+      User-Agent:
+      - llm.rb v15.0.3
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer TOKEN
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Aug 2026 06:36:47 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Generation-Id:
+      - gen-1787553406-Jea4JFYfYeyOnPowUabs
+      Access-Control-Expose-Headers:
+      - X-Generation-Id,X-Provider-Name,request-id,cf-ray
+      Set-Cookie:
+      - __cf_bm=j.bbFasr_vOo7.YeuuXEpK6BAMx7VyeSOu99Mi6vw10-1787553406.947707-1.0.1.1-vqDqa3xvvfVaWrN1fzP7c4qnkoNQso6huin1Y5X9FHvOr0kB9VF_6xA_RqXwxqRoDXLeVMjyfFH9JzEgn_zUZQFPc2MYxy866T0m2SiScQ4e6YLYmb1PD7G7WYxsQpX9;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=openrouter.ai; Expires=Mon,
+        24 Aug 2026 07:06:47 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      X-Content-Type-Options:
+      - nosniff
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - a30058396d8ef245-GRU
+    body:
+      encoding: ASCII-8BIT
+      string: "\n         \n{\"id\":\"gen-1787553406-Jea4JFYfYeyOnPowUabs\",\"object\":\"chat.completion\",\"created\":1787553407,\"model\":\"deepseek/deepseek-v4-flash-0731\",\"provider\":\"CoreWeave\",\"system_fingerprint\":null,\"service_tier\":null,\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"native_finish_reason\":\"tool_calls\",\"message\":{\"role\":\"assistant\",\"content\":\"\\n\\n\",\"refusal\":null,\"reasoning\":\"The
+        user asks what is the date. I can run the `date` command.\",\"tool_calls\":[{\"type\":\"function\",\"index\":0,\"id\":\"call_f5db52f1e60745ecb014c9ed\",\"function\":{\"name\":\"system\",\"arguments\":\"{\\\"command\\\":\\\"date\\\"}\"}}],\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"The
+        user asks what is the date. I can run the `date` command.\",\"format\":\"unknown\",\"index\":0}],\"model\":\"deepseek/deepseek-v4-flash-0731\"}}],\"usage\":{\"prompt_tokens\":285,\"completion_tokens\":61,\"total_tokens\":346,\"cost\":0.00005413,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.00005413,\"upstream_inference_prompt_cost\":0.00003705,\"upstream_inference_completions_cost\":0.00001708},\"completion_tokens_details\":{\"reasoning_tokens\":16,\"image_tokens\":0,\"audio_tokens\":0}}}"
+  recorded_at: Mon, 24 Aug 2026 06:36:40 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
+        a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"text","text":"What
+        is the date?"}]},{"role":"assistant","content":null,"tool_calls":[{"type":"function","index":0,"id":"call_f5db52f1e60745ecb014c9ed","function":{"name":"system","arguments":"{\"command\":\"date\"}"}}]},{"role":"tool","tool_call_id":"call_f5db52f1e60745ecb014c9ed","content":"{\"success\":\"2025-08-24\"}"}],"model":"openrouter/auto","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Runs
+        system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}],"stream":false}'
+    headers:
+      User-Agent:
+      - llm.rb v15.0.3
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer TOKEN
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Aug 2026 06:36:49 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Generation-Id:
+      - gen-1787553408-R67a2VNCn6lnyt3ieYqa
+      Access-Control-Expose-Headers:
+      - X-Generation-Id,X-Provider-Name,request-id,cf-ray
+      Set-Cookie:
+      - __cf_bm=P3FejcrDPXi.RGWqJ64Xel_DPg83pAce7vQPPG.tRE4-1787553408.1759982-1.0.1.1-kO1gcbrp.pYnmbCZF5dZqafSO_3mIcbzZtOYxR0u51XdbjpAQNfhcmvthpPVeeEWFAMvMQg0OgEDtnzFz8YwnaNJqx0O9xw2rucg3gExixkZ3NGk3U4uTldSn1D8O6Fq;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=openrouter.ai; Expires=Mon,
+        24 Aug 2026 07:06:49 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      X-Content-Type-Options:
+      - nosniff
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - a30058411e3fffb4-GRU
+    body:
+      encoding: ASCII-8BIT
+      string: "\n         \n{\"id\":\"gen-1787553408-R67a2VNCn6lnyt3ieYqa\",\"object\":\"chat.completion\",\"created\":1787553408,\"model\":\"deepseek/deepseek-v4-flash-0731\",\"provider\":\"CoreWeave\",\"system_fingerprint\":null,\"service_tier\":null,\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"stop\",\"message\":{\"role\":\"assistant\",\"content\":\"The
+        date is **2025-08-24**.\",\"refusal\":null,\"reasoning\":null,\"model\":\"deepseek/deepseek-v4-flash-0731\"}}],\"usage\":{\"prompt_tokens\":350,\"completion_tokens\":13,\"total_tokens\":363,\"cost\":0.00003378,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":256,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.00003378,\"upstream_inference_prompt_cost\":0.00003014,\"upstream_inference_completions_cost\":0.00000364},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0,\"audio_tokens\":0}}}"
+  recorded_at: Mon, 24 Aug 2026 06:36:41 GMT
+recorded_with: VCR 6.4.0

@@ -1,0 +1,162 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
+        a bot that can run UNIX system commands"}]},{"role":"user","content":[{"type":"text","text":"Hey,
+        run the ''date'' command"}]}],"model":"openrouter/auto","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Runs
+        system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}],"stream_options":{"include_usage":true},"stream":true}'
+    headers:
+      User-Agent:
+      - llm.rb v15.0.3
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer TOKEN
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Aug 2026 06:36:41 GMT
+      Content-Type:
+      - text/event-stream
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache
+      X-Generation-Id:
+      - gen-1787553399-J2iANcyPB54iZDCMR9YG
+      Access-Control-Expose-Headers:
+      - X-Generation-Id,X-Provider-Name,request-id,cf-ray
+      Set-Cookie:
+      - __cf_bm=Syobm27nxqmoWQnBjnXcxJZKssU5bpmWW1eFDWBUp7w-1787553399.830198-1.0.1.1-nCwhe3Q39GTAhOVRgjp5xj.QlbHoOi2NWP7DLUMPEDHLcAGZnu5iQNQy_HTaiRYU.a5XbYZXkAZZDefT9fBb1in38fUCA1V3aXagok87WA39B_eXerFyzfOy1xBu5SMy;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=openrouter.ai; Expires=Mon,
+        24 Aug 2026 07:06:41 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      X-Content-Type-Options:
+      - nosniff
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - a300580cede9f181-GRU
+    body:
+      encoding: UTF-8
+      string: |+
+        : OPENROUTER PROCESSING
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":"","role":"assistant","reasoning":"The","reasoning_details":[{"type":"reasoning.text","text":"The","format":"unknown","index":0}]},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":"","role":"assistant","reasoning":" user wants me to run the","reasoning_details":[{"type":"reasoning.text","text":" user wants me to run the","format":"unknown","index":0}]},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":"","role":"assistant","reasoning":" 'date' command. Let","reasoning_details":[{"type":"reasoning.text","text":" 'date' command. Let","format":"unknown","index":0}]},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":"","role":"assistant","reasoning":" me do that.","reasoning_details":[{"type":"reasoning.text","text":" me do that.","format":"unknown","index":0}]},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":"\n\n","role":"assistant"},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":null,"role":"assistant","tool_calls":[{"index":0,"id":"call_4e7859d6a66941c68240d5b4","type":"function","function":{"name":"system","arguments":""}}]},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":null,"role":"assistant","tool_calls":[{"index":0,"function":{"arguments":"{\"command\":\"date\"}"}}]},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":"","role":"assistant","reasoning":null},"finish_reason":"tool_calls","native_finish_reason":"tool_calls"}]}
+
+        data: {"id":"gen-1787553399-J2iANcyPB54iZDCMR9YG","object":"chat.completion.chunk","created":1787553401,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","service_tier":null,"choices":[{"index":0,"delta":{"content":"","role":"assistant"},"finish_reason":"tool_calls","native_finish_reason":"tool_calls"}],"usage":{"prompt_tokens":289,"completion_tokens":61,"total_tokens":350,"cost":0.00005465,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":0.00005465,"upstream_inference_prompt_cost":0.00003757,"upstream_inference_completions_cost":0.00001708},"completion_tokens_details":{"reasoning_tokens":15,"image_tokens":0,"audio_tokens":0}}}
+
+        data: [DONE]
+
+  recorded_at: Mon, 24 Aug 2026 06:36:34 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":[{"type":"text","text":"You are
+        a bot that can run UNIX system commands"}]},{"role":"user","content":[{"type":"text","text":"Hey,
+        run the ''date'' command"}]},{"role":"assistant","content":null,"tool_calls":[{"index":0,"id":"call_4e7859d6a66941c68240d5b4","type":"function","function":{"name":"system","arguments":"{\"command\":\"date\"}"}}]},{"role":"tool","tool_call_id":"call_4e7859d6a66941c68240d5b4","content":"{\"success\":true}"}],"model":"openrouter/auto","tools":[{"type":"function","name":"system","function":{"name":"system","description":"Runs
+        system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"]}}}],"stream_options":{"include_usage":true},"stream":true}'
+    headers:
+      User-Agent:
+      - llm.rb v15.0.3
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer TOKEN
+      Transfer-Encoding:
+      - chunked
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Aug 2026 06:36:43 GMT
+      Content-Type:
+      - text/event-stream
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache
+      X-Generation-Id:
+      - gen-1787553402-0Um2vEX198KxaxfaMbgj
+      Access-Control-Expose-Headers:
+      - X-Generation-Id,X-Provider-Name,request-id,cf-ray
+      Set-Cookie:
+      - __cf_bm=BapAsx.l4jJw18Wr62LAMuY.zHwPLqWo_NbAt1BokEA-1787553402.1490371-1.0.1.1-OKCoshDGMoAYL6tPfTCQz6L.Al8au0e66LUcUOZI4MrE2q.s87Ln1mxiFE_GCp2Cjip2pJ21IKQFHMlJEB7IybAVdUNspsZVxTDfwzN6RTTNruSX6bwlRzfbOjB9ElNa;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=openrouter.ai; Expires=Mon,
+        24 Aug 2026 07:06:43 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      X-Content-Type-Options:
+      - nosniff
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - a300581b6da4f204-GRU
+    body:
+      encoding: UTF-8
+      string: |+
+        : OPENROUTER PROCESSING
+
+        data: {"id":"gen-1787553402-0Um2vEX198KxaxfaMbgj","object":"chat.completion.chunk","created":1787553402,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":"The `date` command ran","role":"assistant"},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553402-0Um2vEX198KxaxfaMbgj","object":"chat.completion.chunk","created":1787553402,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":" successfully.","role":"assistant"},"finish_reason":null,"native_finish_reason":null}]}
+
+        data: {"id":"gen-1787553402-0Um2vEX198KxaxfaMbgj","object":"chat.completion.chunk","created":1787553402,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","choices":[{"index":0,"delta":{"content":"","role":"assistant"},"finish_reason":"stop","native_finish_reason":"stop"}]}
+
+        data: {"id":"gen-1787553402-0Um2vEX198KxaxfaMbgj","object":"chat.completion.chunk","created":1787553402,"model":"deepseek/deepseek-v4-flash-0731","provider":"CoreWeave","service_tier":null,"choices":[{"index":0,"delta":{"content":"","role":"assistant"},"finish_reason":"stop","native_finish_reason":"stop"}],"usage":{"prompt_tokens":348,"completion_tokens":10,"total_tokens":358,"cost":0.00004804,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":0.00004804,"upstream_inference_prompt_cost":0.00004524,"upstream_inference_completions_cost":0.0000028},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0,"audio_tokens":0}}}
+
+        data: [DONE]
+
+  recorded_at: Mon, 24 Aug 2026 06:36:35 GMT
+recorded_with: VCR 6.4.0
+...
