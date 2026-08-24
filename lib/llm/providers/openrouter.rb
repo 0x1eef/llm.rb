@@ -22,13 +22,9 @@ module LLM
     # @param key (see LLM::Provider#initialize)
     # @param host (see LLM::Provider#initialize)
     # @param base_path (see LLM::Provider#initialize)
-    # @param [String, nil] http_referer Optional site URL for app attribution
-    # @param [String, nil] app_title Optional app name for attribution
     # @return [LLM::OpenRouter]
-    def initialize(host: HOST, base_path: BASE_PATH, http_referer: nil, app_title: nil, **)
-      super(host:, base_path:, **)
-      @headers["HTTP-Referer"] = http_referer if http_referer
-      @headers["X-OpenRouter-Title"] = app_title if app_title
+    def initialize(host: HOST, base_path: BASE_PATH, **)
+      super
     end
 
     ##
