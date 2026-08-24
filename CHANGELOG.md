@@ -15,6 +15,17 @@
 
 ## What's next
 
+## v15.1.0
+
+Changes since `v15.0.3`.
+
+This release adds the OpenRouter provider, splits provider timeouts
+into `connect_timeout` and `read_timeout`, retries timed-out requests,
+and renames `on_rate_limit` to `on_retry`. Skills now gain a
+frontmatter `model:` parameter and inherit the parent agent's model,
+while the CLI gains `-m` and `-x` switches, and the REPL shows retry
+progress and measures text by display width.
+
 ### Provider
 
 * **add `LLM::OpenRouter` for the OpenRouter provider** <br>
