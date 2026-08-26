@@ -43,7 +43,8 @@ module LLM
       "LLM::InsufficientQuotaError",
       "LLM::RateLimitError",
       "Net::ReadTimeout",
-      "Net::OpenTimeout"
+      "Net::WriteTimeout",
+      "Net::OpenTimeout",
     ]
     private_constant :TRY_ERRORS
 
