@@ -40,7 +40,7 @@ class LLM::Tool
     end
 
     require "rbconfig"
-    LLM.require "test-cmd.rb", "~> 2.1"
+    LLM.require "test-cmd.rb", "~> 2.2"
     Command = Test::Command
   end
 end

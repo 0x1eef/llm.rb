@@ -1222,7 +1222,7 @@ reliable across all six concurrency backends. The `functions` and
   `LLM.require` now accepts a second `version` parameter that is passed
   to `Kernel#gem` before loading, enabling version constraints for
   optional runtime dependencies. For example,
-  `LLM.require "test-cmd.rb", "~> 2.1"` ensures a minimum gem version
+  `LLM.require "test-cmd.rb", "~> 2.2"` ensures a minimum gem version
   is available. This is used internally by the `Git`, `Rg`, `Mkdir`,
   and `Shell` tools to enforce compatibility with the `test-cmd.rb` gem.
 
