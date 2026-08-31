@@ -80,9 +80,12 @@ module LLM
     # Normalizes a string as a UTF-8 encoded string
     # that's compatible with the JSON spec.
     def self.normalize_string(str)
-      return str if str.encoding == Encoding::UTF_8
-      str = (+str).force_encoding("UTF-8")
-      str.valid_encoding? ? str : str.scrub
+      if str.encoding == Encoding::BINARY
+        str = (+str).force_encoding("UTF-8")
+        str.valid_encoding? ? str : str.scrub
+      else
+        str.encode("UTF-8", invalid: :replace, undef: :replace)
+      end
     end
     private_class_method :normalize_string
   end
