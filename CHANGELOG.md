@@ -15,6 +15,30 @@
 
 ## What's next
 
+### Provider
+
+* **provider: retry `Net::WriteTimeout`, too** <br>
+  Requests that raise `Net::WriteTimeout` are now retried alongside the
+  other timed-out and rate-limited requests, up to the `retry_budget`,
+  matching how `Net::OpenTimeout` and `Net::ReadTimeout` are handled. The
+  REPL status bar also reports a write timeout as `Timed out`.
+
+### Tools
+
+* **tools: require `test-cmd.rb` `~> 2.2`** <br>
+  The `Git`, `Mkdir`, `Rg`, `Ruby`, and `Shell` tools now require the
+  `test-cmd.rb` gem at `~> 2.2`, bumping the version constraint from
+  `~> 2.1` so they load against the updated command runner.
+
+### Fix
+
+* **json: scrub invalid UTF-8 on dump** <br>
+  Fix a bug where [`LLM::JSONAdapter`](https://r.uby.dev/api-docs/llm.rb/LLM/JSONAdapter.html)
+  raised a JSON generator error when dumping a string tagged as UTF-8 that
+  carried invalid bytes. The normalize step now transcodes every string to
+  valid UTF-8, replacing invalid sequences with the replacement character,
+  so dumping works on `json ~> 3.0`.
+
 ## v15.1.0
 
 Changes since `v15.0.3`.
