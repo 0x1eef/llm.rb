@@ -894,6 +894,24 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"
 ## FAQ
 
 <details>
+<summary>Where can I see llm.rb in action?</summary>
+<br>
+<p>
+
+The [r.uby.dev](https://r.uby.dev) website is powered
+by llm.rb and its builtin MCP feature. It is connected
+to this very GitHub repository. It is designed to help
+you learn and troubleshoot llm.rb.
+</p>
+<p>
+
+The [4.4bsd.dev](https://4.4bsd.dev) website is also powered
+by llm.rb but serves a different purpose: it is running a
+system powered by FreeBSD and has access to the FreeBSD
+manual pages and source code. It is designed to help you
+learn and troubleshoot FreeBSD.
+</details>
+<details>
 <summary>What about local LLM support?</summary>
 <br>
 <p>
