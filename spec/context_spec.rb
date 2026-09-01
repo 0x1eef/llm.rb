@@ -144,7 +144,7 @@ RSpec.describe LLM::Context do
 
   context "when given deepseek" do
     let(:provider) { LLM.deepseek(key: "test") }
-    let(:model) { "deepseek-chat" }
+    let(:model) { "deepseek-v4-flash" }
 
     context "#context_window" do
       subject { ctx.context_window }

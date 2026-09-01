@@ -55,8 +55,8 @@ RSpec.describe LLM::Registry do
   context "when given deepseek" do
     let(:provider) { :deepseek }
 
-    include_examples "model exists", "deepseek-chat"
-    include_examples "model exists", "deepseek-reasoner"
+    include_examples "model exists", "deepseek-v4-flash"
+    include_examples "model exists", "deepseek-v4-pro"
   end
 
   context "when given xai" do
