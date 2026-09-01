@@ -456,7 +456,7 @@
         }
       ],
       "tool_call": true,
-      "structured_output": true,
+      "structured_output": false,
       "temperature": false,
       "knowledge": "2026-02-16",
       "release_date": "2026-07-09",
@@ -478,16 +478,16 @@
         "output": 128000
       },
       "cost": {
-        "input": 5.5,
-        "output": 33,
-        "cache_read": 0.55,
-        "cache_write": 6.875,
+        "input": 4,
+        "output": 20,
+        "cache_read": 0.4,
+        "cache_write": 5,
         "tiers": [
           {
-            "input": 11,
-            "output": 49.5,
-            "cache_read": 1.1,
-            "cache_write": 13.75,
+            "input": 8,
+            "output": 30,
+            "cache_read": 0.8,
+            "cache_write": 10,
             "tier": {
               "type": "context",
               "size": 272000
@@ -495,10 +495,10 @@
           }
         ],
         "context_over_200k": {
-          "input": 11,
-          "output": 49.5,
-          "cache_read": 1.1,
-          "cache_write": 13.75
+          "input": 8,
+          "output": 30,
+          "cache_read": 0.8,
+          "cache_write": 10
         }
       }
     },
@@ -1040,7 +1040,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 128000,
         "output": 16384
@@ -1581,7 +1581,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 128000,
         "output": 16384
@@ -3075,7 +3075,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 128000,
         "output": 16384
@@ -3304,7 +3304,7 @@
         }
       ],
       "tool_call": true,
-      "structured_output": true,
+      "structured_output": false,
       "temperature": false,
       "knowledge": "2026-02-16",
       "release_date": "2026-07-09",
@@ -3326,16 +3326,16 @@
         "output": 128000
       },
       "cost": {
-        "input": 0.22,
-        "output": 1.32,
-        "cache_read": 0.022,
-        "cache_write": 0.275,
+        "input": 0.2,
+        "output": 1.2,
+        "cache_read": 0.02,
+        "cache_write": 0.25,
         "tiers": [
           {
-            "input": 0.44,
-            "output": 1.98,
-            "cache_read": 0.044,
-            "cache_write": 0.55,
+            "input": 0.4,
+            "output": 1.8,
+            "cache_read": 0.04,
+            "cache_write": 0.5,
             "tier": {
               "type": "context",
               "size": 272000
@@ -3343,10 +3343,10 @@
           }
         ],
         "context_over_200k": {
-          "input": 0.44,
-          "output": 1.98,
-          "cache_read": 0.044,
-          "cache_write": 0.55
+          "input": 0.4,
+          "output": 1.8,
+          "cache_read": 0.04,
+          "cache_write": 0.5
         }
       }
     },
@@ -3821,7 +3821,7 @@
       ],
       "tool_call": true,
       "structured_output": true,
-      "temperature": false,
+      "temperature": true,
       "knowledge": "2025-08-31",
       "release_date": "2026-03-05",
       "last_updated": "2026-06-01",
@@ -4071,7 +4071,7 @@
         }
       ],
       "tool_call": true,
-      "structured_output": true,
+      "structured_output": false,
       "temperature": false,
       "knowledge": "2026-02-16",
       "release_date": "2026-07-09",
@@ -4093,16 +4093,16 @@
         "output": 128000
       },
       "cost": {
-        "input": 2.2,
-        "output": 13.2,
-        "cache_read": 0.22,
-        "cache_write": 2.75,
+        "input": 2,
+        "output": 12,
+        "cache_read": 0.2,
+        "cache_write": 2.5,
         "tiers": [
           {
-            "input": 4.4,
-            "output": 19.8,
-            "cache_read": 0.44,
-            "cache_write": 5.5,
+            "input": 4,
+            "output": 18,
+            "cache_read": 0.4,
+            "cache_write": 5,
             "tier": {
               "type": "context",
               "size": 272000
@@ -4110,10 +4110,10 @@
           }
         ],
         "context_over_200k": {
-          "input": 4.4,
-          "output": 19.8,
-          "cache_read": 0.44,
-          "cache_write": 5.5
+          "input": 4,
+          "output": 18,
+          "cache_read": 0.4,
+          "cache_write": 5
         }
       }
     },
@@ -4147,7 +4147,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 128000,
         "output": 16384
@@ -4187,7 +4187,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 128000,
         "output": 16384
@@ -4595,16 +4595,16 @@
         "shape": "responses"
       },
       "cost": {
-        "input": 5.5,
-        "output": 33,
-        "cache_read": 0.55,
-        "cache_write": 6.875,
+        "input": 4.4,
+        "output": 22,
+        "cache_read": 0.44,
+        "cache_write": 5.5,
         "tiers": [
           {
-            "input": 11,
-            "output": 49.5,
-            "cache_read": 1.1,
-            "cache_write": 13.75,
+            "input": 8.8,
+            "output": 33,
+            "cache_read": 0.88,
+            "cache_write": 11,
             "tier": {
               "type": "context",
               "size": 272000
@@ -4612,10 +4612,10 @@
           }
         ],
         "context_over_200k": {
-          "input": 11,
-          "output": 49.5,
-          "cache_read": 1.1,
-          "cache_write": 13.75
+          "input": 8.8,
+          "output": 33,
+          "cache_read": 0.88,
+          "cache_write": 11
         }
       }
     },
@@ -4695,7 +4695,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 128000,
         "output": 16384

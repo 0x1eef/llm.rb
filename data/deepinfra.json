@@ -180,7 +180,7 @@
       "open_weights": true,
       "limit": {
         "context": 524288,
-        "output": 128000
+        "output": 512000
       },
       "cost": {
         "input": 0.28,
@@ -1076,7 +1076,7 @@
       "structured_output": true,
       "temperature": true,
       "release_date": "2026-08-12",
-      "last_updated": "2026-08-12",
+      "last_updated": "2026-08-22",
       "modalities": {
         "input": [
           "text"
@@ -1085,7 +1085,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 1048576,
         "output": 384000
@@ -1858,6 +1858,50 @@
         "output": 1.1
       }
     },
+    "zai-org/GLM-5.3-Flash": {
+      "id": "zai-org/GLM-5.3-Flash",
+      "name": "GLM-5.3-Flash",
+      "description": "Native multimodal GLM model for efficient coding and long-horizon agent tasks",
+      "family": "glm",
+      "attachment": true,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "release_date": "2026-08-26",
+      "last_updated": "2026-08-26",
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video",
+          "pdf"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 1048576,
+        "output": 131072
+      },
+      "cost": {
+        "input": 0.15,
+        "output": 0.5,
+        "cache_read": 0.03
+      }
+    },
     "zai-org/GLM-5.1": {
       "id": "zai-org/GLM-5.1",
       "name": "GLM-5.1",
@@ -1896,6 +1940,47 @@
         "input": 1.05,
         "output": 3.5,
         "cache_read": 0.205
+      }
+    },
+    "zai-org/GLM-5.3": {
+      "id": "zai-org/GLM-5.3",
+      "name": "GLM-5.3",
+      "description": "Flagship GLM model for long-horizon coding, agents, and complex project delivery",
+      "family": "glm",
+      "attachment": false,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "release_date": "2026-08-14",
+      "last_updated": "2026-08-14",
+      "modalities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": true,
+      "limit": {
+        "context": 1048576,
+        "output": 131072
+      },
+      "cost": {
+        "input": 1.2,
+        "output": 4,
+        "cache_read": 0.12
       }
     },
     "zai-org/GLM-4.6": {
