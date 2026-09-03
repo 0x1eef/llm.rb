@@ -15,6 +15,39 @@
 
 ## What's next
 
+### Cli
+
+* **cli: add a `-v` switch** <br>
+  `bin/llm.rb` gains a `-v` switch that prints the version (`llm.rb v#{LLM::VERSION}`) and exits.
+
+### Repl
+
+* **repl: raise `LLM::Interrupt` on the agent's thread** <br>
+  Pressing Esc to cancel now also raises `LLM::Interrupt` on the agent's
+  thread. `LLM::Agent#cancel!` alone can be a no-op at some stages of the
+  request lifecycle, so the REPL backs it up by interrupting the thread
+  that runs the agent.
+
+### Tools
+
+* **tools: read-file reverses a reversed range** <br>
+  `LLM::Tool::ReadFile` now swaps `start` and `stop` when `start` is
+  greater than `stop`, so `start: 20, stop: 2` reads lines 2 through 20
+  instead of returning an empty string.
+
+* **tools: fix `edit-file` treating `before` as a regex** <br>
+  `LLM::Tool::EditFile` now escapes the `before` snippet with
+  `Regexp.escape`, so regex metacharacters are matched literally, and
+  switches to the block form of `sub` so the `after` replacement keeps
+  backslash sequences like `\1` and `\&` literal.
+
+### Registry
+
+* **refresh model metadata** <br>
+  Update `data/` with current pricing, limits, and capabilities for the
+  OpenRouter, OpenAI, Bedrock, DeepInfra, DeepSeek, Google, Mistral,
+  Moonshot, Z.ai, and Alibaba registries.
+
 ### Provider
 
 * **provider: retry `Net::WriteTimeout`, too** <br>
