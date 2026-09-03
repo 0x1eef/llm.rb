@@ -15,6 +15,16 @@
 
 ## What's next
 
+### Core
+
+* **message: add `LLM::Message#created_at`** <br>
+  [`LLM::Message#created_at`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#created_at-instance_method)
+  returns the time the message was created, defaulting to the moment the
+  message is initialized. The timestamp is serialized into
+  [`LLM::Context#to_json`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_json-instance_method)
+  as an ISO-8601 string and restored on deserialization, so it can be
+  stored alongside the rest of the conversation.
+
 ### Cli
 
 * **cli: add a `-v` switch** <br>
@@ -55,6 +65,12 @@
   other timed-out and rate-limited requests, up to the `retry_budget`,
   matching how `Net::OpenTimeout` and `Net::ReadTimeout` are handled. The
   REPL status bar also reports a write timeout as `Timed out`.
+
+* **alibaba: default to a retry budget of 8** <br>
+  An agent that runs on the Alibaba provider now defaults to a retry
+  budget of 8 instead of 5, because Alibaba (token plan) frequently rate
+  limits and times out requests that it later recovers from. An explicit
+  `retry_budget:` still overrides the default.
 
 ### Tools
 
