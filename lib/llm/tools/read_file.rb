@@ -20,6 +20,11 @@ class LLM::Tool
     # @param [Integer] stop
     # @return [Hash]
     def call(path:, start: 1, stop: -1)
+      ##
+      # When start is greater than stop, swap them so the
+      # range reads in the right direction (e.g. start: 10,
+      # stop: 5 => reads lines 5-10).
+      start, stop = stop, start if stop != -1 && start > stop
       content, cursor = nil, 1
       File.open(path, "r") do |f|
         while cursor < start
