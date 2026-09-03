@@ -83,7 +83,7 @@ class LLM::Repl
       err = case ex.class.to_s
       when "LLM::RateLimitError", "LLM::InsufficientQuotaError" then "Rate limited"
       when "Net::ReadTimeout", "Net::WriteTimeout", "Net::OpenTimeout" then "Timed out"
-      else "#{ex.class}"
+      else ex.class.to_s
       end
       [Node.new(" 🔁 "),
        Node.new("#{err} • attempt #{attempt} of #{agent.retry_budget}", Color.red | Curses::A_BOLD)]

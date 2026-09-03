@@ -32,7 +32,7 @@ RSpec.describe LLM::Provider do
 
       context "when combining positional and keyword headers" do
         before do
-          provider.with("User-Agent" => "llmrb/1.0", headers: {"X-Extra" => "yes"})
+          provider.with("User-Agent" => "llmrb/1.0", :headers => {"X-Extra" => "yes"})
         end
 
         it "merges both forms" do

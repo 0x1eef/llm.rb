@@ -404,7 +404,11 @@ module LLM
       @llm = llm
       fields, fields_ivar = FIELDS, IVARS
       fields.each do |field|
-        resolvable = params.key?(field) ? params.delete(field) : (self.class.respond_to?(field) ? self.class.public_send(field) : nil)
+        resolvable = if params.key?(field)
+          params.delete(field)
+        else
+          (self.class.respond_to?(field) ? self.class.public_send(field) : nil)
+        end
         resolve_symbol = !%i[concurrency].include?(field)
         resolved = resolvable != nil ? resolve_option(self, resolvable, resolve_symbol:) : resolvable
         resolved = [*resolved].map(&:to_s) if field == :confirm && resolved

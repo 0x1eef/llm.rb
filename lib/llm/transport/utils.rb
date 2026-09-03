@@ -29,7 +29,7 @@ class LLM::Transport
     # @param [Boolean] persistent
     # @param [LLM::Transport, Class, Symbol, nil] transport
     # @return [LLM::Transport]
-    def resolve_transport(host:, port:, timeout:, connect_timeout: 5, ssl:, persistent:, transport:)
+    def resolve_transport(host:, port:, timeout:, ssl:, persistent:, transport:, connect_timeout: 5)
       if transport.nil?
         default_transport(host:, port:, timeout:, connect_timeout:, ssl:, persistent:)
       elsif Class === transport && transport <= LLM::Transport

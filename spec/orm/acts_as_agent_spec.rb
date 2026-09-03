@@ -56,7 +56,7 @@ RSpec.describe "acts_as_agent" do
 
   context "when tools are declared with a block" do
     let(:agent) do
-      tool = self.tool
+      tool
       Class.new(model) do
         acts_as_agent do |agent|
           agent.tools { tools }

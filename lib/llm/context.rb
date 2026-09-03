@@ -44,7 +44,7 @@ module LLM
       "LLM::RateLimitError",
       "Net::ReadTimeout",
       "Net::WriteTimeout",
-      "Net::OpenTimeout",
+      "Net::OpenTimeout"
     ]
     private_constant :TRY_ERRORS
 
