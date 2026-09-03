@@ -11,12 +11,14 @@ class LLM::Repl
   # for more details.
   class Command::Compact < Command
     name "compact"
-    description "frees space in the context window"
-    parameter :n, String, "the number of messages to keep"
+    description "free space in the context window"
+    parameter :n, String, "the number of messages to keep\n" \
+                          "it can also be given as a percentage."
+    required %i[n]
 
     ##
     # @return [void]
-    def call(n: 128)
+    def call(n:)
       write "compact in progress"
       compactor.call(keep: n)
       write "compact complete"
@@ -29,5 +31,12 @@ class LLM::Repl
     def compactor
       @compactor ||= LLM::Compactor::Truncate.new(agent)
     end
+  end
+
+  ##
+  # An alias of /compact.
+  # Eg /keep 50%.
+  class Command::Keep < Command::Compact
+    name "keep"
   end
 end
