@@ -127,6 +127,54 @@ RSpec.describe LLM::Tool::EditFile do
       end
     end
 
+    context "when applying edits in sequence on the same file" do
+      before do
+        write(<<~CSS)
+          /* Base */
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            font-family: sans-serif;
+          }
+
+          main {
+            width: min(860px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 56px 0 80px;
+          }
+
+          .home-showcase {
+            width: min(726px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 40px 0 96px;
+          }
+
+          .logo-page {
+            display: flex;
+          }
+        CSS
+      end
+
+      before do
+        tool.call(path:, before: "/* Base */\n* {\n  box-sizing: border-box;\n}\n\nbody {",
+                       after: "/* Base */\n* {\n  box-sizing: border-box;\n}\n\nhtml {\n  scrollbar-gutter: stable both-edges;\n}\n\nbody {")
+        tool.call(path:, before: "main {\n  width: min(860px, calc(100% - 32px));",
+                       after: "main {\n  max-width: 726px;")
+        tool.call(path:, before: ".home-showcase {\n  width: min(726px, calc(100% - 32px));\n  margin: 0 auto;\n  padding: 40px 0 96px;\n}",
+                       after: ".home-showcase {\n  margin: 0 auto;\n  padding: 40px 0 45px 0;\n}")
+      end
+
+      it "applies every edit exactly once and preserves the rest" do
+        content = File.read(path)
+        expect(content.scan("scrollbar-gutter").length).to eq(1)
+        expect(content.scan("max-width: 726px").length).to eq(1)
+        expect(content.scan("padding: 40px 0 45px").length).to eq(1)
+        expect(content.scan(".logo-page {").length).to eq(1)
+      end
+    end
+
     def write(content)
       File.write(path, content)
     end
