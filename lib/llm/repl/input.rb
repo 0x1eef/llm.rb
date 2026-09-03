@@ -99,6 +99,12 @@ class LLM::Repl
         :tab
       elsif ESC == char
         @agent.cancel!
+        ##
+        # '@agent.cancel!' might do this for us already
+        # but we can't rely on it alone. There are moments
+        # in time where '@agent.cancel!' is essentially a
+        # noop.
+        @thread&.raise(LLM::Interrupt) if @thread&.alive?
       elsif CTRL[:P] == char
         set(text: @walker.prev.dup)
         :ctrl_p
