@@ -22,9 +22,14 @@ class LLM::Tool
     # @return [Hash]
     def call(path:, before:, after:, expected_count: 1)
       content = File.read(path)
-      count = content.scan(before).length
+      re = Regexp.new(Regexp.escape(before))
+      count = content.scan(re).length
       raise "expected #{expected_count} match(es), found #{count}" unless count == expected_count.to_i
-      File.write(path, content.sub(before, after))
+      ##
+      # Block form keeps the replacement literal:
+      # `sub(re, str)` would expand backreferences
+      # like \1 and \& in the replacement text.
+      File.write(path, content.sub(re) { after })
       {ok: true, replaced: count}
     end
   end
