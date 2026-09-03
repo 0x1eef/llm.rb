@@ -18,6 +18,11 @@ module LLM
     attr_reader :extra
 
     ##
+    # Returns the time the message was created
+    # @return [Time]
+    attr_reader :created_at
+
+    ##
     # Returns a new message
     # @param [Symbol] role
     # @param [String] content
@@ -27,6 +32,7 @@ module LLM
       @role = role.to_s
       @content = content
       @extra = LLM::Object.from(extra)
+      @created_at = extra[:created_at] ? Time.iso8601(extra[:created_at].to_s) : Time.now.utc
     end
 
     ##
@@ -37,6 +43,7 @@ module LLM
         role:,
         content:,
         reasoning_content:,
+        created_at: created_at.utc.iso8601,
         compaction: extra.compaction,
         tools: extra.tool_calls&.map { LLM::Object === _1 ? _1.to_h : _1 },
         usage:,

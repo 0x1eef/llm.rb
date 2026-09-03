@@ -40,6 +40,32 @@ RSpec.describe LLM::Message do
     it "normalizes tool calls to hashes" do
       expect(message.to_h[:tools]).to eq([{"id" => "call_1"}])
     end
+
+    it "includes the created_at timestamp" do
+      expect(message.to_h[:created_at]).to match(/\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z\z/)
+    end
+  end
+
+  describe "#created_at" do
+    subject(:message) { described_class.new("user", "hi") }
+
+    it "returns a Time" do
+      expect(message.created_at).to be_a(Time)
+    end
+
+    it "is set at initialize time" do
+      expect(message.created_at).to be_within(1).of(Time.now.utc)
+    end
+
+    context "when given a created_at in extra" do
+      let(:time) { Time.utc(2025, 1, 1) }
+      let(:rfc3339) { "2025-01-01T00:00:00Z" }
+      subject(:message) { described_class.new("user", "hi", created_at: rfc3339) }
+
+      it "returns the given time" do
+        expect(message.created_at).to eq(time)
+      end
+    end
   end
 
   describe "#image_url?" do
