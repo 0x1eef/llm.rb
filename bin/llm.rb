@@ -42,6 +42,10 @@ def wrap(text, width)
   end
 end
 
+def version
+  warn "llm.rb v#{LLM::VERSION}"
+end
+
 def help
   prog = File.basename($PROGRAM_NAME)
   warn ""
@@ -54,6 +58,7 @@ def help
   warn "  -n TRANSPORT   HTTP transports - net-http (default), net-http-persistent, and curb"
   warn "  -x TIMEOUT     The default read timeout (in seconds)"
   warn "  -t             Temporary session that doesn't persist to disk"
+  warn "  -v             Print version information"
   warn "  -h             Show this help"
   warn ""
   warn "Examples:"
@@ -134,6 +139,9 @@ def main(argv)
       case option
       when '-h'
         help
+        exit 0
+      when '-v'
+        version
         exit 0
       when '-t'
         temp = true
