@@ -372,7 +372,7 @@ module LLM
     # @return [Integer, nil]
     def self.retry_budget(budget = UNDEFINED)
       if budget.equal?(UNDEFINED)
-        @retry_budget.nil? ? 5 : @retry_budget
+        @retry_budget.nil? ? UNDEFINED : @retry_budget
       else
         @retry_budget = budget
       end
@@ -420,6 +420,13 @@ module LLM
           instance_variable_set(:"@#{field}", resolved)
         end
       end
+      ##
+      # Alibaba (token plan) will frequently issue rate
+      # limits or time outs that it recovers from. The
+      # higher retry count is to account for scenarios
+      # where it takes longer than expected to recover.
+      retry_budget = llm.name == :alibaba ? 8 : 5
+      params[:retry_budget] = retry_budget if params[:retry_budget].equal?(UNDEFINED)
       @ctx = LLM::Context.new(llm, {guard: LLM::Guard::Loop}.merge(params))
       @path and File.readable?(@path) ? @ctx.restore(path:) : nil
     end

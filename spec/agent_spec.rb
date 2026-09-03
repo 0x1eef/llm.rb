@@ -199,8 +199,35 @@ RSpec.describe LLM::Agent do
         expect(wrapped_context(klass.new(provider)).retry_budget).to eq(5)
       end
 
-      it "enables retries by default on an agent" do
-        expect(wrapped_context(described_class.new(provider)).retry_budget).to eq(5)
+      context "when no retry budget is set" do
+        context "when the provider is openai" do
+          let(:agent) { described_class.new(provider) }
+
+          it "defaults to 5 retries" do
+            expect(wrapped_context(agent).retry_budget).to eq(5)
+          end
+        end
+
+        context "when the provider is alibaba" do
+          let(:provider) { LLM.alibaba(key: "x") }
+          let(:agent) { described_class.new(provider) }
+
+          it "defaults to 8 retries" do
+            expect(wrapped_context(agent).retry_budget).to eq(8)
+          end
+
+          context "when an explicit retry budget is set" do
+            let(:agent) do
+              Class.new(described_class) do
+                retry_budget 3
+              end.new(provider)
+            end
+
+            it "keeps the explicit budget" do
+              expect(wrapped_context(agent).retry_budget).to eq(3)
+            end
+          end
+        end
       end
 
       it "passes DSL skills to the context" do
