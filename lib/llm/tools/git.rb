@@ -19,20 +19,20 @@ class LLM::Tool
     name "git"
     description "Perform an action with git\n" \
                 "This command (git) is spawned without a shell"
-    parameter :action, Enum[*actions], "the git operation to perform"
-    parameter :arguments, Array[String], "one or more arguments for the git action"
+    parameter :subcommand, Enum[*actions], "the git subcommand to run"
+    parameter :arguments, Array[String], "one or more arguments forwarded to the git subcommand"
     parameter :timeout, Integer, "the maximum time to allow the command to run"
-    required %i[action]
+    required %i[subcommand]
     defaults arguments: [], timeout: 5
 
     ##
-    # @param [String] action
+    # @param [String] subcommand
     # @param [Array<String>, nil] arguments
     # @return [Hash]
-    def call(action:, arguments: [], timeout: 5)
+    def call(subcommand:, arguments: [], timeout: 5)
       Exec.new.call(
         name: "git",
-        arguments: [action, *arguments],
+        arguments: [subcommand, *arguments],
         timeout:
       )
     end

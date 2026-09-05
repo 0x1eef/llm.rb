@@ -16,12 +16,12 @@ RSpec.describe LLM::Tool::Git do
   describe ".function" do
     let(:params) { described_class.function.params }
 
-    it "defines the action param" do
-      expect(params.properties[:action]).to be_a(LLM::Schema::String)
+    it "defines the subcommand param" do
+      expect(params.properties[:subcommand]).to be_a(LLM::Schema::String)
     end
 
-    it "marks the action param as required" do
-      expect(params.properties[:action]).to be_required
+    it "marks the subcommand param as required" do
+      expect(params.properties[:subcommand]).to be_required
     end
   end
 
@@ -31,21 +31,21 @@ RSpec.describe LLM::Tool::Git do
     end
 
     it "runs git through a shell tool" do
-      tool.call(action: "status")
+      tool.call(subcommand: "status")
       expect(shell).to have_received(:call).with(name: "git", arguments: ["status"], timeout: 5)
     end
 
     it "returns the shell result" do
-      expect(tool.call(action: "status")).to eq(result)
+      expect(tool.call(subcommand: "status")).to eq(result)
     end
 
     it "forwards the arguments" do
-      tool.call(action: "log", arguments: ["--oneline"])
+      tool.call(subcommand: "log", arguments: ["--oneline"])
       expect(shell).to have_received(:call).with(name: "git", arguments: ["log", "--oneline"], timeout: 5)
     end
 
     it "forwards the timeout" do
-      tool.call(action: "status", timeout: 10)
+      tool.call(subcommand: "status", timeout: 10)
       expect(shell).to have_received(:call).with(name: "git", arguments: ["status"], timeout: 10)
     end
   end
