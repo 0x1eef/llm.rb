@@ -1002,11 +1002,11 @@ on a FreeBSD system.
 
 The [roda-llm](https://github.com/r-uby-dev/roda-llm#readme) project
 is how I deploy multiple ActiveRecord-backed llm.rb agents over HTTP.
-Each agent has an identical interface that provide CRUD operations and
-stream support via SSE - Server Side Events). It lets you focus on
-implementing agents rather than the glue that brings them together.
-It is implemented as a Roda plugin that could be hosted within a Rails
-application or other Rack-based applications.
+Each agent has an identical interface at a unique path that provide
+CRUD operations and stream support (via SSE - Server Side Events).
+It lets you focus on implementing agents rather than the glue that
+brings them together. It is implemented as a Roda plugin that could
+be hosted within a Rails application or other Rack-based applications.
 
 The [docs/](docs/) directory contains the full documentation and
 the chatbot can find the answers to your questions there. Or you
