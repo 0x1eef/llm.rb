@@ -9,7 +9,7 @@ The REPL drops you into a curses-based TUI for talking to an agent
 interactively. It has a scrollable transcript that renders markdown,
 a multi-line input area, and a status bar showing context usage and
 cost. The UI thread stays responsive while a second thread communicates
-with the model. Think of it as `binding.pry` but for agents.
+with the model. Think of it as `binding.irb` but for agents.
 
 #### How it works
 
@@ -51,7 +51,7 @@ tool calls, and inspect conversation state without writing a
 separate UI. Drop in after running an agent to confirm it did what
 you expected. Inspect what went wrong when it did not. Keep talking
 to the same agent while its state is still intact. It is
-`binding.pry` but for agents.
+`binding.irb` but for agents.
 
 #### Notes
 

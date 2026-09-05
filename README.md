@@ -245,7 +245,7 @@ end
 ```
 </details>
 <details>
-<summary>Console (<code>binding.pry</code> for agents)</summary>
+<summary>Console (<code>binding.irb</code> for agents)</summary>
 <br>
 
 The [LLM::Agent#repl](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method)
@@ -254,7 +254,7 @@ that is built on top of curses. It can help you debug agents,
 test your tools, connect to MCP servers, and even A2A agents.
 The REPL stands out because it connects to the surrounding
 runtime and it can be extended by your code. Think of it as
-`binding.pry` but for agents.
+`binding.irb` but for agents.
 
 ##### Demo
 

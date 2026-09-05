@@ -2390,7 +2390,7 @@ As always, see the changelog details for a thorough overview.
 * **Add `LLM::Agent#repl`** <br>
   Add a curses-based read-eval-print loop for `LLM::Agent` that lets
   developers interact with an agent after it has been set up or has
-  performed a task. It is similar to `binding.pry`: once you exit,
+  performed a task. It is similar to `binding.irb`: once you exit,
   you can continue with the rest of your program. It requires the
   `curses` gem.
 
