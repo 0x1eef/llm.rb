@@ -4,12 +4,8 @@ class LLM::Tool
   ##
   # The {LLM::Tool::Git LLM::Tool::Git} class implements
   # a tool that can perform a select number of git actions.
-  # The actions it can perform are read-only - at least for
-  # the time being.
   class Git < self
-    require_relative "utils"
     require_relative "exec"
-    include Utils
 
     name "git"
     description "perform an action with git"
