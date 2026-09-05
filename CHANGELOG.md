@@ -45,10 +45,13 @@
 
 ### Tools
 
-* **tools: read-file reverses a reversed range** <br>
-  `LLM::Tool::ReadFile` now swaps `start` and `stop` when `start` is
-  greater than `stop`, so `start: 20, stop: 2` reads lines 2 through 20
-  instead of returning an empty string.
+* **tools: read-file returns structured lines** <br>
+  `LLM::Tool::ReadFile` now returns its content as structured
+  `{lineno:, content:}` lines instead of a single string, so the model can
+  reference line numbers when requesting a narrower range. A reversed
+  range (`start: 20, stop: 2`) is swapped to read lines 2 through 20
+  instead of returning empty content, and the output is capped at
+  `max_bytes` with a `truncated` flag.
 
 * **tools: fix `edit-file` treating `before` as a regex** <br>
   `LLM::Tool::EditFile` now escapes the `before` snippet with
@@ -56,44 +59,56 @@
   switches to the block form of `sub` so the `after` replacement keeps
   backslash sequences like `\1` and `\&` literal.
 
-* **tools: bound tool output with `LLM::Tool.max_chars`** <br>
-  [`LLM::Tool.max_chars`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#max_chars-class_method)
-  is a configurable default (75,000) for the maximum number of characters a
-  tool returns to the model, for example `LLM::Tool.max_chars(175_000)`. It
+* **tools: bound tool output with `LLM::Tool.max_bytes`** <br>
+  [`LLM::Tool.max_bytes`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#max_bytes-class_method)
+  is a configurable default (75,000) for the maximum number of bytes a
+  tool returns to the model, for example `LLM::Tool.max_bytes(175_000)`. It
   does not enforce the limit by itself;
   [`LLM::Tool::Utils#truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#truncate-instance_method)
   trims a string within the limit and marks the trailing content as
   truncated.
 
-* **tools: bound `read-file`, `rg`, and `shell` output** <br>
-  `LLM::Tool::ReadFile`, `LLM::Tool::Rg`, and `LLM::Tool::Shell` now accept a
-  `max_chars:` parameter and truncate their output within
-  `LLM::Tool.max_chars`, so a large file read or a runaway search can no
+* **tools: bound `read-file`, `rg`, and `exec` output** <br>
+  `LLM::Tool::ReadFile`, `LLM::Tool::Rg`, and `LLM::Tool::Exec` now accept a
+  `max_bytes:` parameter and truncate their output within
+  `LLM::Tool.max_bytes`, so a large file read or a runaway search can no
   longer flood the context window. `rg` also gains a `max_count:` parameter
   that caps the number of results per file.
 
-* **tools: route `git` and `rg` through `shell`** <br>
+* **tools: route `git` and `rg` through `exec`** <br>
   `LLM::Tool::Git` and `LLM::Tool::Rg` now implement their calls through the
-  `shell` tool, inheriting its bounded-output protections and dropping the
+  `exec` tool, inheriting its bounded-output protections and dropping the
   duplicated command-spawning code.
 
-* **tools: route `mkdir` and `ruby` through the `shell` tool** <br>
+* **tools: route `mkdir` and `ruby` through the `exec` tool** <br>
   `LLM::Tool::Mkdir` and `LLM::Tool::Ruby` now implement their calls
-  through the `shell` tool, completing the refactor so every tool that
+  through the `exec` tool, completing the refactor so every tool that
   shells out flows through the shared command runner with its bounded
-  output. This bumps the `test-cmd.rb` dependency to `~> 2.4`.
+  output. The shared runner is `LLM::Tool::Exec`, the renamed
+  `LLM::Tool::Shell`, so requiring `llm/tools/exec` replaces the old
+  `llm/tools/shell` path.
 
 * **tools: resolve defaults through `LLM::Utils.resolve_option`** <br>
   A tool parameter default can now be an immediate value, a Symbol resolved
   as a method on the tool, or a Proc evaluated lazily at runtime, matching
   how `LLM::Agent` resolves its attributes. This lets a default track a
   value that can change between boot and runtime, such as
-  `LLM::Tool.max_chars`.
+  `LLM::Tool.max_bytes`.
 
-* **tools: require `test-cmd.rb` `~> 2.4`** <br>
-  The `Git`, `Mkdir`, `Rg`, `Ruby`, and `Shell` tools now require the
-  `test-cmd.rb` gem at `~> 2.4`, so they load against the updated command
-  runner.
+* **tools: rename `LLM::Tool::Shell` to `LLM::Tool::Exec`** <br>
+  The shell tool is renamed to
+  [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html),
+  which better reflects that it spawns a command without a shell. The tool
+  name and description change from `shell` ("run a shell command") to
+  `exec` ("run a command without a shell"). The old `require
+  "llm/tools/shell"` path no longer exists; use `require
+  "llm/tools/exec"` instead.
+
+* **tools: require `test-cmd.rb` `~> 2.5`** <br>
+  The `Git`, `Mkdir`, `Rg`, `Ruby`, and `Exec` tools now require the
+  `test-cmd.rb` gem at `~> 2.5`, so they load against the updated command
+  runner, which can read a limited number of bytes and drop any further
+  output so a misbehaving command cannot flood memory.
 
 ### Registry
 
