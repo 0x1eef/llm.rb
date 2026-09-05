@@ -77,6 +77,12 @@
   `shell` tool, inheriting its bounded-output protections and dropping the
   duplicated command-spawning code.
 
+* **tools: route `mkdir` and `ruby` through the `shell` tool** <br>
+  `LLM::Tool::Mkdir` and `LLM::Tool::Ruby` now implement their calls
+  through the `shell` tool, completing the refactor so every tool that
+  shells out flows through the shared command runner with its bounded
+  output. This bumps the `test-cmd.rb` dependency to `~> 2.4`.
+
 * **tools: resolve defaults through `LLM::Utils.resolve_option`** <br>
   A tool parameter default can now be an immediate value, a Symbol resolved
   as a method on the tool, or a Proc evaluated lazily at runtime, matching
@@ -84,10 +90,10 @@
   value that can change between boot and runtime, such as
   `LLM::Tool.max_chars`.
 
-* **tools: require `test-cmd.rb` `~> 2.2`** <br>
+* **tools: require `test-cmd.rb` `~> 2.4`** <br>
   The `Git`, `Mkdir`, `Rg`, `Ruby`, and `Shell` tools now require the
-  `test-cmd.rb` gem at `~> 2.2`, bumping the version constraint from
-  `~> 2.1` so they load against the updated command runner.
+  `test-cmd.rb` gem at `~> 2.4`, so they load against the updated command
+  runner.
 
 ### Registry
 
