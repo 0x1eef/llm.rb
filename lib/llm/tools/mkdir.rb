@@ -5,7 +5,7 @@ class LLM::Tool
   # The {LLM::Tool::Mkdir LLM::Tool::Mkdir} class implements
   # a tool that can create a tree of new directories.
   class Mkdir < self
-    require_relative "shell"
+    require_relative "exec"
 
     name "mkdir"
     description "create a new directory"
@@ -18,7 +18,7 @@ class LLM::Tool
     # @param [String] path
     # @return [Hash]
     def call(path:, max_chars: self.class.max_chars)
-      Shell.new.call(
+      Exec.new.call(
         name: "mkdir",
         arguments: ["-p", path],
         max_chars:

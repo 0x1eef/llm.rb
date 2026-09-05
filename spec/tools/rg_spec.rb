@@ -2,15 +2,15 @@
 
 require "setup"
 require "llm/tools/rg"
-require "llm/tools/shell"
+require "llm/tools/exec"
 
 RSpec.describe LLM::Tool::Rg do
   let(:tool) { described_class.new }
-  let(:shell) { instance_double(LLM::Tool::Shell) }
+  let(:shell) { instance_double(LLM::Tool::Exec) }
   let(:result) { {ok: true, stdout: "match\n", stderr: ""} }
 
   before do
-    allow(LLM::Tool::Shell).to receive(:new).and_return(shell)
+    allow(LLM::Tool::Exec).to receive(:new).and_return(shell)
   end
 
   describe ".function" do

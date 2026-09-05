@@ -8,7 +8,7 @@ class LLM::Tool
   # the time being.
   class Git < self
     require_relative "utils"
-    require_relative "shell"
+    require_relative "exec"
     include Utils
 
     name "git"
@@ -24,7 +24,7 @@ class LLM::Tool
     # @param [Array<String>, nil] arguments
     # @return [Hash]
     def call(action:, arguments: [], timeout: 5)
-      Shell.new.call(
+      Exec.new.call(
         name: "git",
         arguments: [action, *arguments],
         timeout:

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "setup"
-require "llm/tools/shell"
+require "llm/tools/exec"
 
-RSpec.describe LLM::Tool::Shell do
+RSpec.describe LLM::Tool::Exec do
   let(:tool) { described_class.new }
 
   describe ".function" do

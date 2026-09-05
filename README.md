@@ -666,7 +666,7 @@ class Agent < LLM::Agent
   set name: "sysadmin",
       description: "system administration agent",
       model: "deepseek-v4-pro",
-      tools: [LLM::Tool::Shell]
+      tools: [LLM::Tool::Exec]
 end
 
 llm = LLM.deepseek(key: ENV["KEY"])

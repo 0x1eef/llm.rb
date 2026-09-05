@@ -2,19 +2,19 @@
 
 class LLM::Tool
   ##
-  # The {LLM::Tool::Shell} class implements a tool that can
+  # The {LLM::Tool::Exec} class implements a tool that can
   # spawn a command. That can be dangerous given a low-quality
   # model, or a high-quality model that simply makes a bad
   # decision. The risk can be reduced through a confirmation
   # step such as {LLM::Agent.confirm LLM::Agent.confirm}, or
   # by managing the tool loop manually through
   # {LLM::Context LLM::Context}.
-  class Shell < self
+  class Exec < self
     require_relative "utils"
     include Utils
 
-    name "shell"
-    description "run a shell command"
+    name "exec"
+    description "run a command without a shell"
     parameter :name, String, "the command name"
     parameter :arguments, Array[String], "one or more command arguments"
     parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"

@@ -4,11 +4,11 @@ class LLM::Tool
   ##
   # The {LLM::Tool::Ruby LLM::Tool::Ruby} class implements
   # a tool that can execute an arbitrary string of Ruby code
-  # and return the result. It routes through {LLM::Tool::Shell}
+  # and return the result. It routes through {LLM::Tool::Exec}
   # for process management.
   class Ruby < self
     require "rbconfig"
-    require_relative "shell"
+    require_relative "exec"
 
     name "ruby"
     description "runs a string of ruby code"
@@ -27,7 +27,7 @@ class LLM::Tool
     #  Max chars to emit
     # @return [Hash]
     def call(code:, timeout: 15, max_chars: self.class.max_chars)
-      Shell.new.call(
+      Exec.new.call(
         name: RbConfig.ruby,
         arguments: ["-e", code],
         timeout:,
