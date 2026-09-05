@@ -36,7 +36,7 @@ RSpec.describe LLM::Tool::Ruby do
         name: RbConfig.ruby,
         arguments: ["-e", "puts 1 + 2"],
         timeout: 15,
-        max_chars: LLM::Tool.max_chars
+        max_bytes: LLM::Tool.max_bytes
       )
     end
 

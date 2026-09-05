@@ -15,24 +15,24 @@ class LLM::Tool
                 "This command (ruby) is spawned without a shell"
     parameter :code, String, "a string of ruby code"
     parameter :timeout, Integer, "maximum runtime before timeout"
-    parameter :max_chars, Integer, "max number of chars to emit"
+    parameter :max_bytes, Integer, "max number of bytes to emit"
     required %i[code]
-    defaults timeout: 15, max_chars: :max_chars
+    defaults timeout: 15, max_bytes: :max_bytes
 
     ##
     # @param [String] code
     #  Ruby code
     # @param [Integer] timeout
     #  Runtime timeout
-    # @param [Integer] max_chars
-    #  Max chars to emit
+    # @param [Integer] max_bytes
+    #  Max bytes to emit
     # @return [Hash]
-    def call(code:, timeout: 15, max_chars: self.class.max_chars)
+    def call(code:, timeout: 15, max_bytes: self.class.max_bytes)
       Exec.new.call(
         name: RbConfig.ruby,
         arguments: ["-e", code],
         timeout:,
-        max_chars:
+        max_bytes:
       )
     end
   end

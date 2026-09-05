@@ -16,24 +16,24 @@ class LLM::Tool
     parameter :path, String, "the path where the search is performed (default is cwd)"
     parameter :timeout, Integer, "the number of seconds to wait before cancelling the action"
     parameter :max_count, Integer, "the max number of results per file"
-    parameter :max_chars, Integer, "the max number of characters to return"
+    parameter :max_bytes, Integer, "the max number of bytes to return"
     required %i[patterns]
-    defaults path: Dir.getwd, timeout: 5, max_count: 10, max_chars: :max_chars
+    defaults path: Dir.getwd, timeout: 5, max_count: 10, max_bytes: :max_bytes
 
     ##
     # @param [Array<String>] patterns
     # @param [String] path
     # @param [Integer] timeout
     # @param [Integer] max_count
-    # @param [Integer] max_chars
+    # @param [Integer] max_bytes
     # @return [Hash]
-    def call(patterns:, path: Dir.getwd, timeout: 5, max_count: 10, max_chars: self.class.max_chars)
+    def call(patterns:, path: Dir.getwd, timeout: 5, max_count: 10, max_bytes: self.class.max_bytes)
       validate!(patterns:, path:, max_count:)
       Exec.new.call(
         name: "rg",
         arguments: ["-m", max_count, *[*patterns].flat_map { ["-e", _1] }, path],
         timeout:,
-        max_chars:
+        max_bytes:
       )
     end
 

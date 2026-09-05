@@ -194,14 +194,14 @@ class LLM::Tool
 
   ##
   # Returns (or sets) the default maximum number of
-  # characters a tool returns to the model.
-  # @param [Integer, nil] chars
+  # bytes a tool returns to the model.
+  # @param [Integer, nil] bytes
   # @return [Integer]
-  def self.max_chars(chars = UNDEFINED)
-    if chars.equal?(UNDEFINED)
-      @max_chars ||= 75_000
+  def self.max_bytes(bytes = UNDEFINED)
+    if bytes.equal?(UNDEFINED)
+      @max_bytes ||= 75_000
     else
-      @max_chars = chars
+      @max_bytes = bytes
     end
   end
 

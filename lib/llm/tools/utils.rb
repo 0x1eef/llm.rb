@@ -9,12 +9,12 @@ class LLM::Tool
     # Appends a marker when truncated so the model knows
     # more content was available.
     # @param [String] content
-    # @param [Integer] max_chars
-    #  The max number of characters to keep
+    # @param [Integer] max_bytes
+    #  The max number of bytes to keep
     # @return [String]
-    def truncate(content, max_chars:)
-      return content if content.to_s.length <= max_chars
-      "#{content.to_s[0, max_chars]}\n...\n[truncated: more than #{max_chars} chars]"
+    def truncate(content, max_bytes:)
+      return content if content.to_s.bytesize <= max_bytes
+      "#{content.to_s.byteslice(0, max_bytes)}\n...\n[truncated: more than #{max_bytes} bytes]"
     end
 
     ##

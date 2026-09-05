@@ -18,9 +18,9 @@ class LLM::Tool
     parameter :name, String, "the command name"
     parameter :arguments, Array[String], "one or more command arguments"
     parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"
-    parameter :max_chars, Integer, "max number of chars to emit"
+    parameter :max_bytes, Integer, "max number of bytes to emit"
     required %i[name]
-    defaults arguments: [], timeout: 60, max_chars: :max_chars
+    defaults arguments: [], timeout: 60, max_bytes: :max_bytes
 
     ##
     # @param [String] name
@@ -28,12 +28,12 @@ class LLM::Tool
     # @param [Array<String>] arguments
     #  One or more command-line arguments
     # @return [Hash]
-    def call(name:, arguments: [], timeout: 60, max_chars: self.class.max_chars)
-      command = spawn(name:, arguments:, max_chars:)
+    def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
+      command = spawn(name:, arguments:, max_bytes:)
       wait(command:, timeout:)
       {ok: command.success?,
-       stdout: truncate(command.stdout, max_chars:),
-       stderr: truncate(command.stderr, max_chars:)}
+       stdout: truncate(command.stdout, max_bytes:),
+       stderr: truncate(command.stderr, max_bytes:)}
     rescue LLM::Interrupt
       command.kill! if command&.running?
       raise
@@ -44,12 +44,12 @@ class LLM::Tool
     ##
     # @param [String] name
     # @param [Array<String>] arguments
-    # @param [Integer] max_chars
+    # @param [Integer] max_bytes
     # @return [Command]
-    def spawn(name:, arguments:, max_chars:)
+    def spawn(name:, arguments:, max_bytes:)
       Command
         .new(name)
-        .limit(stdout: max_chars, stderr: max_chars)
+        .limit(stdout: max_bytes, stderr: max_bytes)
         .argv(*[*arguments])
         .spawn
     end

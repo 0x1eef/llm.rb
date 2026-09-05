@@ -43,10 +43,10 @@ RSpec.describe LLM::Tool::Exec do
 
       before { tool.call(name: "echo", arguments: ["hi"]) }
 
-      it "limits stdout and stderr by max_chars" do
+      it "limits stdout and stderr by max_bytes" do
         expect(command).to have_received(:limit).with(
-          stdout: LLM::Tool.max_chars,
-          stderr: LLM::Tool.max_chars
+          stdout: LLM::Tool.max_bytes,
+          stderr: LLM::Tool.max_bytes
         )
       end
 

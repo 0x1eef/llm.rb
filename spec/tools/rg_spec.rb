@@ -36,7 +36,7 @@ RSpec.describe LLM::Tool::Rg do
         name: "rg",
         arguments: ["-m", 10, "-e", "foo", "-e", "bar", Dir.getwd],
         timeout: 5,
-        max_chars: LLM::Tool.max_chars
+        max_bytes: LLM::Tool.max_bytes
       )
     end
 
@@ -63,9 +63,9 @@ RSpec.describe LLM::Tool::Rg do
     end
 
     it "passes the max chars" do
-      tool.call(patterns: %w[foo], max_chars: 100)
+      tool.call(patterns: %w[foo], max_bytes: 100)
       expect(shell).to have_received(:call)
-        .with(hash_including(max_chars: 100))
+        .with(hash_including(max_bytes: 100))
     end
   end
 

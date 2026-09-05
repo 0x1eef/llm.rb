@@ -11,18 +11,18 @@ class LLM::Tool
     description "Create a new directory\n" \
                 "This command (mkdir) is spawned without a shell"
     parameter :path, String, "the path to the directory"
-    parameter :max_chars, Integer, "max number of chars to emit"
+    parameter :max_bytes, Integer, "max number of bytes to emit"
     required %i[path]
-    defaults max_chars: :max_chars
+    defaults max_bytes: :max_bytes
 
     ##
     # @param [String] path
     # @return [Hash]
-    def call(path:, max_chars: self.class.max_chars)
+    def call(path:, max_bytes: self.class.max_bytes)
       Exec.new.call(
         name: "mkdir",
         arguments: ["-p", path],
-        max_chars:
+        max_bytes:
       )
     end
   end

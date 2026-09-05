@@ -35,7 +35,7 @@ RSpec.describe LLM::Tool::Mkdir do
       expect(shell).to have_received(:call).with(
         name: "mkdir",
         arguments: ["-p", "/tmp/new-dir"],
-        max_chars: LLM::Tool.max_chars
+        max_bytes: LLM::Tool.max_bytes
       )
     end
 

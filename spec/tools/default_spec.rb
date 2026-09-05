@@ -13,7 +13,7 @@ RSpec.describe "LLM::Tool defaults" do
       parameter :proc, Integer, "proc default"
       defaults literal: 1,
                symbol: :default_symbol,
-               proc: -> { LLM::Tool.max_chars }
+               proc: -> { LLM::Tool.max_bytes }
 
       def self.default_symbol
         42
@@ -32,16 +32,16 @@ RSpec.describe "LLM::Tool defaults" do
     end
 
     it "resolves a Proc default against the owner" do
-      expect(params[:proc].default).to eq(LLM::Tool.max_chars)
+      expect(params[:proc].default).to eq(LLM::Tool.max_bytes)
     end
 
-    context "when LLM::Tool.max_chars changes" do
+    context "when LLM::Tool.max_bytes changes" do
       around do |example|
-        original = LLM::Tool.max_chars
-        LLM::Tool.max_chars(99)
+        original = LLM::Tool.max_bytes
+        LLM::Tool.max_bytes(99)
         example.run
       ensure
-        LLM::Tool.max_chars(original)
+        LLM::Tool.max_bytes(original)
       end
 
       it "resolves a Proc default lazily" do
