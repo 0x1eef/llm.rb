@@ -18,6 +18,7 @@ module LLM
 
   require "stringio"
   require "securerandom"
+  require "time"
   require_relative "llm/compactor"
   require_relative "llm/transformer"
   require_relative "llm/json_adapter"
