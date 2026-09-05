@@ -5,31 +5,24 @@ class LLM::Tool
   # The {LLM::Tool::Mkdir LLM::Tool::Mkdir} class implements
   # a tool that can create a tree of new directories.
   class Mkdir < self
+    require_relative "shell"
+
     name "mkdir"
     description "create a new directory"
     parameter :path, String, "the path to the directory"
+    parameter :max_chars, Integer, "max number of chars to emit"
+    required %i[path]
+    defaults max_chars: :max_chars
 
     ##
     # @param [String] path
     # @return [Hash]
-    def call(path:)
-      command = spawn(path:)
-      {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
-    rescue LLM::Interrupt
-      command.kill! if command&.running?
-      raise
+    def call(path:, max_chars: self.class.max_chars)
+      Shell.new.call(
+        name: "mkdir",
+        arguments: ["-p", path],
+        max_chars:
+      )
     end
-
-    private
-
-    def spawn(path:)
-      Command
-        .new("mkdir")
-        .argv("-p", path)
-        .spawn
-    end
-
-    LLM.require "test-cmd.rb", "~> 2.2"
-    Command = Test::Command
   end
 end
