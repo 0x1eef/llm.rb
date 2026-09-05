@@ -18,8 +18,9 @@ class LLM::Tool
     parameter :name, String, "the command name"
     parameter :arguments, Array[String], "one or more command arguments"
     parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"
+    parameter :max_chars, Integer, "max number of chars to emit"
     required %i[name]
-    defaults arguments: [], timeout: 60
+    defaults arguments: [], timeout: 60, max_chars: max_chars
 
     ##
     # @param [String] name
@@ -27,10 +28,12 @@ class LLM::Tool
     # @param [Array<String>] arguments
     #  One or more command-line arguments
     # @return [Hash]
-    def call(name:, arguments: [], timeout: 60)
+    def call(name:, arguments: [], timeout: 60, max_chars: self.class.max_chars)
       command = spawn(name:, arguments:)
       wait(command:, timeout:)
-      {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
+      {ok: command.success?,
+       stdout: truncate(command.stdout, max_chars:),
+       stderr: truncate(command.stderr, max_chars:)}
     rescue LLM::Interrupt
       command.kill! if command&.running?
       raise
