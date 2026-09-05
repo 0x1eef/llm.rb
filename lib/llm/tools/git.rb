@@ -8,7 +8,7 @@ class LLM::Tool
     require_relative "exec"
 
     name "git"
-    description "Perform an action with git\n"
+    description "Perform an action with git\n" \
                 "This command (git) is spawned without a shell"
     parameter :action, Enum["log", "diff", "commit", "checkout", "branch", "show"], "the git operation to perform"
     parameter :arguments, Array[String], "one or more arguments for the git action"
