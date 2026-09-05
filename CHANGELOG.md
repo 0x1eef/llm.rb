@@ -11,7 +11,7 @@
 </p>
 
 > Changelog <br>
-> a [r.uby.dev](https://r.uby.dev) project
+> [r.uby.dev](https://r.uby.dev) project
 
 ## What's next
 
@@ -51,7 +51,8 @@
   reference line numbers when requesting a narrower range. A reversed
   range (`start: 20, stop: 2`) is swapped to read lines 2 through 20
   instead of returning empty content, and the output is capped at
-  `max_bytes` with a `truncated` flag.
+  `max_bytes` with a `truncated` flag. The truncation marker is kept out of
+  the returned lines, so the model does not mistake it for a real file line.
 
 * **tools: fix `edit-file` treating `before` as a regex** <br>
   `LLM::Tool::EditFile` now escapes the `before` snippet with
