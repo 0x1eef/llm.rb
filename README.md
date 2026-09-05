@@ -995,17 +995,20 @@ it as my primary driver for development.
 
 The [r.uby.dev chatbot](https://r.uby.dev) is connected
 to this very GitHub repository. It can read documentation,
-source code, issues, and pull requests.
-
-The [docs/](docs/) directory contains the full documentation and
-the chatbot can find the answers to your questions there. Or you
-can read them yourself.
+source code, issues, and pull requests. The [4.4bsd chatbot](https://4.4bsd.dev)
+is also a llm.rb agent that is backed by ActiveRecord. It is
+specialized in answering questions about FreeBSD and runs
+on a FreeBSD system.
 
 The [roda-llm](https://github.com/r-uby-dev/roda-llm#readme) project
 is how I deploy multiple ActiveRecord-backed llm.rb agents over HTTP.
 Each agent has an identical interface that provide CRUD operations and
 stream support (over SSE). It lets you focus on implementing agents rather
 than the glue that brings them together.
+
+The [docs/](docs/) directory contains the full documentation and
+the chatbot can find the answers to your questions there. Or you
+can read them yourself.
 
 ## License
 
