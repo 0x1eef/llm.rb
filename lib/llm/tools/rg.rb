@@ -30,7 +30,7 @@ class LLM::Tool
       validate!(patterns:, path:, max_count:)
       Shell.new.call(
         name: "rg",
-        arguments: ["-m", max_count, *[*patterns].flat_map { ["-e", _1] }, path],
+        arguments: ["-m", max_count.to_s, *[*patterns].flat_map { ["-e", _1] }, path],
         timeout:,
         max_chars:
       )
