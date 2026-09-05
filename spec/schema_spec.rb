@@ -50,6 +50,35 @@ RSpec.describe LLM::Schema do
     end
   end
 
+  context "when performing a comparison" do
+    let(:string) { LLM::Schema::String.new.description("desc") }
+    let(:other { LLM::Schema::String.new.description("desc") }
+
+    it "compares equal when to_h matches" do
+      expect(string == other).to be(true)
+    end
+
+    it "is eql? when == is" do
+      expect(string.eql?(other)).to be(true)
+    end
+
+    it "hashes equal leaves the same" do
+      expect(string.hash).to eq(other.hash)
+    end
+
+    context "when leaves differ" do
+      let(:different) { LLM::Schema::String.new.description("other") }
+
+      it "is not equal" do
+        expect(string == different).to be(false)
+      end
+
+      it "is not eql?" do
+        expect(string.eql?(different)).to be(false)
+      end
+    end
+  end
+
   context "when given a mixed Array[...] property type" do
     let(:schema) do
       Class.new(LLM::Schema) do
