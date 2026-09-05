@@ -991,13 +991,21 @@ I am constantly focused on improving llm.rb by using
 it as my primary driver for development.
 </details>
 
-## Resources
+## See also
 
 The [r.uby.dev chatbot](https://r.uby.dev) is connected
 to this very GitHub repository. It can read documentation,
-source code, issues, and pull requests. The [docs/](docs/)
-directory contains the full documentation and the chatbot
-can find the answers to your questions there.
+source code, issues, and pull requests.
+
+The [docs/](docs/) directory contains the full documentation and
+the chatbot can find the answers to your questions there. Or you
+can read them yourself.
+
+The [roda-llm](https://github.com/r-uby-dev/roda-llm#readme) project
+is how I deploy multiple ActiveRecord-backed llm.rb agents over HTTP.
+Each agent has an identical interface that provide CRUD operations and
+stream support (over SSE). It lets you focus on implementing agents rather
+than the glue that brings them together.
 
 ## License
 
