@@ -50,7 +50,7 @@ DESCRIPTION
   spec.add_development_dependency "yard", "~> 0.9.37"
   spec.add_development_dependency "redcarpet", "~> 3.6"
   spec.add_development_dependency "webrick", "~> 1.8"
-  spec.add_development_dependency "test-cmd.rb", "~> 2.4"
+  spec.add_development_dependency "test-cmd.rb", "~> 2.5"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "standard", "~> 1.50"

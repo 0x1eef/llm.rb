@@ -29,7 +29,7 @@ class LLM::Tool
     #  One or more command-line arguments
     # @return [Hash]
     def call(name:, arguments: [], timeout: 60, max_chars: self.class.max_chars)
-      command = spawn(name:, arguments:)
+      command = spawn(name:, arguments:, max_chars:)
       wait(command:, timeout:)
       {ok: command.success?,
        stdout: truncate(command.stdout, max_chars:),
@@ -44,15 +44,17 @@ class LLM::Tool
     ##
     # @param [String] name
     # @param [Array<String>] arguments
+    # @param [Integer] max_chars
     # @return [Command]
-    def spawn(name:, arguments:)
+    def spawn(name:, arguments:, max_chars:)
       Command
         .new(name)
+        .limit(stdout: max_chars, stderr: max_chars)
         .argv(*[*arguments])
         .spawn
     end
 
-    LLM.require "test-cmd.rb", "~> 2.4"
+    LLM.require "test-cmd.rb", "~> 2.5"
     Command = Test::Command
   end
 end
