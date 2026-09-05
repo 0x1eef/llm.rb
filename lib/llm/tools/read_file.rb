@@ -66,15 +66,17 @@ class LLM::Tool
 
     ##
     # Builds {lineno:, content:} lines from the content, capped at
-    # max_bytes via the shared truncate. Flags truncated results so
-    # the model knows not all content was read.
+    # max_bytes via the shared truncate. The truncation marker is
+    # kept out of the lines (it is not a real file line); the
+    # truncated flag communicates that content was cut.
     # @param [String] content
     # @param [Integer] start
     # @param [Integer] max_bytes
     # @return [Hash]
     def to_lines(content, start:, max_bytes:)
       truncated = truncate(content, max_bytes:)
-      lines = truncated.lines.each_with_index.map do |line, index|
+      body = truncated.sub(/\n\.\.\.\n\[truncated:.*?\]\s*\z/, "")
+      lines = body.lines.each_with_index.map do |line, index|
         {lineno: start + index, content: line}
       end
       {ok: true, lines:, truncated: truncated != content}

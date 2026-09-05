@@ -76,9 +76,15 @@ RSpec.describe LLM::Tool::ReadFile do
       end
 
       it "keeps the lines that fit" do
-        expect(result[:lines][0, 3]).to eq(
-          (1..3).map { |i| {lineno: i, content: "line #{i}\n"} }
+        expect(result[:lines]).to eq(
+          (1..2).map { |i| {lineno: i, content: "line #{i}\n"} } +
+            [{lineno: 3, content: "line 3"}]
         )
+      end
+
+      it "excludes the truncation marker from the lines" do
+        expect(result[:lines]).not_to include(hash_including(content: /\[truncated:/))
+        expect(result[:lines]).not_to include(hash_including(content: "...\n"))
       end
     end
 
@@ -91,8 +97,8 @@ RSpec.describe LLM::Tool::ReadFile do
         expect(result[:truncated]).to be(false)
       end
 
-      it "does not append a marker line" do
-        expect(result[:lines].last[:content]).to eq("short\n")
+      it "returns the content as lines" do
+        expect(result[:lines]).to eq([{lineno: 1, content: "short\n"}])
       end
     end
   end
