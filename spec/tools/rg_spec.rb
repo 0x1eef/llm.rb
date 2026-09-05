@@ -2,17 +2,15 @@
 
 require "setup"
 require "llm/tools/rg"
+require "llm/tools/shell"
 
 RSpec.describe LLM::Tool::Rg do
   let(:tool) { described_class.new }
-  let(:command) do
-    instance_double(Test::Command, running?: false, success?: true, stdout: "match\n", stderr: "")
-  end
+  let(:shell) { instance_double(LLM::Tool::Shell) }
+  let(:result) { {ok: true, stdout: "match\n", stderr: ""} }
 
   before do
-    allow(command).to receive(:argv).and_return(command)
-    allow(command).to receive(:spawn).and_return(command)
-    allow(described_class::Command).to receive(:new).and_return(command)
+    allow(LLM::Tool::Shell).to receive(:new).and_return(shell)
   end
 
   describe ".function" do
@@ -28,49 +26,67 @@ RSpec.describe LLM::Tool::Rg do
   end
 
   describe "#call" do
-    subject(:call) { tool.call(patterns: %w[foo bar]) }
-
-    it "passes a -e switch per pattern" do
-      call
-      expect(command).to have_received(:argv).with("-e", "foo", "-e", "bar", Dir.getwd)
+    before do
+      allow(shell).to receive(:call).and_return(result)
     end
 
-    it "limits the match count per file" do
-      call
-      expect(command).to have_received(:argv).with("-m", 10)
+    it "runs rg through a shell tool" do
+      tool.call(patterns: %w[foo bar])
+      expect(shell).to have_received(:call).with(
+        name: "rg",
+        arguments: ["-m", 10, "-e", "foo", "-e", "bar", Dir.getwd],
+        timeout: 5,
+        max_chars: LLM::Tool.max_chars
+      )
+    end
+
+    it "returns the shell result" do
+      expect(tool.call(patterns: %w[foo])).to eq(result)
+    end
+
+    it "forwards the timeout" do
+      tool.call(patterns: %w[foo], timeout: 9)
+      expect(shell).to have_received(:call)
+        .with(hash_including(timeout: 9))
+    end
+
+    it "forwards the path" do
+      tool.call(patterns: %w[foo], path: "/tmp")
+      expect(shell).to have_received(:call)
+        .with(hash_including(arguments: ["-m", 10, "-e", "foo", "/tmp"]))
+    end
+
+    it "passes a custom max count" do
+      tool.call(patterns: %w[foo], max_count: 5)
+      expect(shell).to have_received(:call)
+        .with(hash_including(arguments: ["-m", 5, "-e", "foo", Dir.getwd]))
+    end
+
+    it "passes the max chars" do
+      tool.call(patterns: %w[foo], max_chars: 100)
+      expect(shell).to have_received(:call)
+        .with(hash_including(max_chars: 100))
     end
   end
 
-  describe "#call with a custom max_count" do
-    subject(:call) { tool.call(patterns: %w[foo], max_count: 5) }
-
-    it "passes the max count to rg" do
-      call
-      expect(command).to have_received(:argv).with("-m", 5)
+  describe "validation" do
+    it "raises when max_count is not a positive integer" do
+      expect { tool.call(patterns: %w[foo], max_count: "x") }
+        .to raise_error("max_count must be a positive integer")
     end
-  end
 
-  describe "#call with a non-integer max_count" do
-    it "raises an error" do
-      expect {
-        tool.call(patterns: %w[foo], max_count: "x")
-      }.to raise_error("max_count must be a positive integer")
+    it "raises when max_count is zero" do
+      expect { tool.call(patterns: %w[foo], max_count: 0) }
+        .to raise_error("max_count must be a positive integer")
     end
-  end
 
-  describe "#call when path is the root" do
-    it "raises an error" do
-      expect {
-        tool.call(patterns: %w[foo], path: "/")
-      }.to raise_error("you can't search from the root of the filesystem")
+    it "raises when the path is the root" do
+      expect { tool.call(patterns: %w[foo], path: "/") }
+        .to raise_error("you can't search from the root of the filesystem")
     end
-  end
 
-  describe "#call when patterns is [\".\"]" do
-    it "raises an error" do
-      expect {
-        tool.call(patterns: ["."])
-      }.to raise_error("narrow your search")
+    it "raises when patterns is [\".\"]" do
+      expect { tool.call(patterns: ["."]) }.to raise_error("narrow your search")
     end
   end
 end

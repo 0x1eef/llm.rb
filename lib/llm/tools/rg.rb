@@ -7,8 +7,7 @@ class LLM::Tool
   # recursively search the current working directory
   # for one or more patterns.
   class Rg < self
-    require_relative "utils"
-    include Utils
+    require_relative "shell"
 
     name "rg"
     description "recursively search the current directory for lines matching a pattern"
@@ -18,20 +17,23 @@ class LLM::Tool
     parameter :max_count, Integer, "the max number of results per file"
     parameter :max_chars, Integer, "the max number of characters to return"
     required %i[patterns]
-    defaults path: Dir.getwd, timeout: 5, max_count: 10, max_chars: LLM::Tool.max_chars
+    defaults path: Dir.getwd, timeout: 5, max_count: 10, max_chars: :max_chars
 
     ##
     # @param [Array<String>] patterns
     # @param [String] path
+    # @param [Integer] timeout
+    # @param [Integer] max_count
+    # @param [Integer] max_chars
     # @return [Hash]
     def call(patterns:, path: Dir.getwd, timeout: 5, max_count: 10, max_chars: self.class.max_chars)
       validate!(patterns:, path:, max_count:)
-      command = spawn(patterns:, path:, max_count:)
-      wait(command:, timeout:)
-      {ok: command.success?, stdout: truncate(command.stdout, max_chars:), stderr: truncate(command.stderr, max_chars:)}
-    rescue LLM::Interrupt
-      command.kill! if command&.running?
-      raise
+      Shell.new.call(
+        name: "rg",
+        arguments: ["-m", max_count, *[*patterns].flat_map { ["-e", _1] }, path],
+        timeout:,
+        max_chars:
+      )
     end
 
     private
@@ -45,16 +47,5 @@ class LLM::Tool
         raise RuntimeError, "narrow your search"
       end
     end
-
-    def spawn(patterns:, path:, max_count:)
-      Command
-        .new("rg")
-        .argv("-m", max_count)
-        .argv(*[*patterns].flat_map { ["-e", _1] }, path)
-        .spawn
-    end
-
-    LLM.require "test-cmd.rb", "~> 2.2"
-    Command = Test::Command
   end
 end

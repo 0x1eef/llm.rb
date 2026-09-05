@@ -20,7 +20,7 @@ class LLM::Tool
     parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"
     parameter :max_chars, Integer, "max number of chars to emit"
     required %i[name]
-    defaults arguments: [], timeout: 60, max_chars: max_chars
+    defaults arguments: [], timeout: 60, max_chars: :max_chars
 
     ##
     # @param [String] name
