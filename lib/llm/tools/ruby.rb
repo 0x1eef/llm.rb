@@ -11,7 +11,8 @@ class LLM::Tool
     require_relative "exec"
 
     name "ruby"
-    description "runs a string of ruby code"
+    description "Runs a string of ruby code\n" \
+                "This command (ruby) is spawned without a shell"
     parameter :code, String, "a string of ruby code"
     parameter :timeout, Integer, "maximum runtime before timeout"
     parameter :max_chars, Integer, "max number of chars to emit"

@@ -14,7 +14,7 @@ class LLM::Tool
     include Utils
 
     name "exec"
-    description "run a command without a shell"
+    description "Run a command without a shell"
     parameter :name, String, "the command name"
     parameter :arguments, Array[String], "one or more command arguments"
     parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"

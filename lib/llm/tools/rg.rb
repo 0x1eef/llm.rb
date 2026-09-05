@@ -10,7 +10,8 @@ class LLM::Tool
     require_relative "exec"
 
     name "rg"
-    description "recursively search the current directory for lines matching a pattern"
+    description "Search the current directory for lines matching a pattern\n" \
+                "This command (rg) is spawned without a shell"
     parameter :patterns, Array[String], "one or more search patterns"
     parameter :path, String, "the path where the search is performed (default is cwd)"
     parameter :timeout, Integer, "the number of seconds to wait before cancelling the action"

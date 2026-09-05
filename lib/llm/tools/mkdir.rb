@@ -8,7 +8,8 @@ class LLM::Tool
     require_relative "exec"
 
     name "mkdir"
-    description "create a new directory"
+    description "Create a new directory\n" \
+                "This command (mkdir) is spawned without a shell"
     parameter :path, String, "the path to the directory"
     parameter :max_chars, Integer, "max number of chars to emit"
     required %i[path]
