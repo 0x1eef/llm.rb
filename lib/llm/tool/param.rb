@@ -63,7 +63,11 @@ class LLM::Tool
     def defaults(defaults)
       lock do
         function.params.tap do |schema|
-          defaults.each { Utils.fetch(schema.properties, _1).default(_2) }
+          defaults.each do |name, value|
+            leaf = Utils.fetch(schema.properties, name)
+            leaf.owner = self
+            leaf.default(value)
+          end
         end
       end
     end

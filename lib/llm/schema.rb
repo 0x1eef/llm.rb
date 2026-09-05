@@ -128,8 +128,10 @@ class LLM::Schema
   def self.defaults(defaults)
     lock do
       object.tap do |schema|
-        defaults.each do |name, val|
-          Utils.fetch(schema.properties, name).default(val)
+        defaults.each do |name, value|
+          leaf = Utils.fetch(schema.properties, name)
+          leaf.owner = self
+          leaf.default(value)
         end
       end
     end

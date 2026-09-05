@@ -19,6 +19,26 @@ class LLM::Schema
       @required = nil
       @const = nil
       @index = nil
+      @owner = nil
+    end
+
+    ##
+    # @param [Object] owner
+    #  The owner of a schema, typically an LLM::Tool or LLM::Schema class
+    # @return [void]
+    def owner=(owner)
+      @owner = owner
+    end
+
+    ##
+    # Resolves a configured value against the owner,
+    # following {LLM::Utils#resolve_option}. A Proc runs
+    # against the owner, a Symbol is sent to it, and
+    # everything else passes through unchanged.
+    # @param [Object] value
+    # @return [Object]
+    def resolve(value)
+      LLM::Utils.resolve_option(@owner, value, resolve_symbol: true)
     end
 
     ##
@@ -39,7 +59,7 @@ class LLM::Schema
     # @return [LLM::Schema::Leaf]
     def default(value = nil)
       if value.nil?
-        @default
+        resolve(@default)
       else
         tap { @default = value }
       end
@@ -100,7 +120,7 @@ class LLM::Schema
     ##
     # @return [Hash]
     def to_h
-      {description: @description, default: @default, enum: @enum, const: @const}.compact
+      {description: @description, default:, enum: @enum, const: @const}.compact
     end
 
     ##
@@ -124,5 +144,17 @@ class LLM::Schema
       to_h == other.to_h
     end
     alias_method :eql?, :==
+
+    ##
+    # @return [Integer]
+    def hash
+      to_h.hash
+    end
+
+    private
+
+    def owner
+      @owner
+    end
   end
 end

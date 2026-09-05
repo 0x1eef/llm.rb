@@ -52,7 +52,7 @@ RSpec.describe LLM::Schema do
 
   context "when performing a comparison" do
     let(:string) { LLM::Schema::String.new.description("desc") }
-    let(:other { LLM::Schema::String.new.description("desc") }
+    let(:other) { LLM::Schema::String.new.description("desc") }
 
     it "compares equal when to_h matches" do
       expect(string == other).to be(true)
