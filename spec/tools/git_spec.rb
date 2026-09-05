@@ -23,6 +23,10 @@ RSpec.describe LLM::Tool::Git do
     it "marks the subcommand param as required" do
       expect(params.properties[:subcommand]).to be_required
     end
+
+    it "lists the git subcommands" do
+      expect(params.properties[:subcommand].enum).to eq(%w[log diff commit checkout branch show])
+    end
   end
 
   describe "#call" do
@@ -30,12 +34,12 @@ RSpec.describe LLM::Tool::Git do
       allow(shell).to receive(:call).and_return(result)
     end
 
-    it "runs git through a shell tool" do
+    it "runs git through an exec tool" do
       tool.call(subcommand: "status")
       expect(shell).to have_received(:call).with(name: "git", arguments: ["status"], timeout: 5)
     end
 
-    it "returns the shell result" do
+    it "returns the exec result" do
       expect(tool.call(subcommand: "status")).to eq(result)
     end
 

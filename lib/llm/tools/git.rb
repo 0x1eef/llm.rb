@@ -3,23 +3,23 @@
 class LLM::Tool
   ##
   # The {LLM::Tool::Git LLM::Tool::Git} class implements
-  # a tool that can perform a select number of git actions.
+  # a tool that can perform a select number of git subcommands.
   class Git < self
     require_relative "exec"
 
     ##
     # @return [Array<String>]
-    #  The git actions that can be performed by this tool.
-    def self.actions
+    #  The git subcommands that can be performed by this tool.
+    def self.subcommands
       ["log", "diff",
        "commit", "checkout",
        "branch", "show"]
     end
 
     name "git"
-    description "Perform an action with git\n" \
+    description "Perform a git subcommand\n" \
                 "This command (git) is spawned without a shell"
-    parameter :subcommand, Enum[*actions], "the git subcommand to run"
+    parameter :subcommand, Enum[*subcommands], "the git subcommand to run"
     parameter :arguments, Array[String], "one or more arguments forwarded to the git subcommand"
     parameter :timeout, Integer, "the maximum time to allow the command to run"
     required %i[subcommand]
