@@ -8,6 +8,7 @@ class LLM::Tool
   # the time being.
   class Git < self
     require_relative "utils"
+    require_relative "shell"
     include Utils
 
     name "git"
@@ -23,25 +24,11 @@ class LLM::Tool
     # @param [Array<String>, nil] arguments
     # @return [Hash]
     def call(action:, arguments: [], timeout: 5)
-      command = spawn(action:, arguments:)
-      wait(command:, timeout:)
-      {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
-    rescue LLM::Interrupt
-      command.kill! if command&.running?
-      raise
+      Shell.new.call(
+        name: "git",
+        arguments: [action, *arguments],
+        timeout:
+      )
     end
-
-    private
-
-    def spawn(action:, arguments:)
-      Command
-        .new("git")
-        .argv(action)
-        .argv(*[*arguments])
-        .spawn
-    end
-
-    LLM.require "test-cmd.rb",  "~> 2.2"
-    Command = Test::Command
   end
 end
