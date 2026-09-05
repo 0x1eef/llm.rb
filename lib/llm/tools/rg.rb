@@ -16,18 +16,19 @@ class LLM::Tool
     parameter :path, String, "the path where the search is performed (default is cwd)"
     parameter :timeout, Integer, "the number of seconds to wait before cancelling the action"
     parameter :max_count, Integer, "the max number of results per file"
+    parameter :max_chars, Integer, "the max number of characters to return"
     required %i[patterns]
-    defaults path: Dir.getwd, timeout: 5, max_count: 10
+    defaults path: Dir.getwd, timeout: 5, max_count: 10, max_chars: LLM::Tool.max_chars
 
     ##
     # @param [Array<String>] patterns
     # @param [String] path
     # @return [Hash]
-    def call(patterns:, path: Dir.getwd, timeout: 5, max_count: 10)
+    def call(patterns:, path: Dir.getwd, timeout: 5, max_count: 10, max_chars: self.class.max_chars)
       validate!(patterns:, path:, max_count:)
       command = spawn(patterns:, path:, max_count:)
       wait(command:, timeout:)
-      {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
+      {ok: command.success?, stdout: truncate(command.stdout, max_chars:), stderr: truncate(command.stderr, max_chars:)}
     rescue LLM::Interrupt
       command.kill! if command&.running?
       raise

@@ -34,6 +34,11 @@
 # @see LLM::Agent Tools are attached to agents
 # @see LLM::Function The function object that Tool wraps
 class LLM::Tool
+  ##
+  # @api private
+  UNDEFINED = Object.new
+  private_constant :UNDEFINED
+
   require_relative "tool/param"
   extend LLM::Tool::Param
   extend LLM::Function::Registry
@@ -184,6 +189,19 @@ class LLM::Tool
   def self.name(name = nil)
     lock do
       name ? function.name(name) : function.name
+    end
+  end
+
+  ##
+  # Returns (or sets) the default maximum number of
+  # characters a tool returns to the model.
+  # @param [Integer, nil] chars
+  # @return [Integer]
+  def self.max_chars(chars = UNDEFINED)
+    if chars.equal?(UNDEFINED)
+      @max_chars ||= 75_000
+    else
+      @max_chars = chars
     end
   end
 

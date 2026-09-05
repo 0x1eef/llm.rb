@@ -5,6 +5,19 @@ class LLM::Tool
   # Shared utilities for tool implementations.
   module Utils
     ##
+    # Truncates a string so a tool return stays bounded.
+    # Appends a marker when truncated so the model knows
+    # more content was available.
+    # @param [String] content
+    # @param [Integer] max_chars
+    #  The max number of characters to keep
+    # @return [String]
+    def truncate(content, max_chars:)
+      return content if content.to_s.length <= max_chars
+      "#{content.to_s[0, max_chars]}\n...\n[truncated: more than #{max_chars} chars]"
+    end
+
+    ##
     # Wait for a command to finish, or abort
     # with an error when it exceeds the
     # specified timeout.
