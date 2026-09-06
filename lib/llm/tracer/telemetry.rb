@@ -18,7 +18,7 @@ module LLM
   #   require "pp"
   #
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   llm.tracer = LLM::Tracer::Telemetry.new(llm)
+  #   llm.tracer = LLM::Tracer.telemetry(llm)
   #
   #   ctx = LLM::Context.new(llm)
   #   ctx.talk "hello"
@@ -33,7 +33,7 @@ module LLM
   #   exporter = OpenTelemetry::Exporter::OTLP::Exporter.new
   #
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   llm.tracer = LLM::Tracer::Telemetry.new(llm, exporter:)
+  #   llm.tracer = LLM::Tracer.telemetry(llm, exporter:)
   #
   #   ctx = LLM::Context.new(llm)
   #   ctx.talk "hello"

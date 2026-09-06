@@ -302,7 +302,7 @@ class Agent < ApplicationRecord
     agent.model "deepseek-v4-pro"
     agent.instructions "solve the user's query"
     agent.tools [Research, FinalizeResearch, ActOnResearch]
-    agent.tracer LLM::Tracer::Logger.new(llm, io: $stdout)
+    agent.tracer -> { LLM::Tracer.logger(llm, io: $stdout) }
   end
 
   private
@@ -412,7 +412,7 @@ class Agent < Sequel::Model
     agent.model "deepseek-v4-pro"
     agent.instructions "solve the user's query"
     agent.tools [Research, FinalizeResearch, ActOnResearch]
-    agent.tracer LLM::Tracer::Logger.new(llm, io: $stdout)
+    agent.tracer -> { LLM::Tracer.logger(llm, io: $stdout) }
   end
 
   private

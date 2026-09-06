@@ -12,7 +12,7 @@ class Agent < LLM::Agent
       :skills       => %w[regressions.md coverage.md style.md changelog.md].map { File.join(__dir__, _1) },
       :tools        => LLM::Tool.subclasses,
       :path         => File.join(__dir__, "..", "..", "contexts", "scribe.json"),
-      :tracer       => proc { LLM::Tracer::PrettyLogger.new(llm, io: $stderr) }
+      :tracer       => proc { LLM::Tracer.pretty_logger(llm, io: $stderr) }
 
   def changelog
     talk("Let's update the changelog")

@@ -631,17 +631,17 @@ Trace what an agent is doing by attaching a tracer. Hook into
 requests, tool calls, and other runtime events to debug a
 misbehaving agent, monitor latency, or export spans to an
 observability backend. All built-in tracers share one interface,
-so switching between them means changing a class name:
+so switching between them means changing a factory method:
 
-* [`LLM::Tracer::PrettyLogger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html): human-readable single-line logs to stderr, ideal during development.
-* [`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html):
+* [`LLM::Tracer.pretty_logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#pretty_logger-class_method): human-readable single-line logs to stderr, ideal during development.
+* [`LLM::Tracer.telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#telemetry-class_method):
 exports spans via OTLP for OpenTelemetry in production.
-* [`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html):
+* [`LLM::Tracer.logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#logger-class_method):
 structured JSON to stdout or a file.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, tracer: LLM::Tracer::PrettyLogger.new(llm))
+agent = LLM::Agent.new(llm, tracer: LLM::Tracer.pretty_logger(llm))
 agent.talk "Hello"
 ```
 </details>

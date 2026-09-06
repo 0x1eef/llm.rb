@@ -28,7 +28,7 @@ provider or an agent:
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::PrettyLogger.new(llm)
+llm.tracer = LLM::Tracer.pretty_logger(llm)
 agent = LLM::Agent.new(llm)
 agent.talk "Hello"
 ```
@@ -59,12 +59,14 @@ request a provider makes. Three built-in tracers are available:
 [`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html)
 (OpenTelemetry).
 
-For a shorter way to build a
-[`LLM::Tracer::Logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html),
-use the [`LLM.logger`](https://r.uby.dev/api-docs/llm.rb/LLM.html#logger-class_method)
-convenience method. It takes a provider and forwards the options as
-a positional hash, so `LLM.logger(llm, io: $stdout)` is equivalent
-to `LLM::Tracer::Logger.new(llm, io: $stdout)`.
+For a shorter way to build the built-in tracers, use the
+[`LLM::Tracer.logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#logger-class_method),
+[`LLM::Tracer.pretty_logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#pretty_logger-class_method),
+and
+[`LLM::Tracer.telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#telemetry-class_method)
+convenience methods. Each takes a provider and forwards its options to
+the matching tracer, so `LLM::Tracer.pretty_logger(llm, io: $stdout)`
+forwards `io:` to the pretty logger.
 
 ### Provider
 
@@ -86,7 +88,7 @@ consistent observability without configuring each agent individually.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
+llm.tracer = LLM::Tracer.logger(llm, io: $stdout)
 ```
 
 #### Why would I use it?
@@ -118,7 +120,7 @@ same provider unaffected.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, io: $stdout))
+agent = LLM::Agent.new(llm, tracer: LLM::Tracer.logger(llm, io: $stdout))
 ```
 
 #### Why would I use it?
@@ -153,21 +155,21 @@ accepts an `io:` option to redirect output.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
-llm.tracer = LLM::Tracer::PrettyLogger.new(llm)
+llm.tracer = LLM::Tracer.pretty_logger(llm)
 ```
 
 ##### Agent-local
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, tracer: LLM::Tracer::PrettyLogger.new(llm))
+agent = LLM::Agent.new(llm, tracer: LLM::Tracer.pretty_logger(llm))
 ```
 
 ##### Custom output
 
 ```ruby
-tracer = LLM::Tracer::PrettyLogger.new(llm, io: $stdout)
-tracer = LLM::Tracer::PrettyLogger.new(llm, io: File.open("trace.log", "a"))
+tracer = LLM::Tracer.pretty_logger(llm, io: $stdout)
+tracer = LLM::Tracer.pretty_logger(llm, io: File.open("trace.log", "a"))
 ```
 
 #### Why would I use it?

@@ -35,7 +35,7 @@ RSpec.describe "plugin :agent" do
       end
 
       def set_tracer
-        LLM::Tracer::Logger.new(llm, io: StringIO.new)
+        LLM::Tracer.logger(llm, io: StringIO.new)
       end
     end
   end
@@ -86,7 +86,7 @@ RSpec.describe "plugin :agent" do
         end
 
         def set_tracer
-          LLM::Tracer::Logger.new(llm, io: StringIO.new)
+          LLM::Tracer.logger(llm, io: StringIO.new)
         end
       end
     end

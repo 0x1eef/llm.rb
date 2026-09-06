@@ -358,7 +358,7 @@ class LLM::Provider
   # whenever no scoped override is active.
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   llm.tracer = LLM::Tracer::Logger.new(llm, path: "/path/to/log.txt")
+  #   llm.tracer = LLM::Tracer.logger(llm, path: "/path/to/log.txt")
   # @param [LLM::Tracer] tracer
   #  A tracer
   # @return [void]
@@ -371,7 +371,7 @@ class LLM::Provider
   # This is useful when you want per-request or per-turn tracing without
   # replacing the provider's default tracer.
   # @example
-  #   llm.with_tracer(LLM::Tracer::Logger.new(llm, io: $stdout)) do
+  #   llm.with_tracer(LLM::Tracer.logger(llm, io: $stdout)) do
   #     llm.complete("hello", model: "gpt-5.4-mini")
   #   end
   # @param [LLM::Tracer] tracer

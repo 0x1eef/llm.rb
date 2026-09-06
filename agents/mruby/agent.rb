@@ -11,7 +11,7 @@ class Agent < LLM::Agent
       :skills       => %w[research.md code.md].map { File.join(__dir__, _1) },
       :tools        => LLM::Tool.subclasses,
       :path         => File.join(__dir__, "..", "..", "contexts", "mruby-llm.json"),
-      :tracer       => proc { LLM::Tracer::PrettyLogger.new(llm, io: $stderr) }
+      :tracer       => proc { LLM::Tracer.pretty_logger(llm, io: $stderr) }
 
   def research
     talk("Let's start our research")

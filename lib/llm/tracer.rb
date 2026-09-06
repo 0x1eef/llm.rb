@@ -15,6 +15,39 @@ module LLM
     require_relative "tracer/pretty_logger"
 
     ##
+    # Builds a {LLM::Tracer::PrettyLogger} for a provider.
+    # @param [LLM::Provider] llm
+    #  A provider
+    # @param [Hash] options
+    #  Forwarded to {LLM::Tracer::PrettyLogger} (eg `io:`)
+    # @return [LLM::Tracer::PrettyLogger]
+    def self.pretty_logger(llm, **options)
+      PrettyLogger.new(llm, **options)
+    end
+
+    ##
+    # Builds a {LLM::Tracer::Logger} for a provider.
+    # @param [LLM::Provider] llm
+    #  A provider
+    # @param [Hash] options
+    #  Forwarded to {LLM::Tracer::Logger} (eg `path:` or `io:`)
+    # @return [LLM::Tracer::Logger]
+    def self.logger(llm, **options)
+      Logger.new(llm, **options)
+    end
+
+    ##
+    # Builds a {LLM::Tracer::Telemetry} for a provider.
+    # @param [LLM::Provider] llm
+    #  A provider
+    # @param [Hash] options
+    #  Forwarded to {LLM::Tracer::Telemetry} (eg `exporter:`)
+    # @return [LLM::Tracer::Telemetry]
+    def self.telemetry(llm, **options)
+      Telemetry.new(llm, **options)
+    end
+
+    ##
     # @return [LLM::Provider]
     attr_reader :llm
 

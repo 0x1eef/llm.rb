@@ -9,10 +9,10 @@ module LLM
   #
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
-  #   llm.tracer = LLM::Tracer::PrettyLogger.new(llm)
+  #   llm.tracer = LLM::Tracer.pretty_logger(llm)
   #
   # @example Writing to a file
-  #   llm.tracer = LLM::Tracer::PrettyLogger.new(llm, io: File.open("log.txt", "a"))
+  #   llm.tracer = LLM::Tracer.pretty_logger(llm, io: File.open("log.txt", "a"))
   class Tracer::PrettyLogger < Tracer
     ##
     # @param (see LLM::Tracer#initialize)

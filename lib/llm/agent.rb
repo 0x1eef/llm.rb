@@ -292,7 +292,7 @@ module LLM
     #
     # @example
     #   class Agent < LLM::Agent
-    #     tracer { LLM::Tracer::Logger.new(llm, io: $stdout) }
+    #     tracer { LLM::Tracer.logger(llm, io: $stdout) }
     #   end
     #
     # @param [LLM::Tracer, Proc, nil] tracer

@@ -9,9 +9,9 @@ module LLM
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
   #   # Log to a file
-  #   llm.tracer = LLM::Tracer::Logger.new(llm, path: "/tmp/log.txt")
+  #   llm.tracer = LLM::Tracer.logger(llm, path: "/tmp/log.txt")
   #   # Log to $stdout (default)
-  #   llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
+  #   llm.tracer = LLM::Tracer.logger(llm, io: $stdout)
   class Tracer::Logger < Tracer
     ##
     # @param (see LLM::Tracer#initialize)
