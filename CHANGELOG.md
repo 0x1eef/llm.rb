@@ -119,6 +119,13 @@
   longer flood the context window. `rg` also gains a `max_count:` parameter
   that caps the number of results per file.
 
+* **tools: add `LLM::Tool::Utils#truncate!`** <br>
+  [`LLM::Tool::Utils#truncate!`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#truncate!-instance_method)
+  returns a `[content, truncated]` tuple, cutting a string to `max_bytes`
+  without the `[truncated: ...]` marker that `truncate` appends, so a tool
+  can structure truncated output itself. `read-file` uses it to keep the
+  marker out of its returned lines.
+
 * **tools: route `git` and `rg` through `exec`** <br>
   `LLM::Tool::Git` and `LLM::Tool::Rg` now implement their calls through the
   `exec` tool, inheriting its bounded-output protections and dropping the
@@ -173,7 +180,9 @@
   raised a JSON generator error when dumping a string tagged as UTF-8 that
   carried invalid bytes. The normalize step now transcodes every string to
   valid UTF-8, replacing invalid sequences with the replacement character,
-  so dumping works on `json ~> 3.0`.
+  so dumping works on `json ~> 3.0`. The `oj` and `yajl` adapters now run
+  the same normalization, so every backend scrubs invalid bytes before
+  serializing.
 
 * **fork: require xchan.rb `~> 0.23`** <br>
   The `:fork` concurrency strategy now requires the `xchan.rb` gem at
