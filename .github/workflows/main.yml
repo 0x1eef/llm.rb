@@ -16,6 +16,21 @@ jobs:
         ruby-version: ['3.3', '3.4']
         json-parser: ['JSON', 'Oj', 'Yajl']
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v4
     - name: Install libcurl (libcurl4-openssl-dev) and PostgreSQL headers
@@ -33,6 +48,7 @@ jobs:
       env:
         DASHSCOPE_API_HOST: token-plan.ap-southeast-1.maas.aliyuncs.com
         JSON_PARSER: ${{ matrix.json-parser }}
+        LLMRB_POSTGRESQL_URL: postgres://postgres:postgres@localhost:5432/postgres
       run: bundle exec rake spec
 
 #  openbsd:
