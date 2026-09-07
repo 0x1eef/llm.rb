@@ -52,7 +52,7 @@ class LLM::Tool
     # the `BUNDLE_GEMFILE` environment variable
     #  when set, otherwise a `Gemfile` in the
     # current working directory.
-    # @return [Hash{String => String}
+    # @return [Hash{String => String}]
     attr_reader :env
   end
 end
