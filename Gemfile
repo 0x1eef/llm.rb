@@ -3,12 +3,11 @@
 source "https://rubygems.org"
 gemspec
 
+##
+# TODO: do we need this? what for?
 gem "cgi", "~> 0.4.2"
+
+##
+# JSON parsers
 gem "oj", require: false
 gem "yajl-ruby", require: false
-gem "irb", require: false
-gem "rubocop", "= 1.84.2"
-gem "standard", "= 1.54.0"
-gem "curses"
-gem "kramdown"
-gem "async", "~> 2.42"
