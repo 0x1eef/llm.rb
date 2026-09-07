@@ -17,16 +17,16 @@ RSpec.describe LLM::Tool::Git do
   describe ".function" do
     let(:params) { described_class.function.params }
 
-    it "defines the subcommand param" do
-      expect(params.properties[:subcommand]).to be_a(LLM::Schema::String)
+    it "defines the arguments param" do
+      expect(params.properties[:arguments]).to be_a(LLM::Schema::Array)
     end
 
-    it "marks the subcommand param as required" do
-      expect(params.properties[:subcommand]).to be_required
+    it "marks the arguments param as required" do
+      expect(params.properties[:arguments]).to be_required
     end
 
-    it "lists the git subcommands" do
-      expect(params.properties[:subcommand].enum).to eq(%w[log diff commit checkout branch show])
+    it "has a timeout parameter with a default" do
+      expect(params.properties[:timeout].default).to eq(5)
     end
   end
 
@@ -37,23 +37,23 @@ RSpec.describe LLM::Tool::Git do
     end
 
     it "lists branches" do
-      res = tool.call(subcommand: "branch")
+      res = tool.call(arguments: ["branch"])
       expect(res).to eq(ok: true, stdout: "* main\n", stderr: "")
     end
 
     it "shows the log" do
-      res = tool.call(subcommand: "log", arguments: ["--oneline"])
+      res = tool.call(arguments: ["log", "--oneline"])
       expect(res[:ok]).to eq(true)
+    end
+
+    it "prints the commit subject" do
+      res = tool.call(arguments: ["log", "--oneline"])
       expect(res[:stdout]).to match(/\A[0-9a-f]{7,40} initial\n\z/)
     end
 
-    describe "when given a file to show" do
-      let(:file) { File.join(dir, "file.txt") }
-
-      before { tool.call(subcommand: "add", arguments: ["file.txt"]) }
-
+    describe "when showing a file" do
       it "shows the file name in the commit" do
-        res = tool.call(subcommand: "show", arguments: ["--oneline", "--name-only", "HEAD"])
+        res = tool.call(arguments: ["show", "--oneline", "--name-only", "HEAD"])
         expect(res[:stdout]).to include("file.txt")
       end
     end

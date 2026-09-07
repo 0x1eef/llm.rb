@@ -7,34 +7,43 @@ class LLM::Tool
   class Git < self
     require_relative "exec"
 
-    ##
-    # @return [Array<String>]
-    #  The git subcommands that can be performed by this tool.
-    def self.subcommands
-      ["log", "diff",
-       "commit", "checkout",
-       "branch", "show"]
-    end
-
     name "git"
     description "Perform a git subcommand\n" \
                 "This command (git) is spawned without a shell"
-    parameter :subcommand, Enum[*subcommands], "the git subcommand to run"
-    parameter :arguments, Array[String], "one or more arguments forwarded to the git subcommand"
-    parameter :timeout, Integer, "the maximum time to allow the command to run"
-    required %i[subcommand]
+    parameter :arguments, Array[String], "one or more arguments forwarded to git"
+    parameter :timeout, Integer, "the maximum time to allow the command to run (in seconds)"
+    required %i[arguments]
     defaults arguments: [], timeout: 5
 
     ##
     # @param [String] subcommand
     # @param [Array<String>, nil] arguments
     # @return [Hash]
-    def call(subcommand:, arguments: [], timeout: 5)
+    def call(arguments: [], timeout: 5)
+      subcommand = arguments[0]
+      validate!(subcommand:, arguments:)
       Exec.new.call(
         name: "git",
-        arguments: [subcommand, *arguments],
+        arguments: [subcommand, *arguments[1..]],
         timeout:
       )
+    end
+
+    private
+
+    ##
+    # @return [void]
+    def validate!(subcommand:, arguments:)
+      unless subcommands.include?(subcommand.to_s)
+        raise RuntimeError, "git subcommand must be one of: #{subcommands.join(",")}"
+      end
+    end
+
+    ##
+    # @return [Array<String>]
+    #  The git subcommands that can be performed by this tool.
+    def subcommands
+      ["log", "diff", "commit", "checkout", "branch", "show"]
     end
   end
 end
