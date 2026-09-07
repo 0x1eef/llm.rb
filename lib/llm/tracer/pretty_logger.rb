@@ -12,7 +12,7 @@ module LLM
   #   llm.tracer = LLM::Tracer.pretty_logger(llm)
   #
   # @example Writing to a file
-  #   llm.tracer = LLM::Tracer.pretty_logger(llm, io: File.open("log.txt", "a"))
+  #   llm.tracer = LLM::Tracer.pretty_logger(llm, path: "log.txt")
   class Tracer::PrettyLogger < Tracer
     ##
     # @param (see LLM::Tracer#initialize)
@@ -73,8 +73,8 @@ module LLM
 
     private
 
-    def setup!(io: $stderr)
-      @io = io
+    def setup!(io: $stderr, path: nil)
+      @io = path ? File.open(path, "a") : io
       @start = nil
     end
 

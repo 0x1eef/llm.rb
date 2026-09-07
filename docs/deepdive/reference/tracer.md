@@ -169,7 +169,7 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer.pretty_logger(llm))
 
 ```ruby
 tracer = LLM::Tracer.pretty_logger(llm, io: $stdout)
-tracer = LLM::Tracer.pretty_logger(llm, io: File.open("trace.log", "a"))
+tracer = LLM::Tracer.pretty_logger(llm, path: "trace.log")
 ```
 
 #### Why would I use it?
