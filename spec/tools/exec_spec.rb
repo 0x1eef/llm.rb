@@ -45,8 +45,8 @@ RSpec.describe LLM::Tool::Exec do
 
       it "limits stdout and stderr by max_bytes" do
         expect(command).to have_received(:limit).with(
-          stdout: LLM::Tool.max_bytes,
-          stderr: LLM::Tool.max_bytes
+          stdout: LLM::Tool::Exec.max_bytes,
+          stderr: LLM::Tool::Exec.max_bytes
         )
       end
 

@@ -111,11 +111,12 @@
   switches to the block form of `sub` so the `after` replacement keeps
   backslash sequences like `\1` and `\&` literal.
 
-* **tools: bound tool output with `LLM::Tool.max_bytes`** <br>
-  [`LLM::Tool.max_bytes`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#max_bytes-class_method)
-  is a configurable default (75,000) for the maximum number of bytes a
-  tool returns to the model, for example `LLM::Tool.max_bytes(175_000)`. It
-  does not enforce the limit by itself;
+* **tools: bound tool output with a per-tool `max_bytes`** <br>
+  Each of the `Exec`, `ReadFile`, `Rg`, `Mkdir`, and `Ruby` tools adds a
+  class-level `max_bytes` accessor (default 75,000) for the maximum
+  number of bytes the tool returns to the model, for example
+  `LLM::Tool::ReadFile.max_bytes(175_000)`. It does not enforce the
+  limit by itself;
   [`LLM::Tool::Utils#truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#truncate-instance_method)
   trims a string within the limit and marks the trailing content as
   truncated.
@@ -123,7 +124,7 @@
 * **tools: bound `read-file`, `rg`, and `exec` output** <br>
   `LLM::Tool::ReadFile`, `LLM::Tool::Rg`, and `LLM::Tool::Exec` now accept a
   `max_bytes:` parameter and truncate their output within
-  `LLM::Tool.max_bytes`, so a large file read or a runaway search can no
+  the tool's `max_bytes`, so a large file read or a runaway search can no
   longer flood the context window. `rg` also gains a `max_count:` parameter
   that caps the number of results per file.
 
@@ -151,8 +152,8 @@
   A tool parameter default can now be an immediate value, a Symbol resolved
   as a method on the tool, or a Proc evaluated lazily at runtime, matching
   how `LLM::Agent` resolves its attributes. This lets a default track a
-  value that can change between boot and runtime, such as
-  `LLM::Tool.max_bytes`.
+  value that can change between boot and runtime, such as a tool's
+  `max_bytes`.
 
 * **tools: require `test-cmd.rb` `~> 2.5`** <br>
   The `Git`, `Mkdir`, `Rg`, `Ruby`, and `Exec` tools now require the

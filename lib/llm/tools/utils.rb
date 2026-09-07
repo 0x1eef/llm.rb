@@ -72,11 +72,11 @@ class LLM::Tool
     #  One or more arguments
     # @param [Integer] max_bytes
     #  The max number of bytes to keep per stream.
-    #  Defaults to {LLM::Tool.max_bytes}.
+    #  Defaults to the including tool's `self.class.max_bytes`.
     # @raise [ArgumentError]
     #  When `max_bytes` is nil
     # @return [Test::Command]
-    def spawn(name:, arguments:, max_bytes: LLM::Tool.max_bytes)
+    def spawn(name:, arguments:, max_bytes: self.class.max_bytes)
       if Integer(max_bytes, exception: false).nil?
         raise ArgumentError, "max_bytes cannot be nil"
       end

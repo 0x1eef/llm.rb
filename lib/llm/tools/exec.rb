@@ -23,6 +23,20 @@ class LLM::Tool
     defaults arguments: [], timeout: 60, max_bytes: :max_bytes
 
     ##
+    # Returns (or sets) the advisory maximum number of bytes
+    # this tool returns to the model.
+    # @param [Integer, nil] bytes
+    #  When given, sets the maximum
+    # @return [Integer]
+    def self.max_bytes(bytes = UNDEFINED)
+      if bytes.equal?(UNDEFINED)
+        @max_bytes || 75_000
+      else
+        @max_bytes = bytes
+      end
+    end
+
+    ##
     # @param [String] name
     #  The name of a command
     # @param [Array<String>] arguments

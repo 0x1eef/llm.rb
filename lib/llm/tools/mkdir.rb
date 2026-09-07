@@ -13,12 +13,12 @@ class LLM::Tool
     parameter :path, String, "the path to the directory"
     parameter :max_bytes, Integer, "max number of bytes to emit"
     required %i[path]
-    defaults max_bytes: :max_bytes
+    defaults max_bytes: -> { Exec.max_bytes }
 
     ##
     # @param [String] path
     # @return [Hash]
-    def call(path:, max_bytes: self.class.max_bytes)
+    def call(path:, max_bytes: Exec.max_bytes)
       Exec.new.call(
         name: "mkdir",
         arguments: ["-p", path],

@@ -18,7 +18,7 @@ class LLM::Tool
     parameter :max_count, Integer, "the max number of results per file"
     parameter :max_bytes, Integer, "the max number of bytes to return"
     required %i[patterns]
-    defaults path: Dir.getwd, timeout: 5, max_count: 10, max_bytes: :max_bytes
+    defaults path: Dir.getwd, timeout: 5, max_count: 10, max_bytes: -> { Exec.max_bytes }
 
     ##
     # @param [Array<String>] patterns
@@ -27,7 +27,7 @@ class LLM::Tool
     # @param [Integer] max_count
     # @param [Integer] max_bytes
     # @return [Hash]
-    def call(patterns:, path: Dir.getwd, timeout: 5, max_count: 10, max_bytes: self.class.max_bytes)
+    def call(patterns:, path: Dir.getwd, timeout: 5, max_count: 10, max_bytes: Exec.max_bytes)
       validate!(patterns:, path:, max_count:)
       Exec.new.call(
         name: "rg",

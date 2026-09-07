@@ -199,15 +199,22 @@ subcommands `log`, `diff`, `commit`, `checkout`, `branch`, and `show`.
 
 The built-in tools keep their returns from flooding the context
 window. Each tool that can produce a large result accepts a
-`max_bytes:` parameter, and an advisory class-level default
-[`LLM::Tool.max_bytes`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#max_bytes-class_method)
-(75,000) applies when none is given. `stdout` and `stderr` are each
-capped at that limit, so a call can produce up to twice `max_bytes`
-of output.
+`max_bytes:` parameter, and its advisory class-level default
+(`LLM::Tool::Exec.max_bytes`, `LLM::Tool::ReadFile.max_bytes`, etc.)
+applies when none is given. `stdout` and `stderr` are each capped at
+that limit, so a call can produce up to twice `max_bytes` of output.
 
 #### How it works
 
-When you want to cap a tool call below the default, pass
+The default is per tool, and it can be read or set on the tool class
+itself. To raise one tool's cap, set it on that tool:
+
+```ruby
+LLM::Tool::ReadFile.max_bytes(175_000)   # raise read-file's default
+LLM::Tool::Exec.max_bytes(150_000)       # raise exec's default
+```
+
+When you want to cap a single tool call below the default, pass
 `max_bytes:` explicitly. The shared
 [`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
 helpers back this: [`spawn`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#spawn-instance_method)
@@ -217,7 +224,6 @@ returns a `[content, truncated]` tuple for a caller that wants to
 format the result itself:
 
 ```ruby
-LLM::Tool.max_bytes(175_000)          # raise the default
 LLM::Tool::Exec.new.call(
   name: "bundle",
   arguments: ["exec", "rspec"],
@@ -234,7 +240,7 @@ was available without re-requesting everything.
 
 #### Notes
 
-`LLM::Tool.max_bytes` alone does not enforce anything; the built-in
+The per-tool `max_bytes` alone does not enforce anything; the built-in
 tools use it through the `Utils` helpers. When you write your own
 tool that returns a long string, cap it with `truncate` or `truncate!`
 so a model cannot flood the window through your tool either.

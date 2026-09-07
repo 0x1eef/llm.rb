@@ -36,7 +36,7 @@ RSpec.describe LLM::Tool::Rg do
         name: "rg",
         arguments: ["-m", 10, "-e", "foo", "-e", "bar", Dir.getwd],
         timeout: 5,
-        max_bytes: LLM::Tool.max_bytes
+        max_bytes: LLM::Tool::Exec.max_bytes
       )
     end
 
