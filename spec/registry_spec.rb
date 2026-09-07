@@ -77,7 +77,7 @@ RSpec.describe LLM::Registry do
     let(:provider) { :moonshot }
 
     include_examples "model exists", "kimi-k3"
-    include_examples "model exists", "kimi-k2.5"
+    include_examples "model exists", "kimi-k2.6"
   end
 
   context "when given openrouter" do
