@@ -27,6 +27,7 @@
 | `require "llm/repl"` | `require "llm/console"` |
 | `Git#call(action: "log")` | `Git#call(subcommand: "log")` |
 | `ReadFile#call` returns `{ok:, content:}` | returns `{ok:, lines:, truncated:}` |
+| `LLM.logger(llm, **opts)` | `LLM::Tracer.logger(llm, **opts)` |
 
 * **tools: rename `shell` to `exec`** <br>
   The command tool is renamed to
@@ -59,6 +60,13 @@
   `content:` string, and adds a `truncated:` flag. A reversed range
   (`start: 20, stop: 2`) is swapped to read lines 2 through 20. Callers
   that read the raw `content:` string must switch to the `lines:` array.
+
+* **remove `LLM.logger` in favor of `LLM::Tracer.logger`** <br>
+  The `LLM.logger(llm, ...)` convenience method is removed. Use
+  [`LLM::Tracer.logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#logger-class_method)
+  instead, which builds an `LLM::Tracer::Logger` for a provider the same
+  way. The new `LLM::Tracer.pretty_logger` and `LLM::Tracer.telemetry`
+  factory methods cover the other tracer classes.
 
 ### Core
 
@@ -172,6 +180,22 @@
   budget of 8 instead of 5, because Alibaba (token plan) frequently rate
   limits and times out requests that it later recovers from. An explicit
   `retry_budget:` still overrides the default.
+
+### Tracer
+
+* **tracer: add `LLM::Tracer` factory methods** <br>
+  Add
+  [`LLM::Tracer.logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#logger-class_method),
+  [`LLM::Tracer.pretty_logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#pretty_logger-class_method),
+  and
+  [`LLM::Tracer.telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#telemetry-class_method)
+  as the preferred way to build a tracer for a provider, so switching
+  between tracers means changing a factory method instead of a class name.
+
+* **tracer: add `path:` support to `LLM::Tracer::PrettyLogger`** <br>
+  [`LLM::Tracer::PrettyLogger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html)
+  now accepts a `path:` option to write its human-readable entries to a
+  file, matching `LLM::Tracer::Logger`. It previously only accepted `io:`.
 
 ### Fix
 
