@@ -15,60 +15,6 @@
 
 ## What's next
 
-### Breaking
-
-#### Migration
-
-| Old | New |
-|-----|-----|
-| `LLM::Tool::Shell`, tool name `"shell"` | `LLM::Tool::Exec`, tool name `"exec"` |
-| `require "llm/tools/shell"` | `require "llm/tools/exec"` |
-| `LLM::Repl`, `LLM::Agent#repl` | `LLM::Console`, `LLM::Agent#console` |
-| `require "llm/repl"` | `require "llm/console"` |
-| `Git#call(action: "log")` | `Git#call(subcommand: "log")` |
-| `ReadFile#call` returns `{ok:, content:}` | returns `{ok:, lines:, truncated:}` |
-| `LLM.logger(llm, **opts)` | `LLM::Tracer.logger(llm, **opts)` |
-| `WriteFile#call` writes the content exactly as given | appends a final newline by default; pass `newline: false` to write exactly |
-
-* **tools: rename `shell` to `exec`** <br>
-  The command tool is renamed to
-  [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html),
-  which better reflects that it spawns a command without a shell. The tool
-  name and description change from `shell` ("run a shell command") to
-  `exec` ("run a command without a shell"). The old `require
-  "llm/tools/shell"` path no longer exists; use `require
-  "llm/tools/exec"` instead.
-
-* **tools: rename `repl` as `console`** <br>
-  The interactive loop is renamed to
-  [`LLM::Console`](https://r.uby.dev/api-docs/llm.rb/LLM/Console.html),
-  which better reflects what it does. `agent.console` is the primary
-  entry point, and the require path moves from `llm/repl` to
-  `llm/console`. Backwards-compatible aliases remain: `LLM::Repl`,
-  `LLM::Agent#repl`, the ORM wrappers' `#repl`, and `LLM::Command =`
-  `LLM::Console::Command`.
-
-* **tools: rename `LLM::Tool::Git`'s `action` parameter to `subcommand`** <br>
-  `LLM::Tool::Git#call` now takes `subcommand:` instead of `action:`.
-  The tool description, parameter schema, and comments all use the
-  `git subcommand` term, matching how git itself is documented. A new
-  `LLM::Tool::Git.subcommands` class method returns the supported
-  subcommands (`log`, `diff`, `commit`, `checkout`, `branch`, `show`).
-
-* **tools: read-file returns structured lines** <br>
-  `LLM::Tool::ReadFile#call` now returns its content as structured
-  `{lineno:, content:}` lines under a `lines:` key instead of a single
-  `content:` string, and adds a `truncated:` flag. A reversed range
-  (`start: 20, stop: 2`) is swapped to read lines 2 through 20. Callers
-  that read the raw `content:` string must switch to the `lines:` array.
-
-* **remove `LLM.logger` in favor of `LLM::Tracer.logger`** <br>
-  The `LLM.logger(llm, ...)` convenience method is removed. Use
-  [`LLM::Tracer.logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#logger-class_method)
-  instead, which builds an `LLM::Tracer::Logger` for a provider the same
-  way. The new `LLM::Tracer.pretty_logger` and `LLM::Tracer.telemetry`
-  factory methods cover the other tracer classes.
-
 ### Core
 
 * **message: add `LLM::Message#created_at`** <br>
@@ -99,14 +45,13 @@
 
 ### Tools
 
-* **tools: rename `shell` to `exec`** <br>
-  The command tool is renamed to
+* **tools: the command runner is now `exec`** <br>
+  The command tool that spawns a process without a shell is now
   [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html),
-  which better reflects that it spawns a command without a shell. The tool
-  name and description change from `shell` ("run a shell command") to
-  `exec` ("run a command without a shell"). The old `require
-  "llm/tools/shell"` path no longer exists; use `require
-  "llm/tools/exec"` instead.
+  with the tool name `exec` instead of the previous `shell`. This is an
+  internal refactor of the shell-out tools: `git`, `rg`, `mkdir`,
+  `ruby`, and the new `bundle-exec` all route through it and inherit
+  its bounded output.
 
 * **tools: rename `repl` as `console`** <br>
   The interactive loop is renamed to
@@ -117,10 +62,11 @@
   `LLM::Agent#repl`, the ORM wrappers' `#repl`, and `LLM::Command =`
   `LLM::Console::Command`.
 
-* **tools: rename `LLM::Tool::Git`'s `action` parameter to `subcommand`** <br>
-  `LLM::Tool::Git#call` now takes `subcommand:` instead of `action:`.
-  The tool description, parameter schema, and comments all use the
-  `git subcommand` term, matching how git itself is documented. A new
+* **tools: `LLM::Tool::Git#call` names its argument `subcommand`** <br>
+  [`LLM::Tool::Git#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html)
+  now takes `subcommand:` in place of `action:`. The tool description,
+  parameter schema, and comments all use the `git subcommand` term,
+  matching how git itself is documented. A new
   `LLM::Tool::Git.subcommands` class method returns the supported
   subcommands (`log`, `diff`, `commit`, `checkout`, `branch`, `show`).
 
@@ -144,8 +90,7 @@
   `content:` string, and adds a `truncated:` flag. A reversed range
   (`start: 20, stop: 2`) is swapped to read lines 2 through 20. The
   truncation marker is kept out of the returned lines, so the model
-  does not mistake it for a real file line. Callers that read the raw
-  `content:` string must switch to the `lines:` array.
+  does not mistake it for a real file line.
 
 * **tools: write-file appends a trailing newline by default** <br>
   `LLM::Tool::WriteFile` now ensures written content ends with a newline,
@@ -218,6 +163,8 @@
   [`LLM::Tracer.telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#telemetry-class_method)
   as the preferred way to build a tracer for a provider, so switching
   between tracers means changing a factory method instead of a class name.
+  The old `LLM.logger(llm, ...)` convenience method is removed in favor
+  of `LLM::Tracer.logger(llm, ...)`.
 
 * **tracer: add `path:` support to `LLM::Tracer::PrettyLogger`** <br>
   [`LLM::Tracer::PrettyLogger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html)
