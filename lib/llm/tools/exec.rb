@@ -38,23 +38,5 @@ class LLM::Tool
       command.kill! if command&.running?
       raise
     end
-
-    private
-
-    ##
-    # @param [String] name
-    # @param [Array<String>] arguments
-    # @param [Integer] max_bytes
-    # @return [Command]
-    def spawn(name:, arguments:, max_bytes:)
-      Command
-        .new(name)
-        .limit(stdout: max_bytes, stderr: max_bytes)
-        .argv(*[*arguments])
-        .spawn
-    end
-
-    LLM.require "test-cmd.rb", "~> 2.5"
-    Command = Test::Command
   end
 end

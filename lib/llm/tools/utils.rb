@@ -2,7 +2,7 @@
 
 class LLM::Tool
   ##
-  # Shared utilities for tool implementations.
+  # Tool utils.
   module Utils
     ##
     # Truncates a string so a tool return stays bounded.
@@ -63,9 +63,39 @@ class LLM::Tool
     end
 
     ##
+    # Spawn a command from a name and arguments,
+    # without going through a shell. The command's
+    # stdout and stderr are each capped at `max_bytes`.
+    # @param [String] name
+    #  The command name
+    # @param [Array<String>] arguments
+    #  One or more arguments
+    # @param [Integer] max_bytes
+    #  The max number of bytes to keep per stream.
+    #  Defaults to {LLM::Tool.max_bytes}.
+    # @raise [ArgumentError]
+    #  When `max_bytes` is nil
+    # @return [Test::Command]
+    def spawn(name:, arguments:, max_bytes: LLM::Tool.max_bytes)
+      if Integer(max_bytes, exception: false).nil?
+        raise ArgumentError, "max_bytes cannot be nil"
+      end
+      Command
+        .new(name)
+        .argv(*[*arguments])
+        .limit(stdout: max_bytes, stderr: max_bytes)
+        .spawn
+    end
+
+    ##
     # @return [Numeric]
     def now
       Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
+
+    ##
+    # requires test-cmd.rb
+    LLM.require "test-cmd.rb", "~> 2.5"
+    Command = Test::Command
   end
 end
