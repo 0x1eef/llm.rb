@@ -169,7 +169,8 @@ LLM::Tool::Exec.new.call(
 When you want to run a command and capture its output, call the
 [`LLM::Tool::Exec#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html#call-instance_method)
 method with a `name:` and optional `arguments:`. The `git` tool
-accepts a `subcommand:` from a fixed set, the `ruby` tool runs
+takes a single `arguments:` array whose first element is a
+subcommand from a fixed set, the `ruby` tool runs
 its code in a fresh process, and the `bundle-exec` tool runs a
 command under the project's Bundler context. `bundle-exec` inherits
 the `BUNDLE_GEMFILE` environment variable when set, or defaults to a
@@ -187,7 +188,7 @@ LLM::Tool::BundleExec.new.call(
 | Tool | Name | Parameters | Purpose |
 |---|---|---|---|
 | [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html) | `exec` | `name`, `arguments`, `timeout` | Run a command without a shell |
-| [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html) | `git` | `subcommand`, `arguments`, `timeout` | Run a fixed set of git subcommands |
+| [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html) | `git` | `arguments`, `timeout` | Run a fixed set of git subcommands |
 | [`LLM::Tool::Ruby`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html) | `ruby` | `code`, `timeout` | Run a string of Ruby code |
 | [`LLM::Tool::BundleExec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/BundleExec.html) | `bundle-exec` | `name`, `arguments`, `timeout` | Run a command through `bundle exec` |
 

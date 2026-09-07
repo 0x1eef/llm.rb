@@ -5,7 +5,7 @@
 #### Overview
 
 The console drops you into a curses-based TUI for talking to an agent
-interactively. It has a scrollable transcript that renders markdown,
+interactively. It has a scrollable buffer that renders markdown,
 a multi-line input area, and a status bar showing context usage and
 cost. The UI thread stays responsive while a second thread communicates
 with the model. Think of it as `binding.irb` but for agents.
@@ -13,7 +13,7 @@ with the model. Think of it as `binding.irb` but for agents.
 #### How it works
 
 The console runs on two threads: one for the curses UI (input handling,
-transcript rendering, status bar) and one for model communication.
+buffer rendering, status bar) and one for model communication.
 
 The `name:` option labels the agent in the prompt. The `path:`
 option persists state across sessions. The `tools:` option attaches
@@ -24,9 +24,9 @@ Commands start with `/` and are dispatched to registered
 subclasses. Type `/compact` (or its alias `/keep`) to free context
 window space, `/exit` to leave.
 
-The top chrome row shows the active model on the left and the
-current working directory on the right. Switch models mid-session
-with `/model <name>`; the model name updates there immediately.
+The top chrome row shows the current working directory on the left
+and the active model on the right. Switch models mid-session with
+`/model <name>`; the model name updates there immediately.
 
 When characters arrive faster than a threshold, the console detects
 paste mode. In paste mode, pressing Enter inserts a newline instead
@@ -75,9 +75,10 @@ and
 [`LLM::Console#model=`](https://r.uby.dev/api-docs/llm.rb/LLM/Console.html#model=-instance_method),
 seeded from the agent at startup. The `/model` command switches it
 mid-session, and its argument auto-completes through the provider's
-[`LLM::Registry#keys`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html#keys-instance_method)
-so you can cycle through the available model names with Tab. The top
-chrome row reflects the change immediately.
+text-capable models (those where
+[`LLM::Registry::Model#text?`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry/Model.html#text%3F-instance_method)
+is true), so you can cycle through the available model names with
+Tab. The top chrome row reflects the change immediately.
 
 ### Commands
 
@@ -136,5 +137,5 @@ The input area supports several keyboard shortcuts:
 | `Enter` | Submit the current prompt |
 | `Tab` | Complete `/command` names and arguments |
 | `Esc` | Cancel the current request |
-| `Up` / `Down` | Scroll the transcript one line |
-| `PgUp` / `PgDn` | Scroll the transcript by one page |
+| `Up` / `Down` | Scroll the buffer one line |
+| `PgUp` / `PgDn` | Scroll the buffer by one page |

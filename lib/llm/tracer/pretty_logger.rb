@@ -74,7 +74,7 @@ module LLM
     private
 
     def setup!(io: $stderr, path: nil)
-      @io = path ? File.open(path, "a") : io
+      @io = path ? ::File.open(path, "a") : io
       @start = nil
     end
 

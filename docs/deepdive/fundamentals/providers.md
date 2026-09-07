@@ -4,7 +4,7 @@
 
 #### Overview
 
-llm.rb talks to 13+ providers through one API. OpenAI-compatible
+llm.rb talks to 14+ providers through one API. OpenAI-compatible
 providers (Anthropic, DeepSeek, DeepInfra, xAI, Z.ai, Moonshot,
 Alibaba, Ollama, and llama.cpp) share the same OpenAI code path, so
 switching models rarely means switching code. Each provider is
@@ -203,14 +203,14 @@ ctx.talk "Hello"
 
 `LLM.aliyun` is an alias for `LLM.alibaba`, so either name works.
 
-To use a different host, set the `ALIBABA_API_HOST` environment
+To use a different host, set the `DASHSCOPE_API_HOST` environment
 variable to override the default globally, or pass `host:` to
 override it for a single instance. For example, Alibaba's Token
 Plan endpoint:
 
 ```ruby
 # Global override
-ENV["ALIBABA_API_HOST"] = "token-plan.ap-southeast-1.maas.aliyuncs.com"
+ENV["DASHSCOPE_API_HOST"] = "token-plan.ap-southeast-1.maas.aliyuncs.com"
 llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"])
 
 # Per-instance override
@@ -238,7 +238,7 @@ moderation, responses, and vector store endpoints raise
 
 The default host is the pay-as-you-go DashScope international
 endpoint. Token Plan users should point the provider at their own
-Token Plan URL via `ALIBABA_API_HOST` or `host:`. Check your
+Token Plan URL via `DASHSCOPE_API_HOST` or `host:`. Check your
 Model Studio dashboard for the correct endpoint.
 
 Model metadata ships in `data/alibaba.json` for the registry.

@@ -123,7 +123,7 @@ end
 
 Auto-persistence eliminates boilerplate. You set the path once and
 forget about serialization entirely. The agent picks up where it
-left off across process restarts, REPL sessions, or debugging runs
+left off across process restarts, console sessions, or debugging runs
 without a single
 [`LLM::Agent#save`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save)
 or

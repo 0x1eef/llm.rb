@@ -198,9 +198,9 @@ call through:
 ```ruby
 class PolicyGuard < LLM::Guard
   def call(function:)
-    if function.name == "shell"
+    if function.name == "exec"
       function.return(error: true, type: "policy_error",
-                      message: "shell is disabled")
+                      message: "exec is disabled")
     end
   end
 end

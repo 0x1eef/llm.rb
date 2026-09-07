@@ -295,9 +295,14 @@ provider from standard environment variables (`DEEPSEEK_API_KEY`,
 stored under `~/.llm.rb/` and restored automatically on your next visit.
 
 ```bash
-llm.rb                     # auto-detect from $DEEPSEEK_API_KEY
+llm.rb                     # auto-detect from $PROVIDER_API_KEY
 llm.rb -p openai           # use OpenAI explicitly
+llm.rb -m gpt-5.6          # use a model other than the provider default
+llm.rb -c thread           # run tool calls on a separate thread
+llm.rb -n curb             # use libcurl as the HTTP transport
+llm.rb -x 900              # read timeout of 15 minutes
 llm.rb -t                  # temporary session, no persistence
+llm.rb -v                  # print the version
 ```
 </details>
 <details>
@@ -530,15 +535,15 @@ the call, or `nil` to let it run:
 ```ruby
 class PolicyGuard < LLM::Guard
   def call(function:)
-    if function.name == "shell"
+    if function.name == "exec"
       function.return(error: true, type: "policy_error",
-                      message: "shell is disabled")
+                      message: "exec is disabled")
     end
   end
 end
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, tools: [Shell, ReadFile], guard: PolicyGuard)
+agent = LLM::Agent.new(llm, tools: [LLM::Tool::Exec, ReadFile], guard: PolicyGuard)
 ```
 </details>
 
@@ -759,7 +764,7 @@ require "llm"
 
 llm      = LLM.openai
 registry = llm.registry                # => LLM::Provider#registry
-cheapest = registry.models.sort.first  # => LLM::Model
+cheapest = registry.models.sort.first  # => LLM::Registry::Model
 cheapest.id                            # => "text-embedding-3-small"
 cheapest.context_window                # => 8191
 cheapest.structured_output?            # => false

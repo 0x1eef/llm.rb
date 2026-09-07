@@ -103,7 +103,7 @@ manual
 [`LLM::Agent#save`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save)/
 [`LLM::Agent#restore`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore)
 calls. See the
-[database deepdive](../fundamentals/database.md) for details.
+[database deepdive](../features/database.md) for details.
 
 ### Object-based
 

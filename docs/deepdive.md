@@ -37,7 +37,7 @@ code, `#### Why would I use it?` explains the use case, and
 #### Why would I use it?
 
 The deepdive documents everything there is to know about llm.rb.
-It includes the fundamnetals, advanced patterns, configuration
+It includes the fundamentals, advanced patterns, configuration
 options, ORM support, protocol support, and edge cases. It is
 useful when you need to go beyond the basics.
 

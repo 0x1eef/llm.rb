@@ -11,7 +11,7 @@ module LLM
   #
   # The default host is the pay-as-you-go DashScope
   # international endpoint (`dashscope-intl.aliyuncs.com`). Configure
-  # a different host either globally through the `ALIBABA_API_HOST`
+  # a different host either globally through the `DASHSCOPE_API_HOST`
   # environment variable, or per instance through
   # `LLM.alibaba(host: "token-plan.ap-southeast-1.maas.aliyuncs.com")`
   # (for example Alibaba's Token Plan).

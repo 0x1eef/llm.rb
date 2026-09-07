@@ -102,7 +102,7 @@ returns the total in a compact, human-friendly format, rounded to
 two decimals (`"0.01"`). Components that were not used are `0`, so
 you never need to guard against `nil` when aggregating.
 
-The REPL renders context usage as a proportion, not a cost.
+The console renders context usage as a proportion, not a cost.
 [`LLM::Context#context_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_usage-instance_method)
 returns a `Rational` of the tokens used over the context window
 (for example `Rational(100, 10_000)`), or `nil` when the window is
