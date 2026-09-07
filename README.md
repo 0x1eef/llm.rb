@@ -204,7 +204,7 @@ isolation from its parent.
 
 A couple of concurrency strategies require optional, opt-in dependencies.
 The `async` strategy requires the [async](https://github.com/socketry/async)
-gem and the `fork` strategy requires the [xchan.rb](https://github.com/0x1eef/xchan.rb)
+gem and the `fork` strategy requires the [xchan.rb](https://github.com/r-uby-dev/xchan.rb)
 gem. The `fiber` strategy requires a scheduler (`Fiber.scheduler`) but by
 default Ruby does not provide one.
 
