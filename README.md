@@ -258,8 +258,6 @@ runtime and it can be extended by your code. Think of it as
 
 ##### Demo
 
-[Watch in high quality on asciinema](https://asciinema.org/a/OsS8wwaasKasoDDz)
-
 ![llm.rb console demo](demo.gif)
 
 
