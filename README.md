@@ -627,17 +627,24 @@ agent.talk "Hello"
 <summary>Observability</summary>
 <br>
 
-Trace what an agent is doing by attaching a tracer. Hook into
-requests, tool calls, and other runtime events to debug a
-misbehaving agent, monitor latency, or export spans to an
-observability backend. All built-in tracers share one interface,
-so switching between them means changing a factory method:
+It is possible to trace what an agent is doing by attaching a
+tracer. A tracer can hook into requests, tool calls, and other
+runtime events to debug an agent, provide insights, monitor latency,
+or export spans to an observability backend. All built-in tracers
+share one interface, so switching between them means changing a
+factory method:
 
 * [`LLM::Tracer.pretty_logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#pretty_logger-class_method): human-readable single-line logs to stderr, ideal during development.
 * [`LLM::Tracer.telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#telemetry-class_method):
 exports spans via OTLP for OpenTelemetry in production.
 * [`LLM::Tracer.logger`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#logger-class_method):
 structured JSON to stdout or a file.
+
+It is also possible to create your own tracer by creating a subclass
+of [`LLM::Tracer`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html)
+that implements a number of callbacks that cover an agent's lifecycle.
+The tracer feature provides visibility into what the runtime is doing,
+and the tracer API lets other code hook into that feature.
 
 ```ruby
 llm = LLM.deepseek(key: ENV["KEY"])
