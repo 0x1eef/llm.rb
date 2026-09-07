@@ -37,13 +37,27 @@ class LLM::Tool
     end
 
     ##
+    # @param [Hash] env
+    #  Extra environment variables to set for the command.
+    #  This is configuration for the tool instance, not a
+    #  model-provided parameter.
+    # @return [LLM::Tool::Exec]
+    def initialize(env: {})
+      @env = env
+    end
+
+    ##
     # @param [String] name
     #  The name of a command
     # @param [Array<String>] arguments
     #  One or more command-line arguments
+    # @param [Integer] timeout
+    #  The maximum allowed time for the command to run (in seconds)
+    # @param [Integer] max_bytes
+    #  the max number of bytes to emit
     # @return [Hash]
     def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
-      command = spawn(name:, arguments:, max_bytes:)
+      command = spawn(name:, arguments:, env:, max_bytes:)
       wait(command:, timeout:)
       {ok: command.success?,
        stdout: truncate(command.stdout, max_bytes:),
@@ -52,5 +66,9 @@ class LLM::Tool
       command.kill! if command&.running?
       raise
     end
+
+    private
+
+    attr_reader :env
   end
 end

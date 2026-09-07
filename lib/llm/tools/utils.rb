@@ -70,18 +70,21 @@ class LLM::Tool
     #  The command name
     # @param [Array<String>] arguments
     #  One or more arguments
+    # @param [Hash] env
+    #  Extra environment variables to set for the command
     # @param [Integer] max_bytes
     #  The max number of bytes to keep per stream.
     #  Defaults to the including tool's `self.class.max_bytes`.
     # @raise [ArgumentError]
     #  When `max_bytes` is nil
     # @return [Test::Command]
-    def spawn(name:, arguments:, max_bytes: self.class.max_bytes)
+    def spawn(name:, arguments:, env: {}, max_bytes: self.class.max_bytes)
       if Integer(max_bytes, exception: false).nil?
         raise ArgumentError, "max_bytes cannot be nil"
       end
       Command
         .new(name)
+        .env(env)
         .argv(*[*arguments])
         .limit(stdout: max_bytes, stderr: max_bytes)
         .spawn

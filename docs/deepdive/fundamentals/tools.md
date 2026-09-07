@@ -54,25 +54,20 @@ class Exec < LLM::Tool
   parameter :name, String, "the command's name"
   parameter :arguments, Array[String], "command args"
   required %i[name]
-  defaults arguments: [], timeout: 60
+  defaults arguments: [], timeout: 60, max_bytes: :max_bytes
 
-  def call(name:, arguments: [], timeout: 60)
-    command = spawn(name:, arguments:)
+  def self.max_bytes(bytes = nil)
+    bytes ? (@max_bytes = bytes) : (@max_bytes || 75_000)
+  end
+
+  def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
+    command = spawn(name:, arguments:, max_bytes:)
     wait(command:, timeout:)
     {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
   rescue LLM::Interrupt
     command.kill! if command&.running?
     raise
   end
-
-  private
-
-  def spawn(name:, arguments:)
-    Command.new(name).argv(*arguments).spawn
-  end
-
-  LLM.require "test-cmd.rb", "~> 2.5"
-  Command = Test::Command
 end
 
 llm = LLM.deepseek(key: ENV["KEY"])
@@ -192,24 +187,19 @@ class Exec < LLM::Tool
   parameter :name, String, "the command name"
   parameter :arguments, Array[String], "command args"
   required %i[name]
-  defaults arguments: [], timeout: 60
+  defaults arguments: [], timeout: 60, max_bytes: :max_bytes
 
-  def call(name:, arguments: [], timeout: 60)
-    command = spawn(name:, arguments:)
+  def self.max_bytes(bytes = nil)
+    bytes ? (@max_bytes = bytes) : (@max_bytes || 75_000)
+  end
+
+  def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
+    command = spawn(name:, arguments:, max_bytes:)
     wait(command:, timeout:)
     {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
   rescue Errno::ENOENT
     {ok: false, error: "command not found: #{name}"}
   end
-
-  private
-
-  def spawn(name:, arguments:)
-    Command.new(name).argv(*arguments).spawn
-  end
-
-  LLM.require "test-cmd.rb", "~> 2.5"
-  Command = Test::Command
 end
 ```
 
@@ -251,27 +241,24 @@ require "llm/tools/utils"
 class Exec < LLM::Tool
   include Utils
 
-  name "exec"
-  description "run a command without a shell"
-  parameter :name, String, "the command's name"
-  parameter :arguments, Array[String], "command args"
-  required %i[name]
-  defaults arguments: [], timeout: 60
+  set name: "exec",
+      description: "run a command without a shell",
+      parameters: [
+        [:name, String, "the command's name", {required: true}],
+        [:arguments, Array[String], "command args", {default: []}],
+        [:timeout, Integer, "timeout in seconds", {default: 60}],
+        [:max_bytes, Integer, "max bytes to emit", {default: 75_000}]
+      ]
 
-  def call(name:, arguments: [], timeout: 60)
-    command = spawn(name:, arguments:)
+  def self.max_bytes(bytes = nil)
+    bytes ? (@max_bytes = bytes) : (@max_bytes || 75_000)
+  end
+
+  def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
+    command = spawn(name:, arguments:, max_bytes:)
     wait(command:, timeout:)
     {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
   end
-
-  private
-
-  def spawn(name:, arguments:)
-    Command.new(name).argv(*arguments).spawn
-  end
-
-  LLM.require "test-cmd.rb", "~> 2.5"
-  Command = Test::Command
 end
 ```
 

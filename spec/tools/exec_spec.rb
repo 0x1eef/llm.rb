@@ -35,6 +35,7 @@ RSpec.describe LLM::Tool::Exec do
 
     context "when given arguments" do
       before do
+        allow(command).to receive(:env).and_return(command)
         allow(command).to receive(:argv).and_return(command)
         allow(command).to receive(:spawn).and_return(command)
         allow(command).to receive(:limit).and_return(command)
@@ -54,10 +55,30 @@ RSpec.describe LLM::Tool::Exec do
         expect(command).to have_received(:argv).with("hi")
       end
 
+      it "passes an empty env by default" do
+        expect(command).to have_received(:env).with({})
+      end
+
       it "returns the command output" do
         expect(tool.call(name: "echo", arguments: ["hi"])).to eq(
           ok: true, stdout: "hi\n", stderr: ""
         )
+      end
+    end
+
+    context "when constructed with env" do
+      before do
+        allow(command).to receive(:env).and_return(command)
+        allow(command).to receive(:argv).and_return(command)
+        allow(command).to receive(:spawn).and_return(command)
+        allow(command).to receive(:limit).and_return(command)
+        allow(LLM::Tool::Exec::Command).to receive(:new).and_return(command)
+      end
+
+      before { described_class.new(env: {"FOO" => "bar"}).call(name: "echo", arguments: ["hi"]) }
+
+      it "passes the env to the command" do
+        expect(command).to have_received(:env).with({"FOO" => "bar"})
       end
     end
   end
