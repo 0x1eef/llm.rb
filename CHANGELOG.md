@@ -62,17 +62,16 @@
   `LLM::Agent#repl`, the ORM wrappers' `#repl`, and `LLM::Command =`
   `LLM::Console::Command`.
 
-* **tools: `LLM::Tool::Git#call` names its argument `subcommand`** <br>
+* **tools: `LLM::Tool::Git#call` takes an `arguments:` array** <br>
   [`LLM::Tool::Git#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html)
-  now takes `subcommand:` in place of `action:`. The tool description,
-  parameter schema, and comments all use the `git subcommand` term,
-  matching how git itself is documented. A new
-  `LLM::Tool::Git.subcommands` class method returns the supported
-  subcommands (`log`, `diff`, `commit`, `checkout`, `branch`, `show`).
+  now takes a single `arguments:` array in place of the previous
+  `subcommand:` parameter. The first element must be one of `log`,
+  `diff`, `commit`, `checkout`, `branch`, or `show`, validated before the
+  command is spawned; the remaining elements are forwarded to git.
 
 * **tools: `LLM::Tool::Utils` now owns command spawning** <br>
   The shared [`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
-  module now requires the `test-cmd.rb` gem (at `~> 2.5`) itself and
+  module now requires the `test-cmd.rb` gem (at `~> 2.6`) itself and
   exposes the `spawn` and `wait` helpers, so any tool that includes
   `Utils` gets command spawning without requiring `exec` directly. The
   `Git`, `Mkdir`, `Rg`, `Ruby`, `Exec`, and `BundleExec` tools all
