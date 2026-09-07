@@ -76,9 +76,9 @@ counts occurrences of `before` and raises unless the count matches
 | [`LLM::Tool::Pwd`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Pwd.html) | `pwd` | none | Report the current working directory |
 | [`LLM::Tool::Ls`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ls.html) | `ls` | `path`, `glob` | List files and directories, optionally matching a glob |
 | [`LLM::Tool::Chdir`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Chdir.html) | `chdir` | `path` | Change the current working directory |
-| [`LLM::Tool::Mkdir`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Mkdir.html) | `mkdir` | `path` | Create a tree of directories |
-| [`LLM::Tool::ReadFile`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/ReadFile.html) | `read-file` | `path`, `start`, `stop` | Read a file, optionally a range of lines |
-| [`LLM::Tool::WriteFile`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/WriteFile.html) | `write-file` | `path`, `content` | Write a string to a file |
+| [`LLM::Tool::Mkdir`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Mkdir.html) | `mkdir` | `path`, `max_bytes` | Create a tree of directories |
+| [`LLM::Tool::ReadFile`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/ReadFile.html) | `read-file` | `path`, `start`, `stop`, `max_bytes` | Read a file, optionally a range of lines |
+| [`LLM::Tool::WriteFile`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/WriteFile.html) | `write-file` | `path`, `content`, `newline` | Write a string to a file |
 | [`LLM::Tool::EditFile`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/EditFile.html) | `edit-file` | `path`, `before`, `after`, `expected_count` | Replace an exact snippet in a file |
 
 #### Why would I use it?
@@ -93,7 +93,10 @@ writing a single tool.
 The `chdir` tool changes the working directory for the whole
 process, so subsequent file operations see the new directory. The
 `mkdir` tool creates parent directories, like `mkdir -p`. The `ls`
-tool raises when the path does not exist.
+tool raises when the path does not exist. The `read-file` tool
+accepts `start:` and `stop:` line numbers and caps its output at
+`max_bytes`, and the `write-file` tool appends a final newline by
+default (`newline: false` opts out).
 
 ### Search
 
@@ -141,17 +144,17 @@ in order and returns the first directory that contains an
 executable with the given name. When no match is found it returns
 `{ok: false, path: nil}`.
 
-### Shell
+### Command
 
 #### Overview
 
-The shell tools run real subprocesses: arbitrary commands through
-`shell`, Ruby code through `ruby`, and a fixed set of git actions
+The command tools run real subprocesses: arbitrary commands through
+`exec`, Ruby code through `ruby`, and a fixed set of git subcommands
 through `git`. All three accept a `timeout:` and kill the child
 process when the model interrupts the turn.
 
 ```ruby
-LLM::Tool::Shell.new.call(
+LLM::Tool::Exec.new.call(
   name: "bundle",
   arguments: ["exec", "rspec", "spec/llm"],
   timeout: 30
@@ -161,31 +164,77 @@ LLM::Tool::Shell.new.call(
 #### How it works
 
 When you want to run a command and capture its output, call the
-[`LLM::Tool::Shell#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html#call-instance_method)
+[`LLM::Tool::Exec#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html#call-instance_method)
 method with a `name:` and optional `arguments:`. The `git` tool
-accepts an `action:` from a fixed set, and the `ruby` tool runs its
-code in a fresh process.
+accepts a `subcommand:` from a fixed set, and the `ruby` tool runs
+its code in a fresh process.
 
 | Tool | Name | Parameters | Purpose |
 |---|---|---|---|
-| [`LLM::Tool::Shell`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html) | `shell` | `name`, `arguments`, `timeout` | Run a shell command |
-| [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html) | `git` | `action`, `arguments`, `timeout` | Run a fixed set of git actions |
+| [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html) | `exec` | `name`, `arguments`, `timeout` | Run a command without a shell |
+| [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html) | `git` | `subcommand`, `arguments`, `timeout` | Run a fixed set of git subcommands |
 | [`LLM::Tool::Ruby`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html) | `ruby` | `code`, `timeout` | Run a string of Ruby code |
 
 #### Why would I use it?
 
 Running tests, inspecting git history, and executing a snippet of
-Ruby are things a coding agent needs to do. The shell tools make
+Ruby are things a coding agent needs to do. The command tools make
 those actions first-class, and the timeout keeps a hanging command
 from stalling the conversation.
 
 #### Notes
 
-[`LLM::Tool::Shell`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html)
+[`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html)
 can be dangerous given a low-quality model. Gate it behind
 [`LLM::Agent#confirm`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm)
 or manage the tool loop manually through
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html).
 On interrupt, the running child process is killed. The `ruby` tool
 uses the same Ruby that launched llm.rb. The `git` tool wraps the
-actions `log`, `diff`, `commit`, `checkout`, `branch`, and `show`.
+subcommands `log`, `diff`, `commit`, `checkout`, `branch`, and `show`.
+
+### Bounded output
+
+#### Overview
+
+The built-in tools keep their returns from flooding the context
+window. Each tool that can produce a large result accepts a
+`max_bytes:` parameter, and an advisory class-level default
+[`LLM::Tool.max_bytes`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#max_bytes-class_method)
+(75,000) applies when none is given. `stdout` and `stderr` are each
+capped at that limit, so a call can produce up to twice `max_bytes`
+of output.
+
+#### How it works
+
+When you want to cap a tool call below the default, pass
+`max_bytes:` explicitly. The shared
+[`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
+helpers back this: [`spawn`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#spawn-instance_method)
+applies the limit to the command, [`truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#truncate-instance_method)
+cuts a string and appends a `[truncated: ...]` marker, and [`truncate!`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#truncate!-instance_method)
+returns a `[content, truncated]` tuple for a caller that wants to
+format the result itself:
+
+```ruby
+LLM::Tool.max_bytes(175_000)          # raise the default
+LLM::Tool::Exec.new.call(
+  name: "bundle",
+  arguments: ["exec", "rspec"],
+  max_bytes: 20_000
+)
+```
+
+#### Why would I use it?
+
+A runaway command or a huge file read can otherwise dump more text
+than fits the context window. Capping the output keeps the model
+focused on what matters, and the marker lets it know more content
+was available without re-requesting everything.
+
+#### Notes
+
+`LLM::Tool.max_bytes` alone does not enforce anything; the built-in
+tools use it through the `Utils` helpers. When you write your own
+tool that returns a long string, cap it with `truncate` or `truncate!`
+so a model cannot flood the window through your tool either.

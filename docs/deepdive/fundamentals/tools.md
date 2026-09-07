@@ -32,8 +32,8 @@ Tools that spawn subprocesses can include
 [`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
 to get shared
 [`wait(command:, timeout:)`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#wait-instance_method)
-and `now` help. The built-in `Shell`, `Git`, `Rg`, and `Mkdir` tools
-use it to kill a command that exceeds its `timeout`.
+and `now` help. The built-in `Exec`, `Git`, `Rg`, `Mkdir`, and `Ruby`
+tools use it to kill a command that exceeds its `timeout`.
 
 If
 [`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
@@ -44,22 +44,39 @@ also handle errors yourself inside
 by rescuing and returning a domain-specific error hash.
 
 ```ruby
-class Shell < LLM::Tool
-  set name: "shell",
-      description: "execute a shell command",
-      parameters: [
-        [:name, String, "the command's name", {required: true}],
-        [:arguments, Array[String], "command args", {default: []}]
-      ]
+require "llm/tools/utils"
 
-  def call(name:, arguments: [])
-    out = `#{name.shellescape} #{arguments.map(&:shellescape).join(" ")}`
-    {ok: $?.success?, out:}
+class Exec < LLM::Tool
+  include Utils
+
+  name "exec"
+  description "run a command without a shell"
+  parameter :name, String, "the command's name"
+  parameter :arguments, Array[String], "command args"
+  required %i[name]
+  defaults arguments: [], timeout: 60
+
+  def call(name:, arguments: [], timeout: 60)
+    command = spawn(name:, arguments:)
+    wait(command:, timeout:)
+    {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
+  rescue LLM::Interrupt
+    command.kill! if command&.running?
+    raise
   end
+
+  private
+
+  def spawn(name:, arguments:)
+    Command.new(name).argv(*arguments).spawn
+  end
+
+  LLM.require "test-cmd.rb", "~> 2.5"
+  Command = Test::Command
 end
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, tools: [Shell], stream: $stdout)
+agent = LLM::Agent.new(llm, tools: [Exec], stream: $stdout)
 agent.talk "What files are in the current working directory?"
 ```
 
@@ -165,20 +182,34 @@ message: "boom"}` to the model. You can also rescue inside
 and return your own error shape that gives the model more context.
 
 ```ruby
-class Shell < LLM::Tool
-  set name: "shell",
-      description: "run a shell command",
-      parameters: [
-        [:name, String, "the command name", {required: true}],
-        [:arguments, Array[String], "command args", {default: []}]
-      ]
+require "llm/tools/utils"
 
-  def call(name:, arguments: [])
-    out = `#{name} #{arguments.join(" ")}`
-    {ok: $?.success?, out:}
+class Exec < LLM::Tool
+  include Utils
+
+  name "exec"
+  description "run a command without a shell"
+  parameter :name, String, "the command name"
+  parameter :arguments, Array[String], "command args"
+  required %i[name]
+  defaults arguments: [], timeout: 60
+
+  def call(name:, arguments: [], timeout: 60)
+    command = spawn(name:, arguments:)
+    wait(command:, timeout:)
+    {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
   rescue Errno::ENOENT
     {ok: false, error: "command not found: #{name}"}
   end
+
+  private
+
+  def spawn(name:, arguments:)
+    Command.new(name).argv(*arguments).spawn
+  end
+
+  LLM.require "test-cmd.rb", "~> 2.5"
+  Command = Test::Command
 end
 ```
 
@@ -215,18 +246,32 @@ with a Hash. The keys match the individual method names. The
 individual `parameter` method does.
 
 ```ruby
-class Shell < LLM::Tool
-  set name: "shell",
-      description: "execute a shell command",
-      parameters: [
-        [:name, String, "the command's name", {required: true}],
-        [:arguments, Array[String], "One or more arguments", {default: []}]
-      ]
+require "llm/tools/utils"
 
-  def call(name:, arguments: [])
-    out = `#{name.shellescape} #{arguments.map(&:shellescape).join(" ")}`
-    {ok: $?.success?, out:}
+class Exec < LLM::Tool
+  include Utils
+
+  name "exec"
+  description "run a command without a shell"
+  parameter :name, String, "the command's name"
+  parameter :arguments, Array[String], "command args"
+  required %i[name]
+  defaults arguments: [], timeout: 60
+
+  def call(name:, arguments: [], timeout: 60)
+    command = spawn(name:, arguments:)
+    wait(command:, timeout:)
+    {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
   end
+
+  private
+
+  def spawn(name:, arguments:)
+    Command.new(name).argv(*arguments).spawn
+  end
+
+  LLM.require "test-cmd.rb", "~> 2.5"
+  Command = Test::Command
 end
 ```
 

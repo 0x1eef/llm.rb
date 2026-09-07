@@ -71,7 +71,7 @@ Keyword arguments in the constructor override these defaults.
 class Agent < LLM::Agent
   set model: "deepseek-v4-pro",
       description: "system administration agent",
-      tools: [Shell]
+      tools: [Exec]
 end
 
 llm = LLM.openai(key: ENV["KEY"])
