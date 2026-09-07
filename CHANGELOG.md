@@ -28,6 +28,7 @@
 | `Git#call(action: "log")` | `Git#call(subcommand: "log")` |
 | `ReadFile#call` returns `{ok:, content:}` | returns `{ok:, lines:, truncated:}` |
 | `LLM.logger(llm, **opts)` | `LLM::Tracer.logger(llm, **opts)` |
+| `WriteFile#call` writes the content exactly as given | appends a final newline by default; pass `newline: false` to write exactly |
 
 * **tools: rename `shell` to `exec`** <br>
   The command tool is renamed to
@@ -98,6 +99,54 @@
 
 ### Tools
 
+* **tools: rename `shell` to `exec`** <br>
+  The command tool is renamed to
+  [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html),
+  which better reflects that it spawns a command without a shell. The tool
+  name and description change from `shell` ("run a shell command") to
+  `exec` ("run a command without a shell"). The old `require
+  "llm/tools/shell"` path no longer exists; use `require
+  "llm/tools/exec"` instead.
+
+* **tools: rename `repl` as `console`** <br>
+  The interactive loop is renamed to
+  [`LLM::Console`](https://r.uby.dev/api-docs/llm.rb/LLM/Console.html),
+  which better reflects what it does. `agent.console` is the primary
+  entry point, and the require path moves from `llm/repl` to
+  `llm/console`. Backwards-compatible aliases remain: `LLM::Repl`,
+  `LLM::Agent#repl`, the ORM wrappers' `#repl`, and `LLM::Command =`
+  `LLM::Console::Command`.
+
+* **tools: rename `LLM::Tool::Git`'s `action` parameter to `subcommand`** <br>
+  `LLM::Tool::Git#call` now takes `subcommand:` instead of `action:`.
+  The tool description, parameter schema, and comments all use the
+  `git subcommand` term, matching how git itself is documented. A new
+  `LLM::Tool::Git.subcommands` class method returns the supported
+  subcommands (`log`, `diff`, `commit`, `checkout`, `branch`, `show`).
+
+* **tools: `LLM::Tool::Utils` now owns command spawning** <br>
+  The shared [`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
+  module now requires the `test-cmd.rb` gem (at `~> 2.5`) itself and
+  exposes the `spawn` and `wait` helpers, so any tool that includes
+  `Utils` gets command spawning without requiring `exec` directly. The
+  `Git`, `Mkdir`, `Rg`, `Ruby`, `Exec`, and `BundleExec` tools all
+  inherit their bounded-output protections from this shared runner.
+
+* **tools: route `git`, `rg`, `mkdir`, and `ruby` through `exec`** <br>
+  `LLM::Tool::Git`, `LLM::Tool::Rg`, `LLM::Tool::Mkdir`, and
+  `LLM::Tool::Ruby` now implement their calls through the `exec` tool,
+  completing the refactor so every tool that shells out flows through
+  the shared command runner with its bounded output.
+
+* **tools: read-file returns structured lines** <br>
+  `LLM::Tool::ReadFile#call` now returns its content as structured
+  `{lineno:, content:}` lines under a `lines:` key instead of a single
+  `content:` string, and adds a `truncated:` flag. A reversed range
+  (`start: 20, stop: 2`) is swapped to read lines 2 through 20. The
+  truncation marker is kept out of the returned lines, so the model
+  does not mistake it for a real file line. Callers that read the raw
+  `content:` string must switch to the `lines:` array.
+
 * **tools: write-file appends a trailing newline by default** <br>
   `LLM::Tool::WriteFile` now ensures written content ends with a newline,
   adding one when the content does not already end with `\n`. It previously
@@ -112,41 +161,24 @@
   backslash sequences like `\1` and `\&` literal.
 
 * **tools: bound tool output with a per-tool `max_bytes`** <br>
-  Each of the `Exec`, `ReadFile`, `Rg`, `Mkdir`, and `Ruby` tools adds a
-  class-level `max_bytes` accessor (default 75,000) for the maximum
-  number of bytes the tool returns to the model, for example
-  `LLM::Tool::ReadFile.max_bytes(175_000)`. It does not enforce the
-  limit by itself;
+  Each of the `Exec`, `ReadFile`, `Rg`, `Mkdir`, `Ruby`, and
+  `BundleExec` tools gains a `max_bytes` limit (default 75,000) for the
+  maximum number of bytes a tool returns to the model. `Exec` and
+  `ReadFile` add the class-level `max_bytes` accessor, which the other
+  tools inherit through `Exec`, so each tool's cap can be configured
+  independently, for example `LLM::Tool::ReadFile.max_bytes(175_000)`.
+  It does not enforce the limit by itself;
   [`LLM::Tool::Utils#truncate`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#truncate-instance_method)
   trims a string within the limit and marks the trailing content as
-  truncated.
+  truncated, and `truncate!` returns a `[content, truncated]` tuple for
+  callers that structure truncated output themselves. `rg` also gains a
+  `max_count:` parameter that caps the number of results per file.
 
-* **tools: bound `read-file`, `rg`, and `exec` output** <br>
-  `LLM::Tool::ReadFile`, `LLM::Tool::Rg`, and `LLM::Tool::Exec` now accept a
-  `max_bytes:` parameter and truncate their output within
-  the tool's `max_bytes`, so a large file read or a runaway search can no
-  longer flood the context window. `rg` also gains a `max_count:` parameter
-  that caps the number of results per file.
-
-* **tools: add `LLM::Tool::Utils#truncate!`** <br>
-  [`LLM::Tool::Utils#truncate!`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html#truncate!-instance_method)
-  returns a `[content, truncated]` tuple, cutting a string to `max_bytes`
-  without the `[truncated: ...]` marker that `truncate` appends, so a tool
-  can structure truncated output itself. `read-file` uses it to keep the
-  marker out of its returned lines.
-
-* **tools: route `git` and `rg` through `exec`** <br>
-  `LLM::Tool::Git` and `LLM::Tool::Rg` now implement their calls through the
-  `exec` tool, inheriting its bounded-output protections and dropping the
-  duplicated command-spawning code.
-
-* **tools: route `mkdir` and `ruby` through the `exec` tool** <br>
-  `LLM::Tool::Mkdir` and `LLM::Tool::Ruby` now implement their calls
-  through the `exec` tool, completing the refactor so every tool that
-  shells out flows through the shared command runner with its bounded
-  output. The shared runner is `LLM::Tool::Exec`, the renamed
-  `LLM::Tool::Shell`, so requiring `llm/tools/exec` replaces the old
-  `llm/tools/shell` path.
+* **tools: add a `bundle-exec` tool** <br>
+  A new [`LLM::Tool::BundleExec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/BundleExec.html)
+  tool spawns a command through `bundle exec` without going through the
+  `exec` tool. It uses the `BUNDLE_GEMFILE` environment variable when set,
+  or falls back to a `Gemfile` in the current working directory.
 
 * **tools: resolve defaults through `LLM::Utils.resolve_option`** <br>
   A tool parameter default can now be an immediate value, a Symbol resolved
@@ -154,12 +186,6 @@
   how `LLM::Agent` resolves its attributes. This lets a default track a
   value that can change between boot and runtime, such as a tool's
   `max_bytes`.
-
-* **tools: require `test-cmd.rb` `~> 2.5`** <br>
-  The `Git`, `Mkdir`, `Rg`, `Ruby`, and `Exec` tools now require the
-  `test-cmd.rb` gem at `~> 2.5`, so they load against the updated command
-  runner, which can read a limited number of bytes and drop any further
-  output so a misbehaving command cannot flood memory.
 
 ### Registry
 
