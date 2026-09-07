@@ -143,9 +143,8 @@ RSpec.describe LLM::Tool::Exec do
     end
 
     context "when given a byte limit" do
-      let(:name) { "ruby" }
       let(:arguments) { ["-e", "STDOUT.write('x' * 1000)"] }
-      let(:result) { tool.call(name:, arguments:, max_bytes: 16) }
+      let(:result) { tool.call(name: RbConfig.ruby, arguments:, max_bytes: 16) }
 
       it "caps stdout at max_bytes" do
         expect(result[:stdout]).to eq("x" * 16)
