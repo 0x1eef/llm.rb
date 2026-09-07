@@ -5,7 +5,7 @@
 
 #### Overview
 
-llm.rb ships with twelve ready-made tools that cover the operations
+llm.rb ships with thirteen ready-made tools that cover the operations
 a coding or system agent needs most: filesystem work, search, and
 shell commands. Each tool is a subclass of
 [`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
@@ -67,9 +67,11 @@ LLM::Tool::EditFile.new.call(
 
 Each filesystem tool takes a path and returns a result Hash. The
 `read-file` tool reads a whole file by default and accepts `start:`
-and `stop:` to read a range of lines instead. The `edit-file` tool
-counts occurrences of `before` and raises unless the count matches
-`expected_count`, which defaults to 1.
+and `stop:` to read a range of lines instead, returning the content
+as `{lineno:, content:}` lines with a `truncated:` flag. A reversed
+range (`start: 20, stop: 2`) is swapped to read lines 2 through 20.
+The `edit-file` tool counts occurrences of `before` and raises unless
+the count matches `expected_count`, which defaults to 1.
 
 | Tool | Name | Parameters | Purpose |
 |---|---|---|---|
@@ -149,9 +151,10 @@ executable with the given name. When no match is found it returns
 #### Overview
 
 The command tools run real subprocesses: arbitrary commands through
-`exec`, Ruby code through `ruby`, and a fixed set of git subcommands
-through `git`. All three accept a `timeout:` and kill the child
-process when the model interrupts the turn.
+`exec`, Ruby code through `ruby`, commands inside a Bundler context
+through `bundle-exec`, and a fixed set of git subcommands through
+`git`. All of them accept a `timeout:` and kill the child process
+when the model interrupts the turn.
 
 ```ruby
 LLM::Tool::Exec.new.call(
@@ -166,14 +169,27 @@ LLM::Tool::Exec.new.call(
 When you want to run a command and capture its output, call the
 [`LLM::Tool::Exec#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html#call-instance_method)
 method with a `name:` and optional `arguments:`. The `git` tool
-accepts a `subcommand:` from a fixed set, and the `ruby` tool runs
-its code in a fresh process.
+accepts a `subcommand:` from a fixed set, the `ruby` tool runs
+its code in a fresh process, and the `bundle-exec` tool runs a
+command under the project's Bundler context. `bundle-exec` inherits
+the `BUNDLE_GEMFILE` environment variable when set, or defaults to a
+`Gemfile` in the current working directory, so the model can run
+project tools like `rspec` or `rake` with the right gems loaded:
+
+```ruby
+LLM::Tool::BundleExec.new.call(
+  name: "rspec",
+  arguments: ["spec/llm"],
+  timeout: 60
+)
+```
 
 | Tool | Name | Parameters | Purpose |
 |---|---|---|---|
 | [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html) | `exec` | `name`, `arguments`, `timeout` | Run a command without a shell |
 | [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html) | `git` | `subcommand`, `arguments`, `timeout` | Run a fixed set of git subcommands |
 | [`LLM::Tool::Ruby`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html) | `ruby` | `code`, `timeout` | Run a string of Ruby code |
+| [`LLM::Tool::BundleExec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/BundleExec.html) | `bundle-exec` | `name`, `arguments`, `timeout` | Run a command through `bundle exec` |
 
 #### Why would I use it?
 

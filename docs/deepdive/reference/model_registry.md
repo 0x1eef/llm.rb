@@ -7,7 +7,7 @@
 The model registry is a catalog of every model each provider offers,
 shipped with llm.rb under `data/<provider>.json`. The data is sourced
 from [models.dev](https://models.dev) and powers cost estimation,
-context-window limits, and the `/model` auto-complete in the REPL.
+context-window limits, and the `/model` auto-complete in the console.
 
 [`LLM::Registry`](https://r.uby.dev/api-docs/llm.rb/LLM/Registry.html)
 exposes that catalog, and

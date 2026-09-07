@@ -69,8 +69,11 @@ returns a
 for each model, which you can inspect, filter, and sort by price:
 
 ```ruby
-registry = agent.registry
-registry.keys                  # => ["deepseek-v4-flash", ...]
+require "llm"
+
+llm      = LLM.openai
+registry = llm.registry
+registry.keys                  # => ["gpt-image-2", "gpt-5.2-pro", ...]
 registry.models.sort.first.id  # => cheapest model
 ```
 
@@ -86,6 +89,88 @@ Each provider ships a `data/<provider>.json` registry file. A
 missing model or registry raises `LLM::NoSuchModelError` or
 `LLM::NoSuchRegistryError`, which the runtime rescues to default
 gracefully (for example, an unknown context window reads as `nil`).
+
+### Moonshot
+
+#### Overview
+
+[`LLM::Moonshot`](https://r.uby.dev/api-docs/llm.rb/LLM/Moonshot.html)
+talks to [Moonshot AI](https://platform.moonshot.ai) through its
+OpenAI-compatible Kimi API, including the Kimi family of models. It
+is created with
+[`LLM.moonshot`](https://r.uby.dev/api-docs/llm.rb/LLM.html#moonshot-class_method).
+
+#### How it works
+
+Create a Moonshot provider with an API key, then use it like any
+OpenAI-compatible provider. The default `host:` is
+`api.moonshot.ai` with `base_path` `/v1`, and the default model is
+`kimi-k3`:
+
+```ruby
+require "llm"
+
+llm = LLM.moonshot(key: ENV["MOONSHOT_API_KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk "Hello"
+```
+
+#### Why would I use it?
+
+Moonshot's Kimi models are a capable OpenAI-compatible option. The
+factory accepts the same `key:`, `host:`, and `base_path:` options
+as the OpenAI provider, so code written for OpenAI runs unchanged.
+
+#### Notes
+
+Moonshot supports chat completions, streaming, tool calls, and
+structured output through the shared OpenAI-compatible path. Image,
+audio, moderation, responses, and vector store endpoints raise
+`NotImplementedError`. Model metadata ships in `data/moonshot.json`
+for the registry.
+
+### OpenRouter
+
+#### Overview
+
+[`LLM::OpenRouter`](https://r.uby.dev/api-docs/llm.rb/LLM/OpenRouter.html)
+talks to [OpenRouter](https://openrouter.ai) through its
+OpenAI-compatible API. OpenRouter aggregates models from many
+providers behind one endpoint. It is created with
+[`LLM.openrouter`](https://r.uby.dev/api-docs/llm.rb/LLM.html#openrouter-class_method).
+
+#### How it works
+
+Create an OpenRouter provider with an API key, then use it like any
+OpenAI-compatible provider. The default `host:` is `openrouter.ai`
+with `base_path` `/api/v1`, and it defaults to the `openrouter/auto`
+router model, which routes each request to the best available model:
+
+```ruby
+require "llm"
+
+llm = LLM.openrouter(key: ENV["OPENROUTER_API_KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk "Hello"
+```
+
+The router model can be overridden per call with `model:`, for
+example `ctx.talk("Hello", model: "anthropic/claude-3.5-sonnet")`.
+
+#### Why would I use it?
+
+OpenRouter gives you one key and one endpoint for models from many
+providers, so switching models means changing a model string rather
+than a provider. It is useful when you want to compare providers or
+follow a model that moves.
+
+#### Notes
+
+OpenRouter supports chat completions, streaming, tool calls,
+structured output, and embeddings through the shared
+OpenAI-compatible path. Image, audio, moderation, files, and vector
+store endpoints raise `NotImplementedError`. Model metadata ships in
+`data/openrouter.json` for the registry.
 
 ### Alibaba
 

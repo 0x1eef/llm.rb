@@ -67,10 +67,11 @@ agent.console(skills: [__dir__])
 
 The frontmatter at the top of a skill file controls how the
 subagent sees itself and what it can reach. It sets the skill's
-name (which becomes the tool name), a description (which the
-model reads to decide when to call it), and a tool list (which
-limits what the subagent can do). Leave the tools out and the
-subagent has none. Set them to `all` and it has everything.
+name (which becomes the tool name, with a `-skill` suffix), a
+description (which the model reads to decide when to call it),
+an optional model (which the subagent runs on), and a tool list
+(which limits what the subagent can do). Leave the tools out and
+the subagent has none. Set them to `all` and it has everything.
 
 Skills can be loaded from a directory containing a `SKILL.md` file
 or from a direct path to a markdown file.
@@ -90,6 +91,7 @@ forms:
 |---|---|
 | `name` | A short identifier for the skill. Used as the tool name. |
 | `description` | Explains to the model what the skill does. Used as the tool description. |
+| `model` | The model the subagent runs on. Defaults to the parent agent's model. |
 | `tools` | Controls what the subagent can call. See below. |
 
 | Value | Behavior |
@@ -107,5 +109,11 @@ into the skill. An explicit list restricts the subagent to only
 the tools it needs.
 
 #### Notes
+
+The skill's tool is always named `"<name>-skill"` so it cannot
+collide with a tool the skill itself exposes: a skill named `weather`
+that loads a `weather` tool would otherwise register both under the
+same name. The `model` field is optional; when omitted the subagent
+runs on the same model as the parent agent.
 
 The fewer tools a subagent has, the less it can wander.

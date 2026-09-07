@@ -21,8 +21,8 @@ extra tools for the session.
 
 Commands start with `/` and are dispatched to registered
 [`LLM::Command`](https://r.uby.dev/api-docs/llm.rb/LLM/Console/Command.html)
-subclasses. Type `/compact` to free context window
-space, `/exit` to leave.
+subclasses. Type `/compact` (or its alias `/keep`) to free context
+window space, `/exit` to leave.
 
 The top chrome row shows the active model on the left and the
 current working directory on the right. Switch models mid-session

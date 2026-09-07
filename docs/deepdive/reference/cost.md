@@ -18,7 +18,7 @@ When you want to know what a conversation cost so far, call
 [`LLM::Context#cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cost-instance_method)
 (or
 [`LLM::Agent#cost`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#cost-instance_method))
-and read the breakdown. The REPL shows this live in its status bar
+and read the breakdown. The console shows this live in its status bar
 after every turn:
 
 ```ruby

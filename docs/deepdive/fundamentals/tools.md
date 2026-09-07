@@ -330,7 +330,7 @@ decide to retry or continue with the results it has.
 
 #### Overview
 
-llm.rb ships with twelve ready-made tools that cover filesystem,
+llm.rb ships with thirteen ready-made tools that cover filesystem,
 search, and shell operations. Load them all with
 `require "llm/tools"`. Each tool is documented in the
 [built-in tools catalog](builtin_tools.md).

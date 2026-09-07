@@ -47,13 +47,14 @@ compactor.call(keep: 200)
 
 ##### The `/compact` command
 
-The REPL provides a `/compact` command that accepts a count or
-percentage:
+The console provides a `/compact` command that accepts a count or
+percentage (aliased as `/keep`):
 
 ```ruby
 # /compact        # keep last 128 messages
 # /compact 50     # keep last 50 messages
 # /compact 75%    # keep approximately 75% of messages
+# /keep 50%       # same as /compact 50%
 ```
 
 #### Why would I use it?
