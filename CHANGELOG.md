@@ -187,6 +187,16 @@
   against the socket-based channel that keeps the writer and reader from
   getting stuck.
 
+* **async: fix a shutdown exception on the reactor thread** <br>
+  Fix a bug where the `:async` strategy's
+  [`LLM::Function::Async::Reactor`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Async/Reactor.html)
+  raised a `TypeError` on shutdown with recent `async` and `io-event`
+  versions, because their internals tried to raise an integer as an
+  exception. The scheduler is now detached from the reactor thread
+  before it exits, which avoids that code path entirely, and teardown
+  is managed by `reactor.stop`, so the thread exits promptly instead of
+  abruptly or hanging.
+
 ## v15.1.0
 
 Changes since `v15.0.3`.
