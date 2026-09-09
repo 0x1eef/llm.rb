@@ -38,9 +38,10 @@
   request lifecycle, so the console backs it up by interrupting the thread
   that runs the agent.
 
-* **console: alias `/compact` as `/keep`** <br>
-  The console now accepts `/keep` as an alias of `/compact`, so `/keep 20%`
-  keeps 20% of the context window. Closes
+* **console: add a `/keep` command and retire `/compact`** <br>
+  The console now offers `/keep` for freeing space in the context window;
+  the `/compact` command is removed. `/keep` takes the same argument, so
+  `/keep 20%` keeps 20% of the context window. Closes
   [issue #161](https://github.com/r-uby-dev/llm.rb/issues/161).
 
 * **console: keep the UI responsive during long streams** <br>
