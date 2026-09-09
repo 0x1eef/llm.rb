@@ -178,9 +178,8 @@ the `BUNDLE_GEMFILE` environment variable when set, or defaults to a
 project tools like `rspec` or `rake` with the right gems loaded:
 
 ```ruby
-LLM::Tool::BundleExec.new.call(
-  name: "rspec",
-  arguments: ["spec/llm"],
+LLM::Tool::Bundle.new.call(
+  arguments: ["exec", "spec/llm"],
   timeout: 60
 )
 ```

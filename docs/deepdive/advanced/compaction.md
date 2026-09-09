@@ -45,16 +45,15 @@ compactor = LLM::Compactor::Truncate.new(agent)
 compactor.call(keep: 200)
 ```
 
-##### The `/compact` command
+##### The `/keep` command
 
-The console provides a `/compact` command that accepts a count or
-percentage (aliased as `/keep`):
+The console provides a `/keep` command that accepts a count or
+percentage:
 
 ```ruby
-# /compact        # keep last 128 messages
-# /compact 50     # keep last 50 messages
-# /compact 75%    # keep approximately 75% of messages
-# /keep 50%       # same as /compact 50%
+# /keep        # keep last 128 messages
+# /keep 50     # keep last 50 messages
+# /keep 75%    # keep approximately 75% of messages
 ```
 
 #### Why would I use it?
