@@ -235,7 +235,7 @@ class LLM::Console
       self.class.parameters
     end
 
-    require_relative "commands/compact"
+    require_relative "commands/keep"
     require_relative "commands/exit"
     require_relative "commands/help"
     require_relative "commands/model"

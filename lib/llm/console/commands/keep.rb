@@ -2,15 +2,15 @@
 
 class LLM::Console
   ##
-  # The 'compact' command frees space in the
+  # The 'keep' command frees space in the
   # context window and llm.rb is designed to
   # support multiple compaction strategies with
   # different trade offs. This command, though,
   # uses the 'truncate' strategy. See
   # {LLM::Compactor::Truncate LLM::Compactor::Truncate}
   # for more details.
-  class Command::Compact < Command
-    name "compact"
+  class Command::Keep < Command
+    name "keep"
     description "free space in the context window"
     parameter :n, String, "the number of messages to keep\n" \
                           "it can also be given as a percentage."
@@ -19,9 +19,9 @@ class LLM::Console
     ##
     # @return [void]
     def call(n:)
-      write "compact in progress"
+      write "keep in progress"
       compactor.call(keep: n)
-      write "compact complete"
+      write "keep complete"
     end
 
     private
@@ -31,12 +31,5 @@ class LLM::Console
     def compactor
       @compactor ||= LLM::Compactor::Truncate.new(agent)
     end
-  end
-
-  ##
-  # An alias of /compact.
-  # Eg /keep 50%.
-  class Command::Keep < Command::Compact
-    name "keep"
   end
 end
