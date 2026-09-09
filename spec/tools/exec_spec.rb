@@ -6,7 +6,7 @@ require "llm/tools/exec"
 RSpec.describe LLM::Tool::Exec do
   let(:tool) { described_class.new }
   let(:command) do
-    instance_double(Test::Command, running?: false, success?: true, stdout: "hi\n", stderr: "")
+    instance_double(Test::Command, running?: false, success?: true, stdout: "hi\n", stderr: "", :not_found? => false)
   end
 
   describe ".function" do
@@ -36,7 +36,7 @@ RSpec.describe LLM::Tool::Exec do
     context "when given arguments" do
       before do
         allow(command).to receive(:env).and_return(command)
-        allow(command).to receive(:argv).and_return(command)
+        allow(command).to receive(:arguments).and_return(command)
         allow(command).to receive(:spawn).and_return(command)
         allow(command).to receive(:limit).and_return(command)
         allow(LLM::Tool::Exec::Command).to receive(:new).and_return(command)
@@ -51,7 +51,7 @@ RSpec.describe LLM::Tool::Exec do
       end
 
       it "passes the arguments to the command" do
-        expect(command).to have_received(:argv).with("hi")
+        expect(command).to have_received(:arguments).with("hi")
       end
 
       it "passes an empty env by default" do
@@ -68,7 +68,7 @@ RSpec.describe LLM::Tool::Exec do
     context "when constructed with env" do
       before do
         allow(command).to receive(:env).and_return(command)
-        allow(command).to receive(:argv).and_return(command)
+        allow(command).to receive(:arguments).and_return(command)
         allow(command).to receive(:spawn).and_return(command)
         allow(command).to receive(:limit).and_return(command)
         allow(LLM::Tool::Exec::Command).to receive(:new).and_return(command)
@@ -88,6 +88,18 @@ RSpec.describe LLM::Tool::Exec do
 
     before do
       skip "#{name} is not on the PATH" unless command_available?(name)
+    end
+
+    context "when the command is not found" do
+      let(:name) { "definitely-not-a-real-command-xyz" }
+
+      it "reports ok as false" do
+        expect(result[:ok]).to be(false)
+      end
+
+      it "reports the error message" do
+        expect(result[:error]).to include(name)
+      end
     end
 
     context "given echo" do

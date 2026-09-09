@@ -85,7 +85,7 @@ class LLM::Tool
       Command
         .new(name)
         .env(env)
-        .argv(*[*arguments])
+        .arguments(*[*arguments])
         .limit(stdout: max_bytes, stderr: max_bytes)
         .spawn
     end
@@ -98,7 +98,7 @@ class LLM::Tool
 
     ##
     # requires test-cmd.rb
-    LLM.require "test-cmd.rb", "~> 2.6"
+    LLM.require "test-cmd.rb", "~> 2.7"
     Command = Test::Command
   end
 end

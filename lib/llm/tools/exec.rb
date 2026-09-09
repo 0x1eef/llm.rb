@@ -59,9 +59,13 @@ class LLM::Tool
     def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
       command = spawn(name:, arguments:, env:, max_bytes:)
       wait(command:, timeout:)
-      {ok: command.success?,
-       stdout: truncate(command.stdout, max_bytes:),
-       stderr: truncate(command.stderr, max_bytes:)}
+      if command.not_found?
+        {ok: false, error: "command '#{name}' was not found on this system"}
+      else
+        {ok: command.success?,
+        stdout: truncate(command.stdout, max_bytes:),
+        stderr: truncate(command.stderr, max_bytes:)}
+      end
     rescue LLM::Interrupt
       command.kill! if command&.running?
       raise
