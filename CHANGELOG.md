@@ -53,6 +53,12 @@
   `ruby`, and the new `bundle-exec` all route through it and inherit
   its bounded output.
 
+* **tools: report when a command cannot be found** <br>
+  `LLM::Tool::Exec` now returns `{ok: false, error: "command 'NAME' was
+  not found on this system"}` when the requested command is missing,
+  instead of a bare `{ok: false}` result that did not tell the model why
+  the tool failed.
+
 * **tools: rename `repl` as `console`** <br>
   The interactive loop is renamed to
   [`LLM::Console`](https://r.uby.dev/api-docs/llm.rb/LLM/Console.html),
@@ -71,7 +77,7 @@
 
 * **tools: `LLM::Tool::Utils` now owns command spawning** <br>
   The shared [`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
-  module now requires the `test-cmd.rb` gem (at `~> 2.6`) itself and
+  module now requires the `test-cmd.rb` gem (at `~> 2.7`) itself and
   exposes the `spawn` and `wait` helpers, so any tool that includes
   `Utils` gets command spawning without requiring `exec` directly. The
   `Git`, `Mkdir`, `Rg`, `Ruby`, `Exec`, and `BundleExec` tools all
