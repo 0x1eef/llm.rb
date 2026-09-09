@@ -2,22 +2,20 @@
 
 class LLM::Tool
   ##
-  # The {LLM::Tool::BundleExec} class implements
-  # a tool that runs a command through `bundle exec`.
+  # The {LLM::Tool::Bundle} class implements
+  # a tool that runs a command through `bundle`.
   # It inherits the `BUNDLE_GEMFILE` environment
   # variable when set, or defaults to a `Gemfile`
   # in the current working directory.
-  class BundleExec < self
+  class Bundle < self
     require_relative "exec"
 
-    name "bundle-exec"
-    description "Run a command through bundle exec\n" \
-                "This command (bundle exec) is spawned without a shell"
-    parameter :name, String, "the command name"
+    name "bundle"
+    description "Run a command through 'bundle'\n" \
+                "This command (bundle) is spawned without a shell"
     parameter :arguments, Array[String], "one or more command arguments"
     parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"
     parameter :max_bytes, Integer, "max number of bytes to emit"
-    required %i[name]
     defaults arguments: [], timeout: 60, max_bytes: -> { Exec.max_bytes }
 
     ##
@@ -36,10 +34,10 @@ class LLM::Tool
     # @param [Integer] max_bytes
     #  Max number of bytes to emit
     # @return [Hash]
-    def call(name:, arguments: [], timeout: 60, max_bytes: Exec.max_bytes)
+    def call(arguments: [], timeout: 60, max_bytes: Exec.max_bytes)
       Exec.new(env:).call(
         name: "bundle",
-        arguments: ["exec", name, *arguments],
+        arguments:,
         timeout:,
         max_bytes:
       )

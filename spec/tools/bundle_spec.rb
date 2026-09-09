@@ -2,12 +2,12 @@
 
 require "setup"
 require "tmpdir"
-require "llm/tools/bundle_exec"
+require "llm/tools/bundle"
 require "llm/tools/exec"
 
-RSpec.describe LLM::Tool::BundleExec do
+RSpec.describe LLM::Tool::Bundle do
   let(:tool) { described_class.new }
-  let(:dir) { Dir.mktmpdir("bundle-exec-spec") }
+  let(:dir) { Dir.mktmpdir("bundle-spec") }
   let(:gemfile) { File.join(dir, "Gemfile") }
 
   around do |example|
@@ -25,14 +25,6 @@ RSpec.describe LLM::Tool::BundleExec do
   describe ".function" do
     let(:params) { described_class.function.params }
 
-    it "defines the name param" do
-      expect(params.properties[:name]).to be_a(LLM::Schema::String)
-    end
-
-    it "marks the name param as required" do
-      expect(params.properties[:name]).to be_required
-    end
-
     it "has a timeout parameter with a default" do
       expect(params.properties[:timeout].default).to eq(60)
     end
@@ -49,15 +41,14 @@ RSpec.describe LLM::Tool::BundleExec do
     end
 
     it "runs the command through bundle exec" do
-      expect(tool.call(name: "ruby", arguments: ["-e", "puts 123"], timeout: 60))
+      expect(tool.call(arguments: ["exec", "ruby", "-e", "puts 123"], timeout: 60))
         .to eq(ok: true, stdout: "123\n", stderr: "")
     end
 
     context "when BUNDLE_GEMFILE is set" do
       it "passes the set value to the command" do
         res = tool.call(
-          name: "ruby",
-          arguments: ["-e", "puts ENV[\"BUNDLE_GEMFILE\"]"],
+          arguments: ["exec", "ruby", "-e", "puts ENV[\"BUNDLE_GEMFILE\"]"],
           timeout: 60
         )
         expect(res[:stdout]).to eq("#{gemfile}\n")
@@ -75,8 +66,7 @@ RSpec.describe LLM::Tool::BundleExec do
 
       it "defaults to a Gemfile in the cwd and passes it to the command" do
         res = tool.call(
-          name: "ruby",
-          arguments: ["-e", "puts ENV[\"BUNDLE_GEMFILE\"]"],
+          arguments: ["exec", "ruby", "-e", "puts ENV[\"BUNDLE_GEMFILE\"]"],
           timeout: 60
         )
         expect(res[:stdout]).to eq("#{File.join(dir, "Gemfile")}\n")
