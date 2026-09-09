@@ -29,8 +29,7 @@ class LLM::Tool
     # @return [Hash]
     def call(code:, timeout: 15, max_bytes: Exec.max_bytes)
       Exec.new.call(
-        name: RbConfig.ruby,
-        arguments: ["-e", code],
+        arguments: [RbConfig.ruby, "-e", code],
         timeout:,
         max_bytes:
       )

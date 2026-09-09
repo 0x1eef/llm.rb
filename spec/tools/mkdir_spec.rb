@@ -30,16 +30,15 @@ RSpec.describe LLM::Tool::Mkdir do
       allow(shell).to receive(:call).and_return(result)
     end
 
-    it "runs mkdir through a shell tool" do
+    it "runs mkdir through the exec tool" do
       tool.call(path: "/tmp/new-dir")
       expect(shell).to have_received(:call).with(
-        name: "mkdir",
-        arguments: ["-p", "/tmp/new-dir"],
+        arguments: ["mkdir", "-p", "/tmp/new-dir"],
         max_bytes: LLM::Tool::Exec.max_bytes
       )
     end
 
-    it "returns the shell result" do
+    it "returns the exec result" do
       expect(tool.call(path: "/tmp/new-dir")).to eq(result)
     end
   end

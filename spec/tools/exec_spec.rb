@@ -12,12 +12,12 @@ RSpec.describe LLM::Tool::Exec do
   describe ".function" do
     let(:params) { described_class.function.params }
 
-    it "defines the name param" do
-      expect(params.properties[:name]).to be_a(LLM::Schema::String)
+    it "defines the arguments param" do
+      expect(params.properties[:arguments]).to be_a(LLM::Schema::Array)
     end
 
-    it "marks the name param as required" do
-      expect(params.properties[:name]).to be_required
+    it "marks the arguments param as required" do
+      expect(params.properties[:arguments]).to be_required
     end
 
     it "has a timeout parameter with a default" do
@@ -27,7 +27,7 @@ RSpec.describe LLM::Tool::Exec do
 
   describe "#call" do
     it "raises when the command exceeds the timeout" do
-      expect { tool.call(name: "sleep", arguments: ["10"], timeout: 0.1) }.to raise_error(
+      expect { tool.call(arguments: ["sleep", "10"], timeout: 0.1) }.to raise_error(
         RuntimeError,
         "command timed out after 0.1s"
       )
@@ -40,7 +40,7 @@ RSpec.describe LLM::Tool::Exec do
         allow(command).to receive(:spawn).and_return(command)
         allow(command).to receive(:limit).and_return(command)
         allow(LLM::Tool::Exec::Command).to receive(:new).and_return(command)
-        tool.call(name: "echo", arguments: ["hi"])
+        tool.call(arguments: ["echo", "hi"])
       end
 
       it "limits stdout and stderr by max_bytes" do
@@ -59,7 +59,7 @@ RSpec.describe LLM::Tool::Exec do
       end
 
       it "returns the command output" do
-        expect(tool.call(name: "echo", arguments: ["hi"])).to eq(
+        expect(tool.call(arguments: ["echo", "hi"])).to eq(
           ok: true, stdout: "hi\n", stderr: ""
         )
       end
@@ -72,7 +72,7 @@ RSpec.describe LLM::Tool::Exec do
         allow(command).to receive(:spawn).and_return(command)
         allow(command).to receive(:limit).and_return(command)
         allow(LLM::Tool::Exec::Command).to receive(:new).and_return(command)
-        described_class.new(env: {"FOO" => "bar"}).call(name: "echo", arguments: ["hi"])
+        described_class.new(env: {"FOO" => "bar"}).call(arguments: ["echo", "hi"])
       end
 
       it "passes the env to the command" do
@@ -82,28 +82,11 @@ RSpec.describe LLM::Tool::Exec do
   end
 
   describe "when spawning a real command" do
-    let(:name) { "echo" }
-    let(:arguments) { [] }
-    let(:result) { tool.call(name:, arguments:) }
-
-    before do
-      skip "#{name} is not on the PATH" unless command_available?(name)
-    end
-
-    context "when the command is not found" do
-      let(:name) { "definitely-not-a-real-command-xyz" }
-
-      it "reports ok as false" do
-        expect(result[:ok]).to be(false)
-      end
-
-      it "reports the error message" do
-        expect(result[:error]).to include(name)
-      end
-    end
+    let(:arguments) { ["echo", ""] }
+    let(:result) { tool.call(arguments:) }
 
     context "given echo" do
-      let(:arguments) { ["hello world"] }
+      let(:arguments) { ["echo", "hello world"] }
 
       it "captures fixed stdout" do
         expect(result).to eq(ok: true, stdout: "hello world\n", stderr: "")
@@ -111,8 +94,7 @@ RSpec.describe LLM::Tool::Exec do
     end
 
     context "given printf" do
-      let(:name) { "printf" }
-      let(:arguments) { ["no-newline"] }
+      let(:arguments) { ["printf", "no-newline"] }
 
       it "captures fixed stdout" do
         expect(result[:stdout]).to eq("no-newline")
@@ -124,8 +106,7 @@ RSpec.describe LLM::Tool::Exec do
     end
 
     context "given sh" do
-      let(:name) { "sh" }
-      let(:arguments) { ["-c", "echo oops >&2"] }
+      let(:arguments) { ["sh", "-c", "echo oops >&2"] }
 
       it "captures fixed stderr" do
         expect(result).to eq(ok: true, stdout: "", stderr: "oops\n")
@@ -133,7 +114,7 @@ RSpec.describe LLM::Tool::Exec do
     end
 
     context "given false" do
-      let(:name) { "false" }
+      let(:arguments) { ["false"] }
 
       it "reports a failing command" do
         expect(result[:ok]).to be(false)
@@ -144,10 +125,21 @@ RSpec.describe LLM::Tool::Exec do
       end
     end
 
+    context "when the command is not found" do
+      let(:arguments) { ["definitely-not-a-real-command-xyz"] }
+
+      it "reports ok as false" do
+        expect(result[:ok]).to be(false)
+      end
+
+      it "reports the error message" do
+        expect(result[:error]).to include(arguments[0])
+      end
+    end
+
     context "when given env" do
       let(:tool) { described_class.new(env: {"EXEC_SPEC_FOO" => "bar"}) }
-      let(:name) { "sh" }
-      let(:arguments) { ["-c", "printf %s \"$EXEC_SPEC_FOO\""] }
+      let(:arguments) { ["sh", "-c", "printf %s \"$EXEC_SPEC_FOO\""] }
 
       it "sets environment for the spawned command" do
         expect(result).to eq(ok: true, stdout: "bar", stderr: "")
@@ -155,8 +147,8 @@ RSpec.describe LLM::Tool::Exec do
     end
 
     context "when given a byte limit" do
-      let(:arguments) { ["-e", "STDOUT.write('x' * 1000)"] }
-      let(:result) { tool.call(name: RbConfig.ruby, arguments:, max_bytes: 16) }
+      let(:arguments) { [RbConfig.ruby, "-e", "STDOUT.write('x' * 1000)"] }
+      let(:result) { tool.call(arguments:, max_bytes: 16) }
 
       it "caps stdout at max_bytes" do
         expect(result[:stdout]).to eq("x" * 16)
@@ -165,14 +157,6 @@ RSpec.describe LLM::Tool::Exec do
       it "returns an empty stderr" do
         expect(result[:stderr]).to eq("")
       end
-    end
-  end
-
-  ##
-  # True when the given executable is present on the PATH.
-  def command_available?(name)
-    (ENV["PATH"] || "").split(File::PATH_SEPARATOR).any? do |dir|
-      File.executable?(File.join(dir, name))
     end
   end
 end

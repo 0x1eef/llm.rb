@@ -23,8 +23,7 @@ class LLM::Tool
       subcommand = arguments[0]
       validate!(subcommand:, arguments:)
       Exec.new.call(
-        name: "git",
-        arguments: [subcommand, *arguments[1..]],
+        arguments: ["git", subcommand, *arguments[1..]],
         timeout:
       )
     end

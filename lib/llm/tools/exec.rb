@@ -15,12 +15,11 @@ class LLM::Tool
 
     name "exec"
     description "Run a command without a shell"
-    parameter :name, String, "the command name"
-    parameter :arguments, Array[String], "one or more command arguments"
+    parameter :arguments, Array[String], "a command and its argument(s)"
     parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"
     parameter :max_bytes, Integer, "max number of bytes to emit"
-    required %i[name]
-    defaults arguments: [], timeout: 60, max_bytes: :max_bytes
+    required %i[arguments]
+    defaults timeout: 60, max_bytes: :max_bytes
 
     ##
     # Returns (or sets) the advisory maximum number of bytes
@@ -56,8 +55,9 @@ class LLM::Tool
     # @param [Integer] max_bytes
     #  the max number of bytes to emit
     # @return [Hash]
-    def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
-      command = spawn(name:, arguments:, env:, max_bytes:)
+    def call(arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
+      name = arguments[0]
+      command = spawn(name:, arguments: arguments[1..], env:, max_bytes:)
       wait(command:, timeout:)
       if command.not_found?
         {ok: false, error: "command '#{name}' was not found on this system"}

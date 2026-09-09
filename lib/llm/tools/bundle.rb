@@ -11,7 +11,7 @@ class LLM::Tool
     require_relative "exec"
 
     name "bundle"
-    description "Run a command through 'bundle'\n" \
+    description "Run the 'bundle' command\n" \
                 "This command (bundle) is spawned without a shell"
     parameter :arguments, Array[String], "one or more command arguments"
     parameter :timeout, Integer, "the maximum allowed time for the command to run (in seconds)"
@@ -25,8 +25,6 @@ class LLM::Tool
     end
 
     ##
-    # @param [String] name
-    #  The name of a command
     # @param [Array<String>] arguments
     #  One or more command-line arguments
     # @param [Integer] timeout
@@ -36,8 +34,7 @@ class LLM::Tool
     # @return [Hash]
     def call(arguments: [], timeout: 60, max_bytes: Exec.max_bytes)
       Exec.new(env:).call(
-        name: "bundle",
-        arguments:,
+        arguments: ["bundle", *arguments],
         timeout:,
         max_bytes:
       )

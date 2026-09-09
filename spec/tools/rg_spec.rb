@@ -30,17 +30,16 @@ RSpec.describe LLM::Tool::Rg do
       allow(shell).to receive(:call).and_return(result)
     end
 
-    it "runs rg through a shell tool" do
+    it "runs rg through the exec tool" do
       tool.call(patterns: %w[foo bar])
       expect(shell).to have_received(:call).with(
-        name: "rg",
-        arguments: ["-m", 10, "-e", "foo", "-e", "bar", Dir.getwd],
+        arguments: ["rg", "-m", 10, "-e", "foo", "-e", "bar", Dir.getwd],
         timeout: 5,
         max_bytes: LLM::Tool::Exec.max_bytes
       )
     end
 
-    it "returns the shell result" do
+    it "returns the exec result" do
       expect(tool.call(patterns: %w[foo])).to eq(result)
     end
 
@@ -53,13 +52,13 @@ RSpec.describe LLM::Tool::Rg do
     it "forwards the path" do
       tool.call(patterns: %w[foo], path: "/tmp")
       expect(shell).to have_received(:call)
-        .with(hash_including(arguments: ["-m", 10, "-e", "foo", "/tmp"]))
+        .with(hash_including(arguments: ["rg", "-m", 10, "-e", "foo", "/tmp"]))
     end
 
     it "passes a custom max count" do
       tool.call(patterns: %w[foo], max_count: 5)
       expect(shell).to have_received(:call)
-        .with(hash_including(arguments: ["-m", 5, "-e", "foo", Dir.getwd]))
+        .with(hash_including(arguments: ["rg", "-m", 5, "-e", "foo", Dir.getwd]))
     end
 
     it "passes the max chars" do
