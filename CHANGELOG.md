@@ -25,6 +25,20 @@
   as an ISO-8601 string and restored on deserialization, so it can be
   stored alongside the rest of the conversation.
 
+### Agent
+
+* **agent: inherit the ORM model's name** <br>
+  An `acts_as_agent` (ActiveRecord) or `plugin :agent` (Sequel) model now
+  names its generated
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) after
+  the model class. Previously the agent was an anonymous subclass, so
+  without an explicit name it defaulted to a gibberish `#<Class:0x...>`
+  string. The wrapper now initializes the agent's name before `.agent`
+  returns, and
+  [`LLM::Agent.name`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#name-class_method)
+  kebab-cases a `Class` argument, so an `AdminUser` model yields an agent
+  named `admin-user`.
+
 ### Cli
 
 * **cli: add a `-v` switch** <br>
