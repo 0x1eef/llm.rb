@@ -219,6 +219,7 @@ module LLM
           @queue << [:start]
           res = agent.talk(text, model:, tools:, stream:)
           @queue << [:done, res.content]
+          agent.save(path:) if save?
         rescue LLM::Interrupt => e
           @queue << [:cancel, e]
         rescue => e
@@ -285,7 +286,7 @@ module LLM
           self.status = value
         when :done
           status.text = "idle"
-          write_message name, markdown(value), :replace
+          write_message name, markdown(value), method: :replace
           buffer.close
           @thread = nil
         when :cancel
