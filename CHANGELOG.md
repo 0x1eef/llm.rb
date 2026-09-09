@@ -43,6 +43,17 @@
   keeps 20% of the context window. Closes
   [issue #161](https://github.com/r-uby-dev/llm.rb/issues/161).
 
+* **console: keep the UI responsive during long streams** <br>
+  A model can emit many chunks in a single turn. The console now draws
+  at most four streamed chunks at a time, then checks for input, so the
+  UI stays responsive even when a turn produces a large amount of
+  output.
+
+* **console: persist the conversation when a turn is done** <br>
+  The console now saves the agent's state after the turn finishes,
+  rather than while the response is still streaming. State is still
+  saved every turn, but not until the turn has completed.
+
 ### Tools
 
 * **tools: the command runner is now `exec`** <br>
@@ -50,7 +61,7 @@
   [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html),
   with the tool name `exec` instead of the previous `shell`. This is an
   internal refactor of the shell-out tools: `git`, `rg`, `mkdir`,
-  `ruby`, and the new `bundle-exec` all route through it and inherit
+  `ruby`, and `bundle` all route through it and inherit
   its bounded output.
 
 * **tools: report when a command cannot be found** <br>
@@ -80,7 +91,7 @@
   module now requires the `test-cmd.rb` gem (at `~> 2.7`) itself and
   exposes the `spawn` and `wait` helpers, so any tool that includes
   `Utils` gets command spawning without requiring `exec` directly. The
-  `Git`, `Mkdir`, `Rg`, `Ruby`, `Exec`, and `BundleExec` tools all
+  `Git`, `Mkdir`, `Rg`, `Ruby`, `Exec`, and `Bundle` tools all
   inherit their bounded-output protections from this shared runner.
 
 * **tools: route `git`, `rg`, `mkdir`, and `ruby` through `exec`** <br>
@@ -112,7 +123,7 @@
 
 * **tools: bound tool output with a per-tool `max_bytes`** <br>
   Each of the `Exec`, `ReadFile`, `Rg`, `Mkdir`, `Ruby`, and
-  `BundleExec` tools gains a `max_bytes` limit (default 75,000) for the
+  `Bundle` tools gains a `max_bytes` limit (default 75,000) for the
   maximum number of bytes a tool returns to the model. `Exec` and
   `ReadFile` add the class-level `max_bytes` accessor, which the other
   tools inherit through `Exec`, so each tool's cap can be configured
@@ -124,11 +135,13 @@
   callers that structure truncated output themselves. `rg` also gains a
   `max_count:` parameter that caps the number of results per file.
 
-* **tools: add a `bundle-exec` tool** <br>
-  A new [`LLM::Tool::BundleExec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/BundleExec.html)
-  tool spawns a command through `bundle exec` without going through the
-  `exec` tool. It uses the `BUNDLE_GEMFILE` environment variable when set,
-  or falls back to a `Gemfile` in the current working directory.
+* **tools: add a `bundle` tool** <br>
+  A new [`LLM::Tool::Bundle`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Bundle.html)
+  tool runs a command through `bundle`. It uses the `BUNDLE_GEMFILE`
+  environment variable when set, or a `Gemfile` in the current working
+  directory otherwise. The tool takes an `arguments:` array, so the
+  model passes the bundle command and its arguments as a single list,
+  for example `arguments: ["exec", "rspec"]`.
 
 * **tools: resolve defaults through `LLM::Utils.resolve_option`** <br>
   A tool parameter default can now be an immediate value, a Symbol resolved
