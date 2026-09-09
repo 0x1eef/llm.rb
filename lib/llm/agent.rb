@@ -143,7 +143,12 @@ module LLM
           @name
         end
       else
-        @name = block || name
+        if Class === name
+          name  = name.to_s.split("::").last
+          @name = name.gsub(CASE_PATTERN, "-").downcase
+        else
+          @name = block || name
+        end
       end
     end
 

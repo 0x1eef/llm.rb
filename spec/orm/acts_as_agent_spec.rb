@@ -54,6 +54,22 @@ RSpec.describe "acts_as_agent" do
     expect(agent.agent.confirm).to eq(["delete-file"])
   end
 
+  describe "the internal agent class name" do
+    let(:model_class) do
+      stub_const("SpecAgentModel", Class.new(model))
+    end
+
+    before do
+      model_class.acts_as_agent do |agent|
+        agent.model "gpt-5.4-mini"
+      end
+    end
+
+    it "derives the name from the model class" do
+      expect(model_class.agent.name).to eq("spec-agent-model")
+    end
+  end
+
   context "when tools are declared with a block" do
     let(:agent) do
       tool

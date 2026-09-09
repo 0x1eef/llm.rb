@@ -35,7 +35,10 @@ module LLM::Sequel
       ##
       # @return [Class<LLM::Agent>]
       def agent
-        @agent ||= Class.new(LLM::Agent)
+        return @agent if defined?(@agent)
+        @agent = Class.new(LLM::Agent)
+        @agent.name(self)
+        @agent
       end
 
       ##
