@@ -225,9 +225,10 @@
 
 * **fork: require xchan.rb `~> 0.23`** <br>
   The `:fork` concurrency strategy now requires the `xchan.rb` gem at
-  `~> 0.23` instead of `~> 0.22`, following the deadlock fix, so it loads
-  against the socket-based channel that keeps the writer and reader from
-  getting stuck.
+  `~> 0.23` instead of `~> 0.22`. xchan.rb 0.23.0 replaces the external
+  `lockf.rb` gem with a built-in, Fiddle-based `Chan::Lockf`, so fork
+  channels no longer carry that extra dependency. (The socket
+  length-header deadlock fix shipped earlier, in xchan.rb 0.22.0.)
 
 * **async: fix a shutdown exception on the reactor thread** <br>
   Fix a bug where the `:async` strategy's
