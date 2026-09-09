@@ -71,6 +71,14 @@
   instead of a bare `{ok: false}` result that did not tell the model why
   the tool failed.
 
+* **tools: drop the `name:` parameter from `LLM::Tool::Exec#call`** <br>
+  `LLM::Tool::Exec#call` now takes a single `arguments:` array instead of
+  separate `name:` and `arguments:` parameters, with the command name as
+  the first element (for example `arguments: ["rg", "-m", "10", "lib"]`).
+  The `Git`, `Mkdir`, `Rg`, `Ruby`, and `Bundle` tools build their calls
+  the same way. The change was made after models were observed confusing
+  the two parameters, so a single list is simpler and more reliable.
+
 * **tools: rename `repl` as `console`** <br>
   The interactive loop is renamed to
   [`LLM::Console`](https://r.uby.dev/api-docs/llm.rb/LLM/Console.html),
@@ -89,7 +97,7 @@
 
 * **tools: `LLM::Tool::Utils` now owns command spawning** <br>
   The shared [`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
-  module now requires the `test-cmd.rb` gem (at `~> 2.7`) itself and
+  module now requires the `test-cmd.rb` gem (at `~> 2.7.1`) itself and
   exposes the `spawn` and `wait` helpers, so any tool that includes
   `Utils` gets command spawning without requiring `exec` directly. The
   `Git`, `Mkdir`, `Rg`, `Ruby`, `Exec`, and `Bundle` tools all
