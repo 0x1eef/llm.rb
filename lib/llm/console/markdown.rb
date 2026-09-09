@@ -9,34 +9,21 @@ class LLM::Console
   # that text (eg bold, underscore, ...)
   class Markdown
     require_relative "markdown/table"
+    require_relative "markdown/parser"
     include Table
-
-    ##
-    # Kramdown goes a bit beyond a standard markdown
-    # parser by representing certain characters or
-    # character sequences as distinct node types that are
-    # represented by `:typographic_sym`, and `:smart_quote`.
-    #
-    # The node's value maps back to one of the keys in
-    # this Hash, and the values are unicode characters
-    # that provide a visual representation of the node.
-    #
-    # @api private
-    SYMBOLS = {
-      hellip: "…",
-      ndash:  "–", mdash:  "—",
-      laquo:  "«", raquo:  "»",
-      laquo_space: "« ", raquo_space: "» ",
-      lsquo:  "‘", rsquo:  "’",
-      ldquo:  "“", rdquo:  "”"
-    }
 
     ##
     # @param [String] text
     # @param [Integer] width
     # @return [LLM::Console::Markdown]
     def initialize(text, width)
-      @doc = Kramdown::Document.new(fenced_code_blocks(text))
+      ##
+      # 'Parser' treats HTML, smart quotes,
+      # and typographic symbols as literal
+      # text, so the original input comes
+      # through unchanged.
+      options = {input: Parser}
+      @doc = Kramdown::Document.new(fenced_code_blocks(text), options)
       @width = width
       @ast = []
     end
@@ -46,7 +33,7 @@ class LLM::Console
     def ast
       @ast.tap do
         ##
-        # Recurisvely travels the markdown document and
+        # Recursively travels the markdown document and
         # populates the `@ast` variable along the way.
         # The AST is composed of structured data that
         # carries both text and styling information that
@@ -97,8 +84,8 @@ class LLM::Console
         emit("#{lang(node)}\n", Curses::A_BOLD | Color.white) unless lang(node).empty?
         emit(node.value, Color.green)
         emit("\n\n", attrs)
-      when :typographic_sym, :smart_quote
-        emit(symbol(node), attrs)
+      when :entity
+        emit(node.value.char, attrs)
       when :br
         emit("\n", attrs)
       when :ul, :ol
@@ -133,10 +120,6 @@ class LLM::Console
 
     def emit(text, attrs)
       @ast.push(Node.new(text.to_s, attrs))
-    end
-
-    def symbol(node)
-      SYMBOLS[node.value]
     end
 
     ##

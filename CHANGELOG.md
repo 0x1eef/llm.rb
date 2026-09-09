@@ -69,6 +69,14 @@
   rather than while the response is still streaming. State is still
   saved every turn, but not until the turn has completed.
 
+* **console: render markdown text as typed** <br>
+  Fix a bug where [`LLM::Console::Markdown`](https://r.uby.dev/api-docs/llm.rb/LLM/Console/Markdown.html)
+  mangled the model's output: HTML could render invisible, and
+  sequences like `...` were converted to unicode glyphs. The renderer
+  now uses a custom kramdown parser that disables the HTML, smart-quote,
+  and typographic-symbol parsers, so tags and punctuation come through
+  exactly as written.
+
 ### Tools
 
 * **tools: the command runner is now `exec`** <br>
