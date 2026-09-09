@@ -217,9 +217,8 @@ module LLM
         write_message(sender, markdown(text))
         @thread = Thread.new do
           @queue << [:start]
-          agent.talk(text, model:, tools:, stream:)
-          agent.save(path:) if save?
-          @queue << [:done]
+          res = agent.talk(text, model:, tools:, stream:)
+          @queue << [:done, res.content]
         rescue LLM::Interrupt => e
           @queue << [:cancel, e]
         rescue => e
@@ -265,6 +264,7 @@ module LLM
     # to by a subclass of {LLM::Stream LLM::Stream}.
     # @api private
     def read!
+      burst, max_burst = 0, 4
       loop do
         type, value = @queue.pop(true)
         case type
@@ -272,12 +272,20 @@ module LLM
           buffer.open
           stream.clear
         when :stream
+          ##
+          # A fast model can push many small chunks faster than the
+          # UI can repaint. Cap the stream chunks drained per call so
+          # read! gives control back to the key loop: leftover chunks
+          # stay queued and are drained by the next read!.
           status.text = think_text if stream.tools.empty?
           write_message name, markdown(value), method: :replace
+          burst += 1
+          break if burst >= max_burst
         when :status
           self.status = value
         when :done
           status.text = "idle"
+          write_message name, markdown(value), :replace
           buffer.close
           @thread = nil
         when :cancel
