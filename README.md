@@ -913,13 +913,6 @@ by llm.rb and its builtin MCP feature. It is connected
 to this very GitHub repository. It is designed to help
 you learn and troubleshoot llm.rb.
 </p>
-<p>
-
-The [4.4bsd.dev](https://4.4bsd.dev) website is also powered
-by llm.rb but serves a different purpose: it is running a
-system powered by FreeBSD and has access to the FreeBSD
-manual pages and source code. It is designed to help you
-learn and troubleshoot FreeBSD.
 </details>
 <details>
 <summary>What about local LLM support?</summary>
@@ -1002,13 +995,6 @@ it as my primary driver for development.
 </details>
 
 ## See also
-
-The [r.uby.dev chatbot](https://r.uby.dev) is connected
-to this very GitHub repository. It can read documentation,
-source code, issues, and pull requests. The [4.4bsd chatbot](https://4.4bsd.dev)
-is also a llm.rb agent that is backed by ActiveRecord. It is
-specialized in answering questions about FreeBSD and runs
-on a FreeBSD system.
 
 The [roda-llm](https://github.com/r-uby-dev/roda-llm#readme) project
 is how I deploy multiple ActiveRecord-backed llm.rb agents over HTTP.
