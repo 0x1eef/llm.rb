@@ -3774,12 +3774,12 @@
       "open_weights": true,
       "limit": {
         "context": 204800,
-        "output": 131072
+        "output": 128000
       },
       "cost": {
-        "input": 0.3,
-        "output": 1.2,
-        "cache_read": 0.03
+        "input": 0.27,
+        "output": 1.08,
+        "cache_read": 0.027
       }
     },
     "minimax/minimax-m3": {
@@ -5109,11 +5109,11 @@
       "open_weights": true,
       "limit": {
         "context": 262144,
-        "output": 16384
+        "output": 32768
       },
       "cost": {
-        "input": 0.07,
-        "output": 0.34
+        "input": 0.042,
+        "output": 0.22
       }
     },
     "google/gemini-3.1-pro-preview-customtools": {
@@ -8183,9 +8183,9 @@
         "output": 393216
       },
       "cost": {
-        "input": 0.65868,
-        "output": 1.97604,
-        "cache_read": 0.020958
+        "input": 0.57948,
+        "output": 1.73844,
+        "cache_read": 0.018438
       }
     },
     "deepseek/deepseek-v4-flash-0731": {
@@ -8275,9 +8275,9 @@
         "output": 384000
       },
       "cost": {
-        "input": 0.088606,
-        "output": 0.177212,
-        "cache_read": 0.017721
+        "input": 0.08554,
+        "output": 0.17108,
+        "cache_read": 0.017108
       }
     },
     "deepseek/deepseek-v4.1-flash": {
@@ -8610,9 +8610,9 @@
         "output": 384000
       },
       "cost": {
-        "input": 0.95526,
-        "output": 1.91052,
-        "cache_read": 0.079605
+        "input": 0.87,
+        "output": 1.74,
+        "cache_read": 0.0725
       }
     },
     "deepseek/deepseek-chat-v3-0324": {
@@ -9057,6 +9057,43 @@
         ]
       },
       "open_weights": false,
+      "limit": {
+        "context": 262144,
+        "output": 32768
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    "inclusionai/ling-3.0-flash-vl:free": {
+      "id": "inclusionai/ling-3.0-flash-vl:free",
+      "name": "Ling 3.0 Flash VL (free)",
+      "description": "Multimodal reasoning model for visual analysis, planning, and tool use",
+      "family": "ling",
+      "attachment": true,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        }
+      ],
+      "tool_call": true,
+      "structured_output": false,
+      "temperature": true,
+      "release_date": "2026-09-10",
+      "last_updated": "2026-09-10",
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": true,
       "limit": {
         "context": 262144,
         "output": 32768
@@ -12751,12 +12788,12 @@
       "open_weights": false,
       "limit": {
         "context": 1310720,
-        "output": 235929
+        "output": 128000
       },
       "cost": {
-        "input": 1.0075,
-        "output": 3.41,
-        "cache_read": 0.2015
+        "input": 0.7,
+        "output": 2.2,
+        "cache_read": 0.13
       }
     },
     "moonshotai/kimi-k2-0905": {
@@ -13319,9 +13356,9 @@
         "output": 128000
       },
       "cost": {
-        "input": 0.132,
-        "output": 0.528,
-        "cache_read": 0.033
+        "input": 0.0825,
+        "output": 0.33,
+        "cache_read": 0.020625
       }
     },
     "tencent/hy4-preview": {
