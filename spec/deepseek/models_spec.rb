@@ -7,8 +7,8 @@ RSpec.describe "LLM::Deepseek::Models" do
   let(:provider) { LLM.deepseek(key:) }
 
   describe "#default_model" do
-    it "returns deepseek-v4-flash" do
-      expect(provider.default_model).to eq("deepseek-v4-flash")
+    it "returns deepseek-flash" do
+      expect(provider.default_model).to eq("deepseek-flash")
     end
   end
 

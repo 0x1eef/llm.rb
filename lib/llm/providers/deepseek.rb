@@ -78,7 +78,7 @@ module LLM
     # @see https://api-docs.deepseek.com/quick_start/pricing deepseek-v4-flash
     # @return [String]
     def default_model
-      "deepseek-v4-flash"
+      "deepseek-flash"
     end
   end
 end
