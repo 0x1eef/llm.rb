@@ -231,6 +231,7 @@ module LLM
 
     def build_complete_request(prompt, params, role)
       messages = build_messages(prompt, params, role)
+      messages = [*params.delete(:messages), *messages] if params[:messages]
       body = LLM.json.dump({messages: adapt(messages, mode: :complete).flatten}.merge!(params))
       req = LLM::Transport::Request.post(completions_path, headers)
       transport.set_body_stream(req, StringIO.new(body))
