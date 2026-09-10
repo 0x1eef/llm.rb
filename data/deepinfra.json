@@ -332,7 +332,7 @@
       "cost": {
         "input": 0.44,
         "output": 1.32,
-        "cache_read": 0.14
+        "cache_read": 0.014
       }
     },
     "deepseek-ai/DeepSeek-V4-Flash-0731": {
@@ -1104,7 +1104,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 1048576,
         "output": 131072
@@ -2138,6 +2138,7 @@
         "context": 262144,
         "output": 32768
       },
+      "status": "deprecated",
       "cost": {
         "input": 0.45,
         "output": 2.25,
