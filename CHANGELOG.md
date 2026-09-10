@@ -15,6 +15,18 @@
 
 ## What's next
 
+*No unreleased changes yet. Check back after the next release.*
+
+## v15.2.0
+
+Changes since `v15.1.0`.
+
+This release renames the REPL to `LLM::Console` (with `/keep` replacing
+`/compact`) and routes every shell-out tool through a shared, bounded
+`exec` runner. It also adds `LLM::Message#created_at`, the `LLM::Tracer`
+factory methods, a `bundle` tool, per-tool `max_bytes` output limits,
+and a `-v` switch to the CLI, and refreshes the model registry.
+
 ### Core
 
 * **message: add `LLM::Message#created_at`** <br>
