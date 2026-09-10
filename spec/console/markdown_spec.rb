@@ -89,6 +89,14 @@ RSpec.describe LLM::Console::Markdown do
     it "renders emphasis as styled text" do
       expect(rendered("use <b>*not italic*</b>")).to eq("use <b>not italic</b>")
     end
+
+    it "renders an unclosed tag literally without raising" do
+      expect(rendered("compare a < b")).to eq("compare a < b")
+    end
+
+    it "handles a trailing less-than without raising" do
+      expect(rendered("<b>bold")).to eq("<b>bold")
+    end
   end
 
   ##

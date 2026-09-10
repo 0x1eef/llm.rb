@@ -32,9 +32,11 @@ class LLM::Console
     end
 
     ##
-    # Emit the matched HTML tag literally.
+    # Emit the matched HTML tag literally. Falls back to the
+    # rest of the `<...` run when there is no closing `>`.
     def parse_span_html
-      add_text(@src.scan_until(/>/))
+      text = @src.scan_until(/>/)
+      add_text(text || @src.scan(/<[^>]*/))
     end
 
     ##
