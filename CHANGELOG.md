@@ -214,6 +214,13 @@
   limits and times out requests that it later recovers from. An explicit
   `retry_budget:` still overrides the default.
 
+* **deepseek: default to the `deepseek-flash` model** <br>
+  The default DeepSeek chat model is now `deepseek-flash` instead of
+  `deepseek-v4-flash`. DeepSeek resolves `deepseek-flash` to
+  `deepseek-v4.1-flash` and recommends the name in its documentation and
+  API error messages, so the default follows the current model alias
+  instead of a pinned version.
+
 ### Tracer
 
 * **tracer: add `LLM::Tracer` factory methods** <br>
@@ -259,6 +266,15 @@
   before it exits, which avoids that code path entirely, and teardown
   is managed by `reactor.stop`, so the thread exits promptly instead of
   abruptly or hanging.
+
+* **openai: prevent the loss of user messages in the completions path** <br>
+  Fix a bug where the request body was built from `params[:messages]`
+  alone when that key was present, discarding the messages built from the
+  prompt. The DeepSeek and Alibaba schema support injects the schema
+  system message into `params[:messages]`, so a request with a `schema:`
+  could be sent with the schema message only, dropping the user's
+  messages. The built messages now lead with `params[:messages]`, and the
+  key is removed before the body is assembled.
 
 ## v15.1.0
 

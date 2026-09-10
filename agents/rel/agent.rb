@@ -25,7 +25,7 @@ class Agent < LLM::Agent
 end
 
 def main(argv)
-  llm   = LLM.alibaba
+  llm   = LLM.deepseek
   agent = Agent.new(llm)
   case argv[0]
   when "console"

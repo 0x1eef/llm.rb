@@ -50,7 +50,7 @@ class Agent < LLM::Agent
 end
 
 def main(argv)
-  llm   = LLM.alibaba
+  llm   = LLM.deepseek
   agent = Agent.new(llm)
   if argv[0] == "console"
     agent.console
