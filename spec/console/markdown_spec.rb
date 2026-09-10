@@ -97,6 +97,22 @@ RSpec.describe LLM::Console::Markdown do
     it "handles a trailing less-than without raising" do
       expect(rendered("<b>bold")).to eq("<b>bold")
     end
+
+    it "renders a bare pipe literally" do
+      expect(rendered("|foo|")).to eq("|foo|")
+    end
+
+    it "renders a pipe in prose literally" do
+      expect(rendered("prefix |bar| suffix")).to eq("prefix |bar| suffix")
+    end
+
+    it "renders pipe lines without a delimiter literally" do
+      expect(rendered("| a | b |\n| 1 | 2 |")).to eq("| a | b |\n| 1 | 2 |")
+    end
+
+    it "renders a real pipe table" do
+      expect(rendered("| a | b |\n|---|---|\n| 1 | 2 |")).to eq("| a | b |\n| 1 | 2 |")
+    end
   end
 
   ##
