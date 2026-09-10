@@ -77,6 +77,18 @@
   and typographic-symbol parsers, so tags and punctuation come through
   exactly as written.
 
+* **console: fix a crash in the markdown parser** <br>
+  Fix a bug where the markdown renderer raised an error on an unclosed
+  HTML tag or a partial tag taken out of context, such as `4 < 5`. The
+  parser now emits the `<...` run literally when there is no closing
+  `>`, so the text renders instead of crashing.
+
+* **console: stop rendering bare pipes as tables** <br>
+  Fix a bug where the markdown renderer treated a lone `|foo|` in prose
+  as a table and mangled its output. A pipe line now parses as a table
+  only when a header row is followed by a delimiter row, so bare pipes
+  come through literally while real tables still render.
+
 ### Tools
 
 * **tools: the command runner is now `exec`** <br>
