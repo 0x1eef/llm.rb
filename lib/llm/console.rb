@@ -219,7 +219,13 @@ module LLM
           @queue << [:start]
           res = agent.talk(text, model:, tools:, stream:)
           @queue << [:done, res.content]
-          agent.save(path:) if save?
+          ##
+          # When LLM::Interrupt is raised
+          # on this thread enqueue the raise
+          # so that the file write is protected
+          # from an immediate cancel.
+          int = {LLM::Interrupt => :never}
+          Thread.handle_interrupt(int) { agent.save(path:) if save? }
         rescue LLM::Interrupt => e
           @queue << [:cancel, e]
         rescue => e
