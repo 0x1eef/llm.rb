@@ -104,7 +104,8 @@ class LLM::Console
         # but we can't rely on it alone. There are moments
         # in time where '@agent.cancel!' is essentially a
         # noop.
-        @thread&.raise(LLM::Interrupt) if @thread&.alive?
+        thread = @repl.thread
+        thread&.raise(LLM::Interrupt) if thread&.alive?
       elsif CTRL[:P] == char
         set(text: @walker.prev.dup)
         :ctrl_p
