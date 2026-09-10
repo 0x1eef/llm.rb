@@ -89,6 +89,18 @@
   only when a header row is followed by a delimiter row, so bare pipes
   come through literally while real tables still render.
 
+* **console: find the worker thread when cancelling** <br>
+  Fix a bug where pressing Esc to cancel raised `LLM::Interrupt` on an
+  instance variable that does not exist, so the interrupt was a no-op and
+  a cancel could leave the turn running. The console now resolves the
+  worker thread through its `#thread` reader and interrupts it.
+
+* **console: protect the state write from cancellation** <br>
+  The console now defers `LLM::Interrupt` while it saves the agent's
+  state after a turn, so a cancel that arrives during the write cannot
+  interrupt `agent.save` mid-flight and risk a lost or corrupted session
+  file.
+
 ### Tools
 
 * **tools: the command runner is now `exec`** <br>
