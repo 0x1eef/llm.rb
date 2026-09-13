@@ -21,9 +21,10 @@ that spans 14+ providers.
 
 The most effective way to learn about llm.rb is to ask [the r.uby.dev chatbot](https://r.uby.dev)
 a question. It is connected to the llm.rb GitHub repository, backed by
-ActiveRecord and uses the builtin MCP feature to connect to GitHub. The
-chatbot is an llm.rb agent that is deployed with [roda-llm](https://github.com/r-uby-dev/roda-llm) and
-you can also use it to deploy your own llm.rb agents in Rack and Rails
+ActiveRecord and uses the builtin MCP feature to connect to GitHub.
+
+The chatbot is an llm.rb agent that is deployed with [roda-llm](https://github.com/r-uby-dev/roda-llm)
+and you can also use it to deploy your own llm.rb agents in Rack and Rails
 applications.
 
 ## Install
