@@ -22,9 +22,12 @@ module LLM
   #   tool-call patterns and blocks stuck execution before more tool work is
   #   queued.
   # * The tool loop can be bounded with `tool_budget`. Once the budget is
-  #   spent, the agent sends an in-band advisory message back through the
-  #   model and keeps the loop in-band. By default no budget is set
-  #   (`nil`), so the feature is disabled.
+  #   spent, no further tool calls are run for that turn: the agent sends an
+  #   in-band advisory message back through the model instead, and keeps
+  #   sending it while the model keeps asking for tools. The budget counts
+  #   tool calls, so a batch of calls is spent as a batch, and a batch that
+  #   would take the turn past its budget is not run at all. By default no
+  #   budget is set (`nil`), so the feature is disabled.
   # * Tool loop execution can be configured with `concurrency :sequential`,
   #   `:thread`, `:async`, `:fiber`, `:fork`, or `:ractor`.
   #
@@ -345,10 +348,15 @@ module LLM
     ##
     # Set or get the maximum number of tool calls
     # that are allowed in a single turn. Once the
-    # budget is spent, we will return an in-band
-    # message that informs the model it has spent
-    # its tool call budget - and usually a model
-    # will change course afterwards.
+    # budget is spent, no further tool calls are run:
+    # we return an in-band message that informs the
+    # model it has spent its tool call budget, and
+    # keep returning it while the model keeps asking
+    # for tools - a model will usually change course
+    # afterwards. The budget counts tool calls, so a
+    # batch of calls is spent as a batch, and a batch
+    # that would take the turn past its budget is not
+    # run at all.
     # @note
     #  By default this feature is disabled
     #  (set to `nil`).
@@ -823,14 +831,18 @@ module LLM
         stream = params[:stream] || @ctx.params[:stream]
         params[:stream] = LLM::Stream.try(stream, extra: {concurrency:})
         res = talk.call(apply_instructions(prompt), params)
+        spent = 0
         while @ctx.pending_functions?
-          if max
-            max.times do
-              break unless @ctx.pending_functions?
-              res = talk.call(call_functions, params)
-            end
-            res = talk.call(@ctx.pending_functions.map(&:budget_spent), params) if @ctx.pending_functions?
+          batch = @ctx.pending_functions.size
+          if max and spent + batch > max
+            ##
+            # The budget is spent, so the calls are not run. The model is
+            # told so in-band, and the loop keeps telling it - nudging
+            # rather than cutting the turn off - until it answers without
+            # requesting more tool calls.
+            res = talk.call(@ctx.pending_functions.map(&:budget_spent), params)
           else
+            spent += batch if max
             res = talk.call(call_functions, params)
           end
         end

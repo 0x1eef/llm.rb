@@ -852,41 +852,123 @@ RSpec.describe LLM::Agent do
 
   describe "tool budget" do
     let(:responses) { provider.responses }
+    let(:tool) do
+      Class.new(LLM::Tool) do
+        @calls = 0
+        class << self
+          attr_accessor :calls
+        end
+        name "echo"
+        description "Echo a value"
+        param :value, String, "Value", required: true
+        def call(value:)
+          self.class.calls += 1
+          {value:}
+        end
+      end
+    end
     let(:agent) { described_class.new(provider, mode: :responses, tools: [tool]) }
     let(:ctx) { agent.instance_variable_get(:@ctx) }
     let(:final_response) do
       response!(choices: [LLM::Message.new("assistant", "done")])
     end
+    let(:advisory) do
+      an_object_having_attributes(
+        value: hash_including(type: "LLM::BudgetSpentError")
+      )
+    end
+    let(:advisories) do
+      ctx.messages.map(&:content).flatten.select do
+        _1.respond_to?(:value) && _1.value.is_a?(Hash) &&
+          _1.value[:type] == "LLM::BudgetSpentError"
+      end
+    end
+    let(:tool_budget) { nil }
+    let(:returns) { [tool_call_response("call_1"), final_response] }
 
     before do
       allow(provider).to receive(:responses).and_return(responses)
+      tool.calls = 0
+      expect(responses).to receive(:create).and_return(*returns)
+      agent.talk("hello", tool_budget:)
     end
 
-    it "sends an advisory message when the tool budget is spent" do
-      expect(responses).to receive(:create).and_return(
-        tool_call_response("call_1"),
-        tool_call_response("call_2"),
-        tool_call_response("call_3"),
-        final_response
-      )
-      agent.talk("hello", tool_budget: 2)
-      expect(ctx.messages.map(&:content).flatten).to include(
-        an_object_having_attributes(
-          value: hash_including(type: "LLM::BudgetSpentError")
-        )
-      )
+    context "when the tool budget is spent" do
+      let(:tool_budget) { 2 }
+      let(:returns) do
+        [
+          tool_call_response("call_1"),
+          tool_call_response("call_2"),
+          tool_call_response("call_3"),
+          tool_call_response("call_4"),
+          final_response
+        ]
+      end
+
+      it "sends an advisory message" do
+        expect(ctx.messages.map(&:content).flatten).to include(advisory)
+      end
+
+      it "runs no more tool calls than the budget allows" do
+        expect(tool.calls).to eq(2)
+      end
     end
 
-    it "does not send an advisory when no tool budget is set" do
-      expect(responses).to receive(:create).and_return(
-        tool_call_response("call_1"), final_response
-      )
-      agent.talk("hello", tool_budget: nil)
-      expect(ctx.messages.map(&:content).flatten).not_to include(
-        an_object_having_attributes(
-          value: hash_including(type: "LLM::BudgetSpentError")
-        )
-      )
+    context "when a model keeps asking for tools" do
+      let(:tool_budget) { 1 }
+      let(:returns) do
+        [
+          tool_call_response("call_1"),
+          tool_call_response("call_2"),
+          tool_call_response("call_3"),
+          tool_call_response("call_4"),
+          final_response
+        ]
+      end
+
+      it "runs no more tool calls than the budget allows" do
+        expect(tool.calls).to eq(1)
+      end
+
+      it "sends an advisory for each extra request" do
+        expect(advisories.size).to eq(3)
+      end
+    end
+
+    context "when one message requests a batch of calls" do
+      let(:tool_budget) { 1 }
+      let(:returns) { [batch_tool_call_response(%w[call_1 call_2]), final_response] }
+
+      it "runs none of the batched calls" do
+        expect(tool.calls).to eq(0)
+      end
+
+      it "sends one advisory per call in the batch" do
+        expect(advisories.size).to eq(2)
+      end
+    end
+
+    context "when no tool budget is set" do
+      let(:tool_budget) { nil }
+
+      it "does not send an advisory" do
+        expect(ctx.messages.map(&:content).flatten).not_to include(advisory)
+      end
+    end
+
+    context "when the budget is not exhausted" do
+      let(:tool_budget) { 5 }
+      let(:returns) do
+        [tool_call_response("call_1"), tool_call_response("call_2"), final_response]
+      end
+
+      it "runs the tools freely" do
+        expect(tool.calls).to eq(2)
+      end
+
+      it "sends no advisories" do
+        expect(advisories).to be_empty
+      end
     end
   end
 
@@ -938,6 +1020,22 @@ RSpec.describe LLM::Agent do
       LLM::Message.new("assistant", nil, {
         tools: [tool],
         tool_calls: [{id:, name: "echo", arguments: {"value" => "hello"}}]
+      })
+    ])
+  end
+
+  ##
+  # A provider response that asks the model to call the echo tool
+  # several times in one message.
+  # @param [Array<String>] ids
+  # @return [LLM::Response]
+  def batch_tool_call_response(ids)
+    response!(choices: [
+      LLM::Message.new("assistant", nil, {
+        tools: [tool],
+        tool_calls: ids.map do
+          {id: _1, name: "echo", arguments: {"value" => "hello"}}
+        end
       })
     ])
   end
