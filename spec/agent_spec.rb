@@ -874,13 +874,17 @@ RSpec.describe LLM::Agent do
     end
     let(:advisory) do
       an_object_having_attributes(
-        value: hash_including(type: "LLM::BudgetSpentError")
+        value: hash_including(
+          type: "RuntimeError",
+          message: /maximum number of tool calls/
+        )
       )
     end
     let(:advisories) do
       ctx.messages.map(&:content).flatten.select do
         _1.respond_to?(:value) && _1.value.is_a?(Hash) &&
-          _1.value[:type] == "LLM::BudgetSpentError"
+          _1.value[:type] == "RuntimeError" &&
+          _1.value[:message].to_s.include?("maximum number of tool calls")
       end
     end
     let(:tool_budget) { nil }

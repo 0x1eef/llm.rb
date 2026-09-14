@@ -358,9 +358,14 @@ class LLM::Function
   def budget_spent
     LLM::Function::Return.new(id, name, {
       error: true,
-      type: "LLM::BudgetSpentError",
-      message: "the tool call budget for this turn has been spent. " \
-               "try to solve the problem with less tool calls."
+      type: "RuntimeError",
+      message: "the maximum number of tool calls for this turn has been reached.",
+      advice: [
+        "stop requesting tool calls",
+        "tell the user you aborted their request early",
+        "tell the user what you can with the information you have available",
+        "tell the user you can continue where you left off in the next turn"
+      ]
     })
   end
 
