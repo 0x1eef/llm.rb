@@ -37,13 +37,7 @@ DESCRIPTION
   spec.post_install_message = "\n" \
                               "Got a question about llm.rb? " \
                               "\n" \
-                              "Ask the https://r.uby.dev chatbot." \
-                              "\n" \
-                              "It is connected to the official GitHub repository." \
-                              "\n" \
-                              "100% free to use." \
-                              "\n" \
-                              "Built with llm.rb and DeepSeek." \
+                              "The https://r.uby.dev website can help." \
                               "\n\n"
 
   spec.add_development_dependency "webmock", "~> 3.24.0"
