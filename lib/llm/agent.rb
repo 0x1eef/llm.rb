@@ -836,11 +836,14 @@ module LLM
           batch = @ctx.pending_functions.size
           if max and spent + batch > max
             ##
-            # The budget is spent, so the calls are not run. The model is
-            # told so in-band, and the loop keeps telling it - nudging
-            # rather than cutting the turn off - until it answers without
-            # requesting more tool calls.
-            res = talk.call(@ctx.pending_functions.map(&:budget_spent), params)
+            # The budget is spent, so the calls are not run.
+            # They still have to be answered though: each one
+            # gets an in-band return and, just as important,
+            # that return is emitted to the stream.
+            tools = @ctx.pending_functions
+            returns = tools.map(&:budget_spent)
+            @ctx.method(:emit_tool_returns).call(tools, returns)
+            res = talk.call(returns, params)
           else
             spent += batch if max
             res = talk.call(call_functions, params)

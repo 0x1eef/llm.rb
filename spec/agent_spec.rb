@@ -76,6 +76,7 @@ RSpec.describe LLM::Agent do
         _tool = tool
         Class.new(described_class) do
           set tools: :tools
+          ##
           # `:tools` resolves by calling the DSL
           # accessor on the instance. `LLM::Agent`
           # exposes `self.tools` (class DSL), so we
@@ -867,8 +868,20 @@ RSpec.describe LLM::Agent do
         end
       end
     end
-    let(:agent) { described_class.new(provider, mode: :responses, tools: [tool]) }
+    let(:agent) { described_class.new(provider, mode: :responses, tools: [tool], stream:) }
     let(:ctx) { agent.instance_variable_get(:@ctx) }
+    let(:stream) do
+      ##
+      # A stream that records when tools return so
+      # a tool call that is refused can be checked for
+      # having come back rather than being left in a
+      # 'call' state.
+      recorder = returned
+      LLM::Stream.new.tap do |stream|
+        stream.define_singleton_method(:on_tool_return) { |_tool, result| recorder << result }
+      end
+    end
+    let(:returned) { [] }
     let(:final_response) do
       response!(choices: [LLM::Message.new("assistant", "done")])
     end
@@ -936,6 +949,11 @@ RSpec.describe LLM::Agent do
 
       it "sends an advisory for each extra request" do
         expect(advisories.size).to eq(3)
+      end
+
+      it "returns every call to the stream, refused or not" do
+        expect(returned.size).to eq(4)
+        expect(returned.count { _1.value[:type] == "RuntimeError" }).to eq(3)
       end
     end
 
