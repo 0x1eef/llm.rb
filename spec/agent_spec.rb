@@ -888,16 +888,16 @@ RSpec.describe LLM::Agent do
     let(:advisory) do
       an_object_having_attributes(
         value: hash_including(
-          type: "RuntimeError",
-          message: /maximum number of tool calls/
+          cancelled: true,
+          reason: /too many tool calls/
         )
       )
     end
     let(:advisories) do
       ctx.messages.map(&:content).flatten.select do
         _1.respond_to?(:value) && _1.value.is_a?(Hash) &&
-          _1.value[:type] == "RuntimeError" &&
-          _1.value[:message].to_s.include?("maximum number of tool calls")
+          _1.value[:cancelled] == true &&
+          _1.value[:reason].to_s.include?("too many tool calls")
       end
     end
     let(:tool_budget) { nil }
@@ -953,7 +953,10 @@ RSpec.describe LLM::Agent do
 
       it "returns every call to the stream, refused or not" do
         expect(returned.size).to eq(4)
-        expect(returned.count { _1.value[:type] == "RuntimeError" }).to eq(3)
+      end
+
+      it "returns each refused call as an advisory" do
+        expect(returned.count { _1.value[:cancelled] }).to eq(3)
       end
     end
 

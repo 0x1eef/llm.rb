@@ -294,8 +294,8 @@ class LLM::Function
   #   ctx.talk "I want to run the functions"
   #   ctx.talk ctx.pending_functions.map(&:cancel)
   # @return [LLM::Function::Return]
-  def cancel(reason: "function call cancelled")
-    Return.new(id, name, {cancelled: true, reason:})
+  def cancel(reason: "function call cancelled", **extra)
+    Return.new(id, name, extra.merge(cancelled: true, reason:))
   ensure
     @cancelled = true
   end
@@ -356,17 +356,11 @@ class LLM::Function
   # call budget has been spent.
   # @return [LLM::Function::Return]
   def budget_spent
-    LLM::Function::Return.new(id, name, {
-      error: true,
-      type: "RuntimeError",
-      message: "the maximum number of tool calls for this turn has been reached.",
-      advice: [
-        "stop requesting tool calls",
-        "tell the user you aborted their request early",
-        "tell the user what you can with the information you have available",
-        "tell the user you can continue where you left off in the next turn"
-      ]
-    })
+    cancel(
+      reason: "you are making too many tool calls",
+      action: ["stop requesting tool calls"],
+      advice: ["produce a response from tool calls already made", "temporary error that resets on the next turn"]
+    )
   end
 
   ##
