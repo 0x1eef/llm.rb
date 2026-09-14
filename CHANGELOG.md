@@ -15,6 +15,16 @@
 
 ## What's next
 
+*No unreleased changes yet. Check back after the next release.*
+
+## v15.2.1
+
+Changes since `v15.2.0`.
+
+This release makes the agent count its tool budget across the whole turn
+and emit tool returns to the stream once that budget is spent, and lets
+`LLM::Function#cancel` carry extra return fields.
+
 ### Agent
 
 * **agent: count the tool budget across the whole turn** <br>
