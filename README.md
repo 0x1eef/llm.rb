@@ -47,6 +47,13 @@ avoid exceptions. When an error is encountered in a tool or during
 the lifecycle of an agent it is almost always reported back to the
 model as an in-band error that allows the model to correct course.
 
+A lot of care also goes into keeping the tool loop from entering
+an invalid state that would lead to API-level errors. For example,
+when a tool call is interrupted it could leave an unanswered tool
+call that a model will reject on the next turn. The runtime takes
+care of this by pruning orphaned tool calls and ensuring that the
+tool loop always remains valid. 
+
 ```ruby
 require "llm"
 
