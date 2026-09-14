@@ -42,7 +42,7 @@ and provides configurable features on top of it. For example you can
 manage the tool loop with a retry budget alongside a tool call budget,
 among other features.
 
-The runtime is designed to keep the tool loop alive and it will will
+The runtime is designed to keep the tool loop alive and it will
 avoid exceptions. When an error is encountered in a tool or during
 the lifecycle of an agent it is almost always reported back to the
 model as an in-band error that allows the model to correct course.
