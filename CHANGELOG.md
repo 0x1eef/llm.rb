@@ -27,6 +27,26 @@
   the budget, then ran further batches after each advisory, so a turn
   could run more tool calls than its budget allowed.
 
+* **agent: emit tool returns when the budget is spent** <br>
+  Fix a bug where, once a turn's tool budget was spent, the agent passed
+  its in-band returns to the model without emitting them to the stream.
+  The stream went silent, so a stream that tracked tool-call state left
+  the calls in the `call` state. The returns are now emitted through
+  [`LLM::Stream#on_tool_return`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_tool_return-instance_method)
+  like any other tool return.
+
+### Function
+
+* **function: `LLM::Function#cancel` takes extra return fields** <br>
+  [`LLM::Function#cancel`](https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method)
+  now accepts keywords beyond `reason:` and merges them into the
+  [`LLM::Function::Return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html)
+  it builds. `LLM::Function#budget_spent` now builds its return through
+  `cancel` instead of hand-rolling an error, so a budget-spent return is
+  marked `cancelled: true` and carries `action:` and `advice:` hints. A
+  callback that receives returns can now tell a cancellation apart from
+  an ordinary error.
+
 ## v15.2.0
 
 Changes since `v15.1.0`.
