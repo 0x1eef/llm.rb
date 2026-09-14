@@ -24,8 +24,8 @@ class LLM::Console
     attr_reader :input
 
     ##
-    # @param [LLM::Console] console
-    #  A read-eval-print loop.
+    # @param [LLM::Console] repl
+    #  A console.
     # @return [LLM::Console::Window]
     def initialize(repl)
       @repl   = repl

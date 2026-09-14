@@ -168,7 +168,7 @@ class LLM::Console
     attr_reader :agent
 
     ##
-    # @param [LLM::Console] console
+    # @param [LLM::Console] repl
     # @return [LLM::Console::Command]
     def initialize(repl)
       @repl = repl

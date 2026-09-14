@@ -55,7 +55,7 @@ class LLM::Console
     attr_writer :paste
 
     ##
-    # @param [LLM::Console] console
+    # @param [LLM::Console] repl
     # @return [LLM::Console::Input]
     def initialize(repl, options = {})
       @repl = repl

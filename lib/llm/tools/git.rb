@@ -16,8 +16,11 @@ class LLM::Tool
     defaults arguments: [], timeout: 5
 
     ##
-    # @param [String] subcommand
-    # @param [Array<String>, nil] arguments
+    # @param [Array<String>] arguments
+    #  One or more git arguments. The first is the subcommand and must be
+    #  one of `log`, `diff`, `commit`, `checkout`, `branch`, or `show`.
+    # @param [Integer] timeout
+    #  The maximum time to allow the command to run (in seconds)
     # @return [Hash]
     def call(arguments: [], timeout: 5)
       subcommand = arguments[0]

@@ -4,7 +4,7 @@ class LLM::Tool
   ##
   # The {LLM::Tool::ReadFile} class implements a tool that
   # can read the contents of a file. It returns the content
-  # as structured lines ({lineno:, content:}), so the model can
+  # as structured lines (`{lineno:, content:}`), so the model can
   # reference line numbers when requesting a narrower range.
   class ReadFile < self
     require_relative "utils"

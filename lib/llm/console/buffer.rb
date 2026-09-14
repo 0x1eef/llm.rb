@@ -16,7 +16,7 @@ class LLM::Console
   # row by overwriting its contents repeatedly.
   class Buffer
     ##
-    # @param [LLM::Console] console
+    # @param [LLM::Console] repl
     #  An instance of {LLM::Console LLM::Console}.
     # @return [LLM::Console::Buffer]
     def initialize(repl)

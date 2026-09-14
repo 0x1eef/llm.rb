@@ -6,7 +6,7 @@ class LLM::Registry
   # metadata (pricing, limits, capabilities, and
   # modalities).
   #
-  # Models are {Comparable} by price: input cost first, then
+  # Models are `Comparable` by price: input cost first, then
   # output cost, so `models.sort` orders them from cheapest to
   # most expensive.
   class Model

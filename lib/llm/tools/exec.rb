@@ -46,10 +46,8 @@ class LLM::Tool
     end
 
     ##
-    # @param [String] name
-    #  The name of a command
     # @param [Array<String>] arguments
-    #  One or more command-line arguments
+    #  A command and its arguments. The first element is the command name.
     # @param [Integer] timeout
     #  The maximum allowed time for the command to run (in seconds)
     # @param [Integer] max_bytes

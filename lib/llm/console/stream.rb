@@ -13,7 +13,7 @@ class LLM::Console
     attr_reader :tools
 
     ##
-    # @param [LLM::Console] console
+    # @param [LLM::Console] repl
     # @return [LLM::Console::Stream]
     def initialize(repl, queue)
       @repl = repl

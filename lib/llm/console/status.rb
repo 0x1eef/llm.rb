@@ -12,7 +12,7 @@ class LLM::Console
   # @api private
   class Status
     ##
-    # @param [LLM::Console] console
+    # @param [LLM::Console] repl
     # @return [LLM::Console::Status]
     def initialize(repl)
       @repl = repl
