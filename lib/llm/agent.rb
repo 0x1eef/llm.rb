@@ -35,7 +35,7 @@ module LLM
   #   class SystemAdmin < LLM::Agent
   #     set model: "gpt-4.1-nano",
   #         instructions: "You are a Linux system admin",
-  #         tools: [Shell],
+  #         tools: [LLM::Tool::Exec],
   #         schema: Result
   #   end
   #
@@ -102,7 +102,7 @@ module LLM
     #     set name: "admin",
     #         instructions: "You are a system administrator",
     #         model: "gpt-4.1-nano",
-    #         tools: [Shell, ReadFile]
+    #         tools: [LLM::Tool::Exec, LLM::Tool::ReadFile]
     #   end
     #
     # @param [Hash] properties

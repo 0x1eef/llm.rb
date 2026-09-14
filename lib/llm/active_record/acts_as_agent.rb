@@ -37,7 +37,7 @@ module LLM::ActiveRecord
       #     acts_as_agent
       #     set instructions: "You are a system administrator",
       #         model: "gpt-4.1-nano",
-      #         tools: [Shell]
+      #         tools: [LLM::Tool::Exec]
       #   end
       #
       # @param [Hash] properties
