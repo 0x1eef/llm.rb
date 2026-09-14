@@ -37,9 +37,15 @@ gem install llm.rb
 The
 [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
 class is the default high-level interface,
-and it is recommended for most use-cases. It manages tool execution
-automatically and guards against infinite loops,
-manages conversation state, and much more.
+and it is recommended for most use-cases. It manages the tool loop
+and provides configurable features on top of it. For example you can
+manage the tool loop with a retry budget alongside a tool call budget,
+among other features.
+
+The runtime is designed to keep the tool loop alive and it will will
+avoid exceptions. When an error is encountered in a tool or during
+the lifecycle of an agent it is almost always reported back to the
+model as an in-band error that allows the model to correct course.
 
 ```ruby
 require "llm"
@@ -249,12 +255,12 @@ end
 <br>
 
 The [LLM::Agent#console](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#console-instance_method)
-method drops you into a highly capable interactive console
-that is built on top of curses. It can help you debug agents,
-test your tools, connect to MCP servers, and even A2A agents.
-The console stands out because it connects to the surrounding
-runtime and it can be extended by your code. Think of it as
-`binding.irb` but for agents.
+method drops you into an interactive console that is built on
+top of curses. It can help you debug agents, test your tools,
+connect to MCP servers, and other A2A agents. The console stands
+out because it connects to the surrounding runtime and it can
+be extended by your code. Think of it as `binding.irb` but
+for agents.
 
 ##### Demo
 
