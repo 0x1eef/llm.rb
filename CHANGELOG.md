@@ -15,7 +15,17 @@
 
 ## What's next
 
-*No unreleased changes yet. Check back after the next release.*
+### Agent
+
+* **agent: count the tool budget across the whole turn** <br>
+  [`LLM::Agent.tool_budget`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method)
+  now caps the tool calls a turn runs in total. A batch of calls is
+  spent as a batch, and a batch that would take the turn past its
+  budget is not run at all; once the budget is spent no tool call runs,
+  and the agent keeps sending its in-band advisory until the model
+  answers without requesting more tools. Previously the agent ran up to
+  the budget, then ran further batches after each advisory, so a turn
+  could run more tool calls than its budget allowed.
 
 ## v15.2.0
 
