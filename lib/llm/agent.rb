@@ -511,6 +511,14 @@ module LLM
     end
 
     ##
+    # Returns a stable id for this agent. The id is borrowed from
+    # the context it wraps, so it survives save and restore.
+    # @return [String]
+    def id
+      @ctx.id
+    end
+
+    ##
     # @return [Integer]
     def retry_budget
       @ctx.retry_budget

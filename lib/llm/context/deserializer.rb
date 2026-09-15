@@ -25,6 +25,7 @@ class LLM::Context
       else
         LLM.json.load(string)
       end
+      @id = ctx["id"] || @id
       @messages.concat [*ctx["messages"]].map { deserialize_message(_1) }
       @compacted = !!ctx["compacted"]
       self

@@ -55,7 +55,7 @@ module LLM
     # @api private
     # @return [Array<Symbol>]
     def self.params
-      %w[guard retry_budget concurrency transformer compactor record]
+      %w[guard retry_budget concurrency transformer compactor record id]
     end
 
     ##
@@ -79,6 +79,12 @@ module LLM
     attr_reader :record
 
     ##
+    # Returns a stable id for this context. It is generated once
+    # on creation and restored with the runtime state on load.
+    # @return [String]
+    attr_reader :id
+
+    ##
     # @param [LLM::Provider] llm
     #  A provider
     # @param [Hash] params
@@ -89,6 +95,8 @@ module LLM
     #   Defaults to `:responses` for OpenAI, otherwise it defaults
     #   to `:completions`.
     # @option params [String] :model Defaults to the provider's default model
+    # @option params [String] :id
+    #   A stable id for the context. Defaults to a UUID.
     # @option params [Class<LLM::Compactor>, nil] :compactor
     #   A compactor class to use for context compaction. Defaults to
     #   {LLM::Compactor::Null}.
@@ -109,6 +117,7 @@ module LLM
     def initialize(llm, params = {})
       params = {}.merge!(params)
       @llm = llm
+      @id = params.delete(:id) || SecureRandom.uuid_v7
       @record = params.delete(:record)
       @mode = params.delete(:mode) || (llm.name == :openai ? :responses : :completions)
       tools = [*params.delete(:tools), *load_skills(params.delete(:skills))]
@@ -493,6 +502,7 @@ module LLM
     def to_h
       {
         schema_version: 1,
+        id: @id,
         model:,
         compacted:,
         messages: @messages.map { serialize_message(_1) }

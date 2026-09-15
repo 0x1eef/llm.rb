@@ -8,6 +8,52 @@ require "tmpdir"
 RSpec.describe LLM::Context do
   let(:ctx) { LLM::Context.new(provider, model:) }
 
+  describe "#id" do
+    let(:provider) { LLM.deepseek(key: "test") }
+    let(:context) { LLM::Context.new(provider, **params) }
+    let(:params) { {} }
+
+    it "generates a UUID by default" do
+      expect(context.id).to match(/\A[0-9a-f-]{36}\z/)
+    end
+
+    it "generates a distinct id for each context" do
+      expect(context.id).not_to eq(LLM::Context.new(provider).id)
+    end
+
+    context "when given an explicit id" do
+      let(:params) { {id: "my-agent"} }
+
+      it "uses the given id" do
+        expect(context.id).to eq("my-agent")
+      end
+    end
+
+    context "when serialized and restored" do
+      let(:restored) { LLM::Context.new(provider).deserialize(string: payload) }
+      let(:payload) { LLM.json.dump(context.to_h) }
+
+      it "restores the id" do
+        expect(restored.id).to eq(context.id)
+      end
+    end
+
+    context "when restoring a payload without an id" do
+      let(:legacy) { LLM::Context.new(provider) }
+      let(:payload) { LLM.json.dump({schema_version: 1, messages: []}) }
+      let(:captured_id) { legacy.id }
+
+      before do
+        captured_id
+        legacy.deserialize(string: payload)
+      end
+
+      it "keeps the id generated at creation" do
+        expect(legacy.id).to eq(captured_id)
+      end
+    end
+  end
+
   context "when given openai" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
