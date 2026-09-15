@@ -17,56 +17,69 @@
 
 ### Core
 
-* **context: add `LLM::Context#id`** <br>
+* **context: give every context an id you can sort and trace** <br>
   [`LLM::Context#id`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#id-instance_method)
-  returns a UUIDv7 string that encodes a timestamp, so a context and its agent
-  can be sorted by creation order. The id is generated on creation and restored
-  with the runtime state on load, so it identifies an agent within and across
-  sessions. [`LLM::Agent#id`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#id-instance_method)
+  returns a UUIDv7 string that encodes its creation time, so contexts and their
+  agents sort by creation order and stay identifiable within and across
+  sessions. The id is generated on creation and restored with the runtime state
+  on load. [`LLM::Agent#id`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#id-instance_method)
   delegates to the context it wraps; a model and its agent keep separate ids.
 
-* **context: add `LLM::Context#created_at`** <br>
+* **context: read the creation time without storing it** <br>
   [`LLM::Context#created_at`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#created_at-instance_method)
-  returns the time the context was created, derived from the timestamp in its
-  UUIDv7 id, and `LLM::Agent#created_at` delegates to it. The time is
-  recomputed from the id rather than stored, so it returns `nil` for a context
-  whose id is not a UUIDv7 string.
+  returns when the context was created, read from the timestamp its UUIDv7 id
+  already carries, so no separate timestamp has to be persisted or kept in sync.
+  `LLM::Agent#created_at` delegates to it. The time is recomputed rather than
+  stored, so it returns `nil` for a context whose id is not a UUIDv7 string.
+
+* **message: give every message an id that survives persistence** <br>
+  [`LLM::Message#id`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#id-instance_method)
+  returns a UUIDv7 string generated once when the message is created and restored
+  with the runtime state on load, so a message keeps the same identity across
+  saves and loads. `LLM::Message#created_at` is derived from the id rather than
+  stored. `LLM::Message#==` ignores the id, so two messages with the same role
+  and content are equal even when they were created at different times;
+  previously the timestamp took part in the comparison.
+
+* **utils: decode a UUIDv7 timestamp once, in one place** <br>
+  [`LLM::Utils.timestamp`](https://r.uby.dev/api-docs/llm.rb/LLM/Utils.html#timestamp-instance_method)
+  returns the UTC time encoded in a UUIDv7 string, or `nil` when the value is not
+  a UUIDv7. It backs `created_at` on messages, contexts, and agents, so the
+  decoding logic lives in a single method instead of three.
 
 ### Provider
 
-* **provider: scope `LLM::Provider#with` headers to a block** <br>
+* **provider: set a per-request header without leaking it** <br>
   [`LLM::Provider#with`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#with-instance_method)
-  now takes a block. Inside the block the headers are set for the current fiber,
-  and the previous headers are restored when it returns, so a header that varies
-  per request, such as OpenRouter's `x-session-id`, can be set for one call
-  without leaking into the next. Without a block the headers are merged into the
-  provider's defaults as before. The method returns the provider without a
-  block and the block's value with one.
+  now takes a block: headers set inside apply to the current fiber only and are
+  restored when the block returns, so a header that varies per request can be set
+  for one call without leaking into the next. Without a block the headers are
+  merged into the provider's defaults as before. The method returns the provider
+  without a block and the block's value with one.
 
-* **openrouter: maintain `x-session-id` per context** <br>
-  A context now sends its id as the `x-session-id` header on OpenRouter
-  requests, so an agent keeps the same session across requests and OpenRouter
-  routes them to the same cached model. Other providers are unaffected.
+* **openrouter: keep one session so requests reuse a cached model** <br>
+  A context now sends its id as the `x-session-id` header on OpenRouter requests,
+  so consecutive requests share a session and OpenRouter can route them to the
+  same cached model instead of starting fresh each time. Other providers are
+  unaffected.
 
 ### Fix
 
-* **openai: send the chat completions function schema in the shape the API expects** <br>
+* **openai: make tools callable through OpenRouter and Azure again** <br>
   Fix a bug where [`LLM::OpenAI`](https://r.uby.dev/api-docs/llm.rb/LLM/OpenAI.html)
-  built a function schema that was a hybrid of the Responses and Chat
-  Completions APIs, carrying a top-level `name` next to a nested `function`
-  object. OpenRouter and OpenAI through Azure read the hybrid as a Responses
-  function, so the tool was not described the way the chat completions
-  endpoint expects. The name, description, parameters, and `strict: false`
-  are now nested under `function:`, which is the shape chat completions
-  documents.
+  sent a function schema that mixed the Responses and Chat Completions shapes,
+  carrying a top-level `name` next to a nested `function` object. OpenRouter and
+  OpenAI through Azure read it as a Responses function and could not describe the
+  tool correctly. The name, description, parameters, and `strict: false` now sit
+  under `function:`, the shape chat completions documents.
 
-* **openai: close nested objects in tool and structured-output schemas** <br>
-  The parameters of a tool and a structured-output schema now carry
-  `additionalProperties: false` on every object they contain, not just the
-  root object, in the chat completions and Responses paths alike. OpenAI and
-  Azure reject a schema that leaves an object open, and they validate nested
-  objects as well as the root. The chat completions structured-output schema,
-  which was sent open, is now closed too.
+* **openai: stop Azure rejecting nested schema objects** <br>
+  Tool parameters and structured-output schemas now carry
+  `additionalProperties: false` on every object they contain, not just the root,
+  in the chat completions and Responses paths alike. OpenAI and Azure reject a
+  schema that leaves any object open, so nested objects were failing validation.
+  The chat completions structured-output schema, which was sent open, is now
+  closed too.
 
 ## v15.2.2
 
