@@ -519,6 +519,14 @@ module LLM
     end
 
     ##
+    # Returns the time this agent was created. It is derived
+    # from the context id, so it is not persisted separately.
+    # @return [Time, nil]
+    def created_at
+      @ctx.created_at
+    end
+
+    ##
     # @return [Integer]
     def retry_budget
       @ctx.retry_budget

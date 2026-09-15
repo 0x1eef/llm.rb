@@ -54,6 +54,33 @@ RSpec.describe LLM::Context do
     end
   end
 
+  describe "#created_at" do
+    let(:provider) { LLM.deepseek(key: "test") }
+    let(:context) { LLM::Context.new(provider, **params) }
+    let(:params) { {} }
+
+    it "returns a time derived from the id" do
+      expect(context.created_at).to be_within(5).of(Time.now.utc)
+    end
+
+    context "when given a non-UUIDv7 id" do
+      let(:params) { {id: "custom"} }
+
+      it "returns nil" do
+        expect(context.created_at).to be_nil
+      end
+    end
+
+    context "when serialized and restored" do
+      let(:restored) { LLM::Context.new(provider).deserialize(string: payload) }
+      let(:payload) { LLM.json.dump(context.to_h) }
+
+      it "keeps the creation time" do
+        expect(restored.created_at).to eq(context.created_at)
+      end
+    end
+  end
+
   context "when given openai" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
