@@ -51,17 +51,17 @@ class Exec < LLM::Tool
 
   name "exec"
   description "run a command without a shell"
-  parameter :name, String, "the command's name"
-  parameter :arguments, Array[String], "command args"
-  required %i[name]
-  defaults arguments: [], timeout: 60, max_bytes: :max_bytes
+  parameter :arguments, Array[String], "a command and its arguments"
+  required %i[arguments]
+  defaults timeout: 60, max_bytes: :max_bytes
 
   def self.max_bytes(bytes = nil)
     bytes ? (@max_bytes = bytes) : (@max_bytes || 75_000)
   end
 
-  def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
-    command = spawn(name:, arguments:, max_bytes:)
+  def call(arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
+    name = arguments[0]
+    command = spawn(name:, arguments: arguments[1..], max_bytes:)
     wait(command:, timeout:)
     {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
   rescue LLM::Interrupt
@@ -172,33 +172,37 @@ matter what.
 If
 [`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
 raises, the runtime returns `{error: true, type: "RuntimeError",
-message: "boom"}` to the model. You can also rescue inside
-[`LLM::Tool#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#call)
-and return your own error shape that gives the model more context.
+message: "boom"}` to the model. A tool can also check for a known
+failure and return its own error shape, which gives the model
+more context than a generic error. The `exec` tool, for example,
+reports a missing command through `command.not_found?` rather than
+letting the spawn fail.
 
 ```ruby
 require "llm/tools/utils"
 
-class Exec < LLM::Tool
+class SafeExec < LLM::Tool
   include Utils
 
-  name "exec"
-  description "run a command without a shell"
-  parameter :name, String, "the command name"
-  parameter :arguments, Array[String], "command args"
-  required %i[name]
-  defaults arguments: [], timeout: 60, max_bytes: :max_bytes
+  name "safe-exec"
+  description "run a command and report a missing one"
+  parameter :arguments, Array[String], "a command and its arguments"
+  required %i[arguments]
+  defaults timeout: 60, max_bytes: :max_bytes
 
   def self.max_bytes(bytes = nil)
     bytes ? (@max_bytes = bytes) : (@max_bytes || 75_000)
   end
 
-  def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
-    command = spawn(name:, arguments:, max_bytes:)
+  def call(arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
+    name = arguments[0]
+    command = spawn(name:, arguments: arguments[1..], max_bytes:)
     wait(command:, timeout:)
-    {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
-  rescue Errno::ENOENT
-    {ok: false, error: "command not found: #{name}"}
+    if command.not_found?
+      {ok: false, error: "command '#{name}' was not found on this system"}
+    else
+      {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
+    end
   end
 end
 ```
@@ -207,8 +211,8 @@ end
 
 Custom error handling gives the model domain-specific detail that
 helps it recover. Instead of a generic "RuntimeError: boom", the
-model sees `{ok: false, error: "command not found: ls"}` and knows
-to correct the command name and try again.
+model sees `{ok: false, error: "command 'ls' was not found on this
+system"}` and knows to correct the command name and try again.
 
 #### Notes
 
@@ -244,8 +248,7 @@ class Exec < LLM::Tool
   set name: "exec",
       description: "run a command without a shell",
       parameters: [
-        [:name, String, "the command's name", {required: true}],
-        [:arguments, Array[String], "command args", {default: []}],
+        [:arguments, Array[String], "a command and its arguments", {required: true}],
         [:timeout, Integer, "timeout in seconds", {default: 60}],
         [:max_bytes, Integer, "max bytes to emit", {default: 75_000}]
       ]
@@ -254,8 +257,9 @@ class Exec < LLM::Tool
     bytes ? (@max_bytes = bytes) : (@max_bytes || 75_000)
   end
 
-  def call(name:, arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
-    command = spawn(name:, arguments:, max_bytes:)
+  def call(arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
+    name = arguments[0]
+    command = spawn(name:, arguments: arguments[1..], max_bytes:)
     wait(command:, timeout:)
     {ok: command.success?, stdout: command.stdout, stderr: command.stderr}
   end
@@ -325,6 +329,55 @@ The six strategies are documented in
 loop, confirmation, and error handling behave identically. A single
 failing tool returns a structured error to the model, which can
 decide to retry or continue with the results it has.
+
+### Platform-native tools
+
+#### Overview
+
+Some capabilities live inside the provider rather than on your
+machine. Web search, code execution, file search, and computer use are
+examples: the provider runs them on its own infrastructure, and the
+model can call them directly. The runtime represents these with
+[`LLM::ServerTool`](https://r.uby.dev/api-docs/llm.rb/LLM/ServerTool.html).
+A server tool is not an
+[`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
+subclass, so it never appears in `LLM::Tool.subclasses`.
+
+#### How it works
+
+Build a server tool from a provider with
+[`LLM::Provider#server_tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#server_tool-instance_method),
+or read a ready-made one from the provider's catalog with
+[`LLM::Provider#server_tools`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#server_tools-instance_method).
+Pass server tools in the same `tools:` list as local tools:
+
+```ruby
+require "llm"
+
+llm = LLM.google(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, tools: [llm.server_tool(:google_search)])
+ctx.talk "Summarize today's news"
+```
+
+Each provider defines its own catalog. OpenAI offers `web_search`,
+`file_search`, `image_generation`, `code_interpreter`, and
+`computer_use`; Google offers `google_search`, `code_execution`, and
+`url_context`; Anthropic offers `bash`, `web_search`, and
+`text_editor`.
+
+#### Why would I use it?
+
+A server tool saves you from building and hosting the capability
+yourself. Search, code execution, and file search run on the
+provider's side, so the model can call them without a local tool
+loop, a service of your own, or extra credentials.
+
+#### Notes
+
+OpenAI, Google, and Anthropic also expose a `web_search(query:)`
+method that performs a search in one call and returns the results. A
+server tool accepts whatever options the provider documents, for
+example `llm.server_tool(:web_search, max_uses: 5)` on Anthropic.
 
 ### Built-in tools
 

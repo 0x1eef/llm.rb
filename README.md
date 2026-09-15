@@ -141,7 +141,9 @@ call them on your behalf, and they're one of the most powerful features
 for extending the feature set or abilities of a model.
 
 The runtime also ships with a catalog of built-in tools for
-filesystem, search, and shell operations.
+filesystem, search, and shell operations, and providers expose
+platform-native tools such as web search and code execution that run
+on the provider's side.
 
 ```ruby
 class ReadFile < LLM::Tool

@@ -84,6 +84,58 @@ the stream through
 before trying again. An `LLM::Agent` enables a budget of 5 by
 default, so most users never touch this directly.
 
+### Identity
+
+#### Overview
+
+A context has an id and a creation time, and so does each message it
+holds. The id is a UUIDv7 string, a UUID version that encodes its own
+creation timestamp, so an id sorts by the order it was created and
+carries the time it was made.
+
+#### How it works
+
+Read the id and creation time from a context, an agent, or a message:
+
+```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk "Hello"
+ctx.id          # => "01932f5a-..." (UUIDv7)
+ctx.created_at  # => 2026-09-11 04:21:07 UTC
+ctx.messages.first.id
+```
+
+[`LLM::Agent#id`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#id-instance_method)
+and
+[`LLM::Agent#created_at`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#created_at-instance_method)
+delegate to the context the agent wraps.
+[`LLM::Context#created_at`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#created_at-instance_method)
+and
+[`LLM::Message#created_at`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#created_at-instance_method)
+are read from the id rather than stored, so they return `nil` when
+the id is not a UUIDv7 string.
+
+#### Why would I use it?
+
+An id gives a conversation or a message a stable name you can log,
+correlate, or look up. Because the id is a UUIDv7, the same value
+also answers when the object was created, so sorting ids sorts by
+creation order and no separate timestamp column is needed.
+
+#### Notes
+
+The id is generated once and saved with the runtime state, so it
+survives a save and a restore. A payload written before ids existed
+has none, so its object is restored with a fresh id.
+[`LLM::Message#==`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html#==-instance_method)
+ignores the id, so a difference in creation time alone does not make
+two messages unequal.
+[`LLM::Utils.timestamp`](https://r.uby.dev/api-docs/llm.rb/LLM/Utils.html#timestamp-instance_method)
+is the shared method that decodes a UUIDv7 timestamp.
+
 ### Manual loop
 
 #### Overview

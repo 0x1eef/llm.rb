@@ -152,14 +152,13 @@ executable with the given name. When no match is found it returns
 
 The command tools run real subprocesses: arbitrary commands through
 `exec`, Ruby code through `ruby`, commands inside a Bundler context
-through `bundle-exec`, and a fixed set of git subcommands through
+through `bundle`, and a fixed set of git subcommands through
 `git`. All of them accept a `timeout:` and kill the child process
 when the model interrupts the turn.
 
 ```ruby
 LLM::Tool::Exec.new.call(
-  name: "bundle",
-  arguments: ["exec", "rspec", "spec/llm"],
+  arguments: ["bundle", "exec", "rspec", "spec/llm"],
   timeout: 30
 )
 ```
@@ -168,14 +167,14 @@ LLM::Tool::Exec.new.call(
 
 When you want to run a command and capture its output, call the
 [`LLM::Tool::Exec#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html#call-instance_method)
-method with a `name:` and optional `arguments:`. The `git` tool
-takes a single `arguments:` array whose first element is a
-subcommand from a fixed set, the `ruby` tool runs
-its code in a fresh process, and the `bundle-exec` tool runs a
-command under the project's Bundler context. `bundle-exec` inherits
-the `BUNDLE_GEMFILE` environment variable when set, or defaults to a
-`Gemfile` in the current working directory, so the model can run
-project tools like `rspec` or `rake` with the right gems loaded:
+method with an `arguments:` array whose first element is the command
+name. The `git` tool takes the same array, with a subcommand from a
+fixed set as its first element, the `ruby` tool runs its code in a
+fresh process, and the `bundle` tool runs a command under the
+project's Bundler context. `bundle` uses the `BUNDLE_GEMFILE`
+environment variable when set, or a `Gemfile` in the current working
+directory otherwise, so the model can run project tools like `rspec`
+or `rake` with the right gems loaded:
 
 ```ruby
 LLM::Tool::Bundle.new.call(
@@ -186,10 +185,10 @@ LLM::Tool::Bundle.new.call(
 
 | Tool | Name | Parameters | Purpose |
 |---|---|---|---|
-| [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html) | `exec` | `name`, `arguments`, `timeout` | Run a command without a shell |
+| [`LLM::Tool::Exec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html) | `exec` | `arguments`, `timeout` | Run a command without a shell |
 | [`LLM::Tool::Git`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html) | `git` | `arguments`, `timeout` | Run a fixed set of git subcommands |
 | [`LLM::Tool::Ruby`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html) | `ruby` | `code`, `timeout` | Run a string of Ruby code |
-| [`LLM::Tool::BundleExec`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/BundleExec.html) | `bundle-exec` | `name`, `arguments`, `timeout` | Run a command through `bundle exec` |
+| [`LLM::Tool::Bundle`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Bundle.html) | `bundle` | `arguments`, `timeout` | Run a command through `bundle` |
 
 #### Why would I use it?
 
@@ -241,8 +240,7 @@ format the result itself:
 
 ```ruby
 LLM::Tool::Exec.new.call(
-  name: "bundle",
-  arguments: ["exec", "rspec"],
+  arguments: ["bundle", "exec", "rspec"],
   max_bytes: 20_000
 )
 ```

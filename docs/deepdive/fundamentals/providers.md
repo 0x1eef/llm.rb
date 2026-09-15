@@ -5,11 +5,13 @@
 #### Overview
 
 llm.rb talks to 14+ providers through one API. OpenAI-compatible
-providers (Anthropic, DeepSeek, DeepInfra, xAI, Z.ai, Moonshot,
-Alibaba, Ollama, and llama.cpp) share the same OpenAI code path, so
-switching models rarely means switching code. Each provider is
-constructed with a class-level factory method on `LLM`, and the
-result is passed to an `LLM::Context` or `LLM::Agent`.
+providers (DeepSeek, DeepInfra, xAI, Z.ai, Moonshot, Alibaba,
+Mistral, OpenRouter, and llama.cpp) share the same OpenAI code path,
+while Anthropic, Google, Ollama, and Bedrock speak their own APIs
+behind the same interface. Switching models therefore rarely means
+switching code. Each provider is constructed with a class-level
+factory method on `LLM`, and the result is passed to an
+`LLM::Context` or `LLM::Agent`.
 
 #### How it works
 
@@ -89,6 +91,44 @@ Each provider ships a `data/<provider>.json` registry file. A
 missing model or registry raises `LLM::NoSuchModelError` or
 `LLM::NoSuchRegistryError`, which the runtime rescues to default
 gracefully (for example, an unknown context window reads as `nil`).
+
+### Request headers
+
+#### Overview
+
+Every request a provider sends can carry extra HTTP headers, either
+for the lifetime of the provider or for a single call. Some headers
+vary per request, so a provider needs a way to set one without
+affecting the requests that come after it.
+
+#### How it works
+
+[`LLM::Provider#with`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#with-instance_method)
+adds headers. Without a block the headers merge into the provider's
+defaults and apply to every later request:
+
+```ruby
+llm = LLM.openai(key: ENV["KEY"])
+llm.with("OpenAI-Organization" => ENV["ORG"])
+```
+
+With a block the headers apply only to the current fiber and are
+restored when the block returns, so a header can be scoped to one
+call:
+
+```ruby
+llm.with("x-session-id" => "abc123") do
+  ctx.talk "Hello"
+end
+```
+
+#### Notes
+
+The runtime uses the block form where a header varies per request.
+An OpenRouter context sends its own id as `x-session-id`, so
+consecutive requests share a session and OpenRouter can route them to
+the same cached model, without pinning that header on the provider
+for good.
 
 ### Moonshot
 

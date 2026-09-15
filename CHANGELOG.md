@@ -290,9 +290,10 @@ and a `-v` switch to the CLI, and refreshes the model registry.
   The shared [`LLM::Tool::Utils`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Utils.html)
   module now requires the `test-cmd.rb` gem (at `~> 2.7.1`) itself and
   exposes the `spawn` and `wait` helpers, so any tool that includes
-  `Utils` gets command spawning without requiring `exec` directly. The
-  `Git`, `Mkdir`, `Rg`, `Ruby`, `Exec`, and `Bundle` tools all
-  inherit their bounded-output protections from this shared runner.
+  `Utils` gets command spawning without requiring `exec` directly.
+  `Exec` and `ReadFile` include `Utils`, and the tools that shell out
+  (`Git`, `Rg`, `Mkdir`, `Ruby`, and `Bundle`) route through `Exec`,
+  so they all get the same bounded output.
 
 * **tools: route `git`, `rg`, `mkdir`, and `ruby` through `exec`** <br>
   `LLM::Tool::Git`, `LLM::Tool::Rg`, `LLM::Tool::Mkdir`, and
