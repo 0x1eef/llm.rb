@@ -15,7 +15,38 @@
 
 ## What's next
 
-*No unreleased changes yet. Check back after the next release.*
+### Core
+
+* **context: add `LLM::Context#id`** <br>
+  [`LLM::Context#id`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#id-instance_method)
+  returns a UUIDv7 string that encodes a timestamp, so a context and its agent
+  can be sorted by creation order. The id is generated on creation and restored
+  with the runtime state on load, so it identifies an agent within and across
+  sessions. [`LLM::Agent#id`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#id-instance_method)
+  delegates to the context it wraps; a model and its agent keep separate ids.
+
+* **context: add `LLM::Context#created_at`** <br>
+  [`LLM::Context#created_at`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#created_at-instance_method)
+  returns the time the context was created, derived from the timestamp in its
+  UUIDv7 id, and `LLM::Agent#created_at` delegates to it. The time is
+  recomputed from the id rather than stored, so it returns `nil` for a context
+  whose id is not a UUIDv7 string.
+
+### Provider
+
+* **provider: scope `LLM::Provider#with` headers to a block** <br>
+  [`LLM::Provider#with`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#with-instance_method)
+  now takes a block. Inside the block the headers are set for the current fiber,
+  and the previous headers are restored when it returns, so a header that varies
+  per request, such as OpenRouter's `x-session-id`, can be set for one call
+  without leaking into the next. Without a block the headers are merged into the
+  provider's defaults as before. The method returns the provider without a
+  block and the block's value with one.
+
+* **openrouter: maintain `x-session-id` per context** <br>
+  A context now sends its id as the `x-session-id` header on OpenRouter
+  requests, so an agent keeps the same session across requests and OpenRouter
+  routes them to the same cached model. Other providers are unaffected.
 
 ## v15.2.2
 
