@@ -15,6 +15,18 @@
 
 ## What's next
 
+*No unreleased changes yet. Check back after the next release.*
+
+## v15.3.0
+
+Changes since `v15.2.2`.
+
+This release gives contexts, agents, and messages UUIDv7 ids that survive
+persistence and back their `created_at`, scopes per-request headers through a
+block on `LLM::Provider#with`, and pins an OpenRouter session per context. It
+also fixes the OpenAI tool schema sent through OpenRouter and Azure, which
+mixed the Responses and Chat Completions shapes and left nested objects open.
+
 ### Core
 
 * **context: give every context an id you can sort and trace** <br>
