@@ -41,8 +41,28 @@ RSpec.describe LLM::Message do
       expect(message.to_h[:tools]).to eq([{"id" => "call_1"}])
     end
 
-    it "includes the created_at timestamp" do
-      expect(message.to_h[:created_at]).to match(/\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z\z/)
+    it "includes the id" do
+      expect(message.to_h[:id]).to match(/\A[0-9a-f-]{36}\z/)
+    end
+  end
+
+  describe "#id" do
+    subject(:message) { described_class.new("user", "hi") }
+
+    it "generates a UUIDv7" do
+      expect(message.id[14]).to eq("7")
+    end
+
+    it "generates a distinct id for each message" do
+      expect(message.id).not_to eq(described_class.new("user", "hi").id)
+    end
+
+    context "when given an id in extra" do
+      subject(:message) { described_class.new("user", "hi", id: "custom") }
+
+      it "uses the given id" do
+        expect(message.id).to eq("custom")
+      end
     end
   end
 
@@ -53,16 +73,16 @@ RSpec.describe LLM::Message do
       expect(message.created_at).to be_a(Time)
     end
 
-    it "is set at initialize time" do
+    it "is derived from the id" do
       expect(message.created_at).to be_within(1).of(Time.now.utc)
     end
 
-    context "when given a created_at in extra" do
-      let(:time) { Time.utc(2025, 1, 1) }
-      let(:rfc3339) { "2025-01-01T00:00:00Z" }
-      subject(:message) { described_class.new("user", "hi", created_at: rfc3339) }
+    context "when given an id in extra" do
+      let(:id) { SecureRandom.uuid_v7 }
+      let(:time) { LLM::Utils.timestamp(id) }
+      subject(:message) { described_class.new("user", "hi", id:) }
 
-      it "returns the given time" do
+      it "derives the given id's time" do
         expect(message.created_at).to eq(time)
       end
     end

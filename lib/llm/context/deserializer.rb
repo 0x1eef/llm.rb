@@ -42,8 +42,8 @@ class LLM::Context
       usage = payload["usage"]
       reasoning_content = payload["reasoning_content"]
       compaction = payload["compaction"]
-      created_at = payload["created_at"]
-      extra = {tool_calls:, original_tool_calls:, tools: @params[:tools], usage:, reasoning_content:, compaction:, created_at:}.compact
+      id = payload["id"]
+      extra = {tool_calls:, original_tool_calls:, tools: @params[:tools], usage:, reasoning_content:, compaction:, id:}.compact
       content = returns.nil? ? deserialize_content(payload["content"]) : returns
       LLM::Message.new(payload["role"], content, extra)
     end

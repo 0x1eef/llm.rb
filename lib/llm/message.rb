@@ -18,9 +18,10 @@ module LLM
     attr_reader :extra
 
     ##
-    # Returns the time the message was created
-    # @return [Time]
-    attr_reader :created_at
+    # Returns a stable id for this message. It is generated once
+    # on creation and restored with the runtime state on load.
+    # @return [String]
+    attr_reader :id
 
     ##
     # Returns a new message
@@ -32,7 +33,15 @@ module LLM
       @role = role.to_s
       @content = content
       @extra = LLM::Object.from(extra)
-      @created_at = extra[:created_at] ? Time.iso8601(extra[:created_at].to_s) : Time.now.utc
+      @id = extra[:id] || SecureRandom.uuid_v7
+    end
+
+    ##
+    # Returns the time this message was created, derived from the
+    # timestamp embedded in its UUIDv7 id, or nil when it is not.
+    # @return [Time, nil]
+    def created_at
+      @created_at ||= LLM::Utils.timestamp(@id)
     end
 
     ##
@@ -40,10 +49,10 @@ module LLM
     # @return [Hash]
     def to_h
       {
+        id: @id,
         role:,
         content:,
         reasoning_content:,
-        created_at: created_at.utc.iso8601,
         compaction: extra.compaction,
         tools: extra.tool_calls&.map { LLM::Object === _1 ? _1.to_h : _1 },
         usage:,
@@ -58,13 +67,15 @@ module LLM
     end
 
     ##
-    # Returns true when two objects have the same role and content
+    # Returns true when two objects have the same role and content.
+    # The id is ignored, because it identifies a message rather than
+    # describing it.
     # @param [Object] other
     #  The other object to compare
     # @return [Boolean]
     def ==(other)
       if other.respond_to?(:to_h)
-        to_h == other.to_h
+        to_h.except(:id) == other.to_h.except(:id)
       else
         false
       end

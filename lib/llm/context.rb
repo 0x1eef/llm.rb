@@ -502,12 +502,7 @@ module LLM
     # timestamp embedded in its UUIDv7 id, or nil when it is not.
     # @return [Time, nil]
     def created_at
-      @created_at ||= begin
-        hex = @id.to_s.delete("-")
-        if hex.match?(/\A\h{32}\z/) and hex[12] == "7"
-          Time.at(hex[0, 12].to_i(16) / 1000.0).utc
-        end
-      end
+      @created_at ||= LLM::Utils.timestamp(@id)
     end
 
     ##
