@@ -1104,4 +1104,60 @@ RSpec.describe LLM::Context do
       end
     end
   end
+
+  context "session headers" do
+    let(:ctx) { described_class.new(provider) }
+    let(:response) { response!(choices: [LLM::Message.new("assistant", "pong")]) }
+    let(:seen) { [] }
+
+    context "when the provider is openrouter" do
+      let(:provider) { LLM.openrouter(key: "test") }
+
+      before do
+        allow(provider).to receive(:complete) do
+          seen << provider.send(:headers)["x-session-id"]
+          response
+        end
+        ctx.talk("ping")
+      end
+
+      it "sends the context id as a session id" do
+        expect(seen).to eq([ctx.id])
+      end
+    end
+
+    context "when the provider is not openrouter" do
+      let(:provider) { LLM.deepseek(key: "test") }
+
+      before do
+        allow(provider).to receive(:complete) do
+          seen << provider.send(:headers)["x-session-id"]
+          response
+        end
+        ctx.talk("ping")
+      end
+
+      it "does not send a session id" do
+        expect(seen).to eq([nil])
+      end
+    end
+
+    context "when two contexts share one provider" do
+      let(:provider) { LLM.openrouter(key: "test") }
+      let(:other) { described_class.new(provider) }
+
+      before do
+        response
+        allow(provider).to receive(:complete) do
+          seen << provider.send(:headers)["x-session-id"]
+          response
+        end
+        [ctx, other].map { |c| Thread.new { c.talk("ping") } }.each(&:join)
+      end
+
+      it "sends each context its own session id" do
+        expect(seen).to match_array([ctx.id, other.id])
+      end
+    end
+  end
 end

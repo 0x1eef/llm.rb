@@ -620,33 +620,37 @@ module LLM
     # Executes a turn through the Responses API.
     # @api private
     def respond(prompt, params)
-      history = @messages.to_a
-      params = @params.merge(params).reject { self.class.params.include?(_1.to_s) }
-      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
-      params[:stream] = LLM::Stream.try(params[:stream], extra:)
-      res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
-      input = res_id ? [] : history
-      params[:input] = input
-      messages = transform(prompt, params, key: :input)
-      @stream = params[:stream]
-      new_messages = messages[input.size..]
-      params = params.merge(previous_response_id: res_id, input:).compact
-      [new_messages, params, @llm.responses.create(messages, params)]
+      @llm.with(**headers) do
+        history = @messages.to_a
+        params = @params.merge(params).reject { self.class.params.include?(_1.to_s) }
+        extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
+        params[:stream] = LLM::Stream.try(params[:stream], extra:)
+        res_id = params[:store] == false ? nil : @messages.find(&:assistant?)&.response&.response_id
+        input = res_id ? [] : history
+        params[:input] = input
+        messages = transform(prompt, params, key: :input)
+        @stream = params[:stream]
+        new_messages = messages[input.size..]
+        params = params.merge(previous_response_id: res_id, input:).compact
+        [new_messages, params, @llm.responses.create(messages, params)]
+      end
     end
 
     ##
     # Executes a turn through the chat completions API.
     # @api private
     def complete(prompt, params)
-      history = @messages.to_a
-      params = params.merge(messages: history)
-      params = @params.merge(params).reject { self.class.params.include?(_1.to_s) }
-      extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
-      params[:stream] = LLM::Stream.try(params[:stream], extra:)
-      messages = transform(prompt, params)
-      @stream = params[:stream]
-      new_messages = messages[history.size..]
-      [new_messages, params, @llm.complete(messages, params)]
+      @llm.with(**headers) do
+        history = @messages.to_a
+        params = params.merge(messages: history)
+        params = @params.merge(params).reject { self.class.params.include?(_1.to_s) }
+        extra = params.slice(:model, :tools).merge!(ctx: self, tracer:, guard: @guard[:klass].new(self))
+        params[:stream] = LLM::Stream.try(params[:stream], extra:)
+        messages = transform(prompt, params)
+        @stream = params[:stream]
+        new_messages = messages[history.size..]
+        [new_messages, params, @llm.complete(messages, params)]
+      end
     end
 
     ##
@@ -674,6 +678,16 @@ module LLM
         cancelled << LLM::Function::Return.new(tool[:id], tool[:name], attrs)
       end
       messages << LLM::Message.new(@llm.tool_role, cancelled) unless cancelled.empty?
+    end
+
+    ##
+    # @return [Hash]
+    def headers
+      if @llm.name == :openrouter
+        {"x-session-id" => @id}
+      else
+        {}
+      end
     end
   end
 end
