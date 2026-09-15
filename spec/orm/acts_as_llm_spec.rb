@@ -35,6 +35,10 @@ RSpec.describe "acts_as_llm" do
 
   include_examples "a persisted context record"
 
+  let(:wrap) { ->(klass) { klass.acts_as_llm; klass } }
+
+  include_examples "inherited wrapper callbacks"
+
   context "with a live OpenAI completion",
           vcr: {cassette_name: "openai/chat/completion_contract"} do
     let(:context) do

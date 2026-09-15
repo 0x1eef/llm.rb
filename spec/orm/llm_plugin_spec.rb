@@ -35,6 +35,10 @@ RSpec.describe "plugin :llm" do
 
   include_examples "a persisted context record"
 
+  let(:wrap) { ->(klass) { klass.plugin :llm; klass } }
+
+  include_examples "inherited wrapper callbacks"
+
   context "with a live OpenAI completion",
           vcr: {cassette_name: "openai/chat/completion_contract"} do
     let(:context) do

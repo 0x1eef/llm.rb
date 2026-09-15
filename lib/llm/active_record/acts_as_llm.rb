@@ -220,19 +220,25 @@ module LLM::ActiveRecord
 
       ##
       # @return [LLM::Provider]
+      # @raise [NotImplementedError]
+      #  when neither this model nor one of its ancestors implements the
+      #  callback
       def set_provider
+        return super if defined?(super)
         raise NotImplementedError, "implement the set_provider callback"
       end
 
       ##
       # @return [Hash]
       def set_context
+        return super if defined?(super)
         EMPTY_HASH.dup
       end
 
       ##
       # @return [LLM::Tracer]
       def set_tracer
+        return super if defined?(super)
         nil
       end
 

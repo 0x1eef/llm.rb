@@ -15,7 +15,14 @@
 
 ## What's next
 
-*No unreleased changes yet. Check back after the next release.*
+### Fix
+
+* **activerecord, sequel: inherit `set_provider` from a superclass** <br>
+  The `set_provider`, `set_context`, and `set_tracer` callbacks installed by
+  `acts_as_llm` / `plugin :llm` (and their agent counterparts) are now resolved
+  through the normal method lookup chain. Defining a callback on a superclass -
+  the usual setup with single-table inheritance - no longer raises
+  `NotImplementedError`, and a subclass can still override it.
 
 ## v15.2.1
 

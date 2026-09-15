@@ -44,6 +44,10 @@ RSpec.describe "plugin :agent" do
   let(:reload_record) { ->(row) { row.class[row.id] } }
   let(:flush_record) { ->(row) { LLM::Sequel::Plugin::Utils.save!(row, row.send(:ctx), row.class.llm_plugin_options) } }
 
+  let(:wrap) { ->(klass) { klass.plugin :agent; klass } }
+
+  include_examples "inherited wrapper callbacks"
+
   it "forwards confirm to the internal agent class" do
     expect(agent.agent.confirm).to eq(["delete-file"])
   end
