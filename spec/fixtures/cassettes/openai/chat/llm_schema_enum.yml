@@ -7,11 +7,11 @@ http_interactions:
       encoding: UTF-8
       string: '{"input":[{"role":"user","content":[{"type":"input_text","text":"Your
         favorite fruit is pineapple"}]},{"role":"user","content":[{"type":"input_text","text":"What
-        fruit is your favorite?"}]}],"model":"gpt-5.4-mini","store":false,"text":{"format":{"type":"json_schema","name":"JSONSchema","schema":{"type":"object","properties":{"fruit":{"description":"The
+        fruit is your favorite?"}]}],"model":"gpt-5.6-luna","store":false,"stream":false,"text":{"format":{"type":"json_schema","name":"JSONSchema","schema":{"type":"object","properties":{"fruit":{"description":"The
         favorite fruit","enum":["apple","pineapple","orange"],"type":"string"}},"required":["fruit"],"additionalProperties":false}}}}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v15.2.2
       Content-Type:
       - application/json
       Authorization:
@@ -28,7 +28,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 26 Jun 2026 02:45:37 GMT
+      - Tue, 15 Sep 2026 15:44:14 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -36,7 +36,7 @@ http_interactions:
       Connection:
       - keep-alive
       Cf-Ray:
-      - a118e074dcbe402c-GRU
+      - a3b8c0635a47f17d-GRU
       Cf-Cache-Status:
       - DYNAMIC
       Server:
@@ -52,7 +52,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '725'
+      - '802'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -70,37 +70,37 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 0s
       X-Request-Id:
-      - req_ea5de61dbc3942f389715a770008a191
+      - req_1caf47e0b5a048298c96bc76128ea0f0
       Set-Cookie:
-      - __cf_bm=tzKNu5ai7SjHOJP6HiA6cUqaQwHgV5Zuy.q1_b9.3LQ-1782441936.1310756-1.0.1.1-DtVxQF14eylOQ_yGufR851dUgz9xNitR04mxtCVEINZD8mB6_3bWKvmhe9z8jRHrdk5tYb6g7T6fJ1rnOWBdLhPBKOYHizFv3eOxg4MmFmWGNZb.rzUy6yWZJobvF9Lw;
-        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Fri,
-        26 Jun 2026 03:15:37 GMT
+      - __cf_bm=53bUtQSgOmGa3_95n1cAyq7KMAucXuNrxwf9qGjiNFk-1789487053.3322785-1.0.1.1-FVhDp.m1SDHmHJM08OwCBZDOUTCpWcGUD1V0a4zoi2b639IYWyGRAfEk.PdHgEWxYt8TBSemRbGPlNZTq.ssQ.oH0uupECtoMQybptsgcR_kMDaKax_oCFvc.bz1ZMxS;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Tue,
+        15 Sep 2026 16:14:14 GMT
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_034c3ca3586f0a8c016a3de7d03e748192ab10ee258fd7dca1",
+          "id": "resp_08be4eca6beb9671016aa967cd736487d29204f552318cffb3",
           "object": "response",
-          "created_at": 1782441936,
+          "created_at": 1789487053,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1782441936,
+          "completed_at": 1789487054,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
           "instructions": null,
           "max_output_tokens": null,
           "max_tool_calls": null,
-          "model": "gpt-5.4-mini-2026-03-17",
+          "model": "gpt-5.6-luna",
           "moderation": null,
           "output": [
             {
-              "id": "msg_034c3ca3586f0a8c016a3de7d0aa248192bf1dcbbdd74866bb",
+              "id": "msg_08be4eca6beb9671016aa967cddce087d286e1692f1430a90b",
               "type": "message",
               "status": "completed",
               "content": [
@@ -121,8 +121,9 @@ http_interactions:
           "prompt_cache_key": null,
           "prompt_cache_retention": "24h",
           "reasoning": {
-            "context": "current_turn",
-            "effort": "none",
+            "context": "all_turns",
+            "effort": "medium",
+            "mode": "standard",
             "summary": null
           },
           "safety_identifier": null,
@@ -182,6 +183,7 @@ http_interactions:
           "usage": {
             "input_tokens": 59,
             "input_tokens_details": {
+              "cache_write_tokens": 0,
               "cached_tokens": 0
             },
             "output_tokens": 14,
@@ -193,5 +195,5 @@ http_interactions:
           "user": null,
           "metadata": {}
         }
-  recorded_at: Fri, 26 Jun 2026 02:45:30 GMT
+  recorded_at: Tue, 15 Sep 2026 15:43:57 GMT
 recorded_with: VCR 6.4.0

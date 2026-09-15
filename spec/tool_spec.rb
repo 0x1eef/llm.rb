@@ -122,23 +122,57 @@ RSpec.describe LLM::Tool do
   end
 
   describe ".function" do
-    it "adapts a no-arg tool for xai with an object schema" do
-      provider = LLM.xai(key: "TOKEN")
-      payload = shell.function.adapt(provider)
+    let(:provider) { LLM.xai(key: "TOKEN") }
+    let(:parameters) { tool.function.adapt(provider)[:function][:parameters] }
 
-      expect(payload).to eq(
-        type: "function",
-        name: "shell",
-        function: {
-          name: "shell",
-          description: "run shell commands",
-          parameters: {type: "object", properties: {}, required: []}
-        }
-      )
+    context "when given a tool with no arguments" do
+      let(:tool) { shell }
+
+      it "adapts the tool with a closed object schema" do
+        expect(tool.function.adapt(provider)).to eq(
+          type: "function",
+          function: {
+            name: "shell",
+            description: "run shell commands",
+            parameters: {
+              type: "object",
+              properties: {},
+              required: [],
+              additionalProperties: false
+            },
+            strict: false
+          }
+        )
+      end
+
+      it "closes the root object" do
+        expect(parameters[:additionalProperties]).to be(false)
+      end
+
+      it "returns an empty schema hash" do
+        expect(tool.function.params).to eq(LLM::Schema::Object.new({}))
+      end
     end
 
-    it "returns an empty schema hash" do
-      expect(shell.function.params).to eq(LLM::Schema::Object.new({}))
+    context "when given a tool with a nested object" do
+      let(:tool) do
+        schema = address
+        Class.new(described_class) do
+          name "person"
+          description "a person"
+          param :address, schema, "the address"
+        end
+      end
+      let(:address) do
+        Class.new(LLM::Schema) do
+          property :street, String, "street"
+          required %i[street]
+        end
+      end
+
+      it "closes the nested object" do
+        expect(parameters[:properties]["address"][:additionalProperties]).to be(false)
+      end
     end
   end
 

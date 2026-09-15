@@ -98,7 +98,7 @@ class LLM::OpenAI
     def adapt_function(fn)
       {
         type: "function", name: fn.name, description: fn.description,
-        parameters: fn.params.to_h.merge(additionalProperties: false), strict: false
+        parameters: LLM::Schema::Utils.close(fn.params), strict: false
       }.compact
     end
 
@@ -112,7 +112,7 @@ class LLM::OpenAI
       return {} unless params && params[:schema]
       schema = params.delete(:schema)
       schema = schema.respond_to?(:object) ? schema.object : schema
-      schema = schema.to_h.merge(additionalProperties: false)
+      schema = LLM::Schema::Utils.close(schema)
       name = "JSONSchema"
       {text: {format: {type: "json_schema", name:, schema:}}}
     end

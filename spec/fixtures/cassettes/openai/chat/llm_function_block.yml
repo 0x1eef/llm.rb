@@ -7,11 +7,11 @@ http_interactions:
       encoding: UTF-8
       string: '{"input":[{"role":"user","content":[{"type":"input_text","text":"You
         are a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"input_text","text":"What
-        is the date?"}]}],"model":"gpt-5.4-mini","store":false,"tools":[{"type":"function","name":"system","description":"Runs
+        is the date?"}]}],"model":"gpt-5.6-luna","store":false,"stream":false,"tools":[{"type":"function","name":"system","description":"Runs
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"],"additionalProperties":false},"strict":false}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v15.2.2
       Content-Type:
       - application/json
       Authorization:
@@ -28,7 +28,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 26 Jun 2026 02:45:27 GMT
+      - Tue, 15 Sep 2026 15:43:56 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -36,7 +36,7 @@ http_interactions:
       Connection:
       - keep-alive
       Cf-Ray:
-      - a118e03b7e95768e-GRU
+      - a3b8bff00cf6d7eb-GRU
       Cf-Cache-Status:
       - DYNAMIC
       Server:
@@ -52,7 +52,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '703'
+      - '1187'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -70,41 +70,41 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 0s
       X-Request-Id:
-      - req_3c80d96a65d94a6b932c857fcab9c7f5
+      - req_5989e5a51f10429b9ee3206f145a1b3a
       Set-Cookie:
-      - __cf_bm=rVWJrwH3et0gHDdMRpSHxDhGghm6dpqCmvsIKyqGN1A-1782441926.958984-1.0.1.1-62WZ5ZIluS4FVkTC4z26nqHcfbS59N9YynLm1cKYY_iUXqOpHJzVCruD2tBmGIPFYb_qeFUpAgBy3Y8wzX3Ie.mLZGtWC.AETLoDnLn9RwNm8D3bD.4EiA91KXlGREVX;
-        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Fri,
-        26 Jun 2026 03:15:27 GMT
+      - __cf_bm=RdiKsqobIgD7yWLzt8c7MQ4UaxilAFKmTYui9ehkf0k-1789487034.8815825-1.0.1.1-B6YBT7xz6oHzzS.CwAtu_dIosdCHODXdVVgTcgqcA1ZWhf8OFHGzEVlvBxOYoUL1mhqnmcusDg97.7x3dsL2fVh.DPJCxyi5A7sLSNopRIJISF5KYEr5QGjd5_VVrKHi;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Tue,
+        15 Sep 2026 16:13:56 GMT
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_0a7b963cdff4f5b3016a3de7c710ec81a0b8e5c7b54810daf7",
+          "id": "resp_0194619efb0a9d9f016aa967bb0c4c87d2b6cc09594ded030f",
           "object": "response",
-          "created_at": 1782441927,
+          "created_at": 1789487035,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1782441927,
+          "completed_at": 1789487036,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
           "instructions": null,
           "max_output_tokens": null,
           "max_tool_calls": null,
-          "model": "gpt-5.4-mini-2026-03-17",
+          "model": "gpt-5.6-luna",
           "moderation": null,
           "output": [
             {
-              "id": "fc_0a7b963cdff4f5b3016a3de7c78f7081a08c988e3e6c85ad58",
+              "id": "fc_0194619efb0a9d9f016aa967bc04e487d282c0c1e467f999b2",
               "type": "function_call",
               "status": "completed",
               "arguments": "{\"command\":\"date\"}",
-              "call_id": "call_6CIMLheYiktBHoAn2u0JAXs8",
+              "call_id": "call_jEEUN66Dr5uralK0bbVbUQgl",
               "name": "system"
             }
           ],
@@ -114,8 +114,9 @@ http_interactions:
           "prompt_cache_key": null,
           "prompt_cache_retention": "24h",
           "reasoning": {
-            "context": "current_turn",
-            "effort": "none",
+            "context": "all_turns",
+            "effort": "medium",
+            "mode": "standard",
             "summary": null
           },
           "safety_identifier": null,
@@ -152,6 +153,7 @@ http_interactions:
               "type": "function",
               "description": "Runs system commands",
               "name": "system",
+              "output_schema": null,
               "parameters": {
                 "type": "object",
                 "properties": {
@@ -173,6 +175,7 @@ http_interactions:
           "usage": {
             "input_tokens": 57,
             "input_tokens_details": {
+              "cache_write_tokens": 0,
               "cached_tokens": 0
             },
             "output_tokens": 17,
@@ -184,7 +187,7 @@ http_interactions:
           "user": null,
           "metadata": {}
         }
-  recorded_at: Fri, 26 Jun 2026 02:45:20 GMT
+  recorded_at: Tue, 15 Sep 2026 15:43:39 GMT
 - request:
     method: post
     uri: https://api.openai.com/v1/responses
@@ -192,12 +195,11 @@ http_interactions:
       encoding: UTF-8
       string: '{"input":[{"role":"user","content":[{"type":"input_text","text":"You
         are a bot that can run UNIX commands"}]},{"role":"user","content":[{"type":"input_text","text":"What
-        is the date?"}]},{"id":"fc_0a7b963cdff4f5b3016a3de7c78f7081a08c988e3e6c85ad58","type":"function_call","status":"completed","arguments":"{\"command\":\"date\"}","call_id":"call_6CIMLheYiktBHoAn2u0JAXs8","name":"system"},{"type":"function_call_output","call_id":"call_6CIMLheYiktBHoAn2u0JAXs8","output":"{\"cancelled\":true,\"reason\":\"function
-        call cancelled\"}"},{"type":"function_call_output","call_id":"call_6CIMLheYiktBHoAn2u0JAXs8","output":"{\"success\":\"2025-08-24\"}"}],"model":"gpt-5.4-mini","store":false,"tools":[{"type":"function","name":"system","description":"Runs
+        is the date?"}]},{"id":"fc_0194619efb0a9d9f016aa967bc04e487d282c0c1e467f999b2","type":"function_call","status":"completed","arguments":"{\"command\":\"date\"}","call_id":"call_jEEUN66Dr5uralK0bbVbUQgl","name":"system"},{"type":"function_call_output","call_id":"call_jEEUN66Dr5uralK0bbVbUQgl","output":"{\"success\":\"2025-08-24\"}"}],"model":"gpt-5.6-luna","store":false,"stream":false,"tools":[{"type":"function","name":"system","description":"Runs
         system commands","parameters":{"type":"object","properties":{"command":{"type":"string"}},"required":["command"],"additionalProperties":false},"strict":false}]}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v15.2.2
       Content-Type:
       - application/json
       Authorization:
@@ -214,7 +216,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 26 Jun 2026 02:45:28 GMT
+      - Tue, 15 Sep 2026 15:43:57 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -222,7 +224,7 @@ http_interactions:
       Connection:
       - keep-alive
       Cf-Ray:
-      - a118e0411c7bf1f6-GRU
+      - a3b8bff9e982f245-GRU
       Cf-Cache-Status:
       - DYNAMIC
       Server:
@@ -238,7 +240,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '806'
+      - '1089'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -256,37 +258,37 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 0s
       X-Request-Id:
-      - req_d64ddd113ac34d71964b834eefed4e80
+      - req_9506acb8a8a4434b9223771fa6b867da
       Set-Cookie:
-      - __cf_bm=7i4Scuiq7RZPTE4k1f6C2DXmBN.Ax0DXXpKLpUbh8WI-1782441927.8573754-1.0.1.1-Z7OzxUyVgDxifDTbAtU0ZQbZlum2NR10r3tVmxLYPuZDdcJTwO_CP1DFvPQcYU4g30meki1sepW_tKnZmpq6hmS6W5HFls.C6y2gx1c.m4lNHXPHFV.HjVZZNtqSL.ky;
-        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Fri,
-        26 Jun 2026 03:15:28 GMT
+      - __cf_bm=rfdcG87zd37HSAfPOaD9kuGtX4JdgaFnWob1huq62IE-1789487036.4624279-1.0.1.1-YZlCjqI9kgA_lUbudJcG8C.x.mCMcgo6bmGS5Qco0wy6nxgH5C_rMAgUo3c5m8YiesUPMBJoe9hY7EwU7i_xcxka6gq9cIhG5UzI0oSPPxf56OZEnphsvrIqA9dlsk8A;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Tue,
+        15 Sep 2026 16:13:57 GMT
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_0a7b963cdff4f5b3016a3de7c7f54c81a0aa4a4c07c7d6e152",
+          "id": "resp_0194619efb0a9d9f016aa967bc964087d297f3fd98d6862bba",
           "object": "response",
-          "created_at": 1782441927,
+          "created_at": 1789487036,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1782441928,
+          "completed_at": 1789487037,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
           "instructions": null,
           "max_output_tokens": null,
           "max_tool_calls": null,
-          "model": "gpt-5.4-mini-2026-03-17",
+          "model": "gpt-5.6-luna",
           "moderation": null,
           "output": [
             {
-              "id": "msg_0a7b963cdff4f5b3016a3de7c8803c81a0a8d24f4b41002677",
+              "id": "msg_0194619efb0a9d9f016aa967bd51cc87d29b7759771a0e9d3b",
               "type": "message",
               "status": "completed",
               "content": [
@@ -307,8 +309,9 @@ http_interactions:
           "prompt_cache_key": null,
           "prompt_cache_retention": "24h",
           "reasoning": {
-            "context": "current_turn",
-            "effort": "none",
+            "context": "all_turns",
+            "effort": "medium",
+            "mode": "standard",
             "summary": null
           },
           "safety_identifier": null,
@@ -345,6 +348,7 @@ http_interactions:
               "type": "function",
               "description": "Runs system commands",
               "name": "system",
+              "output_schema": null,
               "parameters": {
                 "type": "object",
                 "properties": {
@@ -364,18 +368,19 @@ http_interactions:
           "top_p": 0.98,
           "truncation": "disabled",
           "usage": {
-            "input_tokens": 114,
+            "input_tokens": 94,
             "input_tokens_details": {
+              "cache_write_tokens": 0,
               "cached_tokens": 0
             },
             "output_tokens": 10,
             "output_tokens_details": {
               "reasoning_tokens": 0
             },
-            "total_tokens": 124
+            "total_tokens": 104
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Fri, 26 Jun 2026 02:45:21 GMT
+  recorded_at: Tue, 15 Sep 2026 15:43:41 GMT
 recorded_with: VCR 6.4.0

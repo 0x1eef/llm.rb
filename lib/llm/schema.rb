@@ -81,6 +81,30 @@ class LLM::Schema
     def fetch(properties, name)
       properties[name] || properties.fetch(name.to_s)
     end
+
+    ##
+    # Returns a copy of a JSON schema where every object is
+    # closed with "additionalProperties": false. OpenAI and
+    # Azure reject tool parameters that leave an object open,
+    # and they validate nested objects as well as the root.
+    # @param [Object] node
+    #  A schema, a Hash of properties, or an Array of either
+    # @return [Object]
+    def close(node)
+      case node
+      when LLM::Schema::Leaf
+        close(node.to_h)
+      when LLM::Object
+        close(node.to_h)
+      when Hash
+        node.to_h { |key, value| [key, close(value)] }
+            .then { _1[:type] == "object" ? _1.merge(additionalProperties: false) : _1 }
+      when Array
+        node.map { close(_1) }
+      else
+        node
+      end
+    end
   end
 
   ##

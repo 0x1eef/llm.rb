@@ -36,7 +36,7 @@ class LLM::OpenAI
       {
         response_format: {
           type: "json_schema",
-          json_schema: {name: "JSONSchema", schema:}
+          json_schema: {name: "JSONSchema", schema: LLM::Schema::Utils.close(schema)}
         }
       }
     end

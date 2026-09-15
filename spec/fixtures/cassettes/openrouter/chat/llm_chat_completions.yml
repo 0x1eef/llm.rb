@@ -13,7 +13,9 @@ http_interactions:
         ?"}]}],"model":"openrouter/auto","stream":false}'
     headers:
       User-Agent:
-      - llm.rb v15.0.3
+      - llm.rb v15.2.2
+      X-Session-Id:
+      - 01a0a5b7-e877-74a6-b075-9b2f42b503e6
       Content-Type:
       - application/json
       Authorization:
@@ -30,7 +32,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 24 Aug 2026 06:36:29 GMT
+      - Tue, 15 Sep 2026 15:38:27 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -40,13 +42,13 @@ http_interactions:
       Access-Control-Allow-Origin:
       - "*"
       X-Generation-Id:
-      - gen-1787553387-gV3Xu1Dn8d0mg1tEm6rk
+      - gen-1789486705-Sf8Ro2bHJuf3s75CvNi5
       Access-Control-Expose-Headers:
       - X-Generation-Id,X-Provider-Name,request-id,cf-ray
       Set-Cookie:
-      - __cf_bm=NUZXmBmrM3A8DscTXiRvWNl3341wor3.SZErHnFcFns-1787553386.9958615-1.0.1.1-rLx7sXROKQXUeuYpvjCL4_kjZan3j.JA1Im7w_NLBgrdunHNlggBgLLVsn8EFm2Aq8cYqw0aOkAMu7cYeKoJFGupZIlkNMH2R.fGbmvA1lsXBVSoQYJ8mHZLwLAyvkJu;
-        HttpOnly; SameSite=None; Secure; Path=/; Domain=openrouter.ai; Expires=Mon,
-        24 Aug 2026 07:06:29 GMT
+      - __cf_bm=94Vm8v5Tb6UySClxkSuaEajrKu.mOaZx0WOfVg9auj4-1789486705.3571913-1.0.1.1-K5SPW5KifGhR0aKkMzcYCRTcjeQ60R_ilI50uNBL5M7FaHHoah6A_xRGABRQTjfjXY9J0fV9djVq5yfYq4frC.ZtwRCZdbz0REvq35jQY44yFQMdUfL6wSxnJhShRsIV;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=openrouter.ai; Expires=Tue,
+        15 Sep 2026 16:08:27 GMT
       Permissions-Policy:
       - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
         "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
@@ -57,13 +59,10 @@ http_interactions:
       Server:
       - cloudflare
       Cf-Ray:
-      - a30057bcb843c6a6-GRU
+      - a3b8b7e47c94b127-GRU
     body:
       encoding: ASCII-8BIT
-      string: "\n         \n{\"id\":\"gen-1787553387-gV3Xu1Dn8d0mg1tEm6rk\",\"object\":\"chat.completion\",\"created\":1787553389,\"model\":\"deepseek/deepseek-v4-flash-0731\",\"provider\":\"CoreWeave\",\"system_fingerprint\":null,\"service_tier\":null,\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"stop\",\"message\":{\"role\":\"assistant\",\"content\":\"5\\n10\\n12\",\"refusal\":null,\"reasoning\":\"1.
-        \ The user asks for three answers, one per line, each a number.\\n2.  Questions:
-        3+2=5, 5+5=10, 5+7=12.\\n3.  Output should be numbers only, one per line.\",\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"1.
-        \ The user asks for three answers, one per line, each a number.\\n2.  Questions:
-        3+2=5, 5+5=10, 5+7=12.\\n3.  Output should be numbers only, one per line.\",\"format\":\"unknown\",\"index\":0}],\"model\":\"deepseek/deepseek-v4-flash-0731\"}}],\"usage\":{\"prompt_tokens\":62,\"completion_tokens\":64,\"total_tokens\":126,\"cost\":0.00002598,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.00002598,\"upstream_inference_prompt_cost\":0.00000806,\"upstream_inference_completions_cost\":0.00001792},\"completion_tokens_details\":{\"reasoning_tokens\":39,\"image_tokens\":0,\"audio_tokens\":0}}}"
-  recorded_at: Mon, 24 Aug 2026 06:36:22 GMT
+      string: "\n         \n{\"id\":\"gen-1789486705-Sf8Ro2bHJuf3s75CvNi5\",\"object\":\"chat.completion\",\"created\":1789486705,\"model\":\"google/gemini-3.8-flash\",\"provider\":\"Google
+        AI Studio\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"STOP\",\"message\":{\"role\":\"assistant\",\"content\":\"5\\n10\\n12\",\"refusal\":null,\"reasoning\":null,\"reasoning_details\":[{\"type\":\"reasoning.text\",\"signature\":\"EpcHCpQHARFNMg/l6sHUeUXq20zZ03aGJquttgoejVT8TZeRZOUdEHIHA0xYxyjes70UZSrHNE7ILjzdwZGX5O2wjo0r+4efectM8Yoydxv+fnccYR+E2F/IDCxIXdhU/En+YwiHwbyDrCn86JFwFJYap61d6hTraKH9jt9Ee+GRNrJm88mrgLcJ42EMuQcXrmHuefsUQZEblFFXKQJpLeeozaISngBhDwBOcWFdOq2kv4zWcQa+UX9wP51MteAtORCgelYDE2MTZLk97K5LbgJwU9yPWM7jENxM982JfdWy6TQmEmzlnm1DvRdAw3zhJBDAAytGQKv6nsIRZzyHPOOHT/pCSYjdiqJtcijeaApCpmzLw2pqsedDJVrqqCGKx6nUJXMoWWr9wyWBlYeY0x/H3c3xVeLGJjrM/fR0qZwmWvjMFrW/vLqEn1JFCJVShvADSw/Sltr5wvXqYU/ZVX0pjSnbjM4lTRrqdgjfyds2bYY20cdFGeOhfvNfdB2xg6q63WP/NRZXm47YuRycJLCrYiJ1rEFThuEvizGm8UKnCjN2lHe72urgzy3CgOKcbOfkG6GY2IN8Zz+dpAFU9fAJVMX5NVWbueRBqhywg55zjrshpUwW5P7W3JjHa8mlzLmpAJamooGnw6r6tpmS+5rfb1fbHrDdHF6vyx1tnmC8CnqzhpCkhsPXVSVmp1W257UUHYSWVPe9U0mo97CEnXLKniWCKtTsflRnotwUs+kC8oqyCTOmcdR46bV/+PzH+bV78/gfGatN0i2CAN+2jqGOuN7gV4pWVzhia4hePDevN0jRjrbKKhobG4wyyajMGRwrkicb03Eh59xOZtemzLlGD52es5QUFdoDseW7wly0BEiFkP4iGgem8F1rmyFk+vnWDLRbdZrIkp0YxTIzDvMXNCMfZYjwkrOqJBYTMigH7EGsLVZNZj2BrcNDBdrXrUN8f4KmAVurPACUGztLJiOOzxYAuxILtI/Tf34J5wAZgMaYtzbggB7XDqChPo1D9gqY1OxB7KR4CQ6aIeGkMnsJYghNNvlxijTYi/TgxmPMae66tNBniHwC0mIKfD/nI+m82NFkGMxk10vBQxnbIBJL4nAMnxKs5VJ1xZlVtMDnJX6dPnf4YycDaodF6dULUos30T3FdCO/sEh7XNz2+E4bgD1OVNtY73UkvlXKE/z8bwLhm6tbALcekpysmFh2/au2vw/8o3g2Dw==\",\"format\":\"google-gemini-v1\",\"index\":0}],\"model\":\"google/gemini-3.8-flash\"}}],\"usage\":{\"prompt_tokens\":58,\"completion_tokens\":233,\"total_tokens\":291,\"cost\":0.00091725,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.00091725,\"upstream_inference_prompt_cost\":0.0000435,\"upstream_inference_completions_cost\":0.00087375},\"completion_tokens_details\":{\"reasoning_tokens\":226,\"image_tokens\":0,\"audio_tokens\":0}}}"
+  recorded_at: Tue, 15 Sep 2026 15:38:10 GMT
 recorded_with: VCR 6.4.0

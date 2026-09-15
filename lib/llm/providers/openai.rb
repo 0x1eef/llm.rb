@@ -156,10 +156,10 @@ module LLM
     # @param [LLM::Function] fn
     # @return [Hash]
     def adapt_function(fn)
-      params = fn.params.to_h
+      params = LLM::Schema::Utils.close(fn.params)
       {
-        type: "function", name: fn.name,
-        function: {name: fn.name, description: fn.description, parameters: params}
+        type: "function",
+        function: {name: fn.name, description: fn.description, parameters: params, strict: false}
       }.compact
     end
 

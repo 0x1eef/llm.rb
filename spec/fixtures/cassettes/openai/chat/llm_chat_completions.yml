@@ -10,10 +10,10 @@ http_interactions:
         should be one answer per lineAn answer should be a number, for example: 5Nothing
         else"}]},{"role":"user","content":[{"type":"input_text","text":"What is 3+2
         ?"}]},{"role":"user","content":[{"type":"input_text","text":"What is 5+5 ?"}]},{"role":"user","content":[{"type":"input_text","text":"What
-        is 5+7 ?"}]}],"model":"gpt-5.4-mini","store":false}'
+        is 5+7 ?"}]}],"model":"gpt-5.6-luna","store":false,"stream":false}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v15.2.2
       Content-Type:
       - application/json
       Authorization:
@@ -30,7 +30,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 26 Jun 2026 02:45:23 GMT
+      - Tue, 15 Sep 2026 15:43:46 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -38,7 +38,7 @@ http_interactions:
       Connection:
       - keep-alive
       Cf-Ray:
-      - a118e01dae238039-GRU
+      - a3b8bfa9dc10b81e-GRU
       Cf-Cache-Status:
       - DYNAMIC
       Server:
@@ -54,7 +54,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '781'
+      - '1405'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -72,37 +72,44 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 0s
       X-Request-Id:
-      - req_eccae51e2fce4a25ba8c87e1b5ad8f91
+      - req_6e93907e2f4045c3b39246b63d56337b
       Set-Cookie:
-      - __cf_bm=hIykNI8dkvEMzAm5kaPfWSfX_THeEAgCPHycheOrgvE-1782441922.1811764-1.0.1.1-lQBIIa6m.ssBzzaH6PijyWMczYpNmQeTAvJe6efeR06_XB7xpZ4KlX9tHVz.bnX8d8pa1XTTAk4GfY8dU7JXkUmZ480gOP841A6rY7R5TGzYKkFsRnlHZsSVX3LndIwM;
-        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Fri,
-        26 Jun 2026 03:15:23 GMT
+      - __cf_bm=UvlWBEotI9CLNVHUEFZbmfKMjvRjLz_JAVMHJ_lWzXM-1789487023.6568933-1.0.1.1-i2fGg6j1G4v3e7nPgkB6vNtXq4mfEIxyqq9DLPHzB6TaNEZYF8izNVOYv0xeLTN8fJ5F6okmFygrn_CJ9esftFfKTjBBaiwQ54B5A30msgvragtBCSBHgVQIpQzyb.J4;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Tue,
+        15 Sep 2026 16:13:46 GMT
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_04f8a80bcb99a3e7016a3de7c24bd0819d8d3d88710199b8a2",
+          "id": "resp_09320a268f114e31016aa967b0f8f487d288d7d9b7d479e0e8",
           "object": "response",
-          "created_at": 1782441922,
+          "created_at": 1789487025,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1782441923,
+          "completed_at": 1789487026,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
           "instructions": null,
           "max_output_tokens": null,
           "max_tool_calls": null,
-          "model": "gpt-5.4-mini-2026-03-17",
+          "model": "gpt-5.6-luna",
           "moderation": null,
           "output": [
             {
-              "id": "msg_04f8a80bcb99a3e7016a3de7c2e1bc819d932049d59b9d4b8a",
+              "id": "rs_09320a268f114e31016aa967b1d91087d2b1daa3a20642aee0",
+              "type": "reasoning",
+              "content": [],
+              "encrypted_content": "gAAAAABqqWey44Y_B8ghZzP9EMQWPQvkd76cEnSgQ1fEVE9l3qVSaGHuZZ8MG1xdSi1bvt5pQRDBs05oOS4RRE3qnLoJ40eDv_zqFp4SP8jfRV9HISqco3F2bxCQ_xaf1qPhE6sffxY9O58wjVd6I5PaQPNKd1h1Tnvl7noQpziKKYjEdqS1r7Ji3s2zm0KUeOfrPy5uJ42WSQ9e7XGn6SX982g_cqyTidhif15-vnTNRdZl9l6H0EKpEfY0MZjh0A5figVPG1M7BPl0jnEQdFudsXUm5mJVOCgIF_NjTe1lYhy8HsmX5oIjbhGgB_DK3uP_RXNYDxBNd4VbqAN2VjmqWcLQ4io4YprC0mkB7D7u5jT6Mc3CPqVUZGU9skZjqvBq_Q5TrwxeW46MvX5IeGuyJUjxrtPsBOm_7XTH7Ib9w41c6pEqT-jlI84hXxo52rBNvuUN6srtWDIAPD1ZSpeNxk_880nUdxHKyUr-pLvNCHsJndf9QQSK1aHsxE3kdOYnP1laEIAZOynu9d2RcMDzehFPtyjOqbWi59CAt9pFqeVqmPFC26nnk4oSszuNMHXMg7mu_kWXu55rYzXuie-Oi4UzeooqsB5FTZqpWOMe5F28VgZZZHlsOwc5j4bNOu8MUGEEkJk1_rUwcxWr9FFThc2G7GDOi_N6qaIVMJ09oLwHcjOiCGMc36Qaua4qTypPZ8P2xLMy7lID0MxnWmoNOpbMBo1EINfsEFFI_4lGvqsaUYdLnzr6y8Rckhxso7s2AvCN2XKaTaUfNEjBKuM0JKip8p6cWc0foebZEDhCls3mbsoxT6OUoVfLuMoq7LvGhpnJjCsFoBGt-kDPwar_QpGujYEA_RPYrSwFwzD9NRidXDvGIDrhRtmmYmIhpl0ctQEy3LdoSvWXP5HQwpp4aceay3kzJgUgjC5NY8PrCWsKctAqM0r43UpQM41iNbY-R3tu9S-ZU_InZiuOCg5HhypymkQK-ChbqFFZ6rhgATXlW6uXF9RE6LApJQ5JctHlyiSTmLhgX3P4GWapNLQfiIrAVkK3B_f5FZM10AXJ1f3r4W7V3DJLCfmmq09zuBeWvUQ4Q_hgKB3uOGai6dgc0OiiqAoGyjU4Kf_76EC_NtNJRoUXG2MvQ1Ald7Choww7pwx7K3eWK_er-IbBpfNST7tpxUoR60_eLkHrpnYVMWncVAaeQPg9M7E3bIY7RVh0eKWcqzqkH936S2NB6--s-och0BwIV0qyG1KYHVdTIOGCsuFkTYU=",
+              "summary": []
+            },
+            {
+              "id": "msg_09320a268f114e31016aa967b1f75c87d285ae9469ec1fd0d7",
               "type": "message",
               "status": "completed",
               "content": [
@@ -123,8 +130,9 @@ http_interactions:
           "prompt_cache_key": null,
           "prompt_cache_retention": "24h",
           "reasoning": {
-            "context": "current_turn",
-            "effort": "none",
+            "context": "all_turns",
+            "effort": "medium",
+            "mode": "standard",
             "summary": null
           },
           "safety_identifier": null,
@@ -163,16 +171,17 @@ http_interactions:
           "usage": {
             "input_tokens": 75,
             "input_tokens_details": {
+              "cache_write_tokens": 0,
               "cached_tokens": 0
             },
-            "output_tokens": 9,
+            "output_tokens": 30,
             "output_tokens_details": {
-              "reasoning_tokens": 0
+              "reasoning_tokens": 19
             },
-            "total_tokens": 84
+            "total_tokens": 105
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Fri, 26 Jun 2026 02:45:16 GMT
+  recorded_at: Tue, 15 Sep 2026 15:43:29 GMT
 recorded_with: VCR 6.4.0

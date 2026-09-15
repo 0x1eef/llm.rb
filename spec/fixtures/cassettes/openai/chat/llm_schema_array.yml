@@ -7,11 +7,11 @@ http_interactions:
       encoding: UTF-8
       string: '{"input":[{"role":"user","content":[{"type":"input_text","text":"Return
         the numbers 10 and 12"}]},{"role":"user","content":[{"type":"input_text","text":"Keep
-        them in the same order"}]}],"model":"gpt-5.4-mini","store":false,"text":{"format":{"type":"json_schema","name":"JSONSchema","schema":{"type":"object","properties":{"answers":{"description":"The
+        them in the same order"}]}],"model":"gpt-5.6-luna","store":false,"stream":false,"text":{"format":{"type":"json_schema","name":"JSONSchema","schema":{"type":"object","properties":{"answers":{"description":"The
         answer to two questions","type":"array","items":{"type":"integer"}}},"required":["answers"],"additionalProperties":false}}}}'
     headers:
       User-Agent:
-      - llm.rb v11.3.1
+      - llm.rb v15.2.2
       Content-Type:
       - application/json
       Authorization:
@@ -28,7 +28,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 26 Jun 2026 02:45:38 GMT
+      - Tue, 15 Sep 2026 15:44:16 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -36,7 +36,7 @@ http_interactions:
       Connection:
       - keep-alive
       Cf-Ray:
-      - a118e07abc597810-GRU
+      - a3b8c06bbcbf29ee-GRU
       Cf-Cache-Status:
       - DYNAMIC
       Server:
@@ -52,7 +52,7 @@ http_interactions:
       Openai-Organization:
       - user-j1pztzt5nogpcsid23u7gskj
       Openai-Processing-Ms:
-      - '907'
+      - '1583'
       Openai-Project:
       - proj_YSiqu4bByPgi6EwPnLiY8irR
       Openai-Version:
@@ -70,37 +70,44 @@ http_interactions:
       X-Ratelimit-Reset-Tokens:
       - 0s
       X-Request-Id:
-      - req_a602ffb4737e4d4087755bb45e930b93
+      - req_c516b01422d24de9b69b957522979eb2
       Set-Cookie:
-      - __cf_bm=QWicBFfcCXM9RfoCHgRVN7c_JVsvnTum1JXkckOA9y0-1782441937.0740108-1.0.1.1-1kVD3nDx3vrcIN4SUiMksi1eQuOIFvS3WE0XpVWp.peS5yeMc7yj8A1p0z4sZ.PfNnuw7D897y_lPDEUQ9XEP9Bdb1VP4Fv0a296J23YiHnnGlIb5CCLs2rgaUBjNEL3;
-        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Fri,
-        26 Jun 2026 03:15:38 GMT
+      - __cf_bm=K9TA4pZ7DMVbxr4lfrmwYdi0TVHfX90FGT9aikIkzX4-1789487054.676199-1.0.1.1-wkQgZ4iMmDTyqJMqF.L.gewfQFyreVYOqdEBYfm.uoLpj9DMdGoeAGO.hDYIwGIww33QcSniOQK9zYwi6fl4XPOrq1xxjbv0tCoBeZTvAki21gDqKakvUmlmFv_jVIwv;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Tue,
+        15 Sep 2026 16:14:16 GMT
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: |-
         {
-          "id": "resp_0633695d256a41a0016a3de7d12e30819ea70f514bf94f1bc7",
+          "id": "resp_0386d6b48e8aa1cc016aa967ced6f887d29793ba2a1a4e0dcd",
           "object": "response",
-          "created_at": 1782441937,
+          "created_at": 1789487054,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1782441938,
+          "completed_at": 1789487056,
           "error": null,
           "frequency_penalty": 0.0,
           "incomplete_details": null,
           "instructions": null,
           "max_output_tokens": null,
           "max_tool_calls": null,
-          "model": "gpt-5.4-mini-2026-03-17",
+          "model": "gpt-5.6-luna",
           "moderation": null,
           "output": [
             {
-              "id": "msg_0633695d256a41a0016a3de7d1aeb4819e9930ace81807165d",
+              "id": "rs_0386d6b48e8aa1cc016aa967cfcf4c87d2896ea71d98a44134",
+              "type": "reasoning",
+              "content": [],
+              "encrypted_content": "gAAAAABqqWfQNRDGjty49e1_DxqJRobIexhM2hpG-DvVJICLyw8UC2KNB-H1-0yZ2mIJiMgUvkZ1o6Eip2Xg4z5WLbJBzHaSLhzR6Rur5zJFioAO__bOe96td-JAi_53NZtgNU8kK-4Q-VLf0iXSDzGGscRYXMHhrDALzZWL4-WbUJQl0dnaXydnHeFscPeiKPJrqJPp8FUkQcV1aO4NMZpIE91XkyTfuF7H4KRfXEyOrrNYOLG1kfQFGkFOBbKlvR7OnW475gSaQ3B-_sxo6MJf3-SyBIpkVuGr0ovr6cb7-7zQQrwAxrZ4ID8aoKAkVSQ-En49sGqsDaPgUuf1w_nqABxw2xgMG92MqrKleif2XzN7OG0JxRzmoAyRSiaue-YW2EIw8A2UA1LVVmAXpgULfaXJIlU2G5IamgshrVKFocqBWAibbQJ0js1uy7KvN9_KCLumG6Kjci5RRciQdg4I_UZ41ReuAr2jK3A3jJpKAxM9jR47Bg6LDzxV3ahq70i4_7BOGWICzyktoCGerM2M2EJqApH4H7dznA4_GPW-9zncOrSGpycLqC5S_tqICTCndwgMfBJhqudqfD-VNnFKwgYjxA_dcR2300yM9mVfYUkY58Ou1zF3C6fTuItshp4I9BAHiiHTClE5EASkTW-_41AgbHeCLRycEwi7_v6VVCXHwTF8O8rGK0Uge4QrKbA7sR4Z3NkEYYGD7Rn3ih_-NY6i30STHREnQ-8oGmDxyZfqsfKHr24A_jZKmhcnj4QP1tVAWejGMAmQJhmK4Bq9rqEZAb8c24SkOpnu43wZ80JStih40JCwfGuHGT_CitPW_BRlL6oDV1RMCCVqEjAz5-lHKRinKAwnBBF53kKfy9pYzVhw6hkqHBnc42raHTjd0IrbMEAh6D-wN5EyTyOsWUGasi62lWsFtJzS3-s2-TQaml20ie05f1QAZXB-LsFAhOSDoROF3T21kFBSQP4qFezoGiuOLS14R3DwipGGPN_7_oq6tqb6eIZ7PcsZeSg1B1OMNPAGOLWeZ2Ld6T2CbJQVaH0MCZok6ZVduT3kCpzGSdL6SPhjM4_a8_VTyOqr5Oe1bf-XP7udpWzOyKKtxBB5aDDQr7SwNjscIiOymnKZlqUZ0JDgkv__oF5v0o5zmrAVvBywKvF8-vq2hLIJWaRpVh0mn_GvyuGHs_XHepHDFeBN12QHM1Ft-M9IIbPmlF15bdK5fntmMPX3qeIT21mQ5eEWKJjEXPWI8c4u0NLu6NPy8ho=",
+              "summary": []
+            },
+            {
+              "id": "msg_0386d6b48e8aa1cc016aa967cff43c87d29c049c72c46a1c28",
               "type": "message",
               "status": "completed",
               "content": [
@@ -121,8 +128,9 @@ http_interactions:
           "prompt_cache_key": null,
           "prompt_cache_retention": "24h",
           "reasoning": {
-            "context": "current_turn",
-            "effort": "none",
+            "context": "all_turns",
+            "effort": "medium",
+            "mode": "standard",
             "summary": null
           },
           "safety_identifier": null,
@@ -180,16 +188,17 @@ http_interactions:
           "usage": {
             "input_tokens": 60,
             "input_tokens_details": {
+              "cache_write_tokens": 0,
               "cached_tokens": 0
             },
-            "output_tokens": 15,
+            "output_tokens": 31,
             "output_tokens_details": {
-              "reasoning_tokens": 0
+              "reasoning_tokens": 14
             },
-            "total_tokens": 75
+            "total_tokens": 91
           },
           "user": null,
           "metadata": {}
         }
-  recorded_at: Fri, 26 Jun 2026 02:45:31 GMT
+  recorded_at: Tue, 15 Sep 2026 15:43:59 GMT
 recorded_with: VCR 6.4.0
