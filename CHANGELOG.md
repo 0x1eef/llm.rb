@@ -15,6 +15,16 @@
 
 ## What's next
 
+*No unreleased changes yet. Check back after the next release.*
+
+## v15.2.2
+
+Changes since `v15.2.1`.
+
+This release fixes the `set_provider`, `set_context`, and `set_tracer`
+callbacks installed by `acts_as_llm` and `plugin :llm` so a subclass
+inherits them from its superclass instead of raising.
+
 ### Fix
 
 * **activerecord, sequel: inherit `set_provider` from a superclass** <br>
