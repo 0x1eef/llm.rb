@@ -48,6 +48,26 @@
   requests, so an agent keeps the same session across requests and OpenRouter
   routes them to the same cached model. Other providers are unaffected.
 
+### Fix
+
+* **openai: send the chat completions function schema in the shape the API expects** <br>
+  Fix a bug where [`LLM::OpenAI`](https://r.uby.dev/api-docs/llm.rb/LLM/OpenAI.html)
+  built a function schema that was a hybrid of the Responses and Chat
+  Completions APIs, carrying a top-level `name` next to a nested `function`
+  object. OpenRouter and OpenAI through Azure read the hybrid as a Responses
+  function, so the tool was not described the way the chat completions
+  endpoint expects. The name, description, parameters, and `strict: false`
+  are now nested under `function:`, which is the shape chat completions
+  documents.
+
+* **openai: close nested objects in tool and structured-output schemas** <br>
+  The parameters of a tool and a structured-output schema now carry
+  `additionalProperties: false` on every object they contain, not just the
+  root object, in the chat completions and Responses paths alike. OpenAI and
+  Azure reject a schema that leaves an object open, and they validate nested
+  objects as well as the root. The chat completions structured-output schema,
+  which was sent open, is now closed too.
+
 ## v15.2.2
 
 Changes since `v15.2.1`.
