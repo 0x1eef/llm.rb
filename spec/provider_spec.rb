@@ -41,6 +41,45 @@ RSpec.describe LLM::Provider do
       end
     end
 
+    context "when given the with method with a block" do
+      let(:scoped) { {} }
+
+      before do
+        provider.with("x-session-id" => "abc") { scoped.replace(provider.send(:headers)) }
+      end
+
+      it "adds the header for the duration of the block" do
+        expect(scoped).to include("x-session-id" => "abc")
+      end
+
+      it "restores the previous headers after the block" do
+        expect(provider.send(:headers)).not_to include("x-session-id" => "abc")
+      end
+    end
+
+    context "when a scoped header block raises" do
+      before do
+        provider.with("x-session-id" => "abc") { raise "boom" }
+      rescue RuntimeError
+      end
+
+      it "restores the previous headers" do
+        expect(provider.send(:headers)).not_to include("x-session-id" => "abc")
+      end
+    end
+
+    context "when a scoped header is set while another fiber reads" do
+      let(:other) { Thread.new { provider.send(:headers) } }
+
+      before do
+        provider.with("x-session-id" => "abc") { other.value }
+      end
+
+      it "does not leak the header to the other fiber" do
+        expect(other.value).not_to include("x-session-id" => "abc")
+      end
+    end
+
     describe "#key?" do
       context "when given a key resolved via environment" do
         let(:key) { "sk-from-env" }

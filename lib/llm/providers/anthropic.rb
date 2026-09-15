@@ -141,7 +141,9 @@ module LLM
 
     def headers
       lock do
-        (@headers || {}).merge(
+        (@headers || {})
+        .merge(temporary_headers)
+        .merge(
           "Content-Type" => "application/json",
           "x-api-key" => @key,
           "anthropic-version" => "2023-06-01",

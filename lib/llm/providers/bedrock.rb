@@ -183,7 +183,9 @@ module LLM
 
     def headers
       lock do
-        (@headers || {}).merge("Content-Type" => "application/json")
+        (@headers || {})
+        .merge(temporary_headers)
+        .merge("Content-Type" => "application/json")
       end
     end
 

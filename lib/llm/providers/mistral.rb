@@ -136,7 +136,9 @@ module LLM
     # @api private
     def headers
       lock do
-        (@headers || {}).merge(
+        (@headers || {})
+        .merge(temporary_headers)
+        .merge(
           "Authorization" => "Bearer #{@key}",
           "Content-Type" => "application/json"
         )

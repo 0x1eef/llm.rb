@@ -263,11 +263,21 @@ class LLM::Provider
   end
 
   ##
-  # Add one or more headers to all requests
-  # @example
+  # Add one or more headers to all requests, or scope them to a block.
+  #
+  # Without a block the headers are merged into the provider's defaults
+  # permanently. With a block the headers apply only to the current fiber,
+  # for the duration of the block, then the previous headers are restored.
+  # This is useful for a header that varies per context, such as
+  # OpenRouter's `x-session-id`.
+  # @example Permanent
   #   llm = LLM.openai(key: ENV["KEY"])
   #   llm.with("OpenAI-Organization" => ENV["ORG"])
   #   llm.with("OpenAI-Project" => ENV["PROJECT"])
+  # @example Scoped
+  #   llm.with("x-session-id" => ctx.id) do
+  #     llm.complete("hello")
+  #   end
   # @param [Hash<String,String>] headers
   #  One or more headers
   # @note
@@ -275,12 +285,26 @@ class LLM::Provider
   #  provided via the `headers:` keyword argument,
   #  or provided directly as a Hash without the
   #  `headers:` key namespace.
+  # @yield
   # @return [LLM::Provider]
-  #  Returns self
-  def with(**headers)
+  #  Returns self without a block, the block's value with one
+  def with(**headers, &block)
     headers = headers.merge(headers.delete(:headers) || {})
-    lock do
-      tap { @headers.merge!(headers) }
+    if block
+      wm = weakmaps.header
+      previous = wm[self]
+      wm[self] = (previous || {}).merge(headers)
+      block.call
+    else
+      lock { tap { @headers.merge!(headers) } }
+    end
+  ensure
+    if block
+      if previous.nil?
+        wm.respond_to?(:delete) ? wm.delete(self) : wm[self] = nil
+      else
+        wm[self] = previous
+      end
     end
   end
 
@@ -349,7 +373,7 @@ class LLM::Provider
   # @return [LLM::Tracer]
   #  Returns the current scoped tracer override or provider default tracer
   def tracer
-    weakmap[self] || @tracer || LLM::Tracer::Null.new(self)
+    weakmaps.tracer[self] || @tracer || LLM::Tracer::Null.new(self)
   end
 
   ##
@@ -378,17 +402,18 @@ class LLM::Provider
   # @yield
   # @return [Object]
   def with_tracer(tracer)
-    had_override = weakmap.key?(self)
-    previous = weakmap[self]
-    weakmap[self] = tracer || LLM::Tracer::Null.new(self)
+    wm = weakmaps.tracer
+    had_override = wm.key?(self)
+    previous = wm[self]
+    wm[self] = tracer || LLM::Tracer::Null.new(self)
     yield
   ensure
     if had_override
-      weakmap[self] = previous
-    elsif weakmap.respond_to?(:delete)
-      weakmap.delete(self)
+      wm[self] = previous
+    elsif wm.respond_to?(:delete)
+      wm.delete(self)
     else
-      weakmap[self] = nil
+      wm[self] = nil
     end
   end
 
@@ -504,8 +529,25 @@ class LLM::Provider
   end
 
   ##
+  # Returns the temporary headers set by {#with}
+  # for the current fiber.
   # @api private
-  def weakmap
-    thread[:"llm.provider.weakmap"] ||= ObjectSpace::WeakMap.new
+  # @return [Hash]
+  def temporary_headers
+    weakmaps.header[self] || {}
+  end
+
+  ##
+  # @return [LLM::Object]
+  def weakmaps
+    if thread["llm.#{name}.weakmaps"]
+      thread["llm.#{name}.weakmaps"]
+    else
+      weakmaps = LLM::Object.from(
+        tracer: ObjectSpace::WeakMap.new,
+        header: ObjectSpace::WeakMap.new
+      )
+      thread["llm.#{name}.weakmaps"] = weakmaps
+    end
   end
 end
