@@ -16,6 +16,54 @@ RSpec.describe LLM::Agent do
     end
   end
 
+  describe "tracing" do
+    let(:responses) { provider.responses }
+    let(:final_response) { response!(choices: [LLM::Message.new("assistant", "done")]) }
+    let(:trace_events) { [] }
+    let(:tracer) do
+      events = trace_events
+      LLM::Tracer.new(provider).tap do |tracer|
+        tracer.define_singleton_method(:start_trace) { |**opts| events << [:start, opts]; self }
+        tracer.define_singleton_method(:stop_trace) { events << [:stop]; self }
+      end
+    end
+    let(:agent) { described_class.new(provider, mode: :responses, tracer:) }
+
+    before do
+      allow(provider).to receive(:responses).and_return(responses)
+      expect(responses).to receive(:create).and_return(final_response)
+    end
+
+    context "when the agent has a tracer" do
+      before { agent.talk("hello") }
+
+      it "brackets the turn in a trace group" do
+        expect(trace_events.map(&:first)).to eq([:start, :stop])
+      end
+
+      it "names the group after the turn" do
+        expect(trace_events.first.last[:name]).to eq("llm.turn")
+      end
+
+      it "gives the group an id" do
+        expect(trace_events.first.last[:trace_group_id]).to match(/\A\h{8}-/)
+      end
+    end
+
+    context "when only the provider has a tracer" do
+      let(:agent) { described_class.new(provider, mode: :responses) }
+
+      before do
+        provider.tracer = tracer
+        agent.talk("hello")
+      end
+
+      it "brackets the turn in a trace group" do
+        expect(trace_events.map(&:first)).to eq([:start, :stop])
+      end
+    end
+  end
+
   describe ".tools" do
     context "when resolved via a symbol" do
       let(:agent) do

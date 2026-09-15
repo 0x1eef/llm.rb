@@ -867,8 +867,16 @@ module LLM
         end
         res
       end
-      return run.call unless @tracer
-      @llm.with_tracer(@tracer, &run)
+      ##
+      # One turn, one trace group. A tracer
+      # is told where the turn begins and
+      # where it ends. The trace group ID
+      # identifies the turn.
+      tracer = @tracer || @llm.tracer
+      tracer.start_trace(name: "llm.turn", trace_group_id: SecureRandom.uuid_v7)
+      @llm.with_tracer(tracer, &run)
+    ensure
+      tracer&.stop_trace
     end
 
     ##
