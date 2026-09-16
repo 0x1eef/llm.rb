@@ -506,6 +506,12 @@ module LLM
     end
 
     ##
+    # Returns the runtime state as a Hash.
+    #
+    # `context_used` and `context_window` are projections written for
+    # queryability, so that saved state can be inspected at rest
+    # without loading it. They are never read back; the runtime
+    # always derives them from the messages and the registry.
     # @return [Hash]
     def to_h
       {
@@ -513,6 +519,8 @@ module LLM
         id: @id,
         model:,
         compacted:,
+        context_used:,
+        context_window:,
         messages: @messages.map { serialize_message(_1) }
       }
     end

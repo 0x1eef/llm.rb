@@ -5,7 +5,12 @@ class LLM::Context
   # @api private
   module Deserializer
     ##
-    # Restore a saved context state
+    # Restore a saved context state.
+    #
+    # The `context_used` and `context_window` keys carried by a payload
+    # are projections for queryability. They are deliberately ignored
+    # here: the runtime derives both from the messages and the
+    # registry, so a payload can never seed them.
     # @param [String, nil] path
     #  The path to a JSON file
     # @param [String, nil] string

@@ -81,6 +81,48 @@ RSpec.describe LLM::Context do
     end
   end
 
+  describe "#to_h" do
+    let(:provider) { LLM.deepseek(key: "test") }
+    let(:model) { "deepseek-v4-flash" }
+    let(:context) { LLM::Context.new(provider, model:) }
+    let(:fresh) { LLM::Context.new(provider, model:) }
+
+    context "when the context has state" do
+      before do
+        allow(context).to receive(:context_used).and_return(512)
+        allow(context).to receive(:context_window).and_return(65_536)
+      end
+
+      it "includes the context used" do
+        expect(context.to_h[:context_used]).to eq(512)
+      end
+
+      it "includes the context window" do
+        expect(context.to_h[:context_window]).to eq(65_536)
+      end
+    end
+
+    context "when a payload carries stale projections" do
+      let(:payload) do
+        LLM.json.dump({
+          schema_version: 1,
+          context_used: 999_999,
+          context_window: 1,
+          messages: []
+        })
+      end
+      let(:restored) { LLM::Context.new(provider, model:).deserialize(string: payload) }
+
+      it "ignores the stored context used" do
+        expect(restored.context_used).to be_nil
+      end
+
+      it "ignores the stored context window" do
+        expect(restored.context_window).to eq(fresh.context_window)
+      end
+    end
+  end
+
   context "when given openai" do
     let(:provider) { LLM.openai(key: "test") }
     let(:model) { "gpt-5.4" }
