@@ -15,7 +15,30 @@
 
 ## What's next
 
-*No unreleased changes yet. Check back after the next release.*
+### Core
+
+* **context: carry token usage in the saved state** <br>
+  [`LLM::Context#to_h`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_h-instance_method)
+  now writes `context_used` and `context_window` next to the messages, so a
+  state saved to JSON can be inspected at rest without loading the runtime.
+  The keys are written for queryability and are never read back: the
+  deserializer ignores them, and both values are derived from the messages
+  and the registry when a context is loaded. A payload written without them
+  still loads.
+
+### Agent
+
+* **agent: group a turn's spans into one trace** <br>
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) now brackets
+  every turn with `start_trace` and `stop_trace` on the tracer in effect, which
+  is the agent's own tracer when it has one, and the provider's otherwise. The
+  group carries a UUIDv7 `trace_group_id` and the name `llm.turn`, and
+  [`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html)
+  derives the trace id from the group id, so every span a turn produces shares
+  one trace id and appears as a single trace whose root span carries
+  `llm.trace_group_id`.
+  Previously the group was opened only when the agent had a tracer of its own,
+  so a provider-wide tracer split the spans of one turn across traces.
 
 ## v15.3.0
 
