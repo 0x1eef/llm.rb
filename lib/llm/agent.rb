@@ -17,10 +17,6 @@ module LLM
   # **Notes:**
   # * Instructions are injected once unless a system message is already present.
   # * An agent automatically executes tool loops (unlike {LLM::Context LLM::Context}).
-  # * The automatic tool loop enables the wrapped context's `guard` by default.
-  #   The built-in {LLM::Guard::Loop LLM::Guard::Loop} detects repeated
-  #   tool-call patterns and blocks stuck execution before more tool work is
-  #   queued.
   # * The tool loop can be bounded with `tool_budget`. Once the budget is
   #   spent, no further tool calls are run for that turn: the agent sends an
   #   in-band advisory message back through the model instead, and keeps
@@ -440,7 +436,7 @@ module LLM
       # where it takes longer than expected to recover.
       retry_budget = llm.name == :alibaba ? 8 : 5
       params[:retry_budget] = retry_budget if params[:retry_budget].equal?(UNDEFINED)
-      @ctx = LLM::Context.new(llm, {guard: LLM::Guard::Loop}.merge(params))
+      @ctx = LLM::Context.new(llm, params)
       @path and File.readable?(@path) ? @ctx.restore(path:) : nil
     end
 

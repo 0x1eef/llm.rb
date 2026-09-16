@@ -183,10 +183,6 @@ module LLM
     # via {LLM::Stream#on_tool_call}. A blocked call yields its in-band
     # `guard_error` return without executing.
     #
-    # The built-in implementation is {LLM::Guard::Loop LLM::Guard::Loop}, which
-    # detects repeated tool-call patterns and turns them into in-band
-    # `guard_error` tool returns.
-    #
     # @return [Class<LLM::Guard>]
     def guard
       @guard[:klass]

@@ -25,40 +25,7 @@ RSpec.describe LLM::Guard do
     end
   end
 
-  describe LLM::Guard::Loop do
-    before do
-      3.times do
-        ctx.messages << LLM::Message.new("assistant", nil, {
-          tools: [tool],
-          tool_calls: [
-            {id: "call_x", name: "echo", arguments: {"value" => "hello"}}
-          ]
-        })
-      end
-    end
-
-    it "returns a guarded return on a repeated tool-call pattern" do
-      result = described_class.new(ctx).call(function:)
-      expect(result).to be_a(LLM::Function::Return)
-      expect(result.id).to eq(function.id)
-      expect(result.name).to eq(function.name)
-      expect(result.value).to include(
-        error: true,
-        type: "guard_error",
-        message: a_string_including("Repeated tool-call pattern")
-      )
-    end
-
-    it "respects a custom threshold" do
-      expect(described_class.new(ctx).call(function:, threshold: 4)).to be_nil
-    end
-  end
-
   describe "context wiring" do
-    it "uses the loop guard when configured with a class" do
-      expect(LLM::Context.new(provider, guard: LLM::Guard::Loop).guard).to eq(LLM::Guard::Loop)
-    end
-
     it "keeps a custom guard class" do
       guard = Class.new(LLM::Guard) do
         def call(function:, **)

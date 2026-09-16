@@ -9,9 +9,8 @@
 is the superclass for context-level supervisors. A guard is bound
 to a context and inspects each pending tool call before it runs.
 It can let the call through, cancel it, block it with an error, or
-answer for it with a synthesized result. Beyond loop detection,
-guards handle policy, validation, quotas, cost control, caching,
-and approval workflows.
+answer for it with a synthesized result. Guards handle policy,
+validation, quotas, cost control, caching, and approval workflows.
 
 #### How it works
 
@@ -320,52 +319,3 @@ guard is not a replacement for
 [`LLM::Agent.tool_budget`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method),
 which caps the number of tool calls in a single turn. The two
 compose: the budget caps call count, and a guard enforces cost.
-
-### Loop
-
-#### Overview
-
-[`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
-is the built-in loop-detection guard. It reduces each assistant
-tool call to a `[tool name, arguments]` signature and checks whether
-the tail of the sequence is repeating.
-
-#### How it works
-
-When you want to detect repeated tool-call patterns, enable
-[`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
-and tune the `threshold:` option, which is the number of repeated
-patterns required before the guard intervenes (default `3`). When
-the guard detects a repeat, it returns an in-band
-[`LLM::Function::Return`](https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html)
-with type `"guard_error"` and a message that tells the model it is
-stuck and should change approach:
-
-```ruby
-ctx = LLM::Context.new(
-  llm,
-  guard: LLM::Guard::Loop,
-  guard_options: {threshold: 2}
-)
-ctx.talk "Research the market", tools: [FetchNews, FetchStocks]
-```
-
-#### Why would I use it?
-
-Loop detection matters for long, autonomous agent runs. Without it,
-a model that repeats a tool call with the same arguments can
-bounce between calls forever. The guard turns that into a bounded
-conversation: after the threshold, the model receives a message
-telling it to stop and try a different strategy.
-
-#### Notes
-
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
-enables
-[`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
-by default, so agents get loop protection without configuration.
-A custom guard can be passed through the `guard:` option to replace
-the loop guard entirely. Guards and the agent's tool budget
-complement each other: a guard blocks work that looks stuck, while
-[`LLM::Agent.tool_budget`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method)
-caps the total number of tool calls in a single turn.
