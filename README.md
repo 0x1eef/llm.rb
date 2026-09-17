@@ -52,7 +52,7 @@ an invalid state that would lead to API-level errors. For example,
 when a tool call is interrupted it could leave an unanswered tool
 call that a model will reject on the next turn. The runtime takes
 care of this by pruning orphaned tool calls and ensuring that the
-tool loop always remains valid. 
+tool loop always remains valid.
 
 ```ruby
 require "llm"
@@ -443,6 +443,100 @@ agent = Raven.find(agent.id).tap(&:research_codebase)
 agent.console
 ```
 </details>
+<details>
+<summary> SQL optimizations </summary>
+<br>
+
+In a database environment the runtime optimizes for
+the PostgreSQL database and its builtin support for
+the `jsonb` column type. An agent fits in a single
+column, on a single row, and that column carries
+everything it has done: messages, tool calls,
+context usage, and so on. It works well in practice
+and means you can store an agent almost anywhere.
+
+For scenarios where performance maters most the runtime
+ships with virtual ActiveRecord classes that never materialize
+in your database but provide a SQL view into the column where
+an agent stores its runtime state. They return
+[`ActiveRecord::Relation`](https://api.rubyonrails.org/classes/ActiveRecord/Relation.html)
+objects, so the filtering happens in the database.
+
+```ruby
+class Agent < ActiveRecord::Base
+  acts_as_agent(format: :jsonb) do |agent|
+    agent.set name: "activerecord agent"
+  end
+end
+
+##
+# Find an instance of your agent
+agent = Agent.find_by(id: 1)
+
+##
+# Returns a relation over the agent's messages.
+# It is scoped to the agent, and it yields one
+# instance of LLM::ActiveRecord::Message per
+# message the agent has produced.
+messages = LLM::ActiveRecord::Message.for(agent:)
+
+##
+# The relation chains like any other
+messages.where(role: "assistant")
+        .order(position: :desc)
+        .limit(10)
+
+##
+# Count, too
+messages.count
+```
+
+**Schema**
+
+Each row carries a message, flattened into columns:
+
+| column | contents |
+| --- | --- |
+| `agent_id` | the agent a message belongs to |
+| `id` | the message id |
+| `role` | the message role |
+| `content` | the message content |
+| `tools` | the tool calls a message carries |
+| `position` | the position of a message in the conversation |
+| `data` | the whole message, as the runtime stores it |
+
+**Indexes**
+
+The queries the view runs are already covered. They expand
+one agent, found by primary key, so they are index scans.
+There is nothing to add for
+`LLM::ActiveRecord::Message.for(agent:)`.
+
+The queries you write on top of it are not. Once a question
+is asked of every agent, the column is expanded row by row
+and no index helps the view itself. Index the column for
+those questions instead:
+
+```sql
+CREATE INDEX index_agents_on_data
+  ON agents USING gin (data jsonb_path_ops);
+
+CREATE INDEX index_agents_on_context_used
+  ON agents (((data ->> 'context_used')::int));
+```
+
+The first serves containment (`@>`) and path queries over
+the state as a whole. The second serves a scalar key, and
+the runtime already writes `context_used` and
+`context_window` at the top level, so "sessions over 80%
+full" becomes cheap. Both assume `format: :jsonb`.
+
+**However:** an agent's whole conversation lives in one
+value, so every save rewrites it, and a GIN index is
+maintained with it. Prefer an index on a key or two over
+the whole column.
+
+</details>
 
 <details><summary>MCP</summary>
 <br>
@@ -536,10 +630,9 @@ even answer for it. Because it runs before the tool, anything
 it intercepts never executes. Policy, validation, quotas, and
 cost ceilings all live here.
 
-[`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html)
-enables
-[`LLM::Guard::Loop`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html)
-by default, so agents get loop protection out of the box. To
+Agents and contexts use
+[`LLM::Guard::Null`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Null.html)
+by default, so a guard only runs when you configure one. To
 write your own guard, subclass
 [`LLM::Guard`](https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html)
 and implement
