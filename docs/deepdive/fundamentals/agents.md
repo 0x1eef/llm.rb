@@ -26,10 +26,11 @@ unless a system message is already present.
 
 #### Why would I use it?
 
-Agents manage the tool loop for you. They guard against infinite
-loops, keep conversation state across turns, and let you define
-reusable configurations at the class level. If you need manual
-control over the tool loop, use
+Agents manage the tool loop for you. They keep conversation state
+across turns and let you define reusable configurations at the
+class level. The loop runs until the model stops requesting tools
+unless you bound it with `tool_budget` or a guard. If you need
+manual control over the tool loop, use
 [`LLM::Context`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html)
 directly instead.
 

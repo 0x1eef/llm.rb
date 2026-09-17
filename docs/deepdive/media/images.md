@@ -14,11 +14,10 @@ requires no code changes.
 #### How it works
 
 The
-[`LLM::Images#create`](https://r.uby.dev/api-docs/llm.rb/LLM/Images.html#create)
-method sends a prompt to the provider and
-returns the result as a
-[`LLM::URIData`](https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html)
-object. The same API works
+`images.create`
+method sends a prompt to the provider and returns an
+[`LLM::Response`](https://r.uby.dev/api-docs/llm.rb/LLM/Response.html)
+whose `images` array holds the generated images. The same API works
 across providers: swap
 [`LLM.openai`](https://r.uby.dev/api-docs/llm.rb/LLM.html#openai-class_method) for
 [`LLM.xai`](https://r.uby.dev/api-docs/llm.rb/LLM.html#xai-class_method) and the rest
@@ -61,11 +60,10 @@ text-to-image prompts, giving you iterative vector editing.
 #### How it works
 
 The
-[`LLM::Images#edit`](https://r.uby.dev/api-docs/llm.rb/LLM/Images.html#edit)
-method takes a prompt and an image path. It
-returns a modified image as a
-[`LLM::URIData`](https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html)
-object. Copy the result
+`images.edit`
+method takes a prompt and an image path. It returns an
+[`LLM::Response`](https://r.uby.dev/api-docs/llm.rb/LLM/Response.html)
+whose `images` array holds the modified image. Copy the result
 to a file the same way you would with generated images.
 
 ```ruby

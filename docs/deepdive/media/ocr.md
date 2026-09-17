@@ -42,7 +42,5 @@ per page with markdown.
 #### Notes
 
 Only Mistral currently supports OCR through the llm.rb runtime.
-The response exposes pages through
-[`LLM::OCR::Response#pages`](https://r.uby.dev/api-docs/llm.rb/LLM/OCR/Response.html#pages),
-where each page
+The response exposes pages through its `pages` reader, where each page
 has a `markdown` field containing the extracted text.

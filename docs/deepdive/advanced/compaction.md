@@ -47,11 +47,10 @@ compactor.call(keep: 200)
 
 ##### The `/keep` command
 
-The console provides a `/keep` command that accepts a count or
+The console provides a `/keep` command that requires a count or
 percentage:
 
 ```ruby
-# /keep        # keep last 128 messages
 # /keep 50     # keep last 50 messages
 # /keep 75%    # keep approximately 75% of messages
 ```
