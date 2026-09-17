@@ -17,28 +17,38 @@
 
 ### Core
 
-* **context: carry token usage in the saved state** <br>
+* **context: save token usage with the state** <br>
   [`LLM::Context#to_h`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_h-instance_method)
-  now writes `context_used` and `context_window` next to the messages, so a
-  state saved to JSON can be inspected at rest without loading the runtime.
-  The keys are written for queryability and are never read back: the
-  deserializer ignores them, and both values are derived from the messages
-  and the registry when a context is loaded. A payload written without them
-  still loads.
+  now writes `context_used` and `context_window`, so a saved state can be
+  inspected without loading the runtime. They are never read back, and a payload
+  without them still loads.
 
 ### Agent
 
 * **agent: group a turn's spans into one trace** <br>
-  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) now brackets
-  every turn with `start_trace` and `stop_trace` on the tracer in effect, which
-  is the agent's own tracer when it has one, and the provider's otherwise. The
-  group carries a UUIDv7 `trace_group_id` and the name `llm.turn`, and
-  [`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html)
-  derives the trace id from the group id, so every span a turn produces shares
-  one trace id and appears as a single trace whose root span carries
-  `llm.trace_group_id`.
-  Previously the group was opened only when the agent had a tracer of its own,
-  so a provider-wide tracer split the spans of one turn across traces.
+  [`LLM::Agent`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html) now opens a
+  `llm.turn` trace group around every turn, so all spans a turn produces share
+  one trace id. It uses the agent's tracer when it has one, the provider's
+  otherwise; previously a provider-wide tracer split one turn across traces.
+
+### Guard
+
+* **guard: remove `LLM::Guard::Loop`** <br>
+  `LLM::Guard::Loop` is removed. It stopped repeated tool-call patterns, but
+  could also interrupt a loop that was making progress, so it did not hold up as
+  a default. Agents no longer enable a guard of their own; bound the loop with
+  `tool_budget` instead.
+
+### ActiveRecord
+
+* **activerecord: add `LLM::ActiveRecord::Message`** <br>
+  [`LLM::ActiveRecord::Message`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/Message.html)
+  is a virtual model over the JSONB column that holds an agent's state, so
+  messages can be filtered, ordered, and counted in SQL instead of in memory.
+  `for(agent:)` returns an
+  [`ActiveRecord::Relation`](https://api.rubyonrails.org/classes/ActiveRecord/Relation.html)
+  with `id`, `role`, `content`, `tools`, and `position` columns; a row's
+  `unwrap!` returns the message. The class never materializes as a table.
 
 ## v15.3.0
 
