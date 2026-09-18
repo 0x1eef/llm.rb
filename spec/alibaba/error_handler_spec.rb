@@ -4,10 +4,11 @@ require "setup"
 require "llm/providers/alibaba"
 
 RSpec.describe LLM::Alibaba::ErrorHandler do
-  subject(:handler) { described_class.new(tracer, span, response) }
+  subject(:handler) { described_class.new(tracer, span, response, request_id) }
 
   let(:tracer) { LLM::Tracer::Null.new(nil) }
   let(:span) { nil }
+  let(:request_id) { SecureRandom.uuid_v7 }
 
   context "when response is an insufficient quota error" do
     let(:response) { Net::HTTPTooManyRequests.new("1.1", "429", "Too Many Requests") }

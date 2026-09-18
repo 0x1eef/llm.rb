@@ -5,6 +5,7 @@ require "setup"
 RSpec.describe LLM::Tracer do
   let(:provider) { LLM::OpenAI.new }
   let(:tracer) { described_class.new(provider) }
+  let(:request_id) { SecureRandom.uuid_v7 }
   let(:openai) do
     Class.new do
       def initialize
@@ -31,7 +32,7 @@ RSpec.describe LLM::Tracer do
   describe "#on_request_start" do
     it "raises NotImplementedError" do
       expect {
-        tracer.on_request_start(operation: "chat", model: "test-model")
+        tracer.on_request_start(operation: "chat", model: "test-model", request_id:)
       }.to raise_error(NotImplementedError)
     end
   end
@@ -41,7 +42,7 @@ RSpec.describe LLM::Tracer do
 
     it "raises NotImplementedError" do
       expect {
-        tracer.on_request_finish(operation: "chat", model: "test-model", res:)
+        tracer.on_request_finish(operation: "chat", model: "test-model", res:, request_id:)
       }.to raise_error(NotImplementedError)
     end
   end
@@ -51,7 +52,7 @@ RSpec.describe LLM::Tracer do
 
     it "raises NotImplementedError" do
       expect {
-        tracer.on_request_error(ex:, span: nil)
+        tracer.on_request_error(ex:, span: nil, request_id:)
       }.to raise_error(NotImplementedError)
     end
   end

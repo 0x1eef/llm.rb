@@ -23,7 +23,7 @@ class LLM::Bedrock
     # @param [Object, nil] span
     # @param [LLM::Transport::Response, Net::HTTPResponse] res
     # @return [LLM::Bedrock::ErrorHandler]
-    def initialize(tracer, span, res, request_id = nil)
+    def initialize(tracer, span, res, request_id)
       @tracer = tracer
       @span = span
       @request_id = request_id

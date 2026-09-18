@@ -40,9 +40,10 @@ class LLM::Bedrock
     # @return [LLM::Response]
     def all(**params)
       host = credentials.host
+      request_id = SecureRandom.uuid_v7
       req = build_request(host, params)
       res = build_transport(host).request(req, owner: self)
-      handle_response(res)
+      handle_response(res, request_id)
     end
 
     private
@@ -69,9 +70,10 @@ class LLM::Bedrock
 
     ##
     # @param [LLM::Transport::Response, Net::HTTPResponse] res
+    # @param [String] request_id
     # @return [LLM::Response]
     # @raise [LLM::Error]
-    def handle_response(res)
+    def handle_response(res, request_id)
       res = LLM::Transport::Response.from(res)
       if res.success?
         res.body = LLM::Object.from(LLM.json.load(res.body || "{}"))
@@ -79,7 +81,7 @@ class LLM::Bedrock
       else
         body = +""
         res.read_body { body << _1 } if res.body.nil?
-        LLM::Bedrock::ErrorHandler.new(tracer, nil, res).raise_error!
+        LLM::Bedrock::ErrorHandler.new(tracer, nil, res, request_id).raise_error!
       end
     end
 

@@ -21,10 +21,10 @@ class LLM::Google
     #  The span
     # @param [LLM::Transport::Response, Net::HTTPResponse] res
     #  The response from the server
-    # @param [String, nil] request_id
+    # @param [String] request_id
     #  The id of the request that failed
     # @return [LLM::Google::ErrorHandler]
-    def initialize(tracer, span, res, request_id = nil)
+    def initialize(tracer, span, res, request_id)
       @tracer = tracer
       @span = span
       @request_id = request_id

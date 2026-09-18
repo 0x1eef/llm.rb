@@ -4,10 +4,11 @@ require "setup"
 require "llm/providers/google"
 
 RSpec.describe LLM::Google::ErrorHandler do
-  subject(:handler) { described_class.new(tracer, span, response) }
+  subject(:handler) { described_class.new(tracer, span, response, request_id) }
 
   let(:tracer) { LLM::Tracer::Null.new(nil) }
   let(:span) { nil }
+  let(:request_id) { SecureRandom.uuid_v7 }
 
   context "when response is a server error" do
     let(:response) { Net::HTTPServerError.new("1.1", "500", "Internal Server Error") }

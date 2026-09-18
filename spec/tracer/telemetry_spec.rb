@@ -5,6 +5,7 @@ require "setup"
 RSpec.describe LLM::Tracer::Telemetry do
   let(:provider) { LLM::OpenAI.new }
   let(:tracer) { described_class.new(provider) }
+  let(:request_id) { SecureRandom.uuid_v7 }
   let(:openai) do
     Class.new do
       def initialize
@@ -18,12 +19,12 @@ RSpec.describe LLM::Tracer::Telemetry do
 
   describe "#on_request_start" do
     context "when given a chat operation" do
-      subject { tracer.on_request_start(operation: "chat", model: "test-model") }
+      subject { tracer.on_request_start(operation: "chat", model: "test-model", request_id:) }
       it { is_expected.to be_a(OpenTelemetry::SDK::Trace::Span) }
     end
 
     context "when given a retrieval operation" do
-      subject { tracer.on_request_start(operation: "retrieval") }
+      subject { tracer.on_request_start(operation: "retrieval", request_id:) }
       it { is_expected.to be_a(OpenTelemetry::SDK::Trace::Span) }
     end
   end
@@ -32,10 +33,10 @@ RSpec.describe LLM::Tracer::Telemetry do
     context "when given a chat operation" do
       let(:usage) { LLM::Usage.new(input_tokens: 1, output_tokens: 2) }
       let(:res) { double("LLM::Response", id: "res_123", usage:, service_tier: "default", system_fingerprint: "yabadabadoo") }
-      let(:span) { tracer.on_request_start(operation: "chat", model: "test-model") }
+      let(:span) { tracer.on_request_start(operation: "chat", model: "test-model", request_id:) }
       let(:attributes) { {"gen_ai.operation.name" => "chat", "gen_ai.request.model" => "test-model"} }
 
-      before { tracer.on_request_finish(operation: "chat", model: "test-model", res:, span:) }
+      before { tracer.on_request_finish(operation: "chat", model: "test-model", res:, span:, request_id:) }
 
       it "finishes the span" do
         expect(span.name).to eq("chat test-model")
@@ -45,10 +46,10 @@ RSpec.describe LLM::Tracer::Telemetry do
 
     context "when given a retrieval operation" do
       let(:res) { double("LLM::Response", size: 1, has_more: false) }
-      let(:span) { tracer.on_request_start(operation: "retrieval") }
+      let(:span) { tracer.on_request_start(operation: "retrieval", request_id:) }
       let(:attributes) { {"gen_ai.operation.name" => "retrieval"} }
 
-      before { tracer.on_request_finish(operation: "retrieval", res:, span:) }
+      before { tracer.on_request_finish(operation: "retrieval", res:, span:, request_id:) }
 
       it "finishes the span" do
         expect(span.name).to eq("retrieval")
@@ -59,9 +60,9 @@ RSpec.describe LLM::Tracer::Telemetry do
 
   describe "#on_request_error" do
     let(:ex) { RuntimeError.new("yabadabadoo") }
-    let(:span) { tracer.on_request_start(operation: "chat", model: "test-model") }
+    let(:span) { tracer.on_request_start(operation: "chat", model: "test-model", request_id:) }
 
-    before { tracer.on_request_error(ex:, span:) }
+    before { tracer.on_request_error(ex:, span:, request_id:) }
 
     it "records error.type" do
       expect(tracer.spans.last.attributes["error.type"]).to eq("RuntimeError")
@@ -97,12 +98,12 @@ RSpec.describe LLM::Tracer::Telemetry do
   end
 
   describe "#start_trace" do
-    let(:span) { tracer.on_request_start(operation: "chat", model: "test-model") }
+    let(:span) { tracer.on_request_start(operation: "chat", model: "test-model", request_id:) }
     let(:res) { double("LLM::Response", id: "res_123", usage: LLM::Usage.new(input_tokens: 1, output_tokens: 2), service_tier: "default", system_fingerprint: "yabadabadoo") }
 
     before do
       tracer.start_trace(trace_group_id: "turn-123", name: "chatbot.turn")
-      tracer.on_request_finish(operation: "chat", model: "test-model", res:, span:)
+      tracer.on_request_finish(operation: "chat", model: "test-model", res:, span:, request_id:)
       tracer.stop_trace
     end
 

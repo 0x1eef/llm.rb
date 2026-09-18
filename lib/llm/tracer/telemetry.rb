@@ -86,7 +86,7 @@ module LLM
 
     ##
     # @param (see LLM::Tracer#on_request_start)
-    def on_request_start(operation:, model: nil, inputs: nil, request_id: nil)
+    def on_request_start(operation:, model: nil, inputs: nil, request_id:)
       case operation
       when "chat" then start_chat(operation:, model:, inputs:)
       when "retrieval" then start_retrieval(operation:)
@@ -96,7 +96,7 @@ module LLM
 
     ##
     # @param (see LLM::Tracer#on_request_finish)
-    def on_request_finish(operation:, res:, model: nil, span: nil, outputs: nil, metadata: nil, request_id: nil)
+    def on_request_finish(operation:, res:, model: nil, span: nil, outputs: nil, metadata: nil, request_id:)
       return nil unless span
       case operation
       when "chat" then finish_chat(operation:, model:, res:, span:, outputs:, metadata:)
@@ -107,7 +107,7 @@ module LLM
 
     ##
     # @param (see LLM::Tracer#on_request_error)
-    def on_request_error(ex:, span:, request_id: nil)
+    def on_request_error(ex:, span:, request_id:)
       return nil unless span
       attributes = {"error.type" => ex.class.to_s}.compact
       attributes.each { span.set_attribute(_1, _2) }
