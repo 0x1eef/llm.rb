@@ -58,9 +58,9 @@ module LLM
       path = ["/v1beta/models/#{model}", "embedContent?key=#{@key}"].join(":")
       req = LLM::Transport::Request.post(path, headers)
       req.body = LLM.json.dump({content: {parts: [{text: input}]}})
-      res, span, tracer = execute(request: req, operation: "embeddings", model:)
+      res, span, tracer, request_id = execute(request: req, operation: "embeddings", model:)
       res = ResponseAdapter.adapt(res, type: :embedding)
-      tracer.on_request_finish(operation: "embeddings", model:, res:, span:)
+      tracer.on_request_finish(operation: "embeddings", model:, res:, span:, request_id:)
       res
     end
 
@@ -77,10 +77,10 @@ module LLM
     def complete(prompt, params = {})
       params, stream, tools, role, model = normalize_complete_params(params)
       req = build_complete_request(prompt, params, role, model, stream)
-      res, span, tracer = execute(request: req, stream: stream, operation: "chat", model:)
+      res, span, tracer, request_id = execute(request: req, stream: stream, operation: "chat", model:)
       res = ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
-      tracer.on_request_finish(operation: "chat", model:, res:, span:)
+      tracer.on_request_finish(operation: "chat", model:, res:, span:, request_id:)
       res
     end
 

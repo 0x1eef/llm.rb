@@ -40,9 +40,9 @@ class LLM::Anthropic
     def all(**params)
       query = URI.encode_www_form(params)
       req = LLM::Transport::Request.get("/v1/models?#{query}", headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :models)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 

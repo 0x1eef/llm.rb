@@ -51,9 +51,9 @@ class LLM::Google
         instances: [{prompt:}]
       })
       req.body = body
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 

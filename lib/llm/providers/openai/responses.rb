@@ -54,10 +54,10 @@ class LLM::OpenAI
       params.delete(:input)
       body = LLM.json.dump({input: [adapt(messages, mode: :response)].flatten}.merge!(params))
       transport.set_body_stream(req, StringIO.new(body))
-      res, span, tracer = execute(request: req, stream:, stream_parser:, operation: "chat", model: params[:model])
+      res, span, tracer, request_id = execute(request: req, stream:, stream_parser:, operation: "chat", model: params[:model])
       res = ResponseAdapter.adapt(res, type: :responds)
         .extend(Module.new { define_method(:__tools__) { tools } })
-      tracer.on_request_finish(operation: "chat", model: params[:model], res:, span:)
+      tracer.on_request_finish(operation: "chat", model: params[:model], res:, span:, request_id:)
       res
     end
 
@@ -71,9 +71,9 @@ class LLM::OpenAI
       response_id = response.respond_to?(:id) ? response.id : response
       query = URI.encode_www_form(params)
       req = LLM::Transport::Request.get(path("/responses/#{response_id}?#{query}"), headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :responds)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -86,9 +86,9 @@ class LLM::OpenAI
     def delete(response)
       response_id = response.respond_to?(:id) ? response.id : response
       req = LLM::Transport::Request.delete(path("/responses/#{response_id}"), headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 

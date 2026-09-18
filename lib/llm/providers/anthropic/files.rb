@@ -38,9 +38,9 @@ class LLM::Anthropic
     def all(**params)
       query = URI.encode_www_form(params)
       req = LLM::Transport::Request.get("/v1/files?#{query}", headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :enumerable)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -59,9 +59,9 @@ class LLM::Anthropic
       req = LLM::Transport::Request.post("/v1/files", headers)
       req["content-type"] = multi.content_type
       transport.set_body_stream(req, multi.body)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -80,9 +80,9 @@ class LLM::Anthropic
       file_id = file.respond_to?(:id) ? file.id : file
       query = URI.encode_www_form(params)
       req = LLM::Transport::Request.get("/v1/files/#{file_id}?#{query}", headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -101,9 +101,9 @@ class LLM::Anthropic
       query = URI.encode_www_form(params)
       file_id = file.respond_to?(:id) ? file.id : file
       req = LLM::Transport::Request.get("/v1/files/#{file_id}?#{query}", headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :file)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
     alias_method :retrieve_metadata, :get_metadata
@@ -121,9 +121,9 @@ class LLM::Anthropic
     def delete(file:)
       file_id = file.respond_to?(:id) ? file.id : file
       req = LLM::Transport::Request.delete("/v1/files/#{file_id}", headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -147,9 +147,9 @@ class LLM::Anthropic
       file_id = file.respond_to?(:id) ? file.id : file
       req = LLM::Transport::Request.get("/v1/files/#{file_id}/content?#{query}", headers)
       io = StringIO.new("".b)
-      res, span, tracer = execute(request: req, operation: "request") { |res| res.read_body { |chunk| io << chunk } }
+      res, span, tracer, request_id = execute(request: req, operation: "request") { |res| res.read_body { |chunk| io << chunk } }
       res = LLM::Response.new(res).tap { _1.define_singleton_method(:file) { io } }
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 

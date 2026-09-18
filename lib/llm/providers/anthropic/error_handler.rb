@@ -21,10 +21,13 @@ class LLM::Anthropic
     #  The span
     # @param [LLM::Transport::Response, Net::HTTPResponse] res
     #  The response from the server
+    # @param [String, nil] request_id
+    #  The id of the request that failed
     # @return [LLM::Anthropic::ErrorHandler]
-    def initialize(tracer, span, res)
+    def initialize(tracer, span, res, request_id = nil)
       @tracer = tracer
       @span = span
+      @request_id = request_id
       @res = LLM::Transport::Response.from(res)
     end
 
@@ -33,7 +36,7 @@ class LLM::Anthropic
     #  Raises a subclass of {LLM::Error LLM::Error}
     def raise_error!
       ex = error
-      @tracer.on_request_error(ex:, span:)
+      @tracer.on_request_error(ex:, span:, request_id: @request_id)
     ensure
       raise(ex) if ex
     end

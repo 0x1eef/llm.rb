@@ -89,10 +89,10 @@ module LLM
       tracer.set_request_metadata(user_input: extract_user_input(messages, fallback: prompt))
       sign!(req, body)
       model_id = model_id_for(req.path)
-      res, span, tracer = execute(request: req, stream:, operation: "chat", stream_parser:, model: model_id)
+      res, span, tracer, request_id = execute(request: req, stream:, operation: "chat", stream_parser:, model: model_id)
       res = ResponseAdapter.adapt(res, type: :completion)
         .extend(Module.new { define_method(:__tools__) { tools } })
-      tracer.on_request_finish(operation: "chat", model: model_id, res:, span:)
+      tracer.on_request_finish(operation: "chat", model: model_id, res:, span:, request_id:)
       res
     end
 

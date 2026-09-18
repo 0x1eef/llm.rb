@@ -23,9 +23,9 @@ class LLM::DeepInfra
       path = path("/v1/inference/#{model}", base_path: false)
       req = LLM::Transport::Request.post(path, headers)
       req.body = JSON.dump(params.merge(text: input))
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt LLM::Response.new(res), type: :audio
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 
@@ -45,9 +45,9 @@ class LLM::DeepInfra
       req = LLM::Transport::Request.post(path, headers)
       req["content-type"] = multi.content_type
       transport.set_body_stream(req, multi.body)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 

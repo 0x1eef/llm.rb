@@ -66,8 +66,12 @@ module LLM
     # @param [String] operation
     # @param [String] model
     # @param [Hash, nil] inputs Optional span attributes (e.g. gen_ai.input.messages) from llm.rb or caller.
+    # @param [String, nil] request_id
+    #  The id of the request. It is a UUIDv7, and it is shared by
+    #  {#on_request_start}, {#on_request_finish}, and {#on_request_error}
+    #  for the same request.
     # @return [void]
-    def on_request_start(operation:, model: nil, inputs: nil)
+    def on_request_start(operation:, model: nil, inputs: nil, request_id: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
@@ -79,8 +83,10 @@ module LLM
     # @param [String] model
     # @param [Hash, nil] outputs Optional span attributes (e.g. gen_ai.output.messages) from llm.rb or caller.
     # @param [Hash, nil] metadata Optional metadata from llm.rb or caller.
+    # @param [String, nil] request_id
+    #  The id of the request, as passed to {#on_request_start}
     # @return [void]
-    def on_request_finish(operation:, res:, model: nil, span: nil, outputs: nil, metadata: nil)
+    def on_request_finish(operation:, res:, model: nil, span: nil, outputs: nil, metadata: nil, request_id: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 
@@ -88,8 +94,10 @@ module LLM
     # Called when an LLM provider request fails.
     # @param [LLM::Error] ex
     # @param [Object, nil] span
+    # @param [String, nil] request_id
+    #  The id of the request, as passed to {#on_request_start}
     # @return [void]
-    def on_request_error(ex:, span:)
+    def on_request_error(ex:, span:, request_id: nil)
       raise NotImplementedError, "#{self.class} does not implement '#{__method__}'"
     end
 

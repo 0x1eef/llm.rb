@@ -33,10 +33,11 @@ class LLM::Transport
       stream &&= LLM::Object.from(streamer: stream, parser: stream_parser, decoder: stream_decoder)
       owner = transport.request_owner
       tracer = self.tracer
-      span = tracer.on_request_start(operation:, model:, inputs:)
+      request_id = SecureRandom.uuid_v7
+      span = tracer.on_request_start(operation:, model:, inputs:, request_id:)
       res = transport.request(request, owner:, stream:, &b)
       res = LLM::Transport::Response.from(res)
-      [handle_response(res, tracer, span), span, tracer]
+      [handle_response(res, tracer, span, request_id), span, tracer, request_id]
     rescue *transport.interrupt_errors
       raise LLM::Interrupt, "request interrupted" if transport.interrupted?(owner)
       raise
@@ -48,9 +49,12 @@ class LLM::Transport
     #  The response to handle
     # @param [Object, nil] span
     #  The span
+    # @param [String] request_id
+    #  The id of the request being handled
     # @return [LLM::Transport::Response]
-    def handle_response(res, tracer, span)
-      res.ok? ? res.body = parse_response(res) : error_handler.new(tracer, span, res).raise_error!
+    def handle_response(res, tracer, span, request_id)
+      res.ok? ? res.body = parse_response(res) :
+                           error_handler.new(tracer, span, res, request_id).raise_error!
       res
     end
 

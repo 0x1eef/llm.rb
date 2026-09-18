@@ -44,9 +44,9 @@ class LLM::DeepInfra
       req = LLM::Transport::Request.post(path("/images/generations"), headers)
       params = {prompt:, model:, size:, n:, response_format:, quality:, style:}.compact
       req.body = LLM.json.dump(params)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::OpenAI::ResponseAdapter.adapt(res, type: :image)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 
@@ -75,9 +75,9 @@ class LLM::DeepInfra
       req = LLM::Transport::Request.post(path("/images/edits"), headers)
       req["content-type"] = multi.content_type
       transport.set_body_stream(req, multi.body)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::OpenAI::ResponseAdapter.adapt(res, type: :image)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 

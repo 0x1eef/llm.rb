@@ -34,9 +34,9 @@ class LLM::XAI
     def create(prompt:, model: "grok-imagine-image-quality", **params)
       req = LLM::Transport::Request.post(path("/images/generations"), headers)
       req.body = LLM.json.dump({prompt:, n: 1, model:, response_format: "b64_json"}.merge!(params))
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::OpenAI::ResponseAdapter.adapt(res, type: :image)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 
@@ -61,9 +61,9 @@ class LLM::XAI
         image: image_url(image),
         response_format: "b64_json"
       }.merge!(params))
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::OpenAI::ResponseAdapter.adapt(res, type: :image)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 

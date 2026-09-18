@@ -50,9 +50,9 @@ class LLM::OpenAI
       req = LLM::Transport::Request.post(path("/moderations"), headers)
       input = RequestAdapter::Moderation.new(input).adapt
       req.body = LLM.json.dump({input:, model:}.merge!(params))
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :moderations)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 

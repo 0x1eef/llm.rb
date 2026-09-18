@@ -38,9 +38,9 @@ class LLM::OpenAI
     def create(prompt:, model: "gpt-image-1-mini", output_format: "png", **params)
       req = LLM::Transport::Request.post(path("/images/generations"), headers)
       req.body = LLM.json.dump({prompt:, n: 1, model:, output_format:}.merge!(params))
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 
@@ -64,9 +64,9 @@ class LLM::OpenAI
       req = LLM::Transport::Request.post(path("/images/edits"), headers)
       req["content-type"] = multi.content_type
       transport.set_body_stream(req, multi.body)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :image)
-      tracer.on_request_finish(operation: "request", model:, res:, span:)
+      tracer.on_request_finish(operation: "request", model:, res:, span:, request_id:)
       res
     end
 

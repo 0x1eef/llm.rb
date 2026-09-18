@@ -23,9 +23,10 @@ class LLM::Bedrock
     # @param [Object, nil] span
     # @param [LLM::Transport::Response, Net::HTTPResponse] res
     # @return [LLM::Bedrock::ErrorHandler]
-    def initialize(tracer, span, res)
+    def initialize(tracer, span, res, request_id = nil)
       @tracer = tracer
       @span = span
+      @request_id = request_id
       @res = LLM::Transport::Response.from(res)
     end
 
@@ -33,7 +34,7 @@ class LLM::Bedrock
     # @raise [LLM::Error]
     def raise_error!
       ex = error
-      @tracer.on_request_error(ex:, span:)
+      @tracer.on_request_error(ex:, span:, request_id: @request_id)
     ensure
       raise(ex) if ex
     end

@@ -32,9 +32,9 @@ class LLM::OpenAI
     def all(**params)
       query = URI.encode_www_form(params)
       req = LLM::Transport::Request.get(path("/vector_stores?#{query}"), headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :enumerable)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -49,9 +49,9 @@ class LLM::OpenAI
     def create(name:, file_ids: nil, **params)
       req = LLM::Transport::Request.post(path("/vector_stores"), headers)
       req.body = LLM.json.dump(params.merge({name:, file_ids:}).compact)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -73,9 +73,9 @@ class LLM::OpenAI
     def get(vector:)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       req = LLM::Transport::Request.get(path("/vector_stores/#{vector_id}"), headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -91,9 +91,9 @@ class LLM::OpenAI
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       req = LLM::Transport::Request.post(path("/vector_stores/#{vector_id}"), headers)
       req.body = LLM.json.dump(params.merge({name:}).compact)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -106,9 +106,9 @@ class LLM::OpenAI
     def delete(vector:)
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       req = LLM::Transport::Request.delete(path("/vector_stores/#{vector_id}"), headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -124,9 +124,9 @@ class LLM::OpenAI
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       req = LLM::Transport::Request.post(path("/vector_stores/#{vector_id}/search"), headers)
       req.body = LLM.json.dump(params.merge({query:}).compact)
-      res, span, tracer = execute(request: req, operation: "retrieval")
+      res, span, tracer, request_id = execute(request: req, operation: "retrieval")
       res = ResponseAdapter.adapt(res, type: :enumerable)
-      tracer.on_request_finish(operation: "retrieval", res:, span:)
+      tracer.on_request_finish(operation: "retrieval", res:, span:, request_id:)
       res
     end
 
@@ -141,9 +141,9 @@ class LLM::OpenAI
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       query = URI.encode_www_form(params)
       req = LLM::Transport::Request.get(path("/vector_stores/#{vector_id}/files?#{query}"), headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = ResponseAdapter.adapt(res, type: :enumerable)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -161,9 +161,9 @@ class LLM::OpenAI
       file_id = file.respond_to?(:id) ? file.id : file
       req = LLM::Transport::Request.post(path("/vector_stores/#{vector_id}/files"), headers)
       req.body = LLM.json.dump(params.merge({file_id:, attributes:}).compact)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
     alias_method :create_file, :add_file
@@ -192,9 +192,9 @@ class LLM::OpenAI
       file_id = file.respond_to?(:id) ? file.id : file
       req = LLM::Transport::Request.post(path("/vector_stores/#{vector_id}/files/#{file_id}"), headers)
       req.body = LLM.json.dump(params.merge({attributes:}).compact)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -210,9 +210,9 @@ class LLM::OpenAI
       file_id = file.respond_to?(:id) ? file.id : file
       query = URI.encode_www_form(params)
       req = LLM::Transport::Request.get(path("/vector_stores/#{vector_id}/files/#{file_id}?#{query}"), headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
@@ -227,9 +227,9 @@ class LLM::OpenAI
       vector_id = vector.respond_to?(:id) ? vector.id : vector
       file_id = file.respond_to?(:id) ? file.id : file
       req = LLM::Transport::Request.delete(path("/vector_stores/#{vector_id}/files/#{file_id}"), headers)
-      res, span, tracer = execute(request: req, operation: "request")
+      res, span, tracer, request_id = execute(request: req, operation: "request")
       res = LLM::Response.new(res)
-      tracer.on_request_finish(operation: "request", res:, span:)
+      tracer.on_request_finish(operation: "request", res:, span:, request_id:)
       res
     end
 
