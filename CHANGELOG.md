@@ -50,6 +50,17 @@
   with `id`, `role`, `content`, `tools`, and `position` columns; a row's
   `unwrap!` returns the message. The class never materializes as a table.
 
+### Tracer
+
+* **tracer: give every request an id** <br>
+  [`LLM::Tracer#on_request_start`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#on_request_start-instance_method)
+  now takes a `request_id:`, a UUIDv7 that the runtime mints when a request
+  begins and passes to `on_request_finish` and `on_request_error` for that same
+  request. A turn can make many requests, so `trace_group_id` groups a turn but
+  not the events inside one request; the id lets a tracer correlate a request's
+  start, finish, and error events. The keyword is required, so a subclass that
+  overrides these hooks must accept it.
+
 ## v15.3.0
 
 Changes since `v15.2.2`.
