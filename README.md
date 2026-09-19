@@ -1042,8 +1042,7 @@ you learn and troubleshoot llm.rb.
 <br>
 <p>
 The following providers can be run used with models that
-are running on your own hardware. They're reasonably well
-tested but not my main driver:
+are running on your own hardware.
 </p>
 
 * Ollama
@@ -1098,23 +1097,36 @@ web</a>.
 <summary>Who maintains llm.rb?</summary>
 <br>
 
-The llm.rb project is maintained primarily by one
-person. llm.rb has been in active development for more
-than three years and over that time multiple other
-contributors have contributed to llm.rb as well. New
-contributors are always welcome.
+The llm.rb project was started more than three
+years ago by
+[@0x1eef](https://github.com/0x1eef) and
+[@antaz](https://github.com/0x1eef). The primary
+maintainer is [@0x1eef](https://github.com/0x1eef).
 
-I use the console that is distributed with llm.rb to build
-llm.rb itself so there is a healthy feedback loop and
-llm.rb has also been battle tested in production
-environments.
+Over those three years multiple other contributors have
+contributed to llm.rb as well, and new contributors are
+always welcome.
+</detail>
 
-I have also also written llm.rb agents within the
-repository that help me maintain the documentation,
-and backport changes to the mruby-llm runtime as well.
+<details>
+<summary>How well tested is llm.rb?</summary>
+<br>
 
-I am constantly focused on improving llm.rb by using
-it as my primary driver for development.
+It is battle tested daily.
+
+The console that is distributed with llm.rb is used
+to build llm.rb so there is a healthy, active feedback
+loop. It also powers the [r.uby.dev](https://r.uby.dev)
+website where multiple llm.rb agents are deployed with
+the help of [roda-llm](https://github.com/r-uby-dev/roda-llm).
+I'm also aware of at least one production Rails deployment
+at a large-ish company.
+
+And this git repository includes llm.rb agents that help me
+maintain the documentation and perform other repository
+maintainence. The feedback loop is constant. Outside of that
+there is a large test suite that covers live requests (recorded
+by VCR) and database interactions.
 </details>
 
 ## See also
