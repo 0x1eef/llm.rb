@@ -1029,21 +1029,18 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"
 <details>
 <summary>Where can I see llm.rb in action?</summary>
 <br>
-<p>
 
-The [r.uby.dev](https://r.uby.dev) website is powered
-by llm.rb and its builtin MCP feature. It is connected
-to this very GitHub repository. It is designed to help
-you learn and troubleshoot llm.rb.
-</p>
+The [r.uby.dev](https://r.uby.dev) website deploys
+multiple llm.rb agents that guests can interact with
+and there is even an agent that is connected to this
+GitHub repository.
 </details>
 <details>
 <summary>What about local LLM support?</summary>
 <br>
-<p>
+
 The following providers can be run used with models that
 are running on your own hardware.
-</p>
 
 * Ollama
 * Llamacpp
@@ -1052,29 +1049,27 @@ are running on your own hardware.
 <details>
 <summary>I have a limited budget. What should I do?</summary>
 <br>
-<p>
+
 There are a few options. The first option is to host
 your own model, and use the ollama or llamacpp
 providers. This can be difficult though because
 a capable model requires hardware that can
 match it. If you have the ability to self-host,
 this would be my first option.
-</p>
-<p>
+
 The second option is DeepSeek. <br>
 The deepseek-v4-flash model costs pennies to use. <br>
 And llm.rb has been optimized for deepseek. For example,
 DeepSeek does not have image generation capabilities
 but on the llm.rb runtime it does (vector graphics only,
 though).
-</p>
-<p>
+
 The same is true for structured outputs. DeepSeek does
 not support structured outputs in the same way as OpenAI or
 Google, but the llm.rb runtime makes it appear as
 though it does, through the `json_object` response
 type.
-</p>
+
 If you're on a budget, DeepSeek is hard to beat.
 </details>
 <details>
