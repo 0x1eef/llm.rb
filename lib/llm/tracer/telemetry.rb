@@ -305,7 +305,7 @@ module LLM
         "gen_ai.operation.name" => operation,
         "gen_ai.request.model" => model,
         "gen_ai.response.id" => res.id,
-        "gen_ai.response.model" => model,
+        "gen_ai.response.model" => res.model,
         "gen_ai.usage.input_tokens" => res.usage.input_tokens,
         "gen_ai.usage.output_tokens" => res.usage.output_tokens,
         "output.value" => serialize_request_value(output_value)

@@ -32,7 +32,7 @@ RSpec.describe LLM::Tracer::Telemetry do
   describe "#on_request_finish" do
     context "when given a chat operation" do
       let(:usage) { LLM::Usage.new(input_tokens: 1, output_tokens: 2) }
-      let(:res) { double("LLM::Response", id: "res_123", usage:, service_tier: "default", system_fingerprint: "yabadabadoo") }
+      let(:res) { double("LLM::Response", id: "res_123", model: "test-model", usage:, service_tier: "default", system_fingerprint: "yabadabadoo") }
       let(:span) { tracer.on_request_start(operation: "chat", model: "test-model", request_id:) }
       let(:attributes) { {"gen_ai.operation.name" => "chat", "gen_ai.request.model" => "test-model"} }
 
@@ -41,6 +41,27 @@ RSpec.describe LLM::Tracer::Telemetry do
       it "finishes the span" do
         expect(span.name).to eq("chat test-model")
         expect(span.attributes).to match(hash_including(attributes))
+      end
+    end
+
+    context "when the response reports a different model" do
+      let(:usage) { LLM::Usage.new(input_tokens: 1, output_tokens: 2) }
+      let(:res) do
+        double("LLM::Response", id: "res_123", model: "resolved-model", usage:,
+                                 service_tier: "default", system_fingerprint: "yabadabadoo")
+      end
+      let(:span) { tracer.on_request_start(operation: "chat", model: "openrouter/auto", request_id:) }
+
+      before do
+        tracer.on_request_finish(operation: "chat", model: "openrouter/auto", res:, span:, request_id:)
+      end
+
+      it "records the model the response reports" do
+        expect(span.attributes["gen_ai.response.model"]).to eq("resolved-model")
+      end
+
+      it "keeps the requested model as the request model" do
+        expect(span.attributes["gen_ai.request.model"]).to eq("openrouter/auto")
       end
     end
 
