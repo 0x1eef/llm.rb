@@ -4,10 +4,11 @@
 
 #### Overview
 
-Persistence lets an agent outlive a single session. The conversation
-history, model name, and compaction status are serialized as JSON
-that can be stored in a file, a database column, or transmitted
-over a network. Four storage options are available:
+Persistence lets an agent outlive a single session. The
+conversation history, the context id, the model name, the compaction
+status, and a snapshot of token usage are serialized as JSON that can
+be stored in a file, a database column, or transmitted over a network.
+Four storage options are available:
 
 - **Automatic filesystem persistence**: set `path:` on an agent
   for transparent auto-save after every turn (recommended for
@@ -15,9 +16,13 @@ over a network. Four storage options are available:
 - **Filesystem**: save and restore from a JSON file on disk
 - **ActiveRecord**: persist state in a database column using
   [`acts_as_agent`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method)
+  for an agent, or
+  [`acts_as_llm`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_llm-instance_method)
+  for a context
 - **Sequel**: persist state in a database column using `plugin :agent`
+  for an agent, or `plugin :llm` for a context
 
-All three use the same serialization mechanism under the hood.
+All four use the same serialization mechanism under the hood.
 
 #### How it works
 
@@ -161,8 +166,9 @@ and
 for serialization
 and
 [`LLM::Context#restore`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore)
-for deserialization. The serialized state includes
-the message history, model name, and compaction status. Save and
+for deserialization. The serialized state includes the context id,
+the message history, the model name, the compaction status, and a
+snapshot of token usage. Save and
 restore work with file paths or in-memory strings. You can also
 serialize to a JSON string for database storage or network
 transmission:
@@ -230,9 +236,10 @@ When you want to add agent persistence to an ActiveRecord model,
 call
 [`LLM::ActiveRecord#acts_as_agent`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method)
 in the model class. The `data` column stores
-the full agent state (conversation history, model name, compaction
-status) as JSON. On first call, a fresh agent is created and the
-conversation starts from scratch.
+the full agent state (the context id, conversation history, model
+name, compaction status, and a token usage snapshot) as JSON. On
+first call, a fresh agent is created and the conversation starts
+from scratch.
 
 On subsequent calls, the stored state is restored and the
 conversation continues. Every
@@ -338,6 +345,67 @@ instance. Legacy `set_context` and `set_tracer` convention methods
 also work for backwards compatibility, but the block style
 (`agent.tracer ...`, `agent.stream ...`) is preferred for all
 agent-level configuration.
+
+An agent built by `acts_as_agent` is bound to the record it was
+loaded from, and
+[`LLM::Agent#record`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#record)
+returns it. To persist a context instead of an agent, use
+`acts_as_llm`: the model gains `#llm` (the provider) and `#ctx` (the
+context), and persists the same state without the automatic tool
+loop.
+
+### SQL view
+
+#### Overview
+
+[`LLM::ActiveRecord::Message`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/Message.html)
+is a virtual ActiveRecord model that never materializes as a table. It
+exposes the messages stored inside an agent's `jsonb` column as a SQL
+view, so a conversation can be filtered, ordered, and counted in the
+database instead of in memory.
+
+#### How it works
+
+Call
+[`LLM::ActiveRecord::Message.for`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/Message.html#for-class_method)
+with an agent, and it returns an
+[`ActiveRecord::Relation`](https://api.rubyonrails.org/classes/ActiveRecord/Relation.html)
+scoped to that agent, with one row per message. The relation chains
+like any other:
+
+```ruby
+agent = Agent.find_by(id: 1)
+
+messages = LLM::ActiveRecord::Message.for(agent:)
+messages.where(role: "assistant").order(position: :desc).limit(10)
+messages.count
+```
+
+Each row carries a message flattened into columns: `id`, `role`,
+`content`, `tools`, and `position` (its place in the conversation),
+with the whole message kept as `data`.
+[`LLM::ActiveRecord::Message#unwrap!`](https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/Message.html#unwrap!-instance_method)
+rebuilds the message as the runtime would hand it back, so fields the
+view does not name, such as usage and reasoning, survive the round
+trip. `#tool_call?` and `#tool_return?` delegate to it.
+
+#### Why would I use it?
+
+Reading a conversation through the view keeps the work in the
+database. "How many assistant messages has this agent produced" and
+"show the last ten messages" become ordinary ActiveRecord queries
+instead of loading and filtering the whole conversation in Ruby.
+
+#### Notes
+
+The view expects the agent and this class to share a connection, which
+holds when both live on the same database. It requires
+`format: :jsonb`, since a `:string` column stores the state as text and
+cannot be expanded into rows. The queries the view runs are index
+scans, because they expand one agent found by primary key, but a query
+you write across every agent is not covered by default; index the state
+column for those, for example with a GIN index on
+`data jsonb_path_ops`.
 
 ### Sequel
 
@@ -446,4 +514,11 @@ instance. Legacy `set_context` and `set_tracer` convention methods
 also work for backwards compatibility, but configuring tracer,
 stream, and other agent options in the block is the preferred
 approach.
+
+To persist a context instead of an agent, use `plugin :llm`. The
+model gains `#llm` (the provider) and `#ctx` (the context), and
+persists the same state without the automatic tool loop. An agent
+built by `plugin :agent` is bound to its record, which
+[`LLM::Agent#record`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#record)
+returns.
 

@@ -833,11 +833,16 @@ is also distributed with llm.rb.
 ```ruby
 llm = LLM.openai
 llm = LLM.anthropic
+llm = LLM.google
 llm = LLM.deepseek
-llm = LLM.alibaba  # also: LLM.aliyun
+llm = LLM.deepinfra
+llm = LLM.xai
+llm = LLM.zai
 llm = LLM.moonshot
 llm = LLM.openrouter
+llm = LLM.alibaba  # also: LLM.aliyun
 llm = LLM.mistral
+llm = LLM.bedrock
 ```
 </details>
 <details>
@@ -851,10 +856,14 @@ key at all.
 ```ruby
 llm = LLM.openai(key: ENV["OPENAI_API_KEY"])
 llm = LLM.anthropic(key: ENV["ANTHROPIC_API_KEY"])
+llm = LLM.google(key: ENV["GOOGLE_API_KEY"])
 llm = LLM.deepseek(key: ENV["DEEPSEEK_API_KEY"])
-llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"]) # also: LLM.aliyun
+llm = LLM.deepinfra(key: ENV["DEEPINFRA_API_KEY"])
+llm = LLM.xai(key: ENV["XAI_API_KEY"])
+llm = LLM.zai(key: ENV["ZHIPU_API_KEY"])
 llm = LLM.moonshot(key: ENV["MOONSHOT_API_KEY"])
 llm = LLM.openrouter(key: ENV["OPENROUTER_API_KEY"])
+llm = LLM.alibaba(key: ENV["DASHSCOPE_API_KEY"]) # also: LLM.aliyun
 llm = LLM.mistral(key: ENV["MISTRAL_API_KEY"])
 ```
 </details>

@@ -82,7 +82,8 @@ Each retry sleeps a growing interval (2s, 4s, 6s, ...) and notifies
 the stream through
 [`LLM::Stream#on_retry`](https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_retry-instance_method)
 before trying again. An `LLM::Agent` enables a budget of 5 by
-default, so most users never touch this directly.
+default (or 8 on the Alibaba provider, which rate limits more
+often), so most users never touch this directly.
 
 ### Identity
 
@@ -331,4 +332,164 @@ which can be helpful when the interrupt is temporary.
 The mechanism is the same across all six concurrency strategies.
 The `:ractor` strategy delivers the interrupt through ractor
 message passing. The `:fork` strategy delivers it via xchan.
+
+### Messages
+
+#### Overview
+
+[`LLM::Context#messages`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#messages-instance_method)
+returns an
+[`LLM::Buffer`](https://r.uby.dev/api-docs/llm.rb/LLM/Buffer.html),
+an ordered, array-like collection of the conversation's
+[`LLM::Message`](https://r.uby.dev/api-docs/llm.rb/LLM/Message.html)
+objects. Read it to inspect or filter a conversation, and edit it to
+shape what the model sees next.
+
+#### How it works
+
+A buffer is `Enumerable`, so it supports `each`, `find`, `map`,
+`select`, and the rest. It also offers the array methods a long
+conversation needs, including `first`, `last`, `take`, `drop`,
+`shift`, `pop`, `slice!`, `select!`, `reject!`, and `clear`:
+
+```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk "Hello"
+
+ctx.messages.size       # => 2
+ctx.messages.first      # => the user message
+ctx.messages.last       # => the assistant message
+ctx.messages.each { |m| puts "#{m.role}: #{m.content}" }
+```
+
+Because a message carries its own role, filtering by role is a normal
+`select`:
+
+```ruby
+ctx.messages.select(&:assistant?)
+```
+
+#### Why would I use it?
+
+Reading the buffer gives you the conversation as data, so you can log
+it, count tokens against it, or render it in your own UI. Editing the
+buffer lets you drop or keep specific messages without rebuilding the
+conversation.
+
+#### Notes
+
+Changing the buffer changes the next request, so edits are best made
+between turns. The compaction topic covers the built-in, bounded way
+to trim a long conversation.
+
+### Prompt
+
+#### Overview
+
+[`LLM::Prompt`](https://r.uby.dev/api-docs/llm.rb/LLM/Prompt.html)
+composes a single request from several role-aware messages. A prompt
+is not just a string: it is an ordered list of messages with explicit
+roles, so one turn can carry a system message, a user message, and
+anything else the model supports.
+
+#### How it works
+
+Call
+[`LLM::Context#prompt`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#prompt-instance_method)
+with a block, then pass the result to
+[`LLM::Context#talk`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk).
+Inside the block, `system`, `user`, and `developer` append a message
+with the matching role, and `talk` appends one with an explicit
+role. The provider resolves each role to its provider-specific name:
+
+```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+prompt = ctx.prompt do
+  system "Your task is to assist the user"
+  user "Hello. Can you assist me?"
+end
+
+res = ctx.talk(prompt)
+```
+
+The block receives the prompt object when it takes an argument, and
+otherwise runs in the prompt's context:
+[`LLM::Prompt#to_a`](https://r.uby.dev/api-docs/llm.rb/LLM/Prompt.html#to_a)
+returns the messages in order, and two prompts are equal when their
+messages match.
+
+#### Why would I use it?
+
+A prompt keeps the roles of a multi-part request explicit, and it is
+an object you can build, pass around, and compare before it is sent.
+Use it when a turn needs more than one role, or when the same prompt
+is composed in more than one place.
+
+#### Notes
+
+[`LLM::Agent#prompt`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#prompt-instance_method)
+delegates to the context it wraps, so an agent accepts a prompt
+wherever it accepts a string. `LLM::Context#build_prompt` is an alias
+kept for compatibility.
+
+### Attachments
+
+#### Overview
+
+A message can carry files alongside its text. Pass file paths with the
+`with:` option of
+[`LLM::Context#ask`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#ask-instance_method),
+or tag a value explicitly with
+[`LLM::Context#local_file`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#local_file-instance_method),
+[`LLM::Context#image_url`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#image_url-instance_method),
+or
+[`LLM::Context#remote_file`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#remote_file-instance_method).
+
+#### How it works
+
+`ask` is a shorthand for a turn that returns a response. Pass the
+prompt and, optionally, files to attach with `with:`. It also accepts
+a `stream:` target or a block for streaming:
+
+```ruby
+require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+res = ctx.ask "What is in this photo?", with: "photo.jpg"
+res = ctx.ask "Summarize these", with: ["one.pdf", "two.pdf"]
+```
+
+The three helpers tag a value so the runtime knows how to send it, for
+turns built with `talk`:
+
+```ruby
+ctx.talk ["Describe this", ctx.local_file("/images/photo.png")]
+ctx.talk ["Describe this", ctx.image_url("https://example.com/photo.png")]
+ctx.talk ["Describe this", ctx.remote_file(res)]
+```
+
+`local_file` reads a path from disk, `image_url` passes a URL the
+provider fetches, and `remote_file` reuses a file a previous response
+produced.
+
+#### Why would I use it?
+
+Attachments let one turn carry an image, a PDF, or another file for the
+model to read, instead of pasting its contents into the prompt.
+
+#### Notes
+
+Which files a model accepts depends on the provider and the model.
+`ask` is a shorthand over `talk`: it builds the same prompt and returns
+the same `LLM::Response`, so anything that works with `talk` works with
+`ask`. An agent delegates all four methods to the context it wraps.
 

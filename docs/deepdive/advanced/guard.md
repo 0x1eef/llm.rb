@@ -73,11 +73,13 @@ onto every function the context binds, so it runs whenever a task is
 spawned, including tool calls a stream queues itself during a
 streaming turn. A blocked call yields its return without executing.
 
-The runtime binds a guard instance to the context and stamps it onto
-the functions it resolves, so a guard cannot carry state in instance
-variables between calls. Anything a guard needs to remember, like
-how many calls already ran, must come from the conversation
-(`messages`) or from class-level state.
+The runtime creates a guard instance for each batch of tool calls and
+stamps it onto the functions in that batch, so the same instance sees
+every call in a batch. State in an instance variable therefore lasts
+for the batch, but not from one batch to the next. Anything a guard
+needs to remember across batches, like how many calls already ran,
+must come from the conversation (`messages`) or from class-level
+state.
 
 ### Inspect
 

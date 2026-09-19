@@ -134,6 +134,82 @@ OpenTelemetry.
 The tracer can also write to a file with the `path:` option to
 [`LLM::Tracer::Logger.new`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html#initialize-instance_method).
 
+### Hooks
+
+#### Overview
+
+[`LLM::Tracer`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html)
+exposes one method per event in a request's lifecycle. A subclass
+implements the events it cares about and routes them anywhere: a
+logger, a metrics counter, or a database table.
+
+#### How it works
+
+Three hooks cover a provider request. `on_request_start` fires before
+the request is sent and returns the span that `on_request_finish` and
+`on_request_error` receive. Every request carries a `request_id`, a
+UUIDv7 minted when the request begins and passed to all three hooks
+for that request, so a tracer can correlate its events even when a
+turn makes several requests.
+
+Three more hooks cover a local tool call. `on_tool_start` fires before
+the tool runs and returns the span that `on_tool_finish` and
+`on_tool_error` receive.
+
+A turn is additionally bracketed with `start_trace` and `stop_trace`.
+The runtime calls them around every agent turn with a `trace_group_id`,
+and a tracer that supports it (such as
+[`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html))
+uses that id to give every span of the turn the same trace id:
+
+```ruby
+class MyTracer < LLM::Tracer
+  def on_request_start(operation:, model: nil, **)
+    warn "start #{operation} #{model}"
+  end
+
+  def on_request_finish(operation:, res:, **)
+    warn "finish #{operation}"
+  end
+
+  def on_request_error(ex:, **)
+    warn "error #{ex.class}"
+  end
+
+  def on_tool_start(id:, name:, arguments:, model:, **)
+    warn "tool #{name}"
+  end
+
+  def on_tool_finish(result:, **)
+    warn "tool #{result.name} done"
+  end
+
+  def on_tool_error(ex:, **)
+    warn "tool error #{ex.class}"
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+llm.tracer = MyTracer.new(llm)
+agent = LLM::Agent.new(llm)
+agent.talk "Hello"
+```
+
+#### Why would I use it?
+
+The built-in tracers cover logging and OpenTelemetry. A hook lets you
+send the same events somewhere else, and because the built-in tracers
+accept the keywords they do not use, existing tracer code keeps working
+as hooks gain parameters.
+
+#### Notes
+
+The base class raises `NotImplementedError` for any hook it does not
+implement, so a tracer must cover every hook the runtime calls: the six
+request and tool hooks above. Accept `**` to absorb keywords you do not
+read, as the built-in tracers do, so a hook that gains a parameter does
+not break your subclass.
+
 ### PrettyLogger
 
 #### Overview

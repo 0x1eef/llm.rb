@@ -44,7 +44,7 @@ useful when you need to go beyond the basics.
 #### Notes
 
 The deepdive is a living document. Sections are added as new
-features land. The [README.md](https://github.com/r-uby-dev/llm#readme)
+features land. The [README.md](https://github.com/r-uby-dev/llm.rb#readme)
 is the best place to start if you are new to llm.rb.
 
 ---

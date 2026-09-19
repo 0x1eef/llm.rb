@@ -58,6 +58,11 @@ The console requires the `curses` and `kramdown` gems. By default the
 tracer is disabled during the session. Set `tracer: true` to keep
 it active.
 
+The loop was previously named the REPL. `LLM::Repl` and
+`LLM::Agent#repl` still resolve to `LLM::Console` and
+`LLM::Agent#console`, so existing code keeps working, but new code
+should use the `console` names.
+
 The user-message label is exposed through
 [`LLM::Console#sender`](https://r.uby.dev/api-docs/llm.rb/LLM/Console.html#sender-instance_method),
 which defaults to `"You"`. The

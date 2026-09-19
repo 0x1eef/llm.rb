@@ -126,7 +126,7 @@ method with a `name:`.
 
 | Tool | Name | Parameters | Purpose |
 |---|---|---|---|
-| [`LLM::Tool::Rg`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html) | `rg` | `patterns`, `path`, `timeout` | Recursively search for lines matching patterns |
+| [`LLM::Tool::Rg`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html) | `rg` | `patterns`, `path`, `timeout`, `max_count`, `max_bytes` | Recursively search for lines matching patterns |
 | [`LLM::Tool::Which`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Which.html) | `which` | `name` | Locate an executable on the system PATH |
 
 #### Why would I use it?

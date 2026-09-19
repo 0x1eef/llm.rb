@@ -59,3 +59,76 @@ They are also used internally by
 [`LLM::Tool`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html)
 for parameter definitions, so you already benefit from them
 when you declare tool parameters.
+
+### Types
+
+#### Overview
+
+A schema is built from a small set of types: the JSON primitives, an
+array of a type, an enum of allowed values, a nested schema, and the
+combinators `any_of`, `all_of`, and `one_of`. Every type takes a
+description, and any type can be marked required or given a default.
+
+#### How it works
+
+A property is declared with its type and description. `String`,
+`Integer`, `Number`, and `Boolean` are the primitives, `Array[Type]`
+wraps one, and `Enum[...]` constrains a value to a fixed set. A nested
+schema is just another `LLM::Schema` subclass used as the type:
+
+```ruby
+class Address < LLM::Schema
+  property :street, String, "Street address"
+  required %i[street]
+end
+
+class Person < LLM::Schema
+  property :name, String, "Person's name"
+  property :age, Integer, "Person's age"
+  property :hobbies, Array[String], "Person's hobbies"
+  property :address, Address, "Person's address"
+  required %i[name age hobbies address]
+end
+```
+
+`Array[String, Integer]` declares an array whose items may be either
+type. Options on `property` set a leaf directly, so
+`property :age, Integer, "Person's age", required: true` marks one
+property required, and
+[`LLM::Schema.defaults`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html#defaults-class_method)
+sets defaults for several at once:
+
+```ruby
+class Search < LLM::Schema
+  property :query, String, "The search query"
+  property :limit, Integer, "The number of results"
+  required %i[query]
+  defaults limit: 10
+end
+```
+
+The same schema can be built without a class, using the value methods:
+
+```ruby
+schema = LLM::Schema.new
+schema.object(
+  name: schema.string.required,
+  age: schema.integer.required,
+  colors: schema.array(schema.string.enum("red", "green")).required
+)
+```
+
+#### Why would I use it?
+
+Types tell the model what shape to produce. A plain `String` is the
+loosest, an `Enum` the tightest, and a nested schema lets a structured
+response contain a structured value. Because the same machinery backs
+tool parameters, anything you learn here applies to tools too.
+
+#### Notes
+
+`any_of`, `all_of`, and `one_of` combine types, and
+[`LLM::Schema.to_s`](https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html#to_s-class_method)
+renders the schema as a prompt-friendly string. `required` and
+`defaults` refer to properties that already exist, so declare the
+property first and mark it afterwards.

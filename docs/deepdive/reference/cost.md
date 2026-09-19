@@ -107,3 +107,51 @@ The console renders context usage as a proportion, not a cost.
 returns a `Rational` of the tokens used over the context window
 (for example `Rational(100, 10_000)`), or `nil` when the window is
 unknown or the conversation is too short.
+
+### Token usage
+
+#### Overview
+
+[`LLM::Usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Usage.html)
+holds the token counts a provider reports for a request: input,
+output, reasoning, cache read, cache write, and the audio and image
+tokens where a model supports them. Cost is computed from it, and so
+is the console's context meter.
+
+#### How it works
+
+Every context and agent exposes four readers, each answering a
+different question:
+
+```ruby
+ctx.token_usage    # => LLM::Usage, summed over the whole conversation
+ctx.context_used   # => tokens in the most recent assistant message
+ctx.context_usage  # => Rational fraction of the context window in use
+ctx.context_window # => the model's window, or nil when unknown
+```
+
+[`LLM::Context#token_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#token_usage-instance_method)
+accumulates across the conversation and returns `LLM::Usage.zero`
+before any provider usage has been recorded.
+[`LLM::Context#context_used`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_used-instance_method)
+is the live size of a single turn, which is what the context window
+is really being spent on.
+[`LLM::Context#context_window`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_window-instance_method)
+reads the limit from the model registry, and
+[`LLM::Context#context_usage`](https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_usage-instance_method)
+divides one by the other.
+
+#### Why would I use it?
+
+`token_usage` answers "what has this conversation cost so far", while
+`context_used` and `context_usage` answer "how much room is left".
+Showing both lets a user see spend and headroom without either number
+being mistaken for the other.
+
+#### Notes
+
+`LLM::Context#usage` is an alias of `token_usage`, kept for
+compatibility. `context_used` and `context_usage` return `nil` when
+the model is unknown to the registry, or before the conversation has
+an assistant message to measure. An agent delegates all four readers
+to the context it wraps.
