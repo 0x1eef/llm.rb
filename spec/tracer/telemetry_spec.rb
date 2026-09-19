@@ -120,7 +120,7 @@ RSpec.describe LLM::Tracer::Telemetry do
 
   describe "#start_trace" do
     let(:span) { tracer.on_request_start(operation: "chat", model: "test-model", request_id:) }
-    let(:res) { double("LLM::Response", id: "res_123", usage: LLM::Usage.new(input_tokens: 1, output_tokens: 2), service_tier: "default", system_fingerprint: "yabadabadoo") }
+    let(:res) { double("LLM::Response", id: "res_123", model: "test-model", usage: LLM::Usage.new(input_tokens: 1, output_tokens: 2), service_tier: "default", system_fingerprint: "yabadabadoo") }
 
     before do
       tracer.start_trace(trace_group_id: "turn-123", name: "chatbot.turn")
