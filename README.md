@@ -461,7 +461,7 @@ everything it has done: messages, tool calls,
 context usage, and so on. It works well in practice
 and means you can store an agent almost anywhere.
 
-For scenarios where performance maters most the runtime
+For scenarios where performance matters most the runtime
 ships with virtual ActiveRecord classes that never materialize
 in your database but provide a SQL view into the column where
 an agent stores its runtime state. They return
