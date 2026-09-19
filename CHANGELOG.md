@@ -61,6 +61,15 @@
   start, finish, and error events. The keyword is required, so a subclass that
   overrides these hooks must accept it.
 
+### Registry
+
+* **refresh model metadata** <br>
+  Update `data/` with current pricing, limits, and capabilities for the
+  Alibaba, Bedrock, DeepInfra, Mistral, OpenRouter, xAI, and Z.ai registries.
+  Bedrock gains Gemma 4 and more regional Claude Sonnet 4 and GPT-5.6 entries,
+  Z.ai adds `glm-5.3-flashx` and reprices `glm-5.3-flash`, and xAI drops the
+  two Grok Imagine image models.
+
 ## v15.3.0
 
 Changes since `v15.2.2`.
