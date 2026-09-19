@@ -1106,7 +1106,7 @@ maintainer is [@0x1eef](https://github.com/0x1eef).
 Over those three years multiple other contributors have
 contributed to llm.rb as well, and new contributors are
 always welcome.
-</detail>
+</details>
 
 <details>
 <summary>How well tested is llm.rb?</summary>
