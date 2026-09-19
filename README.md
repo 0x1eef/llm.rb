@@ -285,6 +285,12 @@ experience:
 
     gem install unicode-display_width curses kramdown xchan.rb test-cmd.rb
 
+For convenience it is also possible to just use the following, it
+is a metagem that depends on llm.rb and all the dependencies it requires
+to run the console:
+
+    gem install llm-shell
+
 ##### Persistence
 
 the `path:` option can be set on an agent for automatic persistence
