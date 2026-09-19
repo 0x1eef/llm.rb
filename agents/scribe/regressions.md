@@ -17,7 +17,7 @@ code does and what the docs say.
 ### Step 1: Gather Baseline
 
 - Read the `CHANGELOG.md` to understand what changed in recent releases.
-- Read the current `README.md` and `resources/deepdive.md`.
+- Read the current `README.md` and `docs/deepdive.md`.
 - Read the `lib/llm.rb` entrypoint and key source files to understand
   the public API surface.
 

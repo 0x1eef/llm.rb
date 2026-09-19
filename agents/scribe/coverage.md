@@ -20,7 +20,7 @@ presented to help surface features more effectively.
   public-facing changes.
 - Review recent git history and diffs to identify features not
   yet documented.
-- Read the current `README.md` and `resources/deepdive.md`.
+- Read the current `README.md` and `docs/deepdive.md`.
 
 ### Step 2: Analyze Documentation Gaps
 

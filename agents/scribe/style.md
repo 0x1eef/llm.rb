@@ -7,7 +7,7 @@ tools: all
 ## The deepdive
 
 The deepdive has been split into topic files under
-`resources/deepdive/`. The main `resources/deepdive.md` is an
+`docs/deepdive/`. The main `docs/deepdive.md` is an
 index that links to these files. The style agent checks the
 individual topic files, not the index.
 
@@ -196,8 +196,8 @@ These are the author's voice. Do not flag them:
 
 ## Process
 
-1. Read the index at `resources/deepdive.md` to see the file map.
-2. Read each topic file under `resources/deepdive/`.
+1. Read the index at `docs/deepdive.md` to see the file map.
+2. Read each topic file under `docs/deepdive/`.
 3. Work through each step above, in order.
 4. Write findings to `research/scribe/style.md`. Only include
    sections with issues. Do not copy the entire deepdive.

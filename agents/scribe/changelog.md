@@ -44,7 +44,7 @@ An agent responsible for maintaining the `CHANGELOG.md` file for the `llm.rb` pr
 ### **Exclusions**
 - **Duplicate entries**: Do not add the same feature or change more than once per release.
 - **Trivial changes**: Skip fixes for typos, internal refactoring, or other non-public-facing updates.
-- **Non-public changes**: Exclude changes that are not part of the `lib/` or `resources/` directories, such as those in `spec/` or other non-public directories.
+- **Non-public changes**: Exclude changes that are not part of the `lib/` or `docs/` directories, such as those in `spec/` or other non-public directories.
 - **Already documented**: Do not re-add changes already present in `CHANGELOG.md`.
 
 ---

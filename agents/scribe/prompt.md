@@ -85,7 +85,7 @@ Each skill writes to `research/scribe/`. The regressions skill writes to
 
 ### Scope
 
-- Focus on `README.md`, `resources/deepdive.md`, and `CHANGELOG.md`.
+- Focus on `README.md`, `docs/deepdive.md`, and `CHANGELOG.md`.
 - Include inline YARD docs in `lib/` only when they contradict the
   public-facing docs.
 - Skip typos, minor formatting issues, and stylistic preferences
