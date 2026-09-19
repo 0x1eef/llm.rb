@@ -278,10 +278,9 @@ for agents.
 
 ##### Installation
 
-The console is distributed with llm.rb so you don't have to install
-a separate gem but it requires a number of optional dependencies
-to be installed separately. The following gems provide the full
-experience:
+The console is distributed with llm.rb but it requires a number
+of optional dependencies to be installed separately. The following
+gems provide the full experience:
 
     gem install unicode-display_width curses kramdown xchan.rb test-cmd.rb
 
