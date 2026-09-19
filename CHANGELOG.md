@@ -61,6 +61,13 @@
   start, finish, and error events. The keyword is required, so a subclass that
   overrides these hooks must accept it.
 
+* **tracer: record the model the provider answers with** <br>
+  [`LLM::Tracer::Telemetry`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html)
+  now sets `gen_ai.response.model` from the model on the response instead of the
+  model requested, so a span reports the model a provider actually served. A
+  router model such as `openrouter/auto` records the model it resolved to,
+  while `gen_ai.request.model` keeps the name that was asked for.
+
 ### Registry
 
 * **refresh model metadata** <br>
