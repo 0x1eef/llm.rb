@@ -1135,7 +1135,7 @@ be hosted within a Rails application or other Rack-based applications.
 
 The [docs/](docs/) directory contains the full documentation and
 the chatbot can find the answers to your questions there. Or you
-can read them yourself.
+can read them yourself. :)
 
 ## License
 
