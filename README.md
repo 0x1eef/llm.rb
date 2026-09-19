@@ -365,21 +365,27 @@ require "active_record"
 require "llm"
 require "llm/active_record"
 
-class Raven < ActiveRecord::Base
+##
+# The Robert agent.
+class Robert < ActiveRecord::Base
   acts_as_agent(format: :jsonb) do |agent|
-    agent.set name: "raven",
-              description: "a chatbot for the r.uby.dev website",
-              instructions: proc { File.read(File.join(__dir__, "raven", "prompt.md")) },
+    agent.set name: "robert",
+              description: "robert is an agent that has access to the official " \
+                            "r.uby.dev GitHub repositories. He can access the repositories " \
+                            "to answer your question(s) about r.uby.dev projects.",
+              instructions: proc { File.read(File.join(__dir__, "robert", "prompt.md")) },
               tools: :tools,
-              concurrency: :async
-  end
+              concurrency: :async,
 
-  def research_issues
-    talk("research open pull requests on r-uby-dev/llm")
-  end
+              ##
+              # The maximum number of tool calls per-turn.
+              tool_budget: 25,
 
-  def research_codebase
-    talk("research the codebase on r-uby-dev/llm")
+              ##
+              # The default tracer that all agents have associated
+              # with them. The tracer exports a trace to a couple of
+              # SQL tables.
+              tracer: proc { Raven::Tracer::SQL.new(llm, agent: self) }
   end
 
   ##
@@ -400,10 +406,6 @@ class Raven < ActiveRecord::Base
 
   private
 
-  def set_provider
-    LLM.deepseek
-  end
-
   def allowlist
     %w[
         get_commit
@@ -422,19 +424,18 @@ class Raven < ActiveRecord::Base
   end
 end
 
-agent = Raven.create!
+agent = Robert.create!
 
 ##
 # Every call to `talk` automatically persists
-# to the database (under the hood research_issues
-# calls the talk method)
-agent.research_issues
+# to the database.
+agent.talk "what's new on the llm.rb repository?"
 
 ##
 # The conversation was persisted to database. A
 # fresh instance restores it and continues where
 # we left off
-agent = Raven.find(agent.id).tap(&:research_codebase)
+agent = Robert.find(agent.id).talk "and what about roda-llm?"
 
 ##
 # Start an agent console.
