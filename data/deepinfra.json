@@ -314,7 +314,7 @@
       "structured_output": true,
       "temperature": true,
       "release_date": "2026-08-21",
-      "last_updated": "2026-08-21",
+      "last_updated": "2026-09-01",
       "modalities": {
         "input": [
           "text",
@@ -324,7 +324,7 @@
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 1048576,
         "output": 384000
@@ -483,8 +483,8 @@
         "output": 384000
       },
       "cost": {
-        "input": 0.3,
-        "output": 1.2,
+        "input": 0.2,
+        "output": 0.6,
         "cache_read": 0.006
       }
     },
@@ -721,6 +721,38 @@
         "cache_read": 0.025
       }
     },
+    "google/gemma-3-4b-it": {
+      "id": "google/gemma-3-4b-it",
+      "name": "Gemma 3 4B IT",
+      "description": "Open multimodal Gemma instruction model for efficient text generation and image understanding",
+      "family": "gemma",
+      "attachment": true,
+      "reasoning": false,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "knowledge": "2024-08",
+      "release_date": "2025-03-12",
+      "last_updated": "2025-03-12",
+      "modalities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": true,
+      "limit": {
+        "context": 131072,
+        "output": 131072
+      },
+      "cost": {
+        "input": 0.05,
+        "output": 0.1
+      }
+    },
     "google/gemma-4-31B-it": {
       "id": "google/gemma-4-31B-it",
       "name": "Gemma 4 31B IT",
@@ -795,6 +827,38 @@
         "output": 0.1
       }
     },
+    "google/gemma-3-27b-it": {
+      "id": "google/gemma-3-27b-it",
+      "name": "Gemma 3 27B IT",
+      "description": "Largest open Gemma 3 instruction model for multilingual text generation and visual understanding",
+      "family": "gemma",
+      "attachment": true,
+      "reasoning": false,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "knowledge": "2024-08",
+      "release_date": "2025-03-12",
+      "last_updated": "2025-03-12",
+      "modalities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": true,
+      "limit": {
+        "context": 131072,
+        "output": 131072
+      },
+      "cost": {
+        "input": 0.08,
+        "output": 0.16
+      }
+    },
     "google/gemma-4-26B-A4B-it": {
       "id": "google/gemma-4-26B-A4B-it",
       "name": "Gemma 4 26B A4B IT",
@@ -829,6 +893,38 @@
       "cost": {
         "input": 0.07,
         "output": 0.34
+      }
+    },
+    "google/gemma-3-12b-it": {
+      "id": "google/gemma-3-12b-it",
+      "name": "Gemma 3 12B IT",
+      "description": "Open multimodal Gemma instruction model for multilingual text generation and image understanding",
+      "family": "gemma",
+      "attachment": true,
+      "reasoning": false,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "knowledge": "2024-08",
+      "release_date": "2025-03-12",
+      "last_updated": "2025-03-12",
+      "modalities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": true,
+      "limit": {
+        "context": 131072,
+        "output": 131072
+      },
+      "cost": {
+        "input": 0.05,
+        "output": 0.15
       }
     },
     "zai-org/GLM-5.1": {
@@ -909,7 +1005,7 @@
       "cost": {
         "input": 1.2,
         "output": 4,
-        "cache_read": 0.12
+        "cache_read": 0.2
       }
     },
     "zai-org/GLM-5.2": {
@@ -990,6 +1086,7 @@
         "context": 202752,
         "output": 16384
       },
+      "status": "deprecated",
       "cost": {
         "input": 0.06,
         "output": 0.4,
@@ -1070,6 +1167,7 @@
         "context": 202752,
         "output": 16384
       },
+      "status": "deprecated",
       "cost": {
         "input": 0.6,
         "output": 2.08,
@@ -1120,7 +1218,7 @@
       "id": "zai-org/GLM-5.3-Flash",
       "name": "GLM-5.3-Flash",
       "description": "Native multimodal GLM model for efficient coding and long-horizon agent tasks",
-      "family": "glm",
+      "family": "glm-flash",
       "attachment": true,
       "reasoning": true,
       "reasoning_options": [
@@ -1306,7 +1404,8 @@
       "modalities": {
         "input": [
           "text",
-          "image"
+          "image",
+          "video"
         ],
         "output": [
           "text"
@@ -1318,9 +1417,9 @@
         "output": 32768
       },
       "cost": {
-        "input": 0.4,
-        "output": 3,
-        "cache_read": 0.04
+        "input": 0.2,
+        "output": 2.5,
+        "cache_read": 0.05
       }
     },
     "Qwen/Qwen3.5-27B": {
@@ -1590,6 +1689,38 @@
       "cost": {
         "input": 0.09,
         "output": 0.55
+      }
+    },
+    "Qwen/Qwen3.8-Flash": {
+      "id": "Qwen/Qwen3.8-Flash",
+      "name": "Qwen3.8 Flash",
+      "description": "Qwen vision-language model for visual reasoning, documents, and agent tasks",
+      "family": "qwen",
+      "attachment": true,
+      "reasoning": false,
+      "tool_call": true,
+      "structured_output": true,
+      "release_date": "2026-08-26",
+      "last_updated": "2026-08-26",
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 1000000,
+        "output": 131072
+      },
+      "cost": {
+        "input": 0.113,
+        "output": 0.382,
+        "cache_read": 0.0141
       }
     },
     "Qwen/Qwen3-VL-235B-A22B-Instruct": {
@@ -1972,6 +2103,7 @@
         "context": 196608,
         "output": 131072
       },
+      "status": "deprecated",
       "cost": {
         "input": 0.25,
         "output": 1,
@@ -2428,9 +2560,9 @@
         "output": 16384
       },
       "cost": {
-        "input": 0.4,
-        "output": 2,
-        "cache_read": 0.08
+        "input": 0.14,
+        "output": 0.28,
+        "cache_read": 0.0028
       }
     }
   }

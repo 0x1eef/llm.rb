@@ -370,34 +370,6 @@
         "output": 0
       }
     },
-    "grok-imagine-image-2.0": {
-      "id": "grok-imagine-image-2.0",
-      "name": "Grok Imagine Image 2.0",
-      "description": "Image model for prompt-driven generation, editing, and visual design workflows",
-      "family": "grok",
-      "attachment": true,
-      "reasoning": false,
-      "tool_call": false,
-      "temperature": false,
-      "release_date": "2026-08-07",
-      "last_updated": "2026-08-07",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "image",
-          "pdf"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 64000,
-        "output": 0
-      }
-    },
     "grok-4.6": {
       "id": "grok-4.6",
       "name": "Grok 4.6",
@@ -457,34 +429,6 @@
           "output": 12,
           "cache_read": 1
         }
-      }
-    },
-    "grok-imagine-image-quality": {
-      "id": "grok-imagine-image-quality",
-      "name": "Grok Imagine Image Quality",
-      "description": "Image model for prompt-driven generation, editing, and visual design workflows",
-      "family": "grok",
-      "attachment": true,
-      "reasoning": false,
-      "tool_call": false,
-      "temperature": false,
-      "release_date": "2026-04-03",
-      "last_updated": "2026-04-03",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "pdf"
-        ],
-        "output": [
-          "image",
-          "pdf"
-        ]
-      },
-      "open_weights": false,
-      "limit": {
-        "context": 16000,
-        "output": 0
       }
     },
     "grok-4.20-0309-non-reasoning": {

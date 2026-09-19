@@ -285,6 +285,47 @@
         "output": 5
       }
     },
+    "zai-glm-5-3": {
+      "id": "zai-glm-5-3",
+      "name": "GLM-5.3",
+      "description": "Flagship GLM model for long-horizon coding, agents, and complex project delivery",
+      "family": "glm",
+      "attachment": false,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "release_date": "2026-08-14",
+      "last_updated": "2026-08-14",
+      "modalities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": true,
+      "limit": {
+        "context": 1000000,
+        "output": 131072
+      },
+      "cost": {
+        "input": 1.4,
+        "output": 4.4,
+        "cache_read": 0.14
+      }
+    },
     "open-mixtral-8x22b": {
       "id": "open-mixtral-8x22b",
       "name": "Mixtral 8x22B",
@@ -862,6 +903,7 @@
         {
           "type": "effort",
           "values": [
+            "none",
             "high",
             "max"
           ]
