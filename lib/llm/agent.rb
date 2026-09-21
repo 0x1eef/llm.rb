@@ -134,7 +134,7 @@ module LLM
     # @return [String]
     #  Return's the agents name
     def self.name(name = UNDEFINED, &block)
-      if name.equal?(UNDEFINED)
+      if name.equal?(UNDEFINED) and block.nil?
         if @name.nil?
           name  = to_s.split("::").last
           @name = name.gsub(CASE_PATTERN, "-").downcase
@@ -161,7 +161,7 @@ module LLM
     # @return [String, nil]
     #  Returns the agent's description
     def self.description(desc = UNDEFINED, &block)
-      if desc.equal?(UNDEFINED)
+      if desc.equal?(UNDEFINED) and block.nil?
         @desc
       else
         @desc = block || desc
@@ -334,10 +334,10 @@ module LLM
     #  The path to a file
     # @return [String, nil]
     def self.path(path = UNDEFINED, &block)
-      if path.equal?(UNDEFINED)
+      if path.equal?(UNDEFINED) and block.nil?
         @path
       else
-        @path = path || block
+        @path = block || path
       end
     end
 
@@ -361,10 +361,10 @@ module LLM
     #  a single turn.
     # @return [Integer, nil]
     def self.tool_budget(budget = UNDEFINED, &block)
-      if budget.equal?(UNDEFINED)
+      if budget.equal?(UNDEFINED) and block.nil?
         @tool_budget
       else
-        @tool_budget = budget || block
+        @tool_budget = block || budget
       end
     end
 

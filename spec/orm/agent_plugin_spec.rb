@@ -18,6 +18,7 @@ RSpec.describe "plugin :agent" do
   let(:agent) do
     Class.new(model) do
       plugin :agent do |agent|
+        agent.description :described_by_the_model
         agent.model "gpt-5.4-mini"
         agent.instructions "You are concise."
         agent.concurrency :thread
@@ -36,6 +37,10 @@ RSpec.describe "plugin :agent" do
 
       def set_tracer
         LLM::Tracer.logger(llm, io: StringIO.new)
+      end
+
+      def described_by_the_model
+        "described by the model"
       end
     end
   end

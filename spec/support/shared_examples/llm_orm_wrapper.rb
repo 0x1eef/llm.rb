@@ -56,4 +56,8 @@ RSpec.shared_examples "a persisted agent record" do
     expect(record.class.agent.instructions).to eq("You are concise.")
     expect(record.class.agent.concurrency).to eq(:thread)
   end
+
+  it "resolves an agent field declared as a symbol against the record" do
+    expect(record.send(:ctx).description).to eq("described by the model")
+  end
 end

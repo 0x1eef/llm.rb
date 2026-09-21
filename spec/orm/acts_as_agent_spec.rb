@@ -24,6 +24,7 @@ RSpec.describe "acts_as_agent" do
   let(:agent) do
     Class.new(model) do
       acts_as_agent(tracer: :set_tracer) do |agent|
+        agent.description :described_by_the_model
         agent.model "gpt-5.4-mini"
         agent.instructions "You are concise."
         agent.concurrency :thread
@@ -42,6 +43,10 @@ RSpec.describe "acts_as_agent" do
 
       def set_tracer
         LLM::Tracer.logger(llm, io: StringIO.new)
+      end
+
+      def described_by_the_model
+        "described by the model"
       end
     end
   end

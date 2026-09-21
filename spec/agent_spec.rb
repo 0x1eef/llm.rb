@@ -309,6 +309,78 @@ RSpec.describe LLM::Agent do
         end
       end
 
+      context "when a name is declared with a block" do
+        let(:klass) do
+          Class.new(described_class) do
+            name { "block-agent" }
+          end
+        end
+        let(:agent) { klass.new(provider) }
+
+        it "resolves the block against the agent instance" do
+          expect(agent.name).to eq("block-agent")
+        end
+      end
+
+      context "when a description is declared as a symbol" do
+        let(:klass) do
+          Class.new(described_class) do
+            description :described_by_the_agent
+
+            private
+
+            def described_by_the_agent
+              "a description from a symbol"
+            end
+          end
+        end
+        let(:agent) { klass.new(provider) }
+
+        it "resolves the symbol against the agent instance" do
+          expect(agent.description).to eq("a description from a symbol")
+        end
+      end
+
+      context "when a description is declared with a block" do
+        let(:klass) do
+          Class.new(described_class) do
+            description { "a description from a block" }
+          end
+        end
+        let(:agent) { klass.new(provider) }
+
+        it "resolves the block against the agent instance" do
+          expect(agent.description).to eq("a description from a block")
+        end
+      end
+
+      context "when a path is declared with a block" do
+        let(:klass) do
+          Class.new(described_class) do
+            path { "/tmp/llm.rb-spec-missing-agent" }
+          end
+        end
+        let(:agent) { klass.new(provider) }
+
+        it "resolves the block against the agent instance" do
+          expect(agent.path).to eq("/tmp/llm.rb-spec-missing-agent")
+        end
+      end
+
+      context "when a tool budget is declared with a block" do
+        let(:klass) do
+          Class.new(described_class) do
+            tool_budget { 3 }
+          end
+        end
+        let(:agent) { klass.new(provider) }
+        let(:tool_budget) { agent.instance_variable_get(:@tool_budget) }
+
+        it "resolves the block against the agent instance" do
+          expect(tool_budget).to eq(3)
+        end
+      end
+
       context "when tools are declared with a block" do
         let(:tool) do
           Class.new(LLM::Tool) do
