@@ -73,6 +73,14 @@ class LLM::Console
     end
 
     ##
+    # Returns true while the buffer has an active row
+    # for the streaming path to replace.
+    # @return [Boolean]
+    def open?
+      !@snapshot.nil?
+    end
+
+    ##
     # @return [void]
     def scroll_up(height)
       max = [rows.size - height, 0].max
@@ -131,7 +139,7 @@ class LLM::Console
     #  One or more chunks.
     # @return [void]
     def replace(chunks)
-      @rows = @snapshot.map(&:dup)
+      @rows = @snapshot ? @snapshot.map(&:dup) : @rows
       chunks.each { wrap(_1, @rows) }
     end
 

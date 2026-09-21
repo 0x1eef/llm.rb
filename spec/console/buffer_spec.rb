@@ -73,6 +73,43 @@ RSpec.describe LLM::Console::Buffer do
     buffer.visible(100).map { |row| row.map { |chunk| chunk[:text] }.join }.reject(&:empty?)
   end
 
+  describe "#open?" do
+    it "returns false before the buffer is opened" do
+      expect(buffer.open?).to be(false)
+    end
+
+    context "when the buffer has been opened" do
+      before { buffer.open }
+
+      it "returns true" do
+        expect(buffer.open?).to be(true)
+      end
+    end
+
+    context "when the buffer has been closed" do
+      before do
+        buffer.open
+        buffer.close
+      end
+
+      it "returns false" do
+        expect(buffer.open?).to be(false)
+      end
+    end
+  end
+
+  describe "#replace" do
+    let(:chunks) { [LLM::Console::Node.new("hi")] }
+
+    context "when the buffer has not been opened" do
+      before { buffer.write(chunks, method: :replace) }
+
+      it "keeps the text instead of raising" do
+        expect(rendered).to include("hi")
+      end
+    end
+  end
+
   describe "spacer row" do
     subject(:rows) { buffer.visible(100).map { |row| row.map { |chunk| chunk[:text] }.join } }
 
