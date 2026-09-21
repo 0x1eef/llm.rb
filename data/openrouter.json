@@ -456,8 +456,8 @@
         "output": 131072
       },
       "cost": {
-        "input": 0.42,
-        "output": 3,
+        "input": 0.2,
+        "output": 2.55,
         "cache_read": 0.085
       }
     },
@@ -1121,8 +1121,8 @@
         "output": 235929
       },
       "cost": {
-        "input": 0.1,
-        "output": 0.9,
+        "input": 0.15,
+        "output": 1,
         "cache_read": 0.05
       }
     },
@@ -2585,7 +2585,7 @@
       },
       "cost": {
         "input": 0.04,
-        "output": 0.08,
+        "output": 0.16,
         "cache_read": 0.016
       }
     },
@@ -2625,12 +2625,12 @@
       "open_weights": false,
       "limit": {
         "context": 1048576,
-        "output": 384000
+        "output": 393216
       },
       "cost": {
-        "input": 0.5742,
-        "output": 1.7226,
-        "cache_read": 0.01914
+        "input": 0.52272,
+        "output": 1.56816,
+        "cache_read": 0.016632
       }
     },
     "~deepseek/deepseek-flash-latest": {
@@ -8352,12 +8352,12 @@
       "open_weights": true,
       "limit": {
         "context": 1048576,
-        "output": 262144
+        "output": 943718
       },
       "cost": {
-        "input": 0.2156,
-        "output": 0.6468,
-        "cache_read": 0.00686
+        "input": 0.22,
+        "output": 0.66,
+        "cache_read": 0.007
       }
     },
     "deepseek/deepseek-v4-pro-0813": {
@@ -8396,12 +8396,12 @@
       "open_weights": true,
       "limit": {
         "context": 1048576,
-        "output": 384000
+        "output": 393216
       },
       "cost": {
-        "input": 0.66,
-        "output": 1.98,
-        "cache_read": 0.022
+        "input": 0.52272,
+        "output": 1.56816,
+        "cache_read": 0.016632
       }
     },
     "deepseek/deepseek-v4-flash-0731": {
@@ -8445,7 +8445,7 @@
       },
       "cost": {
         "input": 0.04,
-        "output": 0.08,
+        "output": 0.16,
         "cache_read": 0.016
       }
     },
@@ -8491,9 +8491,9 @@
         "output": 384000
       },
       "cost": {
-        "input": 0.03668,
-        "output": 0.07336,
-        "cache_read": 0.007336
+        "input": 0.03556,
+        "output": 0.07112,
+        "cache_read": 0.007112
       }
     },
     "deepseek/deepseek-v4.1-flash": {
@@ -13166,7 +13166,7 @@
       "open_weights": false,
       "limit": {
         "context": 1310720,
-        "output": 131072
+        "output": 943718
       },
       "cost": {
         "input": 0.075,
@@ -13210,9 +13210,9 @@
         "output": 131072
       },
       "cost": {
-        "input": 0.8442,
-        "output": 2.6532,
-        "cache_read": 0.15678
+        "input": 0.7728,
+        "output": 2.4288,
+        "cache_read": 0.14352
       }
     },
     "moonshotai/kimi-k2-0905": {
@@ -13851,9 +13851,9 @@
         "output": 128000
       },
       "cost": {
-        "input": 0.132,
-        "output": 0.528,
-        "cache_read": 0.033
+        "input": 0.0825,
+        "output": 0.33,
+        "cache_read": 0.020625
       }
     },
     "tencent/hy4-preview": {
@@ -14650,9 +14650,9 @@
         "output": 131072
       },
       "cost": {
-        "input": 0.896,
-        "output": 2.816,
-        "cache_read": 0.1664
+        "input": 0.91,
+        "output": 2.86,
+        "cache_read": 0.169
       }
     },
     "z-ai/glm-5v-turbo": {
