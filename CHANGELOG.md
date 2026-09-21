@@ -31,6 +31,14 @@
   one trace id. It uses the agent's tracer when it has one, the provider's
   otherwise; previously a provider-wide tracer split one turn across traces.
 
+### Console
+
+* **console: use `AGENTS.md` as the system prompt** <br>
+  `bin/llm.rb` now looks for `AGENTS.md` in the current working directory when
+  it boots, and when the file exists its contents become the agent's
+  instructions for the session. The instructions are injected once, so a
+  resumed session that already has a system message keeps the one it has.
+
 ### Guard
 
 * **guard: remove `LLM::Guard::Loop`** <br>
