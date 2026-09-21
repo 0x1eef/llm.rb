@@ -284,6 +284,11 @@ module LLM
           # UI can repaint. Cap the stream chunks drained per call so
           # read! gives control back to the key loop: leftover chunks
           # stay queued and are drained by the next read!.
+          #
+          # A turn that was cancelled can still have chunks queued, and
+          # they arrive after the buffer is closed. There is no active
+          # row to replace at that point, so they are dropped.
+          next unless buffer.open?
           status.text = think_text if stream.tools.empty?
           write_message name, markdown(value), method: :replace
           burst += 1
@@ -292,7 +297,7 @@ module LLM
           self.status = value
         when :done
           status.text = "idle"
-          write_message name, markdown(value), method: :replace
+          write_message(name, markdown(value), method: :replace) if buffer.open?
           buffer.close
           @thread = nil
         when :cancel
