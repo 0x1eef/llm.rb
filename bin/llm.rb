@@ -194,6 +194,12 @@ def main(argv)
     end
 
     ##
+    # Let's use `AGENTS.md` as the system prompt
+    agent_opts = {}
+    sysprompt  = File.join(Dir.getwd, "AGENTS.md")
+    File.file?(sysprompt) ? agent_opts.merge!(instructions: File.read(sysprompt)) : {}
+
+    ##
     # No provider has been given.
     # Try to infer one.
     transport ||= :net_http
@@ -255,8 +261,9 @@ def main(argv)
     ##
     # Let's go!
     concurrency ||= :sequential
-    path  = temp ? nil : data[Dir.getwd]
-    agent = LLM::Agent.new(llm, model:, path:, concurrency:, tools: LLM::Tool.subclasses)
+    path   = temp ? nil : data[Dir.getwd]
+    params = agent_opts.merge(model:, path:, concurrency:, tools: LLM::Tool.subclasses)
+    agent  = LLM::Agent.new(llm, params)
     agent.console
   rescue Interrupt
     warn "llm.rb: Bye!"
