@@ -23,6 +23,17 @@
   inspected without loading the runtime. They are never read back, and a payload
   without them still loads.
 
+### Provider
+
+* **provider: decide the retry budget on the provider** <br>
+  [`LLM::Provider#retry_budget`](https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#retry_budget-instance_method)
+  returns how many times a rate-limited request is retried before the error is
+  raised, and defaults to 5. An agent that sets no `retry_budget` of its own
+  now takes the budget from its provider instead of special-casing Alibaba, so
+  [`LLM::Alibaba`](https://r.uby.dev/api-docs/llm.rb/LLM/Alibaba.html)
+  still retries 8 times and a provider that recovers from rate limits slowly can
+  return a higher budget. An explicit `retry_budget:` still takes precedence.
+
 ### Agent
 
 * **agent: group a turn's spans into one trace** <br>
@@ -31,6 +42,16 @@
   one trace id. It uses the agent's tracer when it has one, the provider's
   otherwise; previously a provider-wide tracer split one turn across traces.
 
+* **agent: declare `name`, `description`, `path`, and `tool_budget` with a block** <br>
+  A block passed to any of these four class-level setters was previously
+  ignored, because the call was read as a getter. Now
+  [`LLM::Agent.name`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#name-class_method)
+  and [`LLM::Agent.description`](https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#description-class_method)
+  store the block, and an instance resolves it against itself, or against its
+  ORM record when it is bound to one. `name` and `description` also accept a
+  `Symbol` or a `Proc`, and the class-level reader still returns what was
+  configured, so read them on an instance for the resolved string.
+
 ### Console
 
 * **console: use `AGENTS.md` as the system prompt** <br>
@@ -38,6 +59,15 @@
   it boots, and when the file exists its contents become the agent's
   instructions for the session. The instructions are injected once, so a
   resumed session that already has a system message keeps the one it has.
+
+* **console: stop a cancelled turn from crashing the console** <br>
+  A turn cancelled with Esc can still have chunks queued, and they arrive after
+  the buffer that renders them is closed. The streaming path then tried to
+  replace a row that no longer existed and raised.
+  [`LLM::Console::Buffer`](https://r.uby.dev/api-docs/llm.rb/LLM/Console/Buffer.html)
+  now reports whether it has a row to replace through `open?`, the stream drops
+  chunks that arrive for a closed buffer, and `replace` keeps the current text
+  instead of raising.
 
 ### Guard
 
