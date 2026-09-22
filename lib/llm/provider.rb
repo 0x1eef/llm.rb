@@ -256,6 +256,22 @@ class LLM::Provider
   end
 
   ##
+  # Returns the number of times a rate-limited
+  # request is retried before the error is raised.
+  #
+  # Each retry sleeps a growing interval, so a budget
+  # that is exhausted surfaces the rate-limit error
+  # instead of blocking indefinitely. A provider can
+  # return a different budget when its API recovers
+  # from rate limits more slowly.
+  #
+  # @see LLM::Agent#retry_budget
+  # @return [Integer]
+  def retry_budget
+    5
+  end
+
+  ##
   # Returns an object that can generate a JSON schema
   # @return [LLM::Schema]
   def schema

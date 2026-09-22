@@ -1193,3 +1193,28 @@ RSpec.describe LLM::Agent do
     agent.instance_variable_get(:@ctx)
   end
 end
+
+RSpec.describe LLM::Agent, "class-level configuration" do
+  let(:provider) { LLM.openai(key: "test") }
+
+  ##
+  # The class-level reader is the declaration accessor. It returns
+  # what was configured, Symbol and Proc included, because that is
+  # what an instance resolves - resolving or raising there would
+  # break the hand-off that initialize performs.
+  let(:klass) do
+    Class.new(LLM::Agent) do
+      description :described_here
+
+      def described_here = "the agent's own words"
+    end
+  end
+
+  it "hands a Symbol back for an instance to resolve" do
+    expect(klass.description).to eq(:described_here)
+  end
+
+  it "resolves it on the instance" do
+    expect(klass.new(provider).description).to eq("the agent's own words")
+  end
+end

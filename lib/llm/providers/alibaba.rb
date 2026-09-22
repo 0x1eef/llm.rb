@@ -89,5 +89,20 @@ module LLM
     def default_model
       "deepseek-v4-flash-0731"
     end
+
+    ##
+    # Returns the number of times a rate-limited
+    # request is retried.
+    #
+    # Alibaba (token plan) will frequently issue
+    # rate limits or time outs that it recovers from.
+    # The higher retry count is to account for scenarios
+    # where it takes longer than expected to recover.
+    #
+    # @see LLM::Provider#retry_budget
+    # @return [Integer]
+    def retry_budget
+      8
+    end
   end
 end

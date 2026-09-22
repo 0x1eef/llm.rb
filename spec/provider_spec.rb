@@ -189,4 +189,22 @@ RSpec.describe LLM::Provider do
       expect(client).to have_received(:finish).with(connection)
     end
   end
+
+  describe "#retry_budget" do
+    context "with openai" do
+      let(:provider) { LLM.openai(key: "test") }
+
+      it "returns the default budget" do
+        expect(provider.retry_budget).to eq(5)
+      end
+    end
+
+    context "with alibaba" do
+      let(:provider) { LLM.alibaba(key: "test") }
+
+      it "returns a higher budget" do
+        expect(provider.retry_budget).to eq(8)
+      end
+    end
+  end
 end

@@ -102,6 +102,8 @@ module LLM
     #   end
     #
     # @param [Hash] properties
+    # @option properties [String, Symbol, Proc] :name
+    # @option properties [String, Symbol, Proc] :description
     # @option properties [String] :instructions
     # @option properties [String] :model
     # @option properties [Array<LLM::Function>] :tools
@@ -153,6 +155,11 @@ module LLM
 
     ##
     # Set or get an agent's description
+    # @note
+    #  Reading this on the class returns what was configured - a
+    #  Symbol or Proc included - because an instance is what
+    #  resolves those. Read it on an instance for the description
+    #  itself.
     # @note
     #  This method serves as a self-documenting string.
     #  It is optional but recommended.
@@ -430,12 +437,10 @@ module LLM
         end
       end
       ##
-      # Alibaba (token plan) will frequently issue rate
-      # limits or time outs that it recovers from. The
-      # higher retry count is to account for scenarios
-      # where it takes longer than expected to recover.
-      retry_budget = llm.name == :alibaba ? 8 : 5
-      params[:retry_budget] = retry_budget if params[:retry_budget].equal?(UNDEFINED)
+      # The provider decides how patient a turn should be: it
+      # knows its own API, and how often it recovers from a
+      # rate limit rather than failing outright.
+      params[:retry_budget] = llm.retry_budget if params[:retry_budget].equal?(UNDEFINED)
       @ctx = LLM::Context.new(llm, params)
       @path and File.readable?(@path) ? @ctx.restore(path:) : nil
     end
