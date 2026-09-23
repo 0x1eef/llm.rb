@@ -15,6 +15,19 @@
 
 ## What's next
 
+*No unreleased changes yet. Check back after the next release.*
+
+## v15.4.0
+
+Changes since `v15.3.0`.
+
+This release saves token usage with the context state, moves the retry budget
+onto the provider, groups a turn's spans under one trace, and lets an agent
+declare `name`, `description`, `path`, and `tool_budget` with a block. It also
+gives every tracer request an id, adds `LLM::ActiveRecord::Message`, reads
+`AGENTS.md` as the console's system prompt, removes `LLM::Guard::Loop`, and
+refreshes the model registry.
+
 ### Core
 
 * **context: save token usage with the state** <br>
@@ -110,12 +123,16 @@
 
 * **refresh model metadata** <br>
   Update `data/` with current pricing, limits, and capabilities for the
-  Alibaba, Bedrock, DeepInfra, DeepSeek, Mistral, OpenRouter, xAI, and Z.ai
-  registries. Bedrock gains Gemma 4 and more regional Claude Sonnet 4 and
-  GPT-5.6 entries, Z.ai adds `glm-4.6v-flash` and `glm-5.3-flashx`, xAI adds
-  Grok 4.7, and DeepSeek adds a `low` reasoning effort to `deepseek-v4-pro`.
-  DeepInfra reprices Tencent Hy3, and OpenRouter adds the Xiaomi MiMo V2.6 and
-  Nex N2.5 models and drops the deprecated `anthropic/claude-opus-4` entry.
+  Alibaba, Anthropic, Bedrock, DeepInfra, DeepSeek, Mistral, OpenAI,
+  OpenRouter, xAI, and Z.ai registries. Claude Opus 5.5 reaches Anthropic,
+  Bedrock, and OpenRouter, OpenAI adds GPT-6 Sol and GPT-6 Luna, Bedrock adds
+  Gemma 4 and more regional Claude Sonnet 4 and GPT-5.6 entries, and
+  OpenRouter adds the Xiaomi MiMo V2.6, Nex N2.5, Cohere Command A+, and
+  Qwen3.8 Omni Flash models. Z.ai adds `glm-4.6v-flash` and `glm-5.3-flashx`,
+  xAI adds Grok 4.7, DeepSeek adds a `low` reasoning effort to
+  `deepseek-v4-pro` and deprecates `deepseek-v4-flash` and
+  `deepseek-v4-flash-vision-exp`, DeepInfra reprices `tencent/Hy3`, and
+  OpenRouter drops `anthropic/claude-opus-4` and `kwaipilot/kat-coder-pro-v2`.
 
 ## v15.3.0
 
