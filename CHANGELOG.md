@@ -17,6 +17,33 @@
 
 *No unreleased changes yet. Check back after the next release.*
 
+## v15.4.1
+
+Changes since `v15.4.0`.
+
+This release removes the gemspec's post-install message, so installing the gem
+no longer prints the r.uby.dev notice. It also refreshes the model registry
+with current model listings, limits, and pricing.
+
+### Core
+
+* **remove the gemspec post install message** <br>
+  The gemspec no longer sets `post_install_message`, so installing the
+  gem no longer prints the r.uby.dev website notice.
+
+### Registry
+
+* **refresh model metadata** <br>
+  Update `data/` with current model listings, limits, and pricing for the
+  Alibaba, Bedrock, DeepSeek, Google, Moonshot, and OpenRouter registries.
+  Bedrock adds the Kimi K3 and GPT-6 Sol and GPT-6 Luna families in both
+  the global and US regions and raises the context limit to 1M tokens for
+  two models, while Moonshot raises the Kimi K3 output limit to 1M tokens.
+  OpenRouter adds `qwen/qwen3.8-max-prime`, `z-ai/glm-5.3-prime`,
+  `upstage/solar-mini4`, the Aion 3.5 models, and `stealth/space-bunny-alpha`,
+  drops `mistralai/devstral-2512` and a free Ling 3.0 Flash VL entry, and
+  reprices several DeepSeek and Mistral models.
+
 ## v15.4.0
 
 Changes since `v15.3.0`.
