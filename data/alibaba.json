@@ -38,7 +38,7 @@
       "open_weights": false,
       "limit": {
         "context": 1000000,
-        "output": 65536
+        "output": 131072
       },
       "cost": {
         "input": 2.5,
@@ -1848,7 +1848,7 @@
       "open_weights": false,
       "limit": {
         "context": 1000000,
-        "output": 65536
+        "output": 131072
       },
       "cost": {
         "input": 0.5,

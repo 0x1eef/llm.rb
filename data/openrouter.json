@@ -1675,6 +1675,51 @@
         }
       }
     },
+    "qwen/qwen3.8-max-prime": {
+      "id": "qwen/qwen3.8-max-prime",
+      "name": "Qwen3.8 Max Prime",
+      "description": "Qwen vision-language model for visual reasoning, documents, and agent tasks",
+      "family": "qwen3.8-max",
+      "attachment": true,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "minimal",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "release_date": "2026-09-23",
+      "last_updated": "2026-09-23",
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 1000000,
+        "output": 131072
+      },
+      "cost": {
+        "input": 4,
+        "output": 12,
+        "cache_read": 0.5
+      }
+    },
     "qwen/qwen3-30b-a3b": {
       "id": "qwen/qwen3-30b-a3b",
       "name": "Qwen3 30B A3B",
@@ -2189,6 +2234,46 @@
         "cache_read": 0.25
       }
     },
+    "aion-labs/aion-3.5": {
+      "id": "aion-labs/aion-3.5",
+      "name": "Aion 3.5",
+      "description": "Reasoning model for deliberate analysis, multi-step problem solving, and tool use",
+      "attachment": false,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": false,
+      "temperature": true,
+      "release_date": "2026-09-23",
+      "last_updated": "2026-09-23",
+      "modalities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 262144,
+        "output": 32768
+      },
+      "cost": {
+        "input": 3,
+        "output": 6,
+        "cache_read": 0.75
+      }
+    },
     "aion-labs/aion-2.0": {
       "id": "aion-labs/aion-2.0",
       "name": "Aion-2.0",
@@ -2280,6 +2365,46 @@
         "input": 3,
         "output": 6,
         "cache_read": 0.75
+      }
+    },
+    "aion-labs/aion-3.5-mini": {
+      "id": "aion-labs/aion-3.5-mini",
+      "name": "Aion 3.5 Mini",
+      "description": "Efficient model for low-latency assistance, extraction, and routine automation",
+      "attachment": false,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": false,
+      "temperature": true,
+      "release_date": "2026-09-23",
+      "last_updated": "2026-09-23",
+      "modalities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 262144,
+        "output": 32768
+      },
+      "cost": {
+        "input": 0.7,
+        "output": 1.4,
+        "cache_read": 0.18
       }
     },
     "aion-labs/aion-3.0-mini": {
@@ -2623,9 +2748,9 @@
         "output": 943718
       },
       "cost": {
-        "input": 0.03,
-        "output": 0.8,
-        "cache_read": 0.008
+        "input": 0.038,
+        "output": 0.55,
+        "cache_read": 0.0228
       }
     },
     "~deepseek/deepseek-pro-latest": {
@@ -2664,12 +2789,12 @@
       "open_weights": false,
       "limit": {
         "context": 1048576,
-        "output": 384000
+        "output": 393216
       },
       "cost": {
-        "input": 0.4,
-        "output": 4.3,
-        "cache_read": 0.033
+        "input": 0.38544,
+        "output": 1.15632,
+        "cache_read": 0.012264
       }
     },
     "~deepseek/deepseek-flash-latest": {
@@ -2712,9 +2837,9 @@
         "output": 943718
       },
       "cost": {
-        "input": 0.1,
-        "output": 0.5,
-        "cache_read": 0.01
+        "input": 0.099,
+        "output": 0.6,
+        "cache_read": 0.06
       }
     },
     "dots-studio/dots-3-note-preview:free": {
@@ -3280,39 +3405,6 @@
         "output": 7.5
       }
     },
-    "mistralai/devstral-2512": {
-      "id": "mistralai/devstral-2512",
-      "name": "Devstral 2",
-      "description": "Mistral coding agent model for repository tasks and software engineering workflows",
-      "family": "devstral",
-      "attachment": true,
-      "reasoning": false,
-      "tool_call": true,
-      "structured_output": true,
-      "temperature": true,
-      "knowledge": "2025-12",
-      "release_date": "2025-12-09",
-      "last_updated": "2025-12-09",
-      "modalities": {
-        "input": [
-          "text",
-          "pdf"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": true,
-      "limit": {
-        "context": 262144,
-        "output": 209715
-      },
-      "cost": {
-        "input": 0.4,
-        "output": 2,
-        "cache_read": 0.04
-      }
-    },
     "mistralai/mistral-large-2407": {
       "id": "mistralai/mistral-large-2407",
       "name": "Mistral Large 2407",
@@ -3760,21 +3852,20 @@
       "tool_call": true,
       "structured_output": true,
       "temperature": true,
-      "knowledge": "2026-09-22",
       "release_date": "2026-09-22",
       "last_updated": "2026-09-22",
       "modalities": {
         "input": [
           "text",
           "image",
-          "video",
-          "audio"
+          "audio",
+          "video"
         ],
         "output": [
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 1048576,
         "output": 131072
@@ -3806,14 +3897,14 @@
         "input": [
           "text",
           "image",
-          "video",
-          "audio"
+          "audio",
+          "video"
         ],
         "output": [
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 1048576,
         "output": 131072
@@ -3839,21 +3930,20 @@
       "tool_call": true,
       "structured_output": true,
       "temperature": true,
-      "knowledge": "2026-09-22",
       "release_date": "2026-09-22",
       "last_updated": "2026-09-22",
       "modalities": {
         "input": [
           "text",
           "image",
-          "video",
-          "audio"
+          "audio",
+          "video"
         ],
         "output": [
           "text"
         ]
       },
-      "open_weights": false,
+      "open_weights": true,
       "limit": {
         "context": 1048576,
         "output": 131072
@@ -4319,10 +4409,10 @@
       "open_weights": true,
       "limit": {
         "context": 262144,
-        "output": 235929
+        "output": 131072
       },
       "cost": {
-        "input": 0.07,
+        "input": 0.08,
         "output": 0.2,
         "cache_read": 0.04
       }
@@ -8421,8 +8511,8 @@
         "output": 943718
       },
       "cost": {
-        "input": 1.05,
-        "output": 13,
+        "input": 1.4989,
+        "output": 10.758,
         "cache_read": 0.3
       }
     },
@@ -8618,9 +8708,9 @@
         "output": 384000
       },
       "cost": {
-        "input": 1.32,
-        "output": 3.96,
-        "cache_read": 0.044
+        "input": 0.462,
+        "output": 1.386,
+        "cache_read": 0.0154
       }
     },
     "deepseek/deepseek-v4-flash-0731": {
@@ -8710,9 +8800,9 @@
         "output": 384000
       },
       "cost": {
-        "input": 0.088606,
-        "output": 0.177212,
-        "cache_read": 0.017721
+        "input": 0.07168,
+        "output": 0.14336,
+        "cache_read": 0.014336
       }
     },
     "deepseek/deepseek-v4.1-flash": {
@@ -8753,12 +8843,12 @@
       "open_weights": true,
       "limit": {
         "context": 1048576,
-        "output": 943718
+        "output": 393216
       },
       "cost": {
-        "input": 0.1,
-        "output": 0.5,
-        "cache_read": 0.01
+        "input": 0.15,
+        "output": 0.6,
+        "cache_read": 0.003
       }
     },
     "deepseek/deepseek-r1": {
@@ -9045,9 +9135,9 @@
         "output": 384000
       },
       "cost": {
-        "input": 0.95526,
-        "output": 1.91052,
-        "cache_read": 0.079605
+        "input": 0.946386,
+        "output": 1.892772,
+        "cache_read": 0.078866
       }
     },
     "deepseek/deepseek-chat-v3-0324": {
@@ -9696,43 +9786,6 @@
         "output": 0
       }
     },
-    "inclusionai/ling-3.0-flash-vl:free": {
-      "id": "inclusionai/ling-3.0-flash-vl:free",
-      "name": "Ling 3.0 Flash VL (free)",
-      "description": "Multimodal reasoning model for visual analysis, planning, and tool use",
-      "family": "ling",
-      "attachment": true,
-      "reasoning": true,
-      "reasoning_options": [
-        {
-          "type": "toggle"
-        }
-      ],
-      "tool_call": true,
-      "structured_output": false,
-      "temperature": true,
-      "release_date": "2026-09-10",
-      "last_updated": "2026-09-10",
-      "modalities": {
-        "input": [
-          "text",
-          "image",
-          "video"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "open_weights": true,
-      "limit": {
-        "context": 262144,
-        "output": 32768
-      },
-      "cost": {
-        "input": 0,
-        "output": 0
-      }
-    },
     "inclusionai/ling-3.0-flash-vl": {
       "id": "inclusionai/ling-3.0-flash-vl",
       "name": "Ling 3.0 Flash VL",
@@ -9762,7 +9815,7 @@
       },
       "open_weights": true,
       "limit": {
-        "context": 131072,
+        "context": 262144,
         "output": 32768
       },
       "cost": {
@@ -13753,9 +13806,9 @@
         "output": 131072
       },
       "cost": {
-        "input": 0.5625,
-        "output": 2.5,
-        "cache_read": 0.125
+        "input": 0.5614,
+        "output": 1.7644,
+        "cache_read": 0.10426
       }
     },
     "moonshotai/kimi-k2-0905": {
@@ -14362,6 +14415,51 @@
         "cache_read": 0.018
       }
     },
+    "upstage/solar-mini4": {
+      "id": "upstage/solar-mini4",
+      "name": "Solar Mini 4",
+      "description": "Efficient model for low-latency assistance, extraction, and routine automation",
+      "family": "solar",
+      "attachment": false,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "none",
+            "minimal",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "release_date": "2026-09-23",
+      "last_updated": "2026-09-23",
+      "modalities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 524288,
+        "output": 131072
+      },
+      "cost": {
+        "input": 0.05,
+        "output": 0.2,
+        "cache_read": 0.005
+      }
+    },
     "arcee-ai/trinity-large-thinking": {
       "id": "arcee-ai/trinity-large-thinking",
       "name": "Trinity Large Thinking",
@@ -14431,9 +14529,9 @@
         "output": 128000
       },
       "cost": {
-        "input": 0.132,
-        "output": 0.528,
-        "cache_read": 0.033
+        "input": 0.0825,
+        "output": 0.33,
+        "cache_read": 0.020625
       }
     },
     "tencent/hy4-preview": {
@@ -14914,7 +15012,7 @@
       "cost": {
         "input": 0.37,
         "output": 1.25,
-        "cache_read": 0.075
+        "cache_read": 0.09
       }
     },
     "z-ai/glm-5.3-flash": {
@@ -15153,6 +15251,47 @@
         "input": 0.966,
         "output": 3.036,
         "cache_read": 0.1794
+      }
+    },
+    "z-ai/glm-5.3-prime": {
+      "id": "z-ai/glm-5.3-prime",
+      "name": "GLM 5.3 Prime",
+      "description": "Flagship GLM model for hybrid reasoning, coding, and agentic engineering",
+      "family": "glm",
+      "attachment": false,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": false,
+      "temperature": true,
+      "release_date": "2026-09-23",
+      "last_updated": "2026-09-23",
+      "modalities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 1000000,
+        "output": 131072
+      },
+      "cost": {
+        "input": 2.8,
+        "output": 8.8,
+        "cache_read": 0.56
       }
     },
     "z-ai/glm-5-turbo": {
@@ -15571,6 +15710,50 @@
       "cost": {
         "input": 0.1,
         "output": 0.2
+      }
+    },
+    "stealth/space-bunny-alpha": {
+      "id": "stealth/space-bunny-alpha",
+      "name": "Space Bunny Alpha",
+      "description": "Multimodal reasoning model for visual analysis, planning, and tool use",
+      "family": "alpha",
+      "attachment": true,
+      "reasoning": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "tool_call": true,
+      "structured_output": false,
+      "temperature": true,
+      "release_date": "2026-09-23",
+      "last_updated": "2026-09-23",
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "open_weights": false,
+      "limit": {
+        "context": 1000000,
+        "output": 524288
+      },
+      "cost": {
+        "input": 0,
+        "output": 0
       }
     }
   }
