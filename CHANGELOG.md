@@ -110,10 +110,12 @@
 
 * **refresh model metadata** <br>
   Update `data/` with current pricing, limits, and capabilities for the
-  Alibaba, Bedrock, DeepInfra, Mistral, OpenRouter, xAI, and Z.ai registries.
-  Bedrock gains Gemma 4 and more regional Claude Sonnet 4 and GPT-5.6 entries,
-  Z.ai adds `glm-5.3-flashx` and reprices `glm-5.3-flash`, and xAI drops the
-  two Grok Imagine image models.
+  Alibaba, Bedrock, DeepInfra, DeepSeek, Mistral, OpenRouter, xAI, and Z.ai
+  registries. Bedrock gains Gemma 4 and more regional Claude Sonnet 4 and
+  GPT-5.6 entries, Z.ai adds `glm-4.6v-flash` and `glm-5.3-flashx`, xAI adds
+  Grok 4.7, and DeepSeek adds a `low` reasoning effort to `deepseek-v4-pro`.
+  DeepInfra reprices Tencent Hy3, and OpenRouter adds the Xiaomi MiMo V2.6 and
+  Nex N2.5 models and drops the deprecated `anthropic/claude-opus-4` entry.
 
 ## v15.3.0
 
