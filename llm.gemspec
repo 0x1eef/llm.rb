@@ -34,12 +34,6 @@ DESCRIPTION
   ]
   spec.executables = ["llm.rb"]
   spec.require_paths = ["lib"]
-  spec.post_install_message = "\n" \
-                              "Want to see what I'm building with llm.rb? " \
-                              "\n" \
-                              "Checkout the https://r.uby.dev website." \
-                              "\n\n"
-
   spec.add_development_dependency "webmock", "~> 3.24.0"
   spec.add_development_dependency "yard", "~> 0.9.37"
   spec.add_development_dependency "redcarpet", "~> 3.6"

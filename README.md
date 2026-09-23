@@ -19,10 +19,13 @@ on CRuby. It has zero runtime dependencies by default, supports
 concurrent and parallel tool execution and has a single coherent API
 that spans 14+ providers.
 
-The most effective way to learn about llm.rb is to ask [the r.uby.dev chatbot](https://r.uby.dev)
-a question. It is connected to the llm.rb GitHub repository, backed by
-ActiveRecord and uses the builtin MCP feature to connect to GitHub. The chatbot
-is an llm.rb agent that is deployed with [roda-llm](https://github.com/r-uby-dev/roda-llm#readme).
+It is possible to see llm.rb in action on the
+[the r.uby.dev website](https://r.uby.dev) where
+I am working on building an agentic platform that
+users can use to manage multiple agents that are
+specialized in different areas, and have access to
+different services (eg GitHub, etc). Check it out if
+curious. Still in early development.
 
 ## Install
 
@@ -361,9 +364,6 @@ The runtime includes first-class support for both ActiveRecord / Sequel, and
 for both Rack-based / Rails-based applications. On databases
 where it is supported, such as PostgreSQL, the column can be optimized by using
 the `jsonb` type.
-
-The following example is based on the agent used to power the
-[r.uby.dev chatbot](https://r.uby.dev).
 
 ```ruby
 require "active_record"
@@ -1030,10 +1030,8 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"
 <summary>Where can I see llm.rb in action?</summary>
 <br>
 
-The [r.uby.dev](https://r.uby.dev) website deploys
-multiple llm.rb agents that guests can interact with
-and there is even an agent that is connected to this
-GitHub repository.
+The [r.uby.dev](https://r.uby.dev) website.
+
 </details>
 <details>
 <summary>What about local LLM support?</summary>
