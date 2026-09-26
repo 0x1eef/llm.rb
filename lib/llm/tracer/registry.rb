@@ -40,19 +40,21 @@ class LLM::Tracer
     # told after the lock is released: a tracer that calls back into the
     # provider from `on_exit` would otherwise deadlock against itself.
     #
-    # An `exit` without a matching `enter` is clamped at zero rather than
-    # allowed to take the count negative.
+    # An `exit` without a matching `enter` is ignored: no scope is open,
+    # so there is nothing to end, and the tracer is not told it is
+    # finished when no scope was holding it.
     # @param [LLM::Tracer] tracer
     # @return [void]
     def exit(tracer)
       last = @mutex.synchronize do
-        remaining = count(tracer) - 1
-        remaining = 0 if remaining < 0
-        if remaining.zero?
+        open = count(tracer)
+        if open.zero?
+          false
+        elsif open == 1
           forget(tracer)
           true
         else
-          @counts[tracer] = remaining
+          @counts[tracer] = open - 1
           false
         end
       end
