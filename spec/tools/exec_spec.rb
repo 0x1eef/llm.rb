@@ -60,7 +60,7 @@ RSpec.describe LLM::Tool::Exec do
 
       it "returns the command output" do
         expect(tool.call(arguments: ["echo", "hi"])).to eq(
-          ok: true, stdout: "hi\n", stderr: ""
+          ok: true, stdout: "hi\n", stderr: "", duration: "0.0 seconds"
         )
       end
     end
@@ -89,7 +89,24 @@ RSpec.describe LLM::Tool::Exec do
       let(:arguments) { ["echo", "hello world"] }
 
       it "captures fixed stdout" do
-        expect(result).to eq(ok: true, stdout: "hello world\n", stderr: "")
+        expect(result).to include(ok: true, stdout: "hello world\n", stderr: "")
+      end
+
+      it "reports how long the command ran" do
+        expect(result[:duration]).to match(/\A\d+\.\d seconds\z/)
+      end
+
+      it "reports a sub-second command as a fraction" do
+        expect(result[:duration].to_f).to be < 1
+      end
+    end
+
+    context "given sleep" do
+      let(:arguments) { ["sleep", "1"] }
+      let(:seconds) { result[:duration].to_f }
+
+      it "measures how long the command ran" do
+        expect(seconds).to be >= 1
       end
     end
 
@@ -109,7 +126,7 @@ RSpec.describe LLM::Tool::Exec do
       let(:arguments) { ["sh", "-c", "echo oops >&2"] }
 
       it "captures fixed stderr" do
-        expect(result).to eq(ok: true, stdout: "", stderr: "oops\n")
+        expect(result).to include(ok: true, stdout: "", stderr: "oops\n")
       end
     end
 
@@ -142,7 +159,7 @@ RSpec.describe LLM::Tool::Exec do
       let(:arguments) { ["sh", "-c", "printf %s \"$EXEC_SPEC_FOO\""] }
 
       it "sets environment for the spawned command" do
-        expect(result).to eq(ok: true, stdout: "bar", stderr: "")
+        expect(result).to include(ok: true, stdout: "bar", stderr: "")
       end
     end
 

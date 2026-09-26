@@ -54,7 +54,8 @@ class LLM::Tool
     #  the max number of bytes to emit
     # @return [Hash]
     def call(arguments: [], timeout: 60, max_bytes: self.class.max_bytes)
-      name = arguments[0]
+      startat = now
+      name    = arguments[0]
       command = spawn(name:, arguments: arguments[1..], env:, max_bytes:)
       wait(command:, timeout:)
       if command.not_found?
@@ -62,7 +63,8 @@ class LLM::Tool
       else
         {ok: command.success?,
         stdout: truncate(command.stdout, max_bytes:),
-        stderr: truncate(command.stderr, max_bytes:)}
+        stderr: truncate(command.stderr, max_bytes:),
+        duration: "#{(now - startat).round(1)} seconds"}
       end
     rescue LLM::Interrupt
       command.kill! if command&.running?
@@ -72,5 +74,11 @@ class LLM::Tool
     private
 
     attr_reader :env
+
+    ##
+    # @return [Float]
+    def now
+      Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    end
   end
 end

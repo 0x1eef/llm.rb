@@ -42,7 +42,7 @@ RSpec.describe LLM::Tool::Bundle do
 
     it "runs the command through bundle exec" do
       expect(tool.call(arguments: ["exec", "ruby", "-e", "puts 123"], timeout: 60))
-        .to eq(ok: true, stdout: "123\n", stderr: "")
+        .to include(ok: true, stdout: "123\n", stderr: "")
     end
 
     context "when BUNDLE_GEMFILE is set" do

@@ -38,7 +38,7 @@ RSpec.describe LLM::Tool::Git do
 
     it "lists branches" do
       res = tool.call(arguments: ["branch"])
-      expect(res).to eq(ok: true, stdout: "* main\n", stderr: "")
+      expect(res).to include(ok: true, stdout: "* main\n", stderr: "")
     end
 
     it "shows the log" do
