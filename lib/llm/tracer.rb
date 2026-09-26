@@ -20,7 +20,9 @@ module LLM
     # @api private
     # @return [LLM::Tracer::Registry]
     def self.registry
-      @registry ||= Registry.new
+      LLM.lock(:registry) do
+        @registry ||= Registry.new
+      end
     end
 
     ##
