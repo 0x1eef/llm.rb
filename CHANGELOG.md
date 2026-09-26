@@ -15,7 +15,14 @@
 
 ## What's next
 
-*No unreleased changes yet. Check back after the next release.*
+### Tools
+
+* **tools: report how long a command ran** <br>
+  [`LLM::Tool::Exec#call`](https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Exec.html#call-instance_method)
+  now includes a `duration` field in its result, a string such as `"0.4 seconds"`
+  that reports how long the command took. The tools that route through `exec`
+  (`git`, `rg`, `mkdir`, `ruby`, and `bundle`) return it as well. A command that
+  was not found still returns the error hash, which has no `duration`.
 
 ## v15.4.1
 
