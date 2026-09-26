@@ -13,6 +13,37 @@ module LLM
     require_relative "tracer/telemetry"
     require_relative "tracer/null"
     require_relative "tracer/pretty_logger"
+    require_relative "tracer/registry"
+
+    ##
+    # Returns the registry that counts the open scopes for each tracer.
+    # @api private
+    # @return [LLM::Tracer::Registry]
+    def self.registry
+      @registry ||= Registry.new
+    end
+
+    ##
+    # Records that a scope was opened for a tracer.
+    # @api private
+    # @see LLM::Tracer::Registry#enter
+    # @param [LLM::Tracer] tracer
+    # @return [LLM::Tracer::Registry]
+    #  Returns the registry, so a caller can tell the scope was recorded
+    def self.enter(tracer)
+      registry.enter(tracer)
+    end
+
+    ##
+    # Records that a scope was closed for a tracer, and tells the tracer
+    # it is finished when it was the last one that was open.
+    # @api private
+    # @see LLM::Tracer::Registry#exit
+    # @param [LLM::Tracer] tracer
+    # @return [void]
+    def self.exit(tracer)
+      registry.exit(tracer)
+    end
 
     ##
     # Builds a {LLM::Tracer::PrettyLogger} for a provider.
@@ -68,9 +99,17 @@ module LLM
     # releases it here. The default does nothing, because most tracers hold
     # nothing that needs releasing.
     #
-    # It may be called more than once, and an implementation has to be
-    # idempotent: nesting means an inner scope can end while an outer one is
-    # still running.
+    # It is called once, when the last scope that is open for this tracer
+    # ends, and that scope can have been opened by another thread: a tool
+    # runs on a thread of its own and scopes the turn's tracer while it
+    # does. It is called after the scoped lookup is restored, so a tracer
+    # that reads {LLM::Provider#tracer} inside it sees the tracer that the
+    # next request will see.
+    #
+    # A tracer can be scoped again afterwards, on a later turn, so it has
+    # to stay usable after this call, and it has to tolerate the call
+    # happening more than once over its life.
+    # @see LLM::Tracer::Registry
     # @see LLM::Provider#with_tracer
     # @return [void]
     def on_exit

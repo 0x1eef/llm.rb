@@ -1193,6 +1193,27 @@ RSpec.describe LLM::Agent do
       it "releases the tracer once, at the end of the turn" do
         expect(exits.size).to eq(1)
       end
+
+      context "when the tool runs on another thread" do
+        let(:agent) do
+          described_class.new(provider, model: "gpt-5.4", tracer:, tools:, concurrency: :thread)
+        end
+        let(:resource) { [] }
+        let(:writes) { [] }
+        let(:tracer) do
+          resource = self.resource
+          writes = self.writes
+          Class.new(LLM::Tracer::Null) do
+            define_method(:on_tool_start) { |**_opts| resource << :resource; :span }
+            define_method(:on_tool_finish) { |**_opts| writes << (resource.empty? ? :lost : :written) }
+            define_method(:on_exit) { resource.clear }
+          end.new(provider)
+        end
+
+        it "keeps the tracer's resource until the turn ends" do
+          expect(writes).to eq([:written])
+        end
+      end
     end
   end
 

@@ -156,6 +156,16 @@ Three more hooks cover a local tool call. `on_tool_start` fires before
 the tool runs and returns the span that `on_tool_finish` and
 `on_tool_error` receive.
 
+A tracer's own lifetime is bracketed as well. `on_exit` fires once,
+when the last scope that is open for that tracer ends. That scope can
+belong to a different thread than the one that opened the first: a tool
+runs on a thread of its own and scopes the turn's tracer while it does.
+`on_exit` is called after the scoped lookup has been restored, so a
+tracer that asks its provider for the current tracer from inside it
+sees the tracer the next request will see. A tracer can be scoped again
+afterwards, so it has to remain usable after `on_exit`, and `on_exit`
+may be called more than once over its life.
+
 A turn is additionally bracketed with `start_trace` and `stop_trace`.
 The runtime calls them around every agent turn with a `trace_group_id`,
 and a tracer that supports it (such as

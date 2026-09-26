@@ -432,21 +432,20 @@ class LLM::Provider
     had_override = wm.key?(self)
     previous = wm[self]
     wm[self] = scoped
+    entered = LLM::Tracer.enter(scoped)
     yield
   ensure
     if had_override
       wm[self] = previous
     else
-      ##
-      # The scope this tracer was opened for is over.
-      #
-      # Only on the way out of the outermost `with_tracer`: when one
-      # override was already in place, this tracer is still in use by
-      # whatever opened that one, and ending it here would take a
-      # resource out from under a caller that is still writing.
-      scoped.on_exit
       wm.respond_to?(:delete) ? wm.delete(self) : wm[self] = nil
     end
+    ##
+    # The scope this tracer was opened for is over, and the tracer is
+    # told so when the last one that is open for it ends - on whichever
+    # thread that happens, because a tool opens a scope of its own for
+    # the turn's tracer.
+    LLM::Tracer.exit(scoped) if entered
   end
 
   ##

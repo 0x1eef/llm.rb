@@ -192,34 +192,72 @@ RSpec.describe LLM::Provider do
 
   describe "#with_tracer" do
     let(:provider) { LLM.openai(key: "test") }
-    let(:exits) { [] }
+    let(:events) { [] }
     let(:tracer) do
-      exits = self.exits
-      Class.new(LLM::Tracer) do
-        define_method(:on_exit) { exits << :exit }
+      events = self.events
+      Class.new(LLM::Tracer::Null) do
+        define_method(:on_exit) { events << :exit }
       end.new(provider)
     end
+    let(:gate) { Queue.new }
+    let(:opened) { Queue.new }
 
     context "when the same tracer is scoped twice" do
       before do
         provider.with_tracer(tracer) do
-          provider.with_tracer(tracer) { nil }
+          provider.with_tracer(tracer) { events << :inner }
         end
       end
 
-      it "calls on_exit once, on the way out of the outermost scope" do
-        expect(exits.size).to eq(1)
+      it "ends the tracer once, on the way out of the outermost scope" do
+        expect(events).to eq([:inner, :exit])
       end
     end
 
     context "when the tracer is scoped for a second turn" do
       before do
-        provider.with_tracer(tracer) { nil }
-        provider.with_tracer(tracer) { nil }
+        provider.with_tracer(tracer) { events << :first }
+        provider.with_tracer(tracer) { events << :second }
       end
 
-      it "calls on_exit for each scope" do
-        expect(exits.size).to eq(2)
+      it "ends the tracer once per turn" do
+        expect(events).to eq([:first, :exit, :second, :exit])
+      end
+    end
+
+    context "when a scope is opened on another thread" do
+      before do
+        provider.with_tracer(tracer) do
+          Thread.new { provider.with_tracer(tracer) { events << :other_thread } }.join
+          events << :outer
+        end
+      end
+
+      it "ends the tracer after the outer scope, not the other thread's" do
+        expect(events).to eq([:other_thread, :outer, :exit])
+      end
+    end
+
+    context "when the outer scope exits before the other thread's" do
+      before do
+        thread = Thread.new do
+          provider.with_tracer(tracer) do
+            ##
+            # The scope is open before the thread holds it: the outer
+            # scope below must be the one that ends it, or neither.
+            opened << :open
+            gate.pop
+            events << :other_thread
+          end
+        end
+        opened.pop
+        provider.with_tracer(tracer) { events << :outer }
+        gate << :go
+        thread.join
+      end
+
+      it "ends the tracer when the last scope exits" do
+        expect(events).to eq([:outer, :other_thread, :exit])
       end
     end
   end

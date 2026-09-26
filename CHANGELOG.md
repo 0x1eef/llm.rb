@@ -24,6 +24,18 @@
   (`git`, `rg`, `mkdir`, `ruby`, and `bundle`) return it as well. A command that
   was not found still returns the error hash, which has no `duration`.
 
+### Tracers
+
+* **tracer: call `on_exit` once, when the last scope ends** <br>
+  [`LLM::Tracer#on_exit`](https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html#on_exit-instance_method)
+  is a new hook, called once when the last scope that is open for a tracer
+  ends. A tracer that holds a connection, a file, or a span releases it here.
+  The count of open scopes belongs to the tracer rather than to the thread that
+  opened one, because a tool runs on a thread of its own and scopes the turn's
+  tracer while it does. Before this, a tool's scope looked like the outermost
+  one: a tracer that released its resource in `on_exit` lost it in the middle
+  of the turn, and the rest of the trace was written without it.
+
 ## v15.4.1
 
 Changes since `v15.4.0`.
