@@ -190,6 +190,40 @@ RSpec.describe LLM::Provider do
     end
   end
 
+  describe "#with_tracer" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:exits) { [] }
+    let(:tracer) do
+      exits = self.exits
+      Class.new(LLM::Tracer) do
+        define_method(:on_exit) { exits << :exit }
+      end.new(provider)
+    end
+
+    context "when the same tracer is scoped twice" do
+      before do
+        provider.with_tracer(tracer) do
+          provider.with_tracer(tracer) { nil }
+        end
+      end
+
+      it "calls on_exit once, on the way out of the outermost scope" do
+        expect(exits.size).to eq(1)
+      end
+    end
+
+    context "when the tracer is scoped for a second turn" do
+      before do
+        provider.with_tracer(tracer) { nil }
+        provider.with_tracer(tracer) { nil }
+      end
+
+      it "calls on_exit for each scope" do
+        expect(exits.size).to eq(2)
+      end
+    end
+  end
+
   describe "#retry_budget" do
     context "with openai" do
       let(:provider) { LLM.openai(key: "test") }

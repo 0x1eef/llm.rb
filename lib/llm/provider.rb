@@ -396,9 +396,18 @@ class LLM::Provider
   # Set the provider's default tracer
   # This tracer is shared by the provider instance and becomes the fallback
   # whenever no scoped override is active.
+  #
+  # A tracer assigned this way is not scoped, so nothing declares when it
+  # is finished and {LLM::Tracer#on_exit} never fires for it. Release what
+  # it holds when the provider is done with, or scope it with
+  # {#with_tracer} instead.
+  #
   # @example
   #   llm = LLM.openai(key: ENV["KEY"])
   #   llm.tracer = LLM::Tracer.logger(llm, path: "/path/to/log.txt")
+  #   llm.with_tracer(llm.tracer) do
+  #     # ...
+  #   end
   # @param [LLM::Tracer] tracer
   #  A tracer
   # @return [void]
@@ -418,18 +427,25 @@ class LLM::Provider
   # @yield
   # @return [Object]
   def with_tracer(tracer)
+    scoped = tracer || LLM::Tracer::Null.new(self)
     wm = weakmaps.tracer
     had_override = wm.key?(self)
     previous = wm[self]
-    wm[self] = tracer || LLM::Tracer::Null.new(self)
+    wm[self] = scoped
     yield
   ensure
     if had_override
       wm[self] = previous
-    elsif wm.respond_to?(:delete)
-      wm.delete(self)
     else
-      wm[self] = nil
+      ##
+      # The scope this tracer was opened for is over.
+      #
+      # Only on the way out of the outermost `with_tracer`: when one
+      # override was already in place, this tracer is still in use by
+      # whatever opened that one, and ending it here would take a
+      # resource out from under a caller that is still writing.
+      scoped.on_exit
+      wm.respond_to?(:delete) ? wm.delete(self) : wm[self] = nil
     end
   end
 

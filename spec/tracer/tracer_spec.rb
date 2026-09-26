@@ -29,6 +29,12 @@ RSpec.describe LLM::Tracer do
     end
   end
 
+  describe "#on_exit" do
+    it "returns nil" do
+      expect(tracer.on_exit).to be_nil
+    end
+  end
+
   describe "#on_request_start" do
     it "raises NotImplementedError" do
       expect {

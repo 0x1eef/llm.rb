@@ -222,7 +222,7 @@ RSpec.describe LLM::Skill do
       it "passes the function tracer back to the skill" do
         provider = LLM.openai(key: "test")
         ctx = LLM::Context.new(provider, model: "gpt-5.4-mini", stream:)
-        tracer = double("tracer", llm: provider, on_tool_start: nil, on_tool_finish: nil, on_tool_error: nil)
+        tracer = double("tracer", llm: provider, on_tool_start: nil, on_tool_finish: nil, on_tool_error: nil, on_exit: nil)
         tool = skill.to_tool(ctx)
         function = tool.function.dup.tap do |fn|
           fn.id = "call_1"

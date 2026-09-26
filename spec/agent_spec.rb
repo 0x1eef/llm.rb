@@ -1147,6 +1147,55 @@ RSpec.describe LLM::Agent do
     include_examples "agent behavior"
   end
 
+  describe "tracer lifecycle" do
+    let(:provider) { LLM.openai(key: "test") }
+    let(:responses) { provider.responses }
+    let(:response) { response!(choices: [LLM::Message.new("assistant", "hi")]) }
+    let(:exits) { [] }
+    let(:tracer) do
+      exits = self.exits
+      Class.new(LLM::Tracer::Null) do
+        define_method(:on_exit) { exits << :exit }
+      end.new(provider)
+    end
+    let(:tools) { [] }
+    let(:agent) { described_class.new(provider, model: "gpt-5.4", tracer:, tools:) }
+    let(:returns) { [response] }
+
+    before do
+      allow(provider).to receive(:responses).and_return(responses)
+      allow(responses).to receive(:create).and_return(*returns)
+      agent.talk("hello")
+    end
+
+    it "releases the tracer once, at the end of the turn" do
+      expect(exits.size).to eq(1)
+    end
+
+    context "when the turn runs a tool" do
+      let(:tool) do
+        Class.new(LLM::Tool) do
+          name "echo"
+          description "Echo a value"
+          param :value, String, "Value", required: true
+          def call(value:) = {value:}
+        end
+      end
+      let(:tools) { [tool] }
+      let(:tool_call) do
+        response!(choices: [LLM::Message.new("assistant", nil, {
+          tools: [tool],
+          tool_calls: [{id: "call_1", name: "echo", arguments: {"value" => "hi"}}]
+        })])
+      end
+      let(:returns) { [tool_call, response] }
+
+      it "releases the tracer once, at the end of the turn" do
+        expect(exits.size).to eq(1)
+      end
+    end
+  end
+
   ##
   # Runs the agent's tool loop for the seeded pending function.
   # @return [Array<LLM::Function::Return>]

@@ -16,10 +16,11 @@ RSpec.describe LLM::Provider do
   end
 
   let(:tracer) do
-    Class.new do
+    Class.new(LLM::Tracer) do
       attr_reader :finishes
 
-      def initialize
+      def initialize(provider = nil)
+        super
         @finishes = []
       end
 

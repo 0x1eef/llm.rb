@@ -62,6 +62,21 @@ module LLM
     end
 
     ##
+    # Called when the tracer is no longer in use.
+    #
+    # A tracer that holds something - a file, a span, a connection pool -
+    # releases it here. The default does nothing, because most tracers hold
+    # nothing that needs releasing.
+    #
+    # It may be called more than once, and an implementation has to be
+    # idempotent: nesting means an inner scope can end while an outer one is
+    # still running.
+    # @see LLM::Provider#with_tracer
+    # @return [void]
+    def on_exit
+    end
+
+    ##
     # Called before an LLM provider request is executed.
     # @param [String] operation
     # @param [String] model
